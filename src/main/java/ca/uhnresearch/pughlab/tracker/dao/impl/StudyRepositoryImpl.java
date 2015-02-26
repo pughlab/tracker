@@ -11,7 +11,9 @@ import com.mysema.query.sql.SQLQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
+import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QStudies.studies;
+import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QViews.views;
 
 public class StudyRepositoryImpl implements StudyRepository {
@@ -91,4 +93,24 @@ public class StudyRepositoryImpl implements StudyRepository {
     	
     	return view;
 	}
+
+    /**
+     * Returns a list of all the attributes for a given view. 
+     * @param study
+     * @param view
+     * @return
+     */
+	public List<Attributes> getViewAttributes(Studies study, Views view) {
+		logger.debug("Looking for view attributes");
+		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
+    	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
+    	    .innerJoin(views).on(views.id.eq(viewAttributes.viewId))
+    	    .where(attributes.studyId.eq(study.getId()).and(views.id.eq(view.getId())))
+    	    .orderBy(viewAttributes.rank.asc());
+		
+		logger.info("Executing query: {}", sqlQuery.toString());
+
+    	List<Attributes> attributeList = template.query(sqlQuery, attributes);
+    	return attributeList;
+	}	
 }

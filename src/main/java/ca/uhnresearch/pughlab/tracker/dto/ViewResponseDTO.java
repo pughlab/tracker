@@ -1,6 +1,8 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -11,6 +13,7 @@ public class ViewResponseDTO extends AbstractResponseDTO {
 
 	StudyDTO study;
 	ViewDTO view;
+	List<AttributeDTO> attributes = new ArrayList<AttributeDTO>();
 
 	public ViewResponseDTO(URL url, Studies s, Views v) {
 		super(url);
@@ -36,5 +39,15 @@ public class ViewResponseDTO extends AbstractResponseDTO {
 	public void setView(ViewDTO view) {
 		this.view = view;
 	}
+
+	@JsonProperty
+	public List<AttributeDTO> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(List<AttributeDTO> attributes) {
+		this.attributes = attributes;
+	}
+
 
 }

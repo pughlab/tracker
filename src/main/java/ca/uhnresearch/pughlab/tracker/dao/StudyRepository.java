@@ -2,6 +2,7 @@ package ca.uhnresearch.pughlab.tracker.dao;
 
 import java.util.List;
 
+import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 
@@ -14,4 +15,6 @@ public interface StudyRepository {
 	public abstract List<Views> getStudyViews(Studies study);
 
 	public abstract Views getStudyView(Studies study, String name);
+
+	public List<Attributes> getViewAttributes(Studies study, Views view);
 }
