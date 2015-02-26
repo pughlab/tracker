@@ -55,10 +55,10 @@ public class QViewAttributes extends com.mysema.query.sql.RelationalPathBase<Vie
     }
 
     public void addMetadata() {
-        addMetadata(attributeId, ColumnMetadata.named("attribute_id").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(options, ColumnMetadata.named("options").withIndex(4).ofType(Types.VARCHAR).withSize(2048));
-        addMetadata(rank, ColumnMetadata.named("rank").withIndex(3).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(viewId, ColumnMetadata.named("view_id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(attributeId, ColumnMetadata.named("ATTRIBUTE_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(options, ColumnMetadata.named("OPTIONS").withIndex(4).ofType(Types.VARCHAR).withSize(2048));
+        addMetadata(rank, ColumnMetadata.named("RANK").withIndex(3).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(viewId, ColumnMetadata.named("VIEW_ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
     }
 
 }

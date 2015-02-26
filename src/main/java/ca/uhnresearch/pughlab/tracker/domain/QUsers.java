@@ -63,14 +63,14 @@ public class QUsers extends com.mysema.query.sql.RelationalPathBase<Users> {
     }
 
     public void addMetadata() {
-        addMetadata(apikey, ColumnMetadata.named("apikey").withIndex(5).ofType(Types.VARCHAR).withSize(128));
-        addMetadata(email, ColumnMetadata.named("email").withIndex(4).ofType(Types.VARCHAR).withSize(128));
-        addMetadata(expires, ColumnMetadata.named("expires").withIndex(8).ofType(Types.TIMESTAMP).withSize(19));
-        addMetadata(forcePasswordChange, ColumnMetadata.named("force_password_change").withIndex(7).ofType(Types.BIT).notNull());
-        addMetadata(hash, ColumnMetadata.named("hash").withIndex(3).ofType(Types.VARCHAR).withSize(60));
-        addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(locked, ColumnMetadata.named("locked").withIndex(6).ofType(Types.BIT).notNull());
-        addMetadata(username, ColumnMetadata.named("username").withIndex(2).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(apikey, ColumnMetadata.named("APIKEY").withIndex(5).ofType(Types.VARCHAR).withSize(128));
+        addMetadata(email, ColumnMetadata.named("EMAIL").withIndex(4).ofType(Types.VARCHAR).withSize(128));
+        addMetadata(expires, ColumnMetadata.named("EXPIRES").withIndex(8).ofType(Types.TIMESTAMP).withSize(19));
+        addMetadata(forcePasswordChange, ColumnMetadata.named("FORCE_PASSWORD_CHANGE").withIndex(7).ofType(Types.BIT).notNull());
+        addMetadata(hash, ColumnMetadata.named("HASH").withIndex(3).ofType(Types.VARCHAR).withSize(60));
+        addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(locked, ColumnMetadata.named("LOCKED").withIndex(6).ofType(Types.BIT).notNull());
+        addMetadata(username, ColumnMetadata.named("USERNAME").withIndex(2).ofType(Types.VARCHAR).withSize(24).notNull());
     }
 
 }

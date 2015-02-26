@@ -53,9 +53,9 @@ public class QStudyRoleUsers extends com.mysema.query.sql.RelationalPathBase<Stu
     }
 
     public void addMetadata() {
-        addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(studyRoleId, ColumnMetadata.named("study_role_id").withIndex(3).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(userId, ColumnMetadata.named("user_id").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(studyRoleId, ColumnMetadata.named("STUDY_ROLE_ID").withIndex(3).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(userId, ColumnMetadata.named("USER_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
     }
 
 }

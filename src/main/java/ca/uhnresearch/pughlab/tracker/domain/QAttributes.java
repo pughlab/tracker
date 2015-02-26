@@ -63,14 +63,14 @@ public class QAttributes extends com.mysema.query.sql.RelationalPathBase<Attribu
     }
 
     public void addMetadata() {
-        addMetadata(description, ColumnMetadata.named("description").withIndex(4).ofType(Types.VARCHAR).withSize(2048));
-        addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(label, ColumnMetadata.named("label").withIndex(5).ofType(Types.VARCHAR).withSize(128).notNull());
-        addMetadata(name, ColumnMetadata.named("name").withIndex(3).ofType(Types.VARCHAR).withSize(48).notNull());
-        addMetadata(options, ColumnMetadata.named("options").withIndex(8).ofType(Types.VARCHAR).withSize(2048));
-        addMetadata(rank, ColumnMetadata.named("rank").withIndex(7).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(studyId, ColumnMetadata.named("study_id").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(type, ColumnMetadata.named("type").withIndex(6).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(description, ColumnMetadata.named("DESCRIPTION").withIndex(4).ofType(Types.VARCHAR).withSize(2048));
+        addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(label, ColumnMetadata.named("LABEL").withIndex(5).ofType(Types.VARCHAR).withSize(128).notNull());
+        addMetadata(name, ColumnMetadata.named("NAME").withIndex(3).ofType(Types.VARCHAR).withSize(48).notNull());
+        addMetadata(options, ColumnMetadata.named("OPTIONS").withIndex(8).ofType(Types.VARCHAR).withSize(2048));
+        addMetadata(rank, ColumnMetadata.named("RANK").withIndex(7).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(studyId, ColumnMetadata.named("STUDY_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(type, ColumnMetadata.named("TYPE").withIndex(6).ofType(Types.VARCHAR).withSize(24).notNull());
     }
 
 }

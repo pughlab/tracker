@@ -53,9 +53,9 @@ public class QCases extends com.mysema.query.sql.RelationalPathBase<Cases> {
     }
 
     public void addMetadata() {
-        addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(state, ColumnMetadata.named("state").withIndex(3).ofType(Types.VARCHAR).withSize(255));
-        addMetadata(studyId, ColumnMetadata.named("study_id").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(state, ColumnMetadata.named("STATE").withIndex(3).ofType(Types.VARCHAR).withSize(255));
+        addMetadata(studyId, ColumnMetadata.named("STUDY_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
     }
 
 }

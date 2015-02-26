@@ -57,11 +57,11 @@ public class QStudyRolePermissions extends com.mysema.query.sql.RelationalPathBa
     }
 
     public void addMetadata() {
-        addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(permission, ColumnMetadata.named("permission").withIndex(5).ofType(Types.VARCHAR).withSize(24).notNull());
-        addMetadata(resource, ColumnMetadata.named("resource").withIndex(4).ofType(Types.VARCHAR).withSize(24).notNull());
-        addMetadata(resourceType, ColumnMetadata.named("resource_type").withIndex(3).ofType(Types.VARCHAR).withSize(12).notNull());
-        addMetadata(studyRoleId, ColumnMetadata.named("study_role_id").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(permission, ColumnMetadata.named("PERMISSION").withIndex(5).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(resource, ColumnMetadata.named("RESOURCE").withIndex(4).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(resourceType, ColumnMetadata.named("RESOURCE_TYPE").withIndex(3).ofType(Types.VARCHAR).withSize(12).notNull());
+        addMetadata(studyRoleId, ColumnMetadata.named("STUDY_ROLE_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
     }
 
 }

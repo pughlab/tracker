@@ -55,10 +55,10 @@ public class QStudies extends com.mysema.query.sql.RelationalPathBase<Studies> {
     }
 
     public void addMetadata() {
-        addMetadata(description, ColumnMetadata.named("description").withIndex(3).ofType(Types.VARCHAR).withSize(2048));
-        addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(identifierAttributeId, ColumnMetadata.named("identifier_attribute_id").withIndex(4).ofType(Types.INTEGER).withSize(10));
-        addMetadata(name, ColumnMetadata.named("name").withIndex(2).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(description, ColumnMetadata.named("DESCRIPTION").withIndex(3).ofType(Types.VARCHAR).withSize(2048));
+        addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(identifierAttributeId, ColumnMetadata.named("IDENTIFIER_ATTRIBUTE_ID").withIndex(4).ofType(Types.INTEGER).withSize(10));
+        addMetadata(name, ColumnMetadata.named("NAME").withIndex(2).ofType(Types.VARCHAR).withSize(24).notNull());
     }
 
 }

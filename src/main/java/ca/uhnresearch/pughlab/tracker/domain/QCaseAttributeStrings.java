@@ -65,15 +65,15 @@ public class QCaseAttributeStrings extends com.mysema.query.sql.RelationalPathBa
     }
 
     public void addMetadata() {
-        addMetadata(active, ColumnMetadata.named("active").withIndex(5).ofType(Types.BIT).notNull());
-        addMetadata(attribute, ColumnMetadata.named("attribute").withIndex(6).ofType(Types.VARCHAR).withSize(24).notNull());
-        addMetadata(caseId, ColumnMetadata.named("case_id").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(id, ColumnMetadata.named("id").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(modified, ColumnMetadata.named("modified").withIndex(3).ofType(Types.TIMESTAMP).withSize(19).notNull());
-        addMetadata(modifiedBy, ColumnMetadata.named("modified_by").withIndex(4).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(notAvailable, ColumnMetadata.named("not_available").withIndex(8).ofType(Types.BIT).notNull());
-        addMetadata(notes, ColumnMetadata.named("notes").withIndex(9).ofType(Types.VARCHAR).withSize(2048));
-        addMetadata(value, ColumnMetadata.named("value").withIndex(7).ofType(Types.VARCHAR).withSize(4096));
+        addMetadata(active, ColumnMetadata.named("ACTIVE").withIndex(5).ofType(Types.BIT).notNull());
+        addMetadata(attribute, ColumnMetadata.named("ATTRIBUTE").withIndex(6).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(caseId, ColumnMetadata.named("CASE_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(modified, ColumnMetadata.named("MODIFIED").withIndex(3).ofType(Types.TIMESTAMP).withSize(19).notNull());
+        addMetadata(modifiedBy, ColumnMetadata.named("MODIFIED_BY").withIndex(4).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(notAvailable, ColumnMetadata.named("NOT_AVAILABLE").withIndex(8).ofType(Types.BIT).notNull());
+        addMetadata(notes, ColumnMetadata.named("NOTES").withIndex(9).ofType(Types.VARCHAR).withSize(2048));
+        addMetadata(value, ColumnMetadata.named("VALUE").withIndex(7).ofType(Types.VARCHAR).withSize(4096));
     }
 
 }
