@@ -12,4 +12,6 @@ public interface StudyRepository {
 	public abstract Studies getStudy(String name);
 	
 	public abstract List<Views> getStudyViews(Studies study);
+
+	public abstract Views getStudyView(Studies study, String name);
 }

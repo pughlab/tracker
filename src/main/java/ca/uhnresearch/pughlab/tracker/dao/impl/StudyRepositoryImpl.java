@@ -72,4 +72,23 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 		return viewList;
 	}
+
+    /**
+     * Returns the named view associated with a study
+     * @param study
+     * @return
+     */
+	public Views getStudyView(Studies study, String name) {
+		logger.debug("Looking for study by name: {}", name);
+    	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.name.eq(name).and(views.studyId.eq(study.getId())));
+    	Views view = template.queryForObject(sqlQuery, views);
+    	
+    	if (views != null) {
+    		logger.info("Got a view: {}", views.toString());
+    	} else {
+    		logger.info("No study found");
+    	}
+    	
+    	return view;
+	}
 }
