@@ -19,17 +19,38 @@
 	            		<lookup-method name="create" bean="studiesResource" />
 	            	</bean>
 	            </entry>
+	            <entry key="/studies/{studyName}" value-ref="studyExtractor" />
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="studyExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.StudyExtractor">
+		<property name="repository" ref="studyRepository"/>
+		<property name="next" ref="studyRouter"/>
+	</bean>
+	
+	<bean id="studyRouter" class="org.restlet.ext.spring.SpringRouter">
+		<property name="attachments">
+	        <map>
+ 	            <entry key="/views">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="studiesViewsResource" />
+	            	</bean>
+	            </entry>
 	        </map>
 	    </property>
 	</bean>
 		
-	<!-- Define the resources -->
+	<!-- Define the repository -->
 	<bean id="studyRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.StudyRepositoryImpl">
 		<property name="template" ref="queryDslJdbcTemplate"/>
 	</bean>
 	
 	<!-- Define the resources -->
 	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="studiesViewsResource" class="ca.uhnresearch.pughlab.tracker.resource.StudyResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
 	

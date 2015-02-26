@@ -166,8 +166,8 @@ public class MockStudyRepository implements StudyRepository {
 		return view;
 	}
 
-	// Mocked getByName
-	public Studies findByName(String name) {
+	// Mocked getStudy
+	public Studies getStudy(String name) {
 		for(Studies s : studies) {
 			if (s.getName().equals(name)) {
 				return s;

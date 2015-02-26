@@ -8,4 +8,6 @@ public interface StudyRepository {
 
 	public abstract List<Studies> getAllStudies();
 	
+	public abstract Studies getStudy(String name);
+	
 }

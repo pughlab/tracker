@@ -47,6 +47,5 @@ public class TrackerResourceTest  {
 		assertEquals( 2, studies.size() );
 		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
 		assertEquals( "A demo clinical genomics study", studies.get(0).getAsJsonObject().get("description").getAsString() );
-
 	}
 }

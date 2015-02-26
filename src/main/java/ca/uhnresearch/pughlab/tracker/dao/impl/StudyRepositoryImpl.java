@@ -39,4 +39,23 @@ public class StudyRepositoryImpl implements StudyRepository {
     	return studyList;
     }
 
+    /**
+     * Returns a named study
+     * @param study
+     * @return
+     */
+	public Studies getStudy(String name) {
+		logger.debug("Looking for study by name: {}", name);
+    	SQLQuery sqlQuery = template.newSqlQuery().from(studies).where(studies.name.eq(name));
+    	Studies study = template.queryForObject(sqlQuery, studies);
+    	
+    	if (study != null) {
+    		logger.info("Got a study: {}", study.toString());
+    	} else {
+    		logger.info("No study found");
+    	}
+    	
+    	return study;
+	}
+
 }
