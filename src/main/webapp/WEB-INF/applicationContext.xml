@@ -24,8 +24,13 @@
 	</bean>
 		
 	<!-- Define the resources -->
-	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
+	<bean id="studyRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.StudyRepositoryImpl">
 		<property name="template" ref="queryDslJdbcTemplate"/>
+	</bean>
+	
+	<!-- Define the resources -->
+	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
 	</bean>
 	
 	<bean id="dbcpDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
