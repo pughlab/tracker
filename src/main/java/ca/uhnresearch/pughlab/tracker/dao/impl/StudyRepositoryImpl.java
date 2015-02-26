@@ -12,6 +12,7 @@ import com.mysema.query.sql.SQLQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
 import static ca.uhnresearch.pughlab.tracker.domain.QStudies.studies;
+import static ca.uhnresearch.pughlab.tracker.domain.QViews.views;
 
 public class StudyRepositoryImpl implements StudyRepository {
 	
@@ -58,4 +59,17 @@ public class StudyRepositoryImpl implements StudyRepository {
     	return study;
 	}
 
+    /**
+     * Returns the list of views associated with a study
+     * @param study
+     * @return
+     */
+	public List<Views> getStudyViews(Studies study) {
+		logger.debug("Looking for views for study: {}", study.getName());
+    	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.studyId.eq(study.getId()));
+    	List<Views> viewList = template.query(sqlQuery, views);
+    	logger.info("Got some views: {}", viewList.toString());
+
+		return viewList;
+	}
 }
