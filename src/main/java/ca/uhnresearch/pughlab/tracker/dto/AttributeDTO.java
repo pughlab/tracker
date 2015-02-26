@@ -1,10 +1,14 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 
 public class AttributeDTO {
+	
+	private static ObjectMapper mapper = new ObjectMapper();
 	
 	private Integer id;
 	private String name;
@@ -12,14 +16,20 @@ public class AttributeDTO {
 	private Integer rank;
 	private String type;
 	private String description;
+	private JsonNode options;
 
-	public AttributeDTO(Attributes a) {
+	public AttributeDTO(Attributes a) throws Exception {
 		setId(a.getId());
 		setName(a.getName());
 		setLabel(a.getLabel());
 		setRank(a.getRank());
 		setType(a.getType());
 		setDescription(a.getDescription());
+		
+		String attributeOptions = a.getOptions();
+		if (attributeOptions != null) {
+			setOptions(mapper.readValue(attributeOptions, JsonNode.class));
+		}
 	}
 	
 	@JsonProperty
@@ -74,5 +84,14 @@ public class AttributeDTO {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	@JsonProperty
+	public JsonNode getOptions() {
+		return options;
+	}
+
+	public void setOptions(JsonNode options) {
+		this.options = options;
 	}
 }

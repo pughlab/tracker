@@ -53,12 +53,12 @@ CREATE TABLE "ATTRIBUTES" (
 );
 
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (1, 1, 1, 'dateEntered', 'Date Entered', 'date');
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (2, 2, 1, 'patientId', 'Patient ID', 'string', '{"UNIQUE":true,"DISPLAY":"PIN_LEFT"}');
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (3, 3, 1, 'mrn', 'MRN', 'string', '{"TAGS": ["IDENTIFIABLE"]}');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (2, 2, 1, 'patientId', 'Patient ID', 'string', '{"unique":true,"display":"pin_left"}');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (3, 3, 1, 'mrn', 'MRN', 'string', '{"tags": ["identifiable"]}');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (4, 4, 1, 'primarySite', 'Primary Disease Site', 'string');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (5, 5, 1, 'consentDate', 'Date of Consent', 'date');
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (6, 6, 1, 'physician', 'Treating Physician', 'string', '{"TAGS": ["IDENTIFIABLE"]}');
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (7, 7, 1, 'sampleAvailable', 'Sample Available At (Hospital/Lab)', 'option', '{"VALUES": ["LMP","St. Michaels","Toronto East General"]}');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (6, 6, 1, 'physician', 'Treating Physician', 'string', '{"tags": ["identifiable"]}');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (7, 7, 1, 'sampleAvailable', 'Sample Available At (Hospital/Lab)', 'option', '{"values": ["LMP","St. Michaels","Toronto East General"]}');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (8, 8, 1, 'specimenNo', 'Specimen #', 'string');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (9, 9, 1, 'procedureDate', 'Date of Procedure', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (10, 10, 1, 'tissueSite', 'Tissue Site', 'string');
@@ -77,7 +77,7 @@ INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VAL
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (23, 23, 1, 'returnDate', 'Date of Return to Outside Institution', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (24, 24, 1, 'bloodCollDate', 'Date and Time of Blood Collection', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (25, 25, 1, 'insufficientDate', 'Date Tissue Deemed Insufficient', 'date');
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (26, 26, 1, 'notes', 'Notes', 'string', '{"LONGTEXT":true}');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (26, 26, 1, 'notes', 'Notes', 'string', '{"longtext":true}');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (27, 27, 1, 'study', 'Study', 'string');
 
 -- =============================================================================================
@@ -96,7 +96,7 @@ CREATE TABLE "VIEWS" (
 
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (1, 1, 'Manages the whole study', 'complete');
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (2, 1, 'Tracks the study', 'track');
-INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME", "OPTIONS") VALUES (4, 1, 'Tracks only secondary', 'secondary', '{"ROWS":[{"ATTRIBUTE":"STUDY","VALUE":"SECONDARY"}]}');
+INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME", "OPTIONS") VALUES (4, 1, 'Tracks only secondary', 'secondary', '{"rows":[{"attribute":"study","value":"secondary"}]}');
 
 
 
@@ -153,9 +153,9 @@ INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (2, 24,
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (2, 25, 25);
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (2, 26, 26);
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (2, 27, 27);
-INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (2, 14, 14, '{"CLASSES": ["LABEL5"]}');
-INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (2, 20, 20, '{"CLASSES": ["LABEL5"]}');
-INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (2, 22, 22, '{"CLASSES": ["LABEL5"]}');
+INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (2, 14, 14, '{"classes": ["label5"]}');
+INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (2, 20, 20, '{"classes": ["label5"]}');
+INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (2, 22, 22, '{"classes": ["label5"]}');
 
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (3, 1, 1);
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (3, 2, 2);
@@ -169,9 +169,9 @@ INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (3, 24,
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (3, 25, 25);
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (3, 26, 26);
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (3, 27, 27);
-INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (3, 14, 14, '{"CLASSES": ["LABEL5"]}');
-INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (3, 20, 20, '{"CLASSES": ["LABEL5"]}');
-INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (3, 22, 22, '{"CLASSES": ["LABEL5"]}');
+INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (3, 14, 14, '{"classes": ["label5"]}');
+INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (3, 20, 20, '{"classes": ["label5"]}');
+INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (3, 22, 22, '{"classes": ["label5"]}');
 
 -- =============================================================================================
 -- Now for the cases
@@ -355,11 +355,11 @@ INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "NOT_AVAILABLE") V
 INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "NOT_AVAILABLE") VALUES (2, 'trackerDate', 1);
 INSERT INTO "CASE_ATTRIBUTE_BOOLEANS" ("CASE_ID", "ATTRIBUTE", "NOT_AVAILABLE") VALUES (4, 'specimenAvailable', 1);
 
-INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (1, 'consentDate', '2014-08-19', 5, '{"LOCKED" : true, "TAGS": ["LABEL1"]}');
-INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (2, 'consentDate', '2014-08-18', 5, '{"LOCKED" : true, "TAGS": ["LABEL1"]}');
-INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (3, 'consentDate', '2014-08-19', 5, '{"LOCKED" : true, "TAGS": ["LABEL1"]}');
-INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (4, 'consentDate', '2014-08-19', 5, '{"LOCKED" : true, "TAGS": ["LABEL1"]}');
-INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (5, 'consentDate', '2014-08-20', 5, '{"LOCKED" : true, "TAGS": ["LABEL1"]}');
+INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (1, 'consentDate', '2014-08-19', 5, '{"locked" : true, "tags": ["label1"]}');
+INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (2, 'consentDate', '2014-08-18', 5, '{"locked" : true, "tags": ["label1"]}');
+INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (3, 'consentDate', '2014-08-19', 5, '{"locked" : true, "tags": ["label1"]}');
+INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (4, 'consentDate', '2014-08-19', 5, '{"locked" : true, "tags": ["label1"]}');
+INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_BY", "NOTES") VALUES (5, 'consentDate', '2014-08-20', 5, '{"locked" : true, "tags": ["label1"]}');
 
 INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE", "ACTIVE", "MODIFIED_BY") VALUES (1, 'primarySite', 'unknown', 0, 4);
 INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE", "ACTIVE", "MODIFIED_BY") VALUES (1, 'primarySite', 'other', 0, 2);

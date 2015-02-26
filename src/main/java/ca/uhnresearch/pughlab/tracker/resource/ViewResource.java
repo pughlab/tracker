@@ -3,6 +3,8 @@ package ca.uhnresearch.pughlab.tracker.resource;
 import java.net.URL;
 import java.util.List;
 
+import javax.xml.ws.WebServiceException;
+
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -28,7 +30,7 @@ public class ViewResource extends ServerResource {
     public void setRepository(StudyRepository repository) {
         this.repository = repository;
     }
-
+	
     @Get("json")
     public Representation getResource()  {
     	logger.info("Called getResource");
@@ -42,12 +44,16 @@ public class ViewResource extends ServerResource {
     	// Now translate into DTOs
     	URL url = getRequest().getRootRef().toUrl();
     	ViewResponseDTO response = new ViewResponseDTO(url, study, view);
-    	for(Attributes a : attributes) {
-    		response.getAttributes().add(new AttributeDTO(a));
+    	
+    	try {
+    		for(Attributes a : attributes) {
+    			response.getAttributes().add(new AttributeDTO(a));
+    		}
+    	} catch (Exception e) {
+    		throw new WebServiceException(e);
     	}
     	
     	// And render back
-       	return new JacksonRepresentation<ViewResponseDTO>(response);
+        return new JacksonRepresentation<ViewResponseDTO>(response);
     }
-
 }
