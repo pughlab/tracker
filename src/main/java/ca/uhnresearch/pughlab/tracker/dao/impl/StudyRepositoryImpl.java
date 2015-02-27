@@ -192,6 +192,20 @@ public class StudyRepositoryImpl implements StudyRepository {
 		}
 	}
 	
+	/**
+	 * Main method for extracting record-level case data into something that can be returned. Here
+	 * the logic is very schemaless, so this method returns a list of Jackson JsonNode instances,
+	 * rather than anything more structured. This can typically be sent straight back to the client
+	 * as a response, without needing DTO mediation. 
+	 * 
+	 * Perhaps most interesting is the CaseQuery, which is a structured version of offsets, limits,
+	 * filters, sort orders, and so on.
+	 * 
+	 * @param study
+	 * @param view
+	 * @param attributes
+	 * @param query
+	 */
 	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
 		// This method retrieves the attributes we needed. In most implementations, we've done 
 		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
