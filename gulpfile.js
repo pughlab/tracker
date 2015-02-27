@@ -216,7 +216,7 @@ gulp.task('vendors', function () {
  * Index
  */
 gulp.task('index', index);
-gulp.task('build-all', ['styles', 'bootstrap', 'templates', 'coffee', 'coffee-service'], index);
+gulp.task('build', ['styles', 'bootstrap', 'templates', 'coffee'], index);
 function index () {
   var opt = {read: false};
   var cssSortFunction = function(a, b) {
@@ -228,12 +228,11 @@ function index () {
       return a.path.localeCompare(b.path);
     }
   };
-  return gulp.src('./src/app/index.html')
+  return gulp.src('./src/main/client/index.html')
     .pipe(g.inject(gulp.src(mainBowerFiles(opt), {read: false}).pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*')), {ignorePath: 'bower_components', starttag: '<!-- inject:vendor:{{ext}} -->'}))
     .pipe(g.inject(es.merge(appFiles(), cssFiles(opt).pipe(sort(cssSortFunction))), {ignorePath: ['.tmp', 'src/app']}))
-    .pipe(gulp.dest('./src/app/'))
     .pipe(g.embedlr())
-    .pipe(gulp.dest('./.tmp/'))
+    .pipe(gulp.dest('./target/client/'))
     .pipe(livereload());
 }
 
