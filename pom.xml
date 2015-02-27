@@ -140,6 +140,7 @@
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>8.1.2.v20120308</version>
 				<configuration>
+					<war>${project.build.directory}/${project.build.finalName}.war</war>
 					<webApp>
 						<contextPath>/tracker-java-restlet</contextPath>
 					</webApp>
@@ -171,7 +172,6 @@
                         <goals>
                             <goal>npm</goal>
                         </goals>
-                        <!-- Optional configuration which provides for running any npm command -->
                         <configuration>
                             <arguments>install</arguments>
                         </configuration>
@@ -193,7 +193,7 @@
                             <goal>gulp</goal>
                         </goals>
                         <configuration>
-                            <arguments>build</arguments>
+                            <arguments>build-all</arguments>
                         </configuration>
                     </execution>
             	</executions>

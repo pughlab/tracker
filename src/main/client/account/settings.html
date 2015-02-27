@@ -1,0 +1,39 @@
+<h4>Account information</h4>
+
+<form class="form-horizontal" role="form">
+  <fieldset>
+
+    <div class="form-group">
+      <label class="col-md-2 control-label" for="user-username">Username:</label>  
+      <div class="col-md-4">
+        <input id="user-username" type="text" class="form-control" ng-model="user.user.username" disabled>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-md-2 control-label" for="user-email">Email address:</label>  
+      <div class="col-md-4">
+        <input id="user-email" type="text" class="form-control" ng-model="user.user.email">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-md-2"></div>  
+      <div class="col-md-4 checkbox">
+        <label>
+          <input id="user-locked" type="checkbox" ng-model="user.user.locked">
+          Account locked
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-md-2"></div>  
+      <div class="col-md-10">
+      <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" >Save changes</button>
+      <button class="btn btn-warn" ng-disabled="! user.user.email || modified">Request password reset</button>
+      </div>
+    </div>
+
+  </fieldset>
+</form>

@@ -1,0 +1,215 @@
+<ol class="breadcrumb">
+  <li><a ui-sref="home">Home</a></li>
+  <li>{{params.studyName}}
+    <span ng-show="modified" class="badge alert-danger">modified</span>
+  </li>
+</ol>
+
+<tabset>
+
+  <tab heading="Permissions" ng-controller="RoleEditorController">
+
+    <div class="row">
+      <div class="col-md-8">
+        <p class="text-muted">
+          Roles can be used to manage permissions. Each user can have several roles. Normally, roles are allowed to 
+          read or write certain views. There is also an administration role, able to manage the whole study. 
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8">
+        <ul ng-model="roles" id="viewSortable" class="admin-list-box">
+          <li ng-repeat="role in study.roles" ng-class="{'list-selected' : role == selectedRole}" ng-click="selectRole(role)">{{role.name}}<span ng-show="role.description"> &mdash; {{role.description}}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <form class="form-horizontal" role="form">
+          <fieldset>
+
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="role-description">Description:</label>  
+              <div class="col-md-4">
+                <input id="role-description" name="role-description" type="text" placeholder="Description" class="form-control input-md" ng-model="selectedRole.description" ng-disabled="! selectedRole">
+              </div>
+
+              <label class="col-md-2 control-label" for="role-name">Key:</label>  
+              <div class="col-md-4">
+                <input id="role-name" name="role-name" type="text" placeholder="Key" class="form-control input-md" ng-model="selectedRole.name" ng-disabled="! selectedRole">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="role-users">Users:</label>  
+              <div class="col-md-10">
+                <select id="role-users" selectize-users model="selectedRole.users" ng-disabled="! selectedRole" ></select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="role-permissions">Permissions:</label>  
+              <div class="col-md-10">
+                <select id="role-permissions" selectize-permissions model="selectedRole.permissions" ng-disabled="! selectedRole" ></select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-md-2"></div>  
+              <div class="col-md-10">
+              <button class="btn btn-default" ng-click="newRole()">New role</button>
+              <button class="btn" ng-class="selectedRole ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedRole" ng-click="deleteRole(selectedRole)">Delete role</button>
+              </div>
+            </div>
+
+          </fieldset>
+        </form>
+      </div>
+    </div>
+
+  </tab>
+
+
+  <tab heading="Attributes" ng-controller="AttributeEditorController">
+
+    <div class="row">
+      <div class="col-md-8">
+        <p class="text-muted">
+          This creates all the available study attributes. Each attribute has a type, an unique internal key name, a label, and
+          some extra options such as tags and display pinning. For example, confidential information is usually tagged, which
+          makes it easier to avoid them in views. You can also "pin" the main identifier, which means it stays visible when 
+          scrolling wide views.
+        </p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <ul ui-sortable="attributeSortableOptions" ng-model="study.attributes" id="attributeSortable" class="admin-list-box">
+          <li ng-repeat="attribute in study.attributes" ng-class="{'list-selected' : attribute == selectedAttribute}" ng-click="selectAttribute(attribute)">{{attribute.label}} <span ng-repeat="tag in attribute.options.tags" class="label label-default">{{tag}}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <form class="form-horizontal" role="form" name="attributeForm">
+          <fieldset>
+
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="attribute-type">Data type:</label>  
+              <div class="col-md-4">
+                <select id="attribute-type" name="type" selectize options="attributeTypes" model="selectedAttribute.type" ng-disabled="! selectedAttribute"></select>
+                <span class="error" ng-show="selectedAttribute &amp;&amp; ! selectedAttribute.type">This field is required</span>
+              </div>
+
+              <label class="col-md-2 control-label" for="attribute-name">Key:</label>  
+              <div class="col-md-4">
+                <input id="attribute-name" name="attribute-name" type="text" placeholder="Key" class="form-control input-md" ng-model="selectedAttribute.name" ng-disabled="! selectedAttribute">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="attribute-label">Label:</label>  
+              <div class="col-md-10">
+                <input id="attribute-label" name="attribute-label" type="text" placeholder="Label" class="form-control input-md" ng-model="selectedAttribute.label" ng-disabled="! selectedAttribute">
+              </div>
+            </div>
+
+            <div class="form-group" ng-show="selectedAttribute &amp;&amp; selectedAttribute.type == 'option'">
+              <label class="col-md-2 control-label" for="attribute-values">Option values:</label>  
+              <div class="col-md-10">
+                <select id="attribute-values" selectize-list model="selectedAttribute.options.values" ng-disabled="! selectedAttribute"></select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="attribute-tags">Tags:</label>  
+              <div class="col-md-4">
+                <select id="attribute-tags" selectize-tags options="attributeTags" model="selectedAttribute.options.tags" ng-disabled="! selectedAttribute" ></select>
+              </div>
+
+              <label class="col-md-2 control-label" for="attribute-display">Display:</label>  
+              <div class="col-md-4">
+                <select id="attribute-display" selectize options="attributeDisplays" model="selectedAttribute.options.display" ng-disabled="! selectedAttribute" ></select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-md-2"></div>  
+              <div class="col-md-10">
+              <button class="btn btn-default" ng-click="newAttribute()">New attribute</button>
+              <button class="btn" ng-class="selectedAttribute ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedAttribute" ng-click="deleteAttribute(selectedAttribute)">Delete attribute</button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </tab>
+
+  <tab heading="Views" ng-controller="ViewEditorController">
+
+    <div class="row">
+      <div class="col-md-8">
+        <p class="text-muted">
+          This manages the available study views. Views show a subset of attributes, and can be authorized for a
+          group of users. 
+        </p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <ul ng-model="study.views" id="viewSortable" class="admin-list-box">
+          <li ng-repeat="view in study.views" ng-class="{'list-selected' : view == selectedView}" ng-click="selectView(view)">{{view.name}} &mdash; {{view.description}} </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <form class="form-horizontal" role="form">
+          <fieldset>
+
+            <div class="form-group">
+              <label class="col-md-2 control-label" for="view-description">Description:</label>  
+              <div class="col-md-4">
+                <input id="view-description" name="view-description" type="text" placeholder="Description" class="form-control input-md" ng-model="selectedView.description" ng-disabled="! selectedView">
+              </div>
+
+              <label class="col-md-2 control-label" for="view-name">Key:</label>  
+              <div class="col-md-4">
+                <input id="view-name" name="view-name" type="text" placeholder="Key" class="form-control input-md" ng-model="selectedView.name" ng-disabled="! selectedView">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-md-2"></div>  
+              <div class="col-md-10">
+              <button class="btn btn-default" ng-click="newView()">New view</button>
+              <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView" ng-click="deleteView(selectedView)">Delete view</button>
+              <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView || modified" ui-sref="adminView({studyName: study.name, viewName: selectedView.name})">Edit view</button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </tab>
+
+</tabset>
+
+<div class="row">
+  <div class="col-md-8">
+    <hr>
+
+    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+
+    <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="save(study)">Save changes</button>
+    <button class="btn btn-default" ng-disabled="! modified" ng-click="reset()">Reset</button>
+
+  </div>
+</div>

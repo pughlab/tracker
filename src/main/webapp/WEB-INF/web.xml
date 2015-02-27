@@ -23,12 +23,16 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>transactionFilter</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/api/*</url-pattern>
 	</filter-mapping>
 
 	<servlet>
 		<servlet-name>tracker</servlet-name>
 		<servlet-class>org.restlet.ext.spring.SpringServerServlet</servlet-class>
+		<init-param>
+  			<param-name>org.restlet.clients</param-name>
+  			<param-value>HTTP HTTPS FILE</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 

@@ -1,0 +1,222 @@
+@import "styles/_base";
+
+html, body {
+  height: 100%;
+  font-weight: 300;
+}
+
+.page-wrap {
+  min-height: 100%;
+}
+
+.page-wrap .page-main {
+  overflow:auto;
+  padding-bottom:60px; /* this needs to be bigger than footer height*/
+}
+
+.footer {
+  position: relative;
+  margin-top: -30px; /* negative value of footer height */
+  height: 60px;
+  clear:both;
+  padding-top:10px;
+} 
+
+body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+}
+
+.inline-nav {
+  list-style-type: none;
+}
+
+.inline-nav li {
+  display: inline;
+}
+
+.inline-nav .inline-last:after {
+  content: ""; 
+}
+
+.inline-nav li:last-child:after {
+  content: ""; 
+}
+
+.inline-nav li:after {
+  content: " | "; 
+}
+
+.auth-link {
+  cursor: pointer;
+}
+
+.filter-form {
+  display: block; 
+  float: right; 
+  padding: 5px 40px 5px 0; 
+}
+
+.admin-list-box {
+    height: 21em; 
+    overflow-y: scroll;
+    border: 1px solid black;
+    padding-left: 1px;
+}
+
+.admin-list-box li {
+  list-style-type: none;
+  margin: 2px;
+  padding: 1mm;
+  background-color: #eee;
+  cursor: pointer;
+}
+
+.admin-list-box .list-selected {
+  background-color: #ddd;
+}
+
+.grid-style {
+  clear: both;
+}
+
+.grid-header-cell {
+}
+
+.grid-header-cell .ui-grid-cell-contents {
+  white-space: normal;
+}
+
+.ui-grid-row .entity-selected .ui-grid-cell {
+  background-color: #ddd;
+}
+
+.ui-grid {
+  
+  position: relative;
+}
+
+.select-padding-override {
+  padding: 0;
+}
+
+.input-padding-override {
+  margin: 4px;
+}
+
+.select2-dropdown-open {
+  z-index: 9999;
+  position: relative;
+  display: block;
+}
+
+.editedCellText .ui-grid-cell-contents {
+  padding: 1px;
+}
+
+.editorUser-0 {
+  background-color: #1b9e77;
+}
+.editedCellUser-0 {
+  border: 4px solid #1b9e77;
+}
+
+.editorUser-1 {
+  background-color: #d95f02;
+}
+.editedCellUser-1 {
+  border: 4px solid #d95f02;
+}
+
+.editorUser-2 {
+  background-color: #7570b3;
+}
+.editedCellUser-2 {
+  border: 4px solid #7570b3;
+}
+
+.editorUser-3 {
+  background-color: #e7298a;
+}
+.editedCellUser-3 {
+  border: 4px solid #e7298a;
+}
+
+.editorUser-4 {
+  background-color: #66a61e;
+}
+.editedCellUser-4 {
+  border: 4px solid #66a61e;
+}
+
+.editorUser-5 {
+  background-color: #e6ab02;
+}
+.editedCellUser-5 {
+  border: 4px solid #e6ab02;
+}
+
+.editorUser-6 {
+  background-color: #a6761d;
+}
+.editedCellUser-6 {
+  border: 4px solid #a6761d;
+}
+
+.editorUser-7 {
+  background-color: #666666;
+}
+.editedCellUser-7 {
+  border: 4px solid #666666;
+}
+
+.history-popover.popover > .popover-inner {
+  color: black;
+  padding: 4pt;
+  text-align: left;
+}
+
+.history-popover {
+  display: block;
+}
+
+.history-popover-content {
+  max-height: 32ex;
+  overflow-y: auto;
+}
+
+.history-username, .history-modified {
+  font-weight: bold;
+}
+
+.ui-grid-canvas .ui-grid-row .label0 {
+  background-color: inherit
+}
+.ui-grid-canvas .ui-grid-row .label1 {
+  background-color: #CBD5E8
+}
+.ui-grid-canvas .ui-grid-row .label2 {
+  background-color: #B3E2CD
+}
+.ui-grid-canvas .ui-grid-row .label3 {
+  background-color: #FDCDAC
+}
+.ui-grid-canvas .ui-grid-row .label4 {
+  background-color: #E6F5C9
+}
+.ui-grid-canvas .ui-grid-row .label5 {
+  background-color: #F4CAE4
+}
+.ui-grid-canvas .ui-grid-row .label6 {
+  background-color: #FFF2AE
+}
+.ui-grid-canvas .ui-grid-row .label7 {
+  background-color: #F1E2CC
+}
+.ui-grid-canvas .ui-grid-row .label9 {
+  background-color: #CCCCCC
+}
+
+.padded-dropdown .selectize-input.full {
+  padding-right: 60px;
+}
