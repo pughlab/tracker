@@ -8,9 +8,11 @@ import java.util.List;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import org.codehaus.jackson.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.CaseAttributeBooleans;
@@ -224,5 +226,13 @@ public class MockStudyRepository implements StudyRepository {
 			}			
 		}
 		return result;
+	}
+
+	/**
+	 * A mocked getData
+	 */
+	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

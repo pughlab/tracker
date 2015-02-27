@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.ws.WebServiceException;
 
+import org.codehaus.jackson.JsonNode;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
@@ -38,8 +40,10 @@ public class ViewResource extends ServerResource {
     	// Query the database for studies
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
+    	CaseQuery query = new CaseQuery();
     	
     	List<Attributes> attributes = repository.getViewAttributes(study, view);
+    	List<JsonNode> records = repository.getData(study, view, attributes, query);
 
     	// Now translate into DTOs
     	URL url = getRequest().getRootRef().toUrl();
@@ -52,6 +56,8 @@ public class ViewResource extends ServerResource {
     	} catch (Exception e) {
     		throw new WebServiceException(e);
     	}
+    	
+    	response.setRecords(records);
     	
     	// And render back
         return new JacksonRepresentation<ViewResponseDTO>(response);

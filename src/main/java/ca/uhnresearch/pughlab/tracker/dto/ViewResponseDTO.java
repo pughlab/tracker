@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
@@ -14,6 +15,7 @@ public class ViewResponseDTO extends AbstractResponseDTO {
 	StudyDTO study;
 	ViewDTO view;
 	List<AttributeDTO> attributes = new ArrayList<AttributeDTO>();
+	List<JsonNode> records = new ArrayList<JsonNode>();
 
 	public ViewResponseDTO(URL url, Studies s, Views v) {
 		super(url);
@@ -49,5 +51,12 @@ public class ViewResponseDTO extends AbstractResponseDTO {
 		this.attributes = attributes;
 	}
 
+	@JsonProperty
+	public List<JsonNode> getRecords() {
+		return records;
+	}
 
+	public void setRecords(List<JsonNode> records) {
+		this.records = records;
+	}
 }
