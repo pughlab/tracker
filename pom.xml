@@ -151,7 +151,7 @@
 				<configuration>
 					<war>${project.build.directory}/${project.build.finalName}.war</war>
 					<webApp>
-						<contextPath>/tracker-java-restlet</contextPath>
+						<contextPath>/</contextPath>
 					</webApp>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
@@ -206,6 +206,19 @@
                         </configuration>
                     </execution>
             	</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>target/client/tmp</directory>
+						</resource>
+					</webResources>
+				</configuration>
 			</plugin>
 
 			<plugin>
