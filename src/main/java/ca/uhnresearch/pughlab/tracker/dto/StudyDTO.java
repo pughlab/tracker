@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 

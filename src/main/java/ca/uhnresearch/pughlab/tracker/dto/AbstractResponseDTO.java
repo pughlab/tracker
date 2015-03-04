@@ -2,7 +2,7 @@ package ca.uhnresearch.pughlab.tracker.dto;
 
 import java.net.URL;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 abstract class AbstractResponseDTO {
 	

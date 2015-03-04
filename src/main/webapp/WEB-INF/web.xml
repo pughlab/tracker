@@ -17,7 +17,7 @@
 		<param-value>WEB-INF/applicationContext.xml</param-value>
 	</context-param>
 	
-	<filter>
+<!-- 	<filter>
 		<filter-name>transactionFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 	</filter>
@@ -26,10 +26,16 @@
 		<url-pattern>/api/*</url-pattern>
 	</filter-mapping>
 
-	<servlet>
+ -->	
+ 
+ 	<servlet>
 		<servlet-name>tracker</servlet-name>
-		<servlet-class>org.restlet.ext.spring.SpringServerServlet</servlet-class>
+		<servlet-class>ca.uhnresearch.pughlab.tracker.restlets.CustomSpringServerServlet</servlet-class>
 		<init-param>
+            <param-name>org.restlet.component</param-name>
+            <param-value>trackerComponent</param-value>
+        </init-param>
+        <init-param>
   			<param-name>org.restlet.clients</param-name>
   			<param-value>HTTP HTTPS FILE</param-value>
 		</init-param>

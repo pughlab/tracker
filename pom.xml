@@ -7,8 +7,8 @@
 	<packaging>war</packaging>
 
 	<properties>
-		<restlet.version>2.0.1</restlet.version>
-		<spring.version>3.0.1.RELEASE</spring.version>
+		<restlet.version>2.3.1</restlet.version>
+		<spring.version>3.1.4.RELEASE</spring.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<hsqldb.version>2.3.2</hsqldb.version>
 		<querydsl.version>3.6.1</querydsl.version>
@@ -24,6 +24,16 @@
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.servlet</artifactId>
 			<version>${restlet.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
@@ -44,7 +54,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${spring.version}</version>
-			<scope>runtime</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-logging</groupId>
