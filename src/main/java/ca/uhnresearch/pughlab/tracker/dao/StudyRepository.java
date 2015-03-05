@@ -20,5 +20,7 @@ public interface StudyRepository {
 
 	public List<Attributes> getViewAttributes(Studies study, Views view);
 	
+	public Long getRecordCount(Studies study, Views view);
+	
 	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query);
 }

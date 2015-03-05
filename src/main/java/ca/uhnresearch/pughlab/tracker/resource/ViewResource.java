@@ -59,6 +59,7 @@ public class ViewResource extends ServerResource {
     	}
     	
     	response.setRecords(records);
+    	response.getCounts().setTotal(repository.getRecordCount(study, view));
     	
     	// And render back
         return new JacksonRepresentation<ViewResponseDTO>(response);

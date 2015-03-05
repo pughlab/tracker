@@ -235,4 +235,10 @@ public class MockStudyRepository implements StudyRepository {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public Long getRecordCount(Studies study, Views view) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

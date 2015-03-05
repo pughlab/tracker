@@ -252,6 +252,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 		writeTupleAttributes(table, values);
 
 		return objects;
+	}
+
+	/**
+	 * Returns the record count for a study).
+	 */
+	@Override
+	public Long getRecordCount(Studies study, Views view) {
+		SQLQuery recordQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()));
+		return template.count(recordQuery);
 	}	
 }
 
