@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/util
+	                    http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<bean id="apiRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="router" />
+		<property name="attachments">
+	        <map>
+	            <entry key="/studies">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="studiesResource" />
+	            	</bean>
+	            </entry>
+	            <entry key="/studies/{studyName}" value-ref="studyExtractor" />
+	        </map>
+	    </property>
+
+	</bean>
+	
+	<bean id="studyExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.StudyExtractor">
+		<property name="repository" ref="studyRepository"/>
+		<property name="next" ref="studyRouter"/>
+	</bean>
+	
+	<bean id="studyRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="apiRouter" />
+		<property name="attachments">
+	        <map>
+ 	            <entry key="/views">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="studiesViewsResource" />
+	            	</bean>
+	            </entry>
+	            <entry key="/views/{viewName}" value-ref="viewExtractor" />
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="viewExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.ViewExtractor">
+		<property name="repository" ref="studyRepository"/>
+		<property name="next" ref="viewRouter"/>
+	</bean>
+	
+	<bean id="viewRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="studyRouter" />
+		<property name="attachments">
+	        <map>
+ 	            <entry key="">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="viewDataResource" />
+	            	</bean>
+	            </entry>
+	        </map>
+	    </property>
+	</bean>
+		
+	<bean id="studyRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.StudyRepositoryImpl">
+		<property name="template" ref="queryDslJdbcTemplate"/>
+	</bean>
+	
+	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="studiesViewsResource" class="ca.uhnresearch.pughlab.tracker.resource.StudyResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+	
+</beans>
