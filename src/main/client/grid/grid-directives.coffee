@@ -59,7 +59,7 @@ angular
         textValue = undefined
 
         scope.$watch 'cellOptions', (newValue) ->
-          if newValue.longtext?
+          if newValue?.longtext?
             longText = newValue.longtext
 
         scope.$watch 'cellData', (newValue, oldValue) ->
