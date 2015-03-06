@@ -61,7 +61,7 @@ gulp.task 'bootstrap', () ->
     bootstrapStream
       .pipe gulpLess({paths: lessPaths, verbose: true})
       .pipe gulpRename('bootstrap.css')
-      .pipe gulp.dest('./target/client/tmp/app/css')
+      .pipe gulp.dest('./target/client/tmp/vendors/css')
     fontsStream
       .pipe gulp.dest('./target/client/tmp/app/statics/fonts')
   )
@@ -80,7 +80,6 @@ gulp.task 'styles', ['clean-css'], () ->
     .src './src/main/client/app.less'
     .pipe gulpLess {paths: lessPaths}
     .pipe gulp.dest './target/client/tmp/app/css/'
-    .pipe gulpCached 'built-css'
 
 gulp.task 'vendors', () ->
   bowerStream = gulp.src(mainBowerFiles()).pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
@@ -103,7 +102,7 @@ index = () ->
       a.path.localeCompare(b.path)
 
   gulp.src('./src/main/client/index.html')
-    .pipe(gulpInject(es.merge(appVendorFiles(), cssVendorFiles(opt)), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
+    .pipe(gulpInject(es.merge(appVendorFiles(), cssVendorFiles(opt).pipe(sort(cssSortFunction))), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
     .pipe(gulpInject(es.merge(appFiles(), cssFiles(opt).pipe(sort(cssSortFunction))), {ignorePath: ['target/client/tmp', 'src/main/client']}))
     .pipe(gulp.dest('./target/client/tmp/'))
     
