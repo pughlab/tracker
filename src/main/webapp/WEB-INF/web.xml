@@ -20,8 +20,8 @@
 			WEB-INF/applicationContextAPIRouter.xml
 		</param-value>
 	</context-param>
-	
-<!-- 	<filter>
+
+ 	<filter>
 		<filter-name>transactionFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 	</filter>
@@ -29,8 +29,6 @@
 		<filter-name>transactionFilter</filter-name>
 		<url-pattern>/api/*</url-pattern>
 	</filter-mapping>
-
- -->	
  
  	<servlet>
 		<servlet-name>tracker</servlet-name>
