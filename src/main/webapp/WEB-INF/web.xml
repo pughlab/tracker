@@ -18,6 +18,7 @@
 			WEB-INF/applicationContext.xml
 			WEB-INF/applicationContextDatabase.xml
 			WEB-INF/applicationContextAPIRouter.xml
+			WEB-INF/applicationContextSecurity.xml
 		</param-value>
 	</context-param>
 

@@ -25,7 +25,7 @@
 		<constructor-arg ref="trackerComponentChildContext" />
 		<property name="attachments">
 	        <map>
- 	            <entry key="/api" value-ref="apiRouter" />
+ 	            <entry key="/api" value-ref="trackerAuthenticator" />
  	            <entry key="/" value-ref="staticsDirectory" />
 	        </map>
 	    </property>

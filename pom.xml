@@ -26,6 +26,11 @@
 			<version>${restlet.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.restlet.jee</groupId>
+			<artifactId>org.restlet.ext.crypto</artifactId>
+			<version>${restlet.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 			<version>${spring.version}</version>
