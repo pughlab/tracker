@@ -109,6 +109,10 @@ index = () ->
 gulp.task 'templates', () ->
   templateFiles({min: true}).pipe(buildTemplates())
   
+gulp.task 'assets', () ->
+  gulp.src './src/main/client/assets/statics/**'
+    .pipe gulp.dest './target/client/tmp/statics'
+  
 buildTemplates = () ->
   lazypipe()
     .pipe(gulpNgHtml2js, {
@@ -119,7 +123,7 @@ buildTemplates = () ->
     .pipe(gulpConcat, bower.name + '-templates.js')
     .pipe(gulp.dest, './target/client/tmp/app/js')()
     
-gulp.task 'build-all', ['styles', 'bootstrap', 'templates', 'coffee', 'vendors'], index
+gulp.task 'build-all', ['styles', 'bootstrap', 'templates', 'coffee', 'vendors', 'assets'], index
 
 templateFiles = (opt) ->
   gulp.src(['./src/main/client/**/*.html', '!./src/main/client/index.html'], opt)
