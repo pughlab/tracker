@@ -48,10 +48,12 @@ isWatching = false
 
 compareStrings = (a, b) -> if a < b then -1 else if a > b then 1 else 0
 
+
 gulp.task 'coffee', () ->
   gulp.src ['./src/main/client/**/*.*coffee']
     .pipe gulpCoffee()
     .pipe gulp.dest('./target/client/tmp/app/js')
+
 
 gulp.task 'bootstrap', () ->
   bootstrapStream = gulp.src('src/main/client/less/custom-bootstrap.less')
@@ -66,8 +68,10 @@ gulp.task 'bootstrap', () ->
       .pipe gulp.dest('./target/client/tmp/app/statics/fonts')
   )
 
+
 gulp.task 'clean-css', (cb) ->
   del './target/client/tmp/app.css/app.css', cb
+
 
 gulp.task 'styles', ['clean-css'], () ->
   lessPaths = [
@@ -81,37 +85,43 @@ gulp.task 'styles', ['clean-css'], () ->
     .pipe gulpLess {paths: lessPaths}
     .pipe gulp.dest './target/client/tmp/app/css/'
 
+
 gulp.task 'vendors', () ->
-  bowerStream = gulp.src(mainBowerFiles()).pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
+  bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components'}).pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
   es.merge(
     bowerStream.pipe(gulpFilter('**/*.css'))
-      .pipe(gulpConcat('vendors.css'))
       .pipe(gulp.dest('./target/client/tmp/vendors/css'))
     bowerStream.pipe(gulpFilter('**/*.js'))
-      .pipe(gulpConcat('vendors.js'))
       .pipe(gulp.dest('./target/client/tmp/vendors/js')))
 
+
 index = () ->
-  opt = {read: false}
-  cssSortFunction = (a, b) ->
-    if a.path.endsWith('/bootstrap.css')
-      -1
-    else if b.path.endsWith('/bootstrap.css')
-      1
-    else
-      a.path.localeCompare(b.path)
+  bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components', read: false})
+    
+  cssVendorFiles = bowerStream
+    .pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
+    .pipe(gulpFilter('**/*.css'))
+    .pipe(gulp.dest('./vendors/css'))
+
+  jsVendorFiles = bowerStream
+    .pipe(gulpFilter('**/*.js'))
+    .pipe(gulp.dest('./vendors/js'))
 
   gulp.src('./src/main/client/index.html')
-    .pipe(gulpInject(es.merge(appVendorFiles(), cssVendorFiles(opt).pipe(sort(cssSortFunction))), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
-    .pipe(gulpInject(es.merge(appFiles(), cssFiles(opt).pipe(sort(cssSortFunction))), {ignorePath: ['target/client/tmp', 'src/main/client']}))
+    .pipe(gulpInject(gulp.src('./target/client/tmp/vendors/css/bootstrap.css'), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:bootstrap:{{ext}} -->'}))
+    .pipe(gulpInject(es.merge(jsVendorFiles, cssVendorFiles), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
+    .pipe(gulpInject(es.merge(appFiles(), cssFiles()), {ignorePath: ['target/client/tmp', 'src/main/client']}))
     .pipe(gulp.dest('./target/client/tmp/'))
+    
     
 gulp.task 'templates', () ->
   templateFiles({min: true}).pipe(buildTemplates())
   
+  
 gulp.task 'assets', () ->
   gulp.src './src/main/client/assets/statics/**'
     .pipe gulp.dest './target/client/tmp/statics'
+  
   
 buildTemplates = () ->
   lazypipe()
@@ -123,7 +133,9 @@ buildTemplates = () ->
     .pipe(gulpConcat, bower.name + '-templates.js')
     .pipe(gulp.dest, './target/client/tmp/app/js')()
     
+    
 gulp.task 'build-all', ['styles', 'bootstrap', 'templates', 'coffee', 'vendors', 'assets'], index
+
 
 templateFiles = (opt) ->
   gulp.src(['./src/main/client/**/*.html', '!./src/main/client/index.html'], opt)
@@ -148,6 +160,5 @@ appFiles = () ->
 cssFiles = (opt) ->
   gulp.src('./target/client/tmp/app/css/**/*.css', opt)
     .pipe(gulpOrder([
-      'target/client/tmp/app/css/bootstrap.css',
       'target/client/tmp/app/css/app.css'
     ], {base: '.'}))
