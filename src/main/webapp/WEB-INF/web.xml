@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="restlet-tracker" version="2.4"
-	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:j2ee="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee    http://java.sun.com/xml/ns/j2ee/web-app_2.5.xsd">
 	<display-name>Restlet Tracker</display-name>
 
 	<listener>
@@ -21,6 +22,16 @@
 			WEB-INF/applicationContextSecurity.xml
 		</param-value>
 	</context-param>
+	
+    <servlet>
+        <servlet-name>trackerUpdateServlet</servlet-name>
+        <servlet-class>ca.uhnresearch.pughlab.tracker.sockets.TrackerUpdateServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>trackerUpdateServlet</servlet-name>
+        <url-pattern>/events/*</url-pattern>
+    </servlet-mapping>
 
  	<filter>
 		<filter-name>transactionFilter</filter-name>
