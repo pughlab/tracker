@@ -15,10 +15,10 @@ angular
       ## in use while we are at it. 
   
       ## @if NODE_ENV = 'development' *
-      host = 'localhost'
-      protocol = 'http'
-      port = 3001
+      ## host = 'localhost'
+      ## protocol = 'http'
+      ## port = 8080
       ## @endif *
   
-      socket = io("#{protocol}://#{host}:#{port}", {path: '/api/events', forceNew: true})  
+      socket = io("#{protocol}://#{host}:#{port}", {path: '/events', forceNew: true})  
       return socket
