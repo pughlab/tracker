@@ -18,8 +18,8 @@ public class ViewResponseDTO extends AbstractResponseDTO {
 	List<AttributeDTO> attributes = new ArrayList<AttributeDTO>();
 	List<JsonNode> records = new ArrayList<JsonNode>();
 
-	public ViewResponseDTO(URL url, Studies s, Views v) {
-		super(url);
+	public ViewResponseDTO(URL url, UserDTO user, Studies s, Views v) {
+		super(url, user);
 		this.study = new StudyDTO(s);
 		this.view = new ViewDTO(v);
 	}

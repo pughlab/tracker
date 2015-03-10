@@ -17,6 +17,7 @@ import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
 import ca.uhnresearch.pughlab.tracker.dto.StudyListResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
 
 public class TrackerResource extends ServerResource {
 		
@@ -40,7 +41,8 @@ public class TrackerResource extends ServerResource {
     	
     	// Now translate into DTOs
     	URL url = getRequest().getRootRef().toUrl();
-    	StudyListResponseDTO response = new StudyListResponseDTO(url);
+    	UserDTO user = new UserDTO(currentUser);
+    	StudyListResponseDTO response = new StudyListResponseDTO(url, user);
     	for(Studies s : studyList) {
     		String permission = "study:read:"+s.getName();
     		if (currentUser.isPermitted(permission)) {

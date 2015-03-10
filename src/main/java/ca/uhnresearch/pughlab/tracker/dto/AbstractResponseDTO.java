@@ -6,9 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 abstract class AbstractResponseDTO {
 	
+	private URL serviceUrl;
+	private UserDTO user;
+	
 	@JsonProperty
-	protected URL serviceUrl;
-
 	public URL getServiceUrl() {
 		return serviceUrl;
 	}
@@ -17,8 +18,18 @@ abstract class AbstractResponseDTO {
 		this.serviceUrl = serviceUrl;
 	}
 
-	protected AbstractResponseDTO(URL serviceUrl) {
+	@JsonProperty
+	public UserDTO getUser() {
+		return user;
+	}
+
+	public void setUser(UserDTO user) {
+		this.user = user;
+	}
+
+	protected AbstractResponseDTO(URL serviceUrl, UserDTO user) {
 		super();
 		this.serviceUrl = serviceUrl;
+		this.user = user;
 	}
 }

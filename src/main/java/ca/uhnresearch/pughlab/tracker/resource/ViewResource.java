@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.xml.ws.WebServiceException;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -21,6 +23,7 @@ import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.dto.AttributeDTO;
+import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
 import ca.uhnresearch.pughlab.tracker.dto.ViewResponseDTO;
 
 public class ViewResource extends ServerResource {
@@ -37,7 +40,9 @@ public class ViewResource extends ServerResource {
     @Get("json")
     public Representation getResource()  {
     	logger.info("Called getResource");
-    	
+
+    	Subject currentUser = SecurityUtils.getSubject();
+
     	// Query the database for studies
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
@@ -48,7 +53,8 @@ public class ViewResource extends ServerResource {
 
     	// Now translate into DTOs
     	URL url = getRequest().getRootRef().toUrl();
-    	ViewResponseDTO response = new ViewResponseDTO(url, study, view);
+    	UserDTO user = new UserDTO(currentUser);
+    	ViewResponseDTO response = new ViewResponseDTO(url, user, study, view);
     	
     	try {
     		for(Attributes a : attributes) {

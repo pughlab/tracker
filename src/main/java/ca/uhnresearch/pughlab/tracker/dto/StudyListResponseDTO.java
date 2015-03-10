@@ -10,8 +10,8 @@ public class StudyListResponseDTO extends AbstractResponseDTO {
 
 	List<StudyDTO> studies = new ArrayList<StudyDTO>();
 
-	public StudyListResponseDTO(URL url) {
-		super(url);
+	public StudyListResponseDTO(URL url, UserDTO user) {
+		super(url, user);
 	}
 
 	@JsonProperty

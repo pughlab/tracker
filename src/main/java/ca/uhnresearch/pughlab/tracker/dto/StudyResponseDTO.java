@@ -13,8 +13,8 @@ public class StudyResponseDTO extends AbstractResponseDTO {
 	StudyDTO study;
 	List<ViewDTO> views = new ArrayList<ViewDTO>();
 	
-	public StudyResponseDTO(URL url, Studies s) {
-		super(url);
+	public StudyResponseDTO(URL url, UserDTO user, Studies s) {
+		super(url, user);
 		this.study = new StudyDTO(s);
 	}
 
