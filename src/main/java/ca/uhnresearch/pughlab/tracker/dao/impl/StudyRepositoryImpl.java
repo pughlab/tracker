@@ -181,6 +181,10 @@ public class StudyRepositoryImpl implements StudyRepository {
 			ObjectNode obj = table.get(caseId);
 			assert obj != null;
 			
+			// Add the case identifier
+			obj.put("id", caseId);
+			
+			// Add the value
 			if (notAvailable != null && notAvailable) {
 				ObjectNode marked = jsonNodeFactory.objectNode();
 				marked.put("$notAvailable", Boolean.TRUE);
@@ -197,6 +201,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 				throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
 			}
 			
+			// If we have notes, we need to add them. They are added in a per-record
+			// holder attribute, $notes, and need to be decoded from JSON. 
 			if (notes != null) {
 				JsonNode notesNode = null;
 				try {
