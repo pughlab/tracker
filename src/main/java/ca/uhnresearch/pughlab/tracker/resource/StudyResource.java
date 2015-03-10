@@ -3,9 +3,13 @@ package ca.uhnresearch.pughlab.tracker.resource;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.restlet.data.Status;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,19 +34,26 @@ public class StudyResource extends ServerResource {
 
     @Get("json")
     public Representation getResource()  {
-    	logger.info("Called getResource");
-    	
+
     	// Query the database for studies
     	Studies study = (Studies) getRequest().getAttributes().get("study");
+    	
+    	Subject currentUser = SecurityUtils.getSubject();
+    	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
 
     	// Query the database for views
     	List<Views> viewList = repository.getStudyViews(study);
-
+    	
     	// Now translate into DTOs
     	URL url = getRequest().getRootRef().toUrl();
     	StudyResponseDTO response = new StudyResponseDTO(url, study);
     	for(Views v : viewList) {
-    		response.getViews().add(new ViewDTO(v));
+    		
+    		// Add the view if we have a read permission
+    		String permission = "view:read:" + study.getName() + "-" + v.getName();
+    		if (adminUser || currentUser.isPermitted(permission)) {
+    			response.getViews().add(new ViewDTO(v));
+    		}
     	}
     	
     	// And render back

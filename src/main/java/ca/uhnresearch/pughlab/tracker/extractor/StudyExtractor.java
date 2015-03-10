@@ -1,8 +1,11 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
+import org.restlet.resource.ResourceException;
 import org.restlet.routing.Extractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +29,6 @@ public class StudyExtractor extends Extractor {
 		extractFromQuery("studyName", "studyName", true);
 		
 		String value = (String) request.getAttributes().get("studyName");
-		logger.info("Called StudyExtractor beforeHandle: {}", value);
 		
 		// Now we can extract the study and write it as a new attribute
 		Studies s = repository.getStudy(value);
@@ -40,7 +42,17 @@ public class StudyExtractor extends Extractor {
 		}
 		
 		// Permissions checking might also be a sensible idea
-		
+    	Subject currentUser = SecurityUtils.getSubject();
+    	logger.info("Authenticated as: {}", currentUser.getPrincipal().toString());
+
+    	// Explicitly block access when there's not at least study read access
+    	String permission = "study:read:" + s.getName();
+    	logger.info("Checking permission for: {}", permission);
+    	if (! currentUser.isPermitted(permission)) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
+    	
+    	logger.info("OK, continuing with the study: {}", s.getName());
 		request.getAttributes().put("study", s);
 		
 		return CONTINUE;

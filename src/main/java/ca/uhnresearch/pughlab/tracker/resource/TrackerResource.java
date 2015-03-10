@@ -3,6 +3,8 @@ package ca.uhnresearch.pughlab.tracker.resource;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -29,7 +31,9 @@ public class TrackerResource extends ServerResource {
 
     @Get("json")
     public Representation getResource()  {
-    	logger.info("Called getResource");
+    	
+    	Subject currentUser = SecurityUtils.getSubject();
+    	logger.info("Authenticated as: {}", currentUser.getPrincipal().toString());
     	
     	// Query the database for studies
     	List<Studies> studyList = repository.getAllStudies();
@@ -38,7 +42,10 @@ public class TrackerResource extends ServerResource {
     	URL url = getRequest().getRootRef().toUrl();
     	StudyListResponseDTO response = new StudyListResponseDTO(url);
     	for(Studies s : studyList) {
-    		response.getStudies().add(new StudyDTO(s));
+    		String permission = "study:read:"+s.getName();
+    		if (currentUser.isPermitted(permission)) {
+    			response.getStudies().add(new StudyDTO(s));
+    		}
     	}
     	
     	// And render back
