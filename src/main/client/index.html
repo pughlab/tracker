@@ -42,17 +42,7 @@
             <li ng-class="{ active: isActive('/')}"><a href="/">Home</a></li>
           </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li class="dropdown" dropdown>
-            <a href class="dropdown-toggle" dropdown-toggle>{{user.username || 'Login'}}<span class="caret"></span></a>
-            <ul class="dropdown-menu" role="menu">
-                <li ng-hide="user"><a ui-sref="home">Log in</a></li>
-                <li ng-show="user" class="disabled"><a>Logged in as: {{user.username}}</a></li>
-                <li ng-show="user.permissions.system"><a ui-sref="adminUsers">Manage users</a></li>
-                <li ng-show="user"><a ui-sref="adminUser({username: user.username})">Account settings</a></li>
-                <li ng-show="user" class="divider"></li>
-                <li ng-show="user"><a href ng-click="logout()">Logout</a></li>
-              </ul>
-          </li>
+          <li><a>Logged in as: {{user.username}}</a></li>
         </ul>
         </div><!--/.nav-collapse -->
       </div>
