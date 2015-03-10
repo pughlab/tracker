@@ -5,8 +5,8 @@ angular
 
     () ->
 
-      host = $location.host()
       protocol = $location.protocol()
+      host = $location.host()
       port = $location.port()
   
       ## In some rare cases, this might need to be overridden, especially during development
@@ -19,6 +19,21 @@ angular
       ## protocol = 'http'
       ## port = 8080
       ## @endif *
+      
+      class SocketEventEmitter 
+      
+      	constructor: (protocol, host, port) ->
+      	  @eventer = jQuery(@)
+      	  @socket = new WebSocket("ws://#{host}:#{port}/events")
+      
+      	emit: (evt, data) ->
+      	  @eventer.emit evt, data
+      	
+      	on: (evt, handler) ->
+      	  @eventer.bind evt, handler
+      
+      	off: (evt, handler) ->
+      	  @eventer.unbind evt, handler
+      
   
-      socket = io("#{protocol}://#{host}:#{port}", {path: '/events', forceNew: true})  
-      return socket
+      new SocketEventEmitter(protocol, host, port)
