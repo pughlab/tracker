@@ -6,6 +6,9 @@
 	<display-name>Restlet Tracker</display-name>
 
 	<listener>
+    	<listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
+	</listener>
+	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
@@ -19,13 +22,26 @@
 			WEB-INF/applicationContext.xml
 			WEB-INF/applicationContextDatabase.xml
 			WEB-INF/applicationContextAPIRouter.xml
-			WEB-INF/applicationContextSecurity.xml
 		</param-value>
 	</context-param>
 	
+	<filter>
+	    <filter-name>shiroFilter</filter-name>
+	    <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+	    <filter-name>shiroFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	    <dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+	
     <servlet>
         <servlet-name>trackerUpdateServlet</servlet-name>
-        <servlet-class>ca.uhnresearch.pughlab.tracker.sockets.TrackerUpdateServlet</servlet-class>
+        <servlet-class>ca.uhnresearch.pughlab.tracker.sockets.TrackerUpdateJettyServlet</servlet-class>
     </servlet>
     
     <servlet-mapping>
