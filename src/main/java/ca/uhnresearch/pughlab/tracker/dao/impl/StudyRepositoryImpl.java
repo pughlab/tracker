@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -39,6 +40,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private final Logger logger = LoggerFactory.getLogger(StudyRepositoryImpl.class);
 	
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
+	
+	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	private QueryDslJdbcTemplate template;
 
@@ -173,12 +176,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 			String attributeName = v.get(1, String.class);
 			Object value = v.get(2, Object.class);
 			Boolean notAvailable = v.get(3, Boolean.class);
+			String notes = v.get(4, String.class);
+			
 			ObjectNode obj = table.get(caseId);
 			assert obj != null;
+			
 			if (notAvailable != null && notAvailable) {
 				ObjectNode marked = jsonNodeFactory.objectNode();
 				marked.put("$notAvailable", Boolean.TRUE);
-				obj.put(attributeName, marked);
+				obj.replace(attributeName, marked);
 			} else if (value == null) {
 				obj.put(attributeName, (String) null);
 			} else if (value instanceof String) {
@@ -189,6 +195,27 @@ public class StudyRepositoryImpl implements StudyRepository {
 				obj.put(attributeName, (Boolean) value);
 			} else {
 				throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
+			}
+			
+			if (notes != null) {
+				JsonNode notesNode = null;
+				try {
+					notesNode = objectMapper.readTree(notes);
+				} catch (Exception e) {
+					logger.error("Invalid JSON notes: {}, {}", e.getMessage(), notes);
+				} finally {
+					ObjectNode recordNotesNode;
+					
+					if (! obj.has("$notes")) {
+						recordNotesNode = jsonNodeFactory.objectNode();
+						obj.set("$notes", recordNotesNode);
+					} else {
+						recordNotesNode = (ObjectNode) obj.get("$notes");
+					}
+					if (notesNode != null) {
+						recordNotesNode.set(attributeName, notesNode);
+					}
+				}
 			}
 		}
 	}
