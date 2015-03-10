@@ -1,8 +1,11 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
+import org.restlet.resource.ResourceException;
 import org.restlet.routing.Extractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +44,18 @@ public class ViewExtractor extends Extractor {
 			return STOP;
 		}
 		
-		// Permissions checking might also be a sensible idea
-		
+		// We should allow access based on a read permission for the view, or 
+		// any permission on the study
+    	Subject currentUser = SecurityUtils.getSubject();
+
+    	// Explicitly block access when there's not at least study read access
+    	String studyAdminPermission = "study:admin:" + study.getName();
+    	String viewPermission = "view:read:" + study.getName() + "-" + v.getName();
+    	if (! currentUser.isPermitted(studyAdminPermission) && ! currentUser.isPermitted(viewPermission)) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
+    	
+    	logger.info("OK, continuing with the view: {}", v.getName());
 		request.getAttributes().put("view", v);
 		
 		return CONTINUE;
