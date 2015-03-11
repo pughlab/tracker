@@ -9,6 +9,7 @@ public class UpdateEvent {
 	public static final String WELCOME_EVENT = "welcome";
 
 	private String sender;
+	private String recipient;
 	private String type;
 	private JsonNode data;
 	private long time;
@@ -37,6 +38,14 @@ public class UpdateEvent {
 
 	public void setSender(String sender) {
 		this.sender = sender;
+	}
+
+	public String getRecipient() {
+		return recipient;
+	}
+
+	public void setRecipient(String recipient) {
+		this.recipient = recipient;
 	}
 
 	public JsonNode getData() {
