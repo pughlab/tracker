@@ -1,7 +1,7 @@
 angular
   .module 'tracker.sockets'
 
-  .factory 'socketFactory', Array '$location', ($location) ->
+  .factory 'socketFactory', Array '$location', '$timeout', ($location, $timeout) ->
 
     () ->
 
@@ -22,18 +22,47 @@ angular
       
       class SocketEventEmitter 
       
-      	constructor: (protocol, host, port) ->
-      	  @eventer = jQuery(@)
-      	  @socket = new WebSocket("ws://#{host}:#{port}/events")
+        constructor: (protocol, host, port) ->
+          @eventer = jQuery(@)[0]
+          @atmosphere = atmosphere
+          
+          request = {
+            url: "http://#{host}:#{port}/events"
+            contentType: "application/json"
+            logLevel: 'debug'
+            transport: 'websocket'
+            trackMessageLength: true
+            reconnectInterval: 5000
+          }
+          
+          request.onOpen = (response) =>
+            console.log "Called onOpen", response
+            console.log "this1", @
+            $timeout () =>    
+              console.log "this2", @
+              @socket.push @atmosphere.util.stringifyJSON({ author: "stuart", message: "hi there" })
+            
+          request.onMessage = (response) ->
+            console.log "Called onMessage", response
+          
+          @socket = @atmosphere.subscribe request
+          
+          disconnect: () ->
+            @atmosphere.unsubscribeUrl request.url
+          
       
-      	emit: (evt, data) ->
-      	  @eventer.emit evt, data
-      	
-      	on: (evt, handler) ->
-      	  @eventer.bind evt, handler
+        emit: (evt, data) =>
+          @socket
+          ## @eventer.emit evt, data
+        
+        on: (evt, handler) ->
+          ## @eventer.bind evt, handler
       
-      	off: (evt, handler) ->
-      	  @eventer.unbind evt, handler
-      
+        off: (evt, handler) ->
+          ## @eventer.unbind evt, handler
+          
+        disconnect: () ->
+          console.log "Disconnect requested"
+          @socket.disconnect()
   
       new SocketEventEmitter(protocol, host, port)

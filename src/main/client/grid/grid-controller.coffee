@@ -364,6 +364,7 @@ angular
 
 
     socket.on 'welcome', (data) ->
+      console.log "Got welcome message", data
       socket.emit 'join', { 'scope': $scope.studyName }
 
     $scope.$on '$destroy', () ->

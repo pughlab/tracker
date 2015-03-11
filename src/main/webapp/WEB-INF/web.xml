@@ -28,6 +28,7 @@
 	<filter>
 	    <filter-name>shiroFilter</filter-name>
 	    <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+	    <async-supported>true</async-supported>
 	</filter>
 	
 	<filter-mapping>
@@ -39,16 +40,6 @@
 	    <dispatcher>ERROR</dispatcher>
 	</filter-mapping>
 	
-    <servlet>
-        <servlet-name>trackerUpdateServlet</servlet-name>
-        <servlet-class>ca.uhnresearch.pughlab.tracker.sockets.TrackerUpdateJettyServlet</servlet-class>
-    </servlet>
-    
-    <servlet-mapping>
-        <servlet-name>trackerUpdateServlet</servlet-name>
-        <url-pattern>/events/*</url-pattern>
-    </servlet-mapping>
-
  	<filter>
 		<filter-name>transactionFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -57,6 +48,29 @@
 		<filter-name>transactionFilter</filter-name>
 		<url-pattern>/api/*</url-pattern>
 	</filter-mapping>
+	
+	<servlet>
+        <description>AtmosphereServlet</description>
+        <servlet-name>atmosphereServlet</servlet-name>
+        <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
+        <!-- limit classpath scanning to speed up starting, not mandatory -->
+        <init-param>
+            <param-name>org.atmosphere.cpr.packages</param-name>
+            <param-value>ca.uhnresearch.pughlab.tracker.sockets</param-value>
+        </init-param>
+        <init-param>
+            <param-name>org.atmosphere.interceptor.HeartbeatInterceptor.clientHeartbeatFrequencyInSeconds</param-name>
+            <param-value>10</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+        <async-supported>true</async-supported>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>atmosphereServlet</servlet-name>
+		<url-pattern>/events/*</url-pattern>
+    </servlet-mapping>
+    
  
  	<servlet>
 		<servlet-name>tracker</servlet-name>

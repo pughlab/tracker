@@ -35,12 +35,18 @@
     "angular-ui-sortable": "~0.13.0",
     "selectize": "~0.11.2",
     "angular-validation-match": "~1.1.0",
-    "bootstrap-text-dropdown": ">=0.1.2"
+    "bootstrap-text-dropdown": ">=0.1.2",
+    "atmosphere-javascript": "*"
   },
   "devDependencies": {
     "angular-mocks": "~1.2.27"
   },
   "overrides": {
+    "atmosphere-javascript": {
+      "main": [
+        "modules/javascript/src/main/webapp/javascript/atmosphere.js"
+      ]
+    },
     "selectize": {
       "main": [
         "dist/css/selectize.bootstrap3.css",
