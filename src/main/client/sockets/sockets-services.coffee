@@ -44,7 +44,8 @@ angular
           @socket = @atmosphere.subscribe @request
                 
         addListener: (event, listener) ->
-          @emit 'newListener', event, listener
+          if @events['newListener']
+            l listener for l in @events['newListener']
           (@events[event]?=[]).push listener
           return @
         
