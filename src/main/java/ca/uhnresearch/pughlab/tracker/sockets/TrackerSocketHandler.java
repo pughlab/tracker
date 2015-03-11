@@ -1,13 +1,11 @@
 package ca.uhnresearch.pughlab.tracker.sockets;
 
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.web.env.WebEnvironment;
-import org.apache.shiro.web.mgt.WebSecurityManager;
-import org.apache.shiro.web.util.WebUtils;
 import org.atmosphere.config.service.Disconnect;
 import org.atmosphere.config.service.Heartbeat;
 import org.atmosphere.config.service.ManagedService;
 import org.atmosphere.config.service.Ready;
+import org.atmosphere.config.service.Message;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResourceEvent;
 import org.atmosphere.cpr.FrameworkConfig;
@@ -19,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-
-import javax.servlet.ServletContext;
 
 @ManagedService(path = "/events",
                 interceptors = {
@@ -50,6 +46,12 @@ public class TrackerSocketHandler {
         
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         logger.info("Subject: {}", subject.getPrincipal());
+        
+        // When we are ready, we should actually send a welcome message to the client. This starts off
+        // much of the protocol.
+        
+        UpdateEvent event = new UpdateEvent(subject.getPrincipal().toString(), UpdateEvent.WELCOME_EVENT);
+        r.getBroadcaster().broadcast(event);
     }
 
     /**
@@ -67,16 +69,15 @@ public class TrackerSocketHandler {
     }
 
     /**
-     * Simple annotated class that demonstrate how {@link org.atmosphere.config.managed.Encoder} and {@link org.atmosphere.config.managed.Decoder
-     * can be used.
-     *
-     * @param message an instance of {@link Message}
+	 * Handles a message from the client. This is where most of the actual logic goes here. 
+	 * 
+     * @param message an instance of {@link UpdateEvent}
      * @return
      * @throws IOException
      */
-    @org.atmosphere.config.service.Message(encoders = {JacksonEncoder.class}, decoders = {JacksonDecoder.class})
-    public Message onMessage(Message message) throws IOException {
-        logger.info("{} just send {}", message.getAuthor(), message.getMessage());
+    @Message(encoders = {JacksonEncoder.class}, decoders = {JacksonDecoder.class})
+    public UpdateEvent onMessage(UpdateEvent message) throws IOException {
+        logger.info("{} just send {}", message.getSender(), message.getType());
         return message;
     }
 }

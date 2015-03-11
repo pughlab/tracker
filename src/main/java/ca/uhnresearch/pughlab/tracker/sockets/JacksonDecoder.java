@@ -7,16 +7,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 /**
- * Decode a String into a {@link Message}.
+ * Decode a String into a {@link UpdateEvent}.
  */
-public class JacksonDecoder implements Decoder<String, Message> {
+public class JacksonDecoder implements Decoder<String, UpdateEvent> {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public Message decode(String s) {
+    public UpdateEvent decode(String s) {
         try {
-            return mapper.readValue(s, Message.class);
+            return mapper.readValue(s, UpdateEvent.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

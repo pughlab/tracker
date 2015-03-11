@@ -7,14 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 /**
- * Encode a {@link Message} into a String
+ * Encode a {@link UpdateEvent} into a String
  */
-public class JacksonEncoder implements Encoder<Message, String> {
+public class JacksonEncoder implements Encoder<UpdateEvent, String> {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public String encode(Message m) {
+    public String encode(UpdateEvent m) {
         try {
             return mapper.writeValueAsString(m);
         } catch (IOException e) {
