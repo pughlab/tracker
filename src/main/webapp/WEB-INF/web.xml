@@ -55,6 +55,10 @@
         <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
         <!-- limit classpath scanning to speed up starting, not mandatory -->
         <init-param>
+  			<param-name>org.atmosphere.cpr.objectFactory</param-name>
+  			<param-value>ca.uhnresearch.pughlab.tracker.application.SpringWebObjectFactory</param-value>
+		</init-param>
+        <init-param>
             <param-name>org.atmosphere.cpr.packages</param-name>
             <param-value>ca.uhnresearch.pughlab.tracker.sockets</param-value>
         </init-param>

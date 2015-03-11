@@ -7,7 +7,7 @@
 	                    http://www.springframework.org/schema/beans/spring-beans.xsd
 	                    http://www.springframework.org/schema/util
 	                    http://www.springframework.org/schema/util/spring-util.xsd">
-
+	                    
 	<bean id="trackerComponent" class="org.restlet.ext.spring.SpringComponent">
 		<property name="defaultTarget" ref="trackerApplication" />
 	</bean>
@@ -34,6 +34,9 @@
 	<bean id="staticsDirectory" class="ca.uhnresearch.pughlab.tracker.restlets.DirectoryFactoryBean">
 		<property name="component" ref="trackerComponent" />
 		<property name="resourceRoot" value="file:///Users/stuartw/git/tracker-java-restlet/target/client/tmp" />
+	</bean>
+	
+	<bean id="trackerUpdateManager" class="ca.uhnresearch.pughlab.tracker.sockets.UpdateEventManager">
 	</bean>
 	
 </beans>

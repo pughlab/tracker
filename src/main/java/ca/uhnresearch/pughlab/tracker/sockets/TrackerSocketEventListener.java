@@ -1,5 +1,8 @@
 package ca.uhnresearch.pughlab.tracker.sockets;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.shiro.subject.Subject;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResourceEvent;
@@ -7,10 +10,14 @@ import org.atmosphere.cpr.AtmosphereResourceEventListener;
 import org.atmosphere.cpr.FrameworkConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Configurable;
 
+@Configurable
 public class TrackerSocketEventListener implements AtmosphereResourceEventListener {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	private UpdateEventManager eventManager;
 
 	@Override
 	public void onHeartbeat(AtmosphereResourceEvent arg0) {
@@ -26,8 +33,9 @@ public class TrackerSocketEventListener implements AtmosphereResourceEventListen
         logger.info("Subject: {}", subject.getPrincipal());
 
         Object data = arg0.getMessage();
+        logger.info("Event type: {}", data.getClass().getCanonicalName());
+        logger.info("Event manager: {}", eventManager);
 		logger.info("Called onBroadcast: {}", data.toString());
-
 	}
 
 	@Override
@@ -70,5 +78,16 @@ public class TrackerSocketEventListener implements AtmosphereResourceEventListen
 		// TODO Auto-generated method stub
 		logger.info("Called onThrowable: {}", arg0);
 
+	}
+
+	public UpdateEventManager getEventManager() {
+		return eventManager;
+	}
+
+	@Inject
+	@Named("trackerUpdateManager")
+	public void setEventManager(UpdateEventManager eventManager) {
+		logger.info("Setting eventManager to: {}", eventManager);
+		this.eventManager = eventManager;
 	}
 }
