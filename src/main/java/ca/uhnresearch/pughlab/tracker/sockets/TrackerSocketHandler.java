@@ -19,6 +19,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 @ManagedService(path = "/events",
+				listeners = {
+		TrackerSocketEventListener.class
+},
                 interceptors = {
 		AtmosphereResourceLifecycleInterceptor.class,
 		HeartbeatInterceptor.class,
@@ -31,7 +34,7 @@ public class TrackerSocketHandler {
 
 	@Heartbeat
     public void onHeartbeat(final AtmosphereResourceEvent event) {
-        logger.trace("Heartbeat send by {}", event.getResource());
+        logger.info("Heartbeat send by {}", event.getResource());
     }
 
     /**
@@ -77,6 +80,7 @@ public class TrackerSocketHandler {
      */
     @Message(encoders = {JacksonEncoder.class}, decoders = {JacksonDecoder.class})
     public UpdateEvent onMessage(UpdateEvent message) throws IOException {
+
         logger.info("{} just send {}", message.getSender(), message.getType());
         return message;
     }
