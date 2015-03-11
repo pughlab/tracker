@@ -105,6 +105,7 @@ public class TrackerSocketHandler {
     	UpdateEvent message = mapper.readValue(input, UpdateEvent.class);
 
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
+        
         logger.info("Subject: {}", subject.getPrincipal());
         logger.info("Event type: {}", message.getClass().getCanonicalName());
         logger.info("Event manager: {}", eventManager);
