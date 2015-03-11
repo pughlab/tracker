@@ -23,10 +23,10 @@ angular
       class SocketEventEmitter 
       
         constructor: (protocol, host, port) ->
-          @eventer = jQuery(@)[0]
+          @events = {}
           @atmosphere = atmosphere
           
-          request = {
+          @request = {
             url: "http://#{host}:#{port}/events"
             contentType: "application/json"
             logLevel: 'debug'
@@ -35,34 +35,49 @@ angular
             reconnectInterval: 5000
           }
           
-          request.onOpen = (response) =>
-            console.log "Called onOpen", response
-            console.log "this1", @
-            $timeout () =>    
-              console.log "this2", @
-              @socket.push @atmosphere.util.stringifyJSON({ author: "stuart", message: "hi there" })
-            
-          request.onMessage = (response) ->
+          @request.onMessage = (response) =>
             console.log "Called onMessage", response
+            decoded = JSON.parse response.responseBody
+            if @events[decoded.type]
+              listener decoded for listener in @events[decoded.type]
           
-          @socket = @atmosphere.subscribe request
-          
-          disconnect: () ->
-            @atmosphere.unsubscribeUrl request.url
-          
-      
-        emit: (evt, data) =>
-          @socket
-          ## @eventer.emit evt, data
+          @socket = @atmosphere.subscribe @request
+                
+        addListener: (event, listener) ->
+          @emit 'newListener', event, listener
+          (@events[event]?=[]).push listener
+          return @
         
-        on: (evt, handler) ->
-          ## @eventer.bind evt, handler
-      
-        off: (evt, handler) ->
-          ## @eventer.unbind evt, handler
-          
+        removeListener: (event, listener) ->
+          return @ unless @events[event]
+          @events[event] = (l for l in @events[event] when l isnt listener)
+          return @
+ 
+        removeAllListeners: (event) ->
+          delete @events[event]
+          return @
+
+        ## This should transmit back through the socket
+        emit: (evt, data...) =>
+          console.log "Called emit", evt, data
+        
+        on: (evt, handler) =>
+          @addListener(evt, handler)
+        
+        once: (event, listener) ->
+          fn = =>
+            @removeListener event, fn
+            listener arguments...
+          @on event, fn
+          return @
+ 
         disconnect: () ->
           console.log "Disconnect requested"
-          @socket.disconnect()
+          @atmosphere.unsubscribeUrl @request.url
   
-      new SocketEventEmitter(protocol, host, port)
+      socket = new SocketEventEmitter(protocol, host, port)
+      
+      socket.on 'newListener', (data...) ->
+        console.log "Added listener", data
+      
+      socket
