@@ -37,10 +37,8 @@ public class ViewExtractor extends Extractor {
 		
 		// If we don't find a value, we can fail at this stage.
 		if (v == null) {
-			logger.info("Can't find study: {}", value);
-
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return STOP;
+			logger.warn("Can't find view: {} in study {}", value, study.getName());
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 		
 		// We should allow access based on a read permission for the view, or 
