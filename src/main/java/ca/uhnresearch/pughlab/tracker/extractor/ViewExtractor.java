@@ -27,7 +27,6 @@ public class ViewExtractor extends Extractor {
     }
 
 	protected int beforeHandle(Request request, Response response) {
-		extractFromQuery("viewName", "viewName", true);
 		
 		Studies study = (Studies) request.getAttributes().get("study");
 		String value = (String) request.getAttributes().get("viewName");

@@ -16,17 +16,19 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 public class CaseQueryExtractor extends Extractor {
 	
 	protected int beforeHandle(Request request, Response response) {
+		
 		extractFromQuery("offset", "offset", true);
 		extractFromQuery("limit", "limit", true);
+		super.beforeHandle(request, response);
 		
 		CaseQuery query = new CaseQuery();
 		
 		Map<String, Object> attributes = request.getAttributes();
 		if (attributes.containsKey("offset")) {
-			query.offset = new Integer((String) attributes.get("offset"));
+			query.setOffset(new Integer((String) attributes.get("offset")));
 		}
 		if (attributes.containsKey("limit")) {
-			query.limit = new Integer((String) attributes.get("limit"));
+			query.setLimit(new Integer((String) attributes.get("limit")));
 		}
 
 		attributes.put("query", query);

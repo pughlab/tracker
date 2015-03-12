@@ -26,7 +26,6 @@ public class StudyExtractor extends Extractor {
     }
 
 	protected int beforeHandle(Request request, Response response) {
-		extractFromQuery("studyName", "studyName", true);
 		
 		String value = (String) request.getAttributes().get("studyName");
 		

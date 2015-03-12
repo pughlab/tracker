@@ -147,18 +147,18 @@ public class StudyRepositoryImpl implements StudyRepository {
 		SQLSubQuery sq = new SQLSubQuery().from(cases);
 		
 		// If we have an ordering, use a left join to get the attribute, and order it later
-		if (query.orderField != null) {
+		if (query.getOrderField() != null) {
 			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
-			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attribute.eq(query.orderField)));
-			OrderSpecifier<String> ordering = (query.orderDirection == CaseQuery.OrderDirection.ASC) ? c.value.asc() : c.value.desc();
+			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attribute.eq(query.getOrderField())));
+			OrderSpecifier<String> ordering = (query.getOrderDirection() == CaseQuery.OrderDirection.ASC) ? c.value.asc() : c.value.desc();
 			sq = sq.orderBy(ordering);
 		}
 		
-		if (query.offset != null) {
-			sq = sq.offset(query.offset);
+		if (query.getOffset() != null) {
+			sq = sq.offset(query.getOffset());
 		}
-		if (query.limit != null) {
-			sq = sq.limit(query.limit);
+		if (query.getLimit() != null) {
+			sq = sq.limit(query.getLimit());
 		}
 	
 		return sq.list(cases.id);
