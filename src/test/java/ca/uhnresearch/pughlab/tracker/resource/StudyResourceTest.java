@@ -4,6 +4,8 @@ import static junit.framework.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.apache.shiro.subject.Subject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.restlet.Request;
@@ -14,17 +16,27 @@ import org.restlet.representation.Representation;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
+import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class StudyResourceTest {
+import static org.easymock.EasyMock.*;
+
+public class StudyResourceTest extends AbstractShiroTest {
 
 	private StudyResource studyResource;
 	private StudyRepository repository = new MockStudyRepository();
 
 	@Before
 	public void initialize() {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
 		studyResource = new StudyResource();
 		studyResource.setRepository(repository);
 		Request request = new Request(Method.GET, "http://localhost:9998/services/studies");
@@ -32,6 +44,11 @@ public class StudyResourceTest {
 		request.setRootRef(rootReference);
 		studyResource.setRequest(request);
 	}
+	
+	@After
+	public void tearDownSubject() {
+        clearSubject();
+    }
 	
 	@Test
 	public void resourceTest() throws IOException {

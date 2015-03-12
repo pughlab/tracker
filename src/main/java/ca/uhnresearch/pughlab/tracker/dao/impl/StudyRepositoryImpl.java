@@ -265,6 +265,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// Right. Now we can add in the attributes from a set of related queries, using the same basic
 		// case query as a starting point. Yes, we're re-doing this query more times than I'd like, but
 		// we can optimize later.
+		
+		// Sadly, we are returning all attributes rather than just the ones that are accessible. In
+		// effect, we don't use attributes as a filter. 
 				
 		SQLQuery sqlQuery;
 		List<Tuple> values;

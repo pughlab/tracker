@@ -1,9 +1,14 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import static junit.framework.Assert.assertEquals;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 
 import java.io.IOException;
 
+import org.apache.shiro.subject.Subject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.restlet.Request;
@@ -15,17 +20,27 @@ import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class ViewResourceTest {
+public class ViewResourceTest extends AbstractShiroTest {
 
 	private ViewResource viewResource;
 	private StudyRepository repository = new MockStudyRepository();
 
 	@Before
 	public void initialize() {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
 		viewResource = new ViewResource();
 		viewResource.setRepository(repository);
 		Request request = new Request(Method.GET, "http://localhost:9998/services/studies");
@@ -34,6 +49,11 @@ public class ViewResourceTest {
 		viewResource.setRequest(request);
 	}
 	
+	@After
+	public void tearDownSubject() {
+        clearSubject();
+    }
+
 	@Test
 	public void resourceTest() throws IOException {
 		
