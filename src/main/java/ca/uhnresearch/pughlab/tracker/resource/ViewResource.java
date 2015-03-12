@@ -11,8 +11,6 @@ import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,8 +28,6 @@ public class ViewResource extends ServerResource {
 
 	private StudyRepository repository;
 
-	private final Logger logger = LoggerFactory.getLogger(ViewResource.class);
-
 	@Required
     public void setRepository(StudyRepository repository) {
         this.repository = repository;
@@ -39,7 +35,6 @@ public class ViewResource extends ServerResource {
 	
     @Get("json")
     public Representation getResource()  {
-    	logger.info("Called getResource");
 
     	Subject currentUser = SecurityUtils.getSubject();
 

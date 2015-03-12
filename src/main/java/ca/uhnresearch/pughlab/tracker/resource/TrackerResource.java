@@ -34,7 +34,7 @@ public class TrackerResource extends ServerResource {
     public Representation getResource()  {
     	
     	Subject currentUser = SecurityUtils.getSubject();
-    	logger.info("Authenticated as: {}", currentUser.getPrincipal().toString());
+    	logger.debug("Authenticated as: {}", currentUser.getPrincipal().toString());
     	
     	// Query the database for studies
     	List<Studies> studyList = repository.getAllStudies();

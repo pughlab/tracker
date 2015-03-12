@@ -9,8 +9,6 @@ import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
@@ -23,8 +21,6 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
 public class StudyResource extends ServerResource {
 
 	private StudyRepository repository;
-
-	private final Logger logger = LoggerFactory.getLogger(StudyResource.class);
 
 	@Required
     public void setRepository(StudyRepository repository) {
