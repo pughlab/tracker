@@ -10,17 +10,17 @@ import ca.uhnresearch.pughlab.tracker.domain.Views;
 
 public interface StudyRepository {
 
-	public abstract List<Studies> getAllStudies();
+	List<Studies> getAllStudies();
 	
-	public abstract Studies getStudy(String name);
+	Studies getStudy(String name);
 	
-	public abstract List<Views> getStudyViews(Studies study);
+	List<Views> getStudyViews(Studies study);
 
-	public abstract Views getStudyView(Studies study, String name);
+	Views getStudyView(Studies study, String name);
 
-	public List<Attributes> getViewAttributes(Studies study, Views view);
+	List<Attributes> getViewAttributes(Studies study, Views view);
 	
-	public Long getRecordCount(Studies study, Views view);
+	Long getRecordCount(Studies study, Views view);
 	
-	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query);
+	List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query);
 }

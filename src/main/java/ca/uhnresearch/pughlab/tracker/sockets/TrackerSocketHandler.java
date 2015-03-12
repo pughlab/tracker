@@ -1,7 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.sockets;
 
 import org.apache.shiro.subject.Subject;
-import org.atmosphere.config.service.DeliverTo;
 import org.atmosphere.config.service.Disconnect;
 import org.atmosphere.config.service.Heartbeat;
 import org.atmosphere.config.service.ManagedService;
@@ -9,7 +8,6 @@ import org.atmosphere.config.service.Ready;
 import org.atmosphere.config.service.Message;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResourceEvent;
-import org.atmosphere.cpr.AtmosphereResourceFactory;
 import org.atmosphere.cpr.FrameworkConfig;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.HeartbeatInterceptor;
