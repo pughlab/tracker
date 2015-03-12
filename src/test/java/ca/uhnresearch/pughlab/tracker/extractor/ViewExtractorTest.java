@@ -1,18 +1,21 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.junit.Assert.assertNotNull;
+import static org.easymock.EasyMock.*;
+import static org.junit.Assert.*;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import org.apache.shiro.subject.Subject;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
+import org.restlet.data.Status;
+import org.restlet.resource.ResourceException;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
@@ -38,6 +41,10 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		extractor.setNext(mock);
 	}
 
+	/**
+	 * Tests an extractor can pull out a given authorized view from a study and 
+	 * a view name.
+	 */
 	@Test
 	public void testBasicExtraction() {
 		
@@ -57,5 +64,37 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		
 		Views view = (Views) request.getAttributes().get("view");
 		assertNotNull(view);
+		
+		assertEquals(Status.SUCCESS_OK, response.getStatus());
+	}
+	
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+	
+	/**
+	 * Tests an extractor refuses a given unauthorized view from a study and 
+	 * a view name.
+	 */
+	@Test
+	public void testBasicRefusal() throws ResourceException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+		
+		Reference reference = new Reference();
+		Request request = new Request(Method.GET, reference);
+		Response response = new Response(request);
+		Studies study = repository.getStudy("DEMO");
+		request.getAttributes().put("study", study);
+		request.getAttributes().put("viewName", "complete");
+		
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Forbidden"));
+		
+		extractor.handle(request, response);
 	}
 }
