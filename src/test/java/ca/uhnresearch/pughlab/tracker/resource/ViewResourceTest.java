@@ -14,6 +14,7 @@ import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 
+import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
@@ -21,6 +22,7 @@ import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class ViewResourceTest extends AbstractShiroTest {
@@ -59,6 +61,10 @@ public class ViewResourceTest extends AbstractShiroTest {
 		Views testView = repository.getStudyView(testStudy, "complete");
 		viewResource.getRequest().getAttributes().put("study", testStudy);
 		viewResource.getRequest().getAttributes().put("view", testView);
+		CaseQuery query = new CaseQuery();
+		query.setLimit(5);
+		query.setOffset(0);
+		viewResource.getRequest().getAttributes().put("query", query);
 
 		Representation result = viewResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
@@ -70,5 +76,7 @@ public class ViewResourceTest extends AbstractShiroTest {
 		
 		JsonObject view = data.get("view").getAsJsonObject();
 		assertEquals( "complete", view.get("name").getAsString() );
+		
+		assertTrue( data.get("records").isJsonArray() );
 	}
 }

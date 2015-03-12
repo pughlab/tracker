@@ -41,7 +41,11 @@ public class ViewResource extends ServerResource {
     	// Query the database for studies
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
-    	CaseQuery query = new CaseQuery();
+    	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
+    	
+    	assert study != null;
+    	assert view != null;
+    	assert query != null;
     	
     	List<Attributes> attributes = repository.getViewAttributes(study, view);
     	List<JsonNode> records = repository.getData(study, view, attributes, query);

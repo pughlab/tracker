@@ -1,13 +1,22 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +35,11 @@ import ca.uhnresearch.pughlab.tracker.domain.Views;
 public class MockStudyRepository implements StudyRepository {
 
 	private Logger logger = LoggerFactory.getLogger(MockStudyRepository.class);
+	
+	private ObjectMapper mapper = new ObjectMapper();
+	
+	private static final Integer caseCount = 10;
+
 
 	List<Studies> studies = new ArrayList<Studies>();
 	List<Attributes> attributes = new ArrayList<Attributes>();
@@ -69,7 +83,7 @@ public class MockStudyRepository implements StudyRepository {
 		viewAttributes.add(mockViewAttribute(5, 3, "{\"classes\": [\"label5\"]}"));
 		
 		// And finally add some cases
-		for(Integer i = 0; i < 10; i++) {
+		for(Integer i = 0; i < caseCount; i++) {
 			cases.add(mockCase(i));
 		}
 		
@@ -77,27 +91,28 @@ public class MockStudyRepository implements StudyRepository {
 		// an ideal world we'd handle better by superimposing an interface on the generated
 		// classes, but we can't really make things that simple.
 
-		for(Integer i = 0; i < 10; i++) {
+		for(Integer i = 0; i < caseCount; i++) {
 			Calendar date = Calendar.getInstance();
 			date.set(2014, 8, i + 10);
-			dates.add(mockCaseAttributeDates(i, "patientId", new Date(date.getTimeInMillis())));
+			dates.add(mockCaseAttributeDates(i, "consentDate", new Date(date.getTimeInMillis())));
 			strings.add(mockCaseAttributeStrings(i, "patientId", String.format("DEMO-%02d", i)));
 		}
 		
-		strings.add(mockCaseAttributeStrings(1, "mrn", "0101010"));
-		strings.add(mockCaseAttributeStrings(2, "mrn", "0202020"));
-		strings.add(mockCaseAttributeStrings(3, "mrn", "0303030"));
-		strings.add(mockCaseAttributeStrings(4, "mrn", "0404040"));
-		strings.add(mockCaseAttributeStrings(5, "mrn", "0505050"));
+		strings.add(mockCaseAttributeStrings(0, "mrn", "0101010"));
+		strings.add(mockCaseAttributeStrings(1, "mrn", "0202020"));
+		strings.add(mockCaseAttributeStrings(2, "mrn", "0303030"));
+		strings.add(mockCaseAttributeStrings(3, "mrn", "0404040"));
+		strings.add(mockCaseAttributeStrings(4, "mrn", "0505050"));
 
-		booleans.add(mockCaseAttributeBooleans(1, "specimenAvailable", true));
-		booleans.add(mockCaseAttributeBooleans(2, "specimenAvailable", false));
-		booleans.add(mockCaseAttributeBooleans(3, "specimenAvailable", true));
-		CaseAttributeBooleans bv = mockCaseAttributeBooleans(4, "specimenAvailable", null);
+		booleans.add(mockCaseAttributeBooleans(0, "specimenAvailable", true));
+		booleans.add(mockCaseAttributeBooleans(1, "specimenAvailable", false));
+		booleans.add(mockCaseAttributeBooleans(2, "specimenAvailable", true));
+		CaseAttributeBooleans bv = mockCaseAttributeBooleans(3, "specimenAvailable", null);
 		bv.setNotAvailable(true);
 		booleans.add(bv);
-		booleans.add(mockCaseAttributeBooleans(5, "specimenAvailable", false));
-}
+		booleans.add(mockCaseAttributeBooleans(4, "specimenAvailable", false));
+	
+	}
 	
 	private Cases mockCase(Integer id) {
 		Cases c = new Cases();
@@ -232,13 +247,65 @@ public class MockStudyRepository implements StudyRepository {
 	 * A mocked getData
 	 */
 	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		// We build all the data in Gson, because it's easier
+		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
+		for(CaseAttributeStrings string : strings) {
+			Integer caseId = string.getCaseId();
+			if (! data.containsKey(caseId)) {
+				data.put(caseId, new JsonObject());
+			}
+			data.get(caseId).addProperty(string.getAttribute(), string.getValue());
+		}
+		for(CaseAttributeDates date : dates) {
+			Integer caseId = date.getCaseId();
+			if (! data.containsKey(caseId)) {
+				data.put(caseId, new JsonObject());
+			}
+			data.get(caseId).addProperty(date.getAttribute(), date.getValue().toString());
+		}
+		for(CaseAttributeBooleans bool : booleans) {
+			Integer caseId = bool.getCaseId();
+			if (! data.containsKey(caseId)) {
+				data.put(caseId, new JsonObject());
+			}
+			data.get(caseId).addProperty(bool.getAttribute(), bool.getValue());
+		}
+		
+		JsonArray result = new JsonArray();
+		List<Integer> keys = new ArrayList<Integer>(data.keySet());
+		Collections.sort(keys);
+		Integer offset = query.getOffset();
+		Integer limit = query.getLimit();
+		Integer end = offset + limit;
+		for(Integer i = offset; i < end; i++) {
+			if (data.containsKey(i)) {
+				Integer key = keys.get(i);
+				result.add(data.get(key));
+			}
+		}
+		
+		// Now render it to a string (using Gson);
+		String text = result.toString();
+		List<JsonNode> returnable = new ArrayList<JsonNode>();
+		
+		// And now back into Jackson (!)
+		try {
+			Iterator<JsonNode> i = mapper.readTree(text).elements();
+			while(i.hasNext()) {
+				returnable.add(i.next());
+			}
+		} catch (JsonProcessingException e) {
+			logger.error("Internal test error: {}", e.getMessage());
+		} catch (IOException e) {
+			logger.error("Internal test error: {}", e.getMessage());
+		}
+		
+		return returnable;
 	}
 
 	@Override
 	public Long getRecordCount(Studies study, Views view) {
-		// TODO Auto-generated method stub
-		return null;
+		return new Long(caseCount);
 	}
 }
