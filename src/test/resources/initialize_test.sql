@@ -96,7 +96,7 @@ CREATE TABLE "VIEWS" (
 
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (1, 1, 'Manages the whole study', 'complete');
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (2, 1, 'Tracks the study', 'track');
-INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME", "OPTIONS") VALUES (4, 1, 'Tracks only secondary', 'secondary', '{"rows":[{"attribute":"study","value":"secondary"}]}');
+INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME", "OPTIONS") VALUES (3, 1, 'Tracks only secondary', 'secondary', '{"rows":[{"attribute":"study","value":"secondary"}]}');
 
 
 
