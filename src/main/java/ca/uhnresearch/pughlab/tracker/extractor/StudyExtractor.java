@@ -34,10 +34,8 @@ public class StudyExtractor extends Extractor {
 		
 		// If we don't find a value, we can fail at this stage.
 		if (s == null) {
-			logger.info("Can't find study: {}", value);
-
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return STOP;
+			logger.warn("Can't find study: {}", value);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 		
 		// Permissions checking might also be a sensible idea

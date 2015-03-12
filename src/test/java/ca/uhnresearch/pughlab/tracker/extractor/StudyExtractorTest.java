@@ -4,15 +4,19 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.*;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import org.apache.shiro.subject.Subject;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
+import org.restlet.resource.ResourceException;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
@@ -56,4 +60,45 @@ public class StudyExtractorTest extends AbstractShiroTest {
 		assertNotNull(study);
 	}
 
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	@Test
+	public void testPermissions() throws ResourceException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+		
+		Reference reference = new Reference();
+		Request request = new Request(Method.GET, reference);
+		Response response = new Response(request);
+		request.getAttributes().put("studyName", "DEMO");
+
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Forbidden"));
+		
+		extractor.handle(request, response);
+	}
+
+	@Test
+	public void testMissing() throws ResourceException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+		
+		Reference reference = new Reference();
+		Request request = new Request(Method.GET, reference);
+		Response response = new Response(request);
+		request.getAttributes().put("studyName", "XXXX");
+
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Not Found"));
+
+		extractor.handle(request, response);
+	}
 }
