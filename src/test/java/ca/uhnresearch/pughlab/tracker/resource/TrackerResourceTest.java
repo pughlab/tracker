@@ -29,14 +29,6 @@ public class TrackerResourceTest extends AbstractShiroTest {
 	
 	@Before
 	public void initialize() {
-        Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
-        replay(subjectUnderTest);
-        setSubject(subjectUnderTest);
-
         studiesResource = new TrackerResource();
 		studiesResource.setRepository(repository);
 		Request request = new Request(Method.GET, "http://localhost:9998/services/studies");
@@ -50,10 +42,23 @@ public class TrackerResourceTest extends AbstractShiroTest {
         clearSubject();
     }
 	
+	/**
+	 * Checks basic resource access to the tracker, while set up as a user who has
+	 * admin and read access to both studies. 
+	 * @throws IOException
+	 */
 	@Test
 	public void resourceTest() throws IOException {
-		System.out.println(studiesResource);
-		Representation result = studiesResource.getResource();
+
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Representation result = studiesResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
 		
 		Gson gson = new Gson();
@@ -64,5 +69,34 @@ public class TrackerResourceTest extends AbstractShiroTest {
 		assertEquals( 2, studies.size() );
 		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
 		assertEquals( "A demo clinical genomics study", studies.get(0).getAsJsonObject().get("description").getAsString());
+	}
+
+	/**
+	 * Checks basic resource access to the tracker, while set up as a user who has
+	 * admin and read access to only one study -- the other study should not be 
+	 * accessible. 
+	 * @throws IOException
+	 */
+	@Test
+	public void permissionsTest() throws IOException {
+
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Representation result = studiesResource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		JsonArray studies = data.get("studies").getAsJsonArray();
+		assertEquals( 1, studies.size() );
+		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
 	}
 }

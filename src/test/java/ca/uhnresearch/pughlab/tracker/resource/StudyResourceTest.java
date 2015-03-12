@@ -31,12 +31,6 @@ public class StudyResourceTest extends AbstractShiroTest {
 	@Before
 	public void initialize() {
 		
-        Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
-        replay(subjectUnderTest);
-        setSubject(subjectUnderTest);
-        
 		studyResource = new StudyResource();
 		studyResource.setRepository(repository);
 		Request request = new Request(Method.GET, "http://localhost:9998/services/studies");
@@ -50,10 +44,21 @@ public class StudyResourceTest extends AbstractShiroTest {
         clearSubject();
     }
 	
+	/**
+	 * Checks that an admin user can access the entire study, including all its 
+	 * many views.
+	 * @throws IOException
+	 */
 	@Test
 	public void resourceTest() throws IOException {
 		
-		Studies testStudy = repository.getStudy("DEMO");
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        Studies testStudy = repository.getStudy("DEMO");
 		studyResource.getRequest().getAttributes().put("study", testStudy);
 		
 		Representation result = studyResource.getResource();
@@ -69,5 +74,41 @@ public class StudyResourceTest extends AbstractShiroTest {
 		assertEquals( "A demo clinical genomics study", study.get("description").getAsString() );
 
 		assertEquals( 3, data.get("views").getAsJsonArray().size());
+	}
+	
+	/**
+	 * Checks that a non-admin user can access only the views that they are 
+	 * authorised to.
+	 * @throws IOException
+	 */
+	@Test
+	public void permissionsTest() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("view:read:DEMO-track")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("view:read:DEMO-secondary")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        Studies testStudy = repository.getStudy("DEMO");
+		studyResource.getRequest().getAttributes().put("study", testStudy);
+		
+		Representation result = studyResource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		JsonObject study = data.get("study").getAsJsonObject();
+		
+		assertEquals( "DEMO", study.get("name").getAsString() );
+		assertEquals( "A demo clinical genomics study", study.get("description").getAsString() );
+
+		assertEquals( 1, data.get("views").getAsJsonArray().size());
+		assertEquals( "track", data.getAsJsonArray("views").get(0).getAsJsonObject().get("name").getAsString());
 	}
 }

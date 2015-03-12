@@ -33,14 +33,6 @@ public class ViewResourceTest extends AbstractShiroTest {
 	@Before
 	public void initialize() {
 		
-        Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
-        replay(subjectUnderTest);
-        setSubject(subjectUnderTest);
-
 		viewResource = new ViewResource();
 		viewResource.setRepository(repository);
 		Request request = new Request(Method.GET, "http://localhost:9998/services/studies");
@@ -57,7 +49,15 @@ public class ViewResourceTest extends AbstractShiroTest {
 	@Test
 	public void resourceTest() throws IOException {
 		
-		Studies testStudy = repository.getStudy("DEMO");		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Studies testStudy = repository.getStudy("DEMO");		
 		Views testView = repository.getStudyView(testStudy, "complete");
 		viewResource.getRequest().getAttributes().put("study", testStudy);
 		viewResource.getRequest().getAttributes().put("view", testView);
