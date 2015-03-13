@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
+import ca.uhnresearch.pughlab.tracker.domain.Cases;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 
@@ -187,9 +188,9 @@ public class StudyRepositoryImplTest {
 	public void testSingleCase() {
 		Studies study = studyRepository.getStudy("DEMO");
 		Views view = studyRepository.getStudyView(study, "track");
-		JsonNode value = studyRepository.getCaseData(study, view, 1);
-		assertNotNull(value);
-		assertEquals("DEMO-01", value.get("patientId").asText());
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		assertNotNull(caseValue);
+		assertEquals(1, caseValue.getId().intValue());
 	}
 
 	@Test
@@ -198,8 +199,8 @@ public class StudyRepositoryImplTest {
 	public void testSingleMissingCase() {
 		Studies study = studyRepository.getStudy("DEMO");
 		Views view = studyRepository.getStudyView(study, "track");
-		JsonNode value = studyRepository.getCaseData(study, view, 100);
-		assertNull(value);
+		Cases caseValue = studyRepository.getStudyCase(study, view, 100);
+		assertNull(caseValue);
 	}
 
 	@Test
@@ -208,7 +209,18 @@ public class StudyRepositoryImplTest {
 	public void testSingleFromDifferentStudy() {
 		Studies study = studyRepository.getStudy("DEMO");
 		Views view = studyRepository.getStudyView(study, "track");
-		JsonNode value = studyRepository.getCaseData(study, view, 22);
-		assertNull(value);
+		Cases caseValue = studyRepository.getStudyCase(study, view, 22);
+		assertNull(caseValue);
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testHistory() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		JsonNode history = studyRepository.getCaseAttributeHistory(study, view, caseValue, "primarySite");
+		assertNotNull(history);
 	}
 }

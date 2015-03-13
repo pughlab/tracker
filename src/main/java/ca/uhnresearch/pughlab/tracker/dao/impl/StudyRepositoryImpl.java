@@ -19,8 +19,10 @@ import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
+import com.mysema.query.support.Expressions;
 import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.QTuple;
+import com.mysema.query.types.expr.StringExpression;
 import com.mysema.query.types.query.ListSubQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
@@ -322,15 +324,77 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 
+	/**
+	 * Returns the case data for a single study entity, in JSON format.
+	 */
 	@Override
-	public JsonNode getCaseData(Studies study, Views view, Integer caseId) {
-		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseId);
+	public JsonNode getCaseData(Studies study, Views view, Cases caseValue) {
+		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseValue.getId());
 		List<JsonNode> listData = getJsonData(caseQuery);
 		if (listData.size() == 1) {
 			return listData.get(0);
 		} else {
 			return null;
 		}
-	}	
+	}
+
+	/**
+	 * Returns the data on a single entity attribute's history, in JSON format.
+	 */
+	@Override
+	public JsonNode getCaseAttributeHistory(Studies study, Views view, Cases caseValue, String attribute) {
+
+		// The table to use might vary here, so we need to select a few different options. Unhelpfully,
+		// we don't get great polymorphism from Querydsl. But that's the same issue we faced earlier. 
+		// Logically, though, it's better to query all and merge them, as we might have changed the
+		// type of the field along the way. 
+		
+		SQLQuery sqlQuery;
+		List<Tuple> allValues = new ArrayList<Tuple>();
+		List<Tuple> values;
+		
+		ListSubQuery<Integer> query = getStudyCaseSubQuery(study, caseValue.getId());
+		
+		final QCaseAttributeStrings s = caseAttributeStrings;
+		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(s).on(cases.id.eq(s.caseId).and(s.attribute.eq(attribute)));
+		values = template.query(sqlQuery, new QTuple(s.active, s.value, s.modified, s.modifiedBy, s.notAvailable, Expressions.constant("string")));
+		allValues.addAll(values);
+		
+		final QCaseAttributeDates d = caseAttributeDates;
+		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(d).on(cases.id.eq(d.caseId).and(d.attribute.eq(attribute)));
+		values = template.query(sqlQuery, new QTuple(d.active, d.value, d.modified, d.modifiedBy, d.notAvailable, Expressions.constant("date")));
+		allValues.addAll(values);
+
+		final QCaseAttributeBooleans b = caseAttributeBooleans;
+		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(b).on(cases.id.eq(b.caseId).and(b.attribute.eq(attribute)));
+		values = template.query(sqlQuery, new QTuple(b.active, b.value, b.modified, b.modifiedBy, b.notAvailable, Expressions.constant("boolean")));
+		allValues.addAll(values);
+		
+		// So here we should have a big list of tuples. They will, by and large, need to be merged and 
+		// sorted into a single list. If we'd been feeling ingenious, we could have sorted each and 
+		// made a merge on them, but the performance issue will be irrelevant unless the history is
+		// really huge.
+		
+		// Main issue is sorting by date and by activity, and then unpacking into JSON. So it would 
+		// be easier if we unpacked into JSON first. Or, rather, pseudo-JSON in the form of an object
+		// we can nicely serialise. That way we can sort on the objects. 
+		
+		return null;
+	}
+
+	@Override
+	public Cases getStudyCase(Studies study, Views view, Integer caseId) {
+		logger.debug("Looking for case by identifier: {}", caseId);
+    	SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
+    	Cases caseValue = template.queryForObject(sqlQuery, cases);
+    	
+    	if (caseValue != null) {
+    		logger.info("Got a case: {}", caseValue.toString());
+    	} else {
+    		logger.info("No case found");
+    	}
+    	
+    	return caseValue;
+	}
 }
 

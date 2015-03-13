@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -317,14 +318,73 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public JsonNode getCaseData(Studies study, Views view, Integer caseId) {
+	public Cases getStudyCase(Studies study, Views view, Integer caseId) {
+		
+		Cases result = null;
+		for (Cases c : cases) {
+			if (c.getId().equals(caseId)) {
+				result = c;
+				break;
+			}
+		}
+		return result;		
+	}
+	
+	/**
+	 * Inner class, mainly as a convenience for mocking history entries with the right fields.
+	 * @author stuartw
+	 *
+	 */
+	private class HistoryEntry {
+		
+		private HistoryEntry(Boolean active, String value, String modified, String modifiedBy, Boolean notAvailable, String type) {
+			this.active = active;
+			this.value = value;
+			this.modified = modified;
+			this.modifiedBy = modifiedBy;
+			this.notAvailable = notAvailable;
+			this.type = type;
+		}
+		
+		@JsonProperty
+		Boolean active;
 
+		@JsonProperty
+		String value;
+		
+		@JsonProperty
+		String modified;
+		
+		@JsonProperty
+		String modifiedBy;
+		
+		@JsonProperty
+		Boolean notAvailable;
+		
+		@JsonProperty
+		String type;
+	}
+
+	@Override
+	public JsonNode getCaseAttributeHistory(Studies study, Views view, Cases caseValue, String attribute) {
+		// TODO Auto-generated method stub
+		
+		List<HistoryEntry> history = new ArrayList<HistoryEntry>();
+		history.add(new HistoryEntry(true, attribute, "2014-01-05", "stuart", false, "string"));
+		history.add(new HistoryEntry(false, "old value", "2014-01-03", "stuart", false, "string"));
+		history.add(new HistoryEntry(false, "very old value", "2014-01-01", "stuart", false, "string"));
+		return mapper.convertValue(history, JsonNode.class);
+	}
+
+	@Override
+	public JsonNode getCaseData(Studies study, Views view, Cases caseValue) {
+		// TODO Auto-generated method stub
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
-		if (! data.containsKey(caseId)) {
+		if (! data.containsKey(caseValue.getId())) {
 			return null;
 		}
-		String text = data.get(caseId).toString();
+		String text = data.get(caseValue.getId()).toString();
 		try {
 			return mapper.readTree(text);
 		} catch (IOException e) {
@@ -332,4 +392,5 @@ public class MockStudyRepository implements StudyRepository {
 			return null;
 		}
 	}
+
 }
