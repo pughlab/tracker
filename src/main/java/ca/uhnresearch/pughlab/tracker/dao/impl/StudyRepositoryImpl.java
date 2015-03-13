@@ -1,11 +1,13 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -19,6 +21,7 @@ import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
+import com.mysema.query.sql.dml.Mapper;
 import com.mysema.query.support.Expressions;
 import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.QTuple;
@@ -337,6 +340,45 @@ public class StudyRepositoryImpl implements StudyRepository {
 			return null;
 		}
 	}
+	
+	private class HistoryEntry {
+		
+		HistoryEntry (Tuple tuple) {
+			this.active = tuple.get(0, Boolean.class);
+			Object generic = tuple.get(1, Object.class);
+			if (generic instanceof String) {
+				this.value = jsonNodeFactory.textNode((String) generic);
+			} else if (generic instanceof Date) {
+				this.value = jsonNodeFactory.numberNode(((Date) generic).getTime());
+			} else if (generic instanceof Boolean) {
+				this.value = jsonNodeFactory.booleanNode((Boolean) generic);
+			} else {
+				throw new RuntimeException("Internal error: invalid type: " + generic.getClass().getName());
+			}
+			this.modified = tuple.get(2, Timestamp.class).getTime();
+			this.modifiedBy = tuple.get(3, Integer.class);
+			this.notAvailable = tuple.get(4, Boolean.class);
+			this.type = tuple.get(5, String.class);
+		}
+		
+		@JsonProperty 
+		Boolean active;
+		
+		@JsonProperty
+		JsonNode value;
+		
+		@JsonProperty
+		Long modified;
+		
+		@JsonProperty
+		Integer modifiedBy;
+		
+		@JsonProperty
+		Boolean notAvailable;
+		
+		@JsonProperty
+		String type;
+	}
 
 	/**
 	 * Returns the data on a single entity attribute's history, in JSON format.
@@ -350,7 +392,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// type of the field along the way. 
 		
 		SQLQuery sqlQuery;
-		List<Tuple> allValues = new ArrayList<Tuple>();
+		List<HistoryEntry> allValues = new ArrayList<HistoryEntry>();
 		List<Tuple> values;
 		
 		ListSubQuery<Integer> query = getStudyCaseSubQuery(study, caseValue.getId());
@@ -358,17 +400,23 @@ public class StudyRepositoryImpl implements StudyRepository {
 		final QCaseAttributeStrings s = caseAttributeStrings;
 		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(s).on(cases.id.eq(s.caseId).and(s.attribute.eq(attribute)));
 		values = template.query(sqlQuery, new QTuple(s.active, s.value, s.modified, s.modifiedBy, s.notAvailable, Expressions.constant("string")));
-		allValues.addAll(values);
+		for(Tuple t : values) {
+			allValues.add(new HistoryEntry(t));
+		}
 		
 		final QCaseAttributeDates d = caseAttributeDates;
 		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(d).on(cases.id.eq(d.caseId).and(d.attribute.eq(attribute)));
 		values = template.query(sqlQuery, new QTuple(d.active, d.value, d.modified, d.modifiedBy, d.notAvailable, Expressions.constant("date")));
-		allValues.addAll(values);
+		for(Tuple t : values) {
+			allValues.add(new HistoryEntry(t));
+		}
 
 		final QCaseAttributeBooleans b = caseAttributeBooleans;
 		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(b).on(cases.id.eq(b.caseId).and(b.attribute.eq(attribute)));
 		values = template.query(sqlQuery, new QTuple(b.active, b.value, b.modified, b.modifiedBy, b.notAvailable, Expressions.constant("boolean")));
-		allValues.addAll(values);
+		for(Tuple t : values) {
+			allValues.add(new HistoryEntry(t));
+		}
 		
 		// So here we should have a big list of tuples. They will, by and large, need to be merged and 
 		// sorted into a single list. If we'd been feeling ingenious, we could have sorted each and 
@@ -379,7 +427,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// be easier if we unpacked into JSON first. Or, rather, pseudo-JSON in the form of an object
 		// we can nicely serialise. That way we can sort on the objects. 
 		
-		return null;
+		return objectMapper.convertValue(allValues, JsonNode.class);
 	}
 
 	@Override
