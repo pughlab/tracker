@@ -3,8 +3,6 @@ package ca.uhnresearch.pughlab.tracker.resource;
 import java.net.URL;
 import java.util.List;
 
-import javax.xml.ws.WebServiceException;
-
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
@@ -55,13 +53,9 @@ public class ViewResource extends ServerResource {
     	UserDTO user = new UserDTO(currentUser);
     	ViewResponseDTO response = new ViewResponseDTO(url, user, study, view);
     	
-    	try {
-    		for(Attributes a : attributes) {
-    			response.getAttributes().add(new AttributeDTO(a));
-    		}
-    	} catch (Exception e) {
-    		throw new WebServiceException(e);
-    	}
+		for(Attributes a : attributes) {
+			response.getAttributes().add(new AttributeDTO(a));
+		}
     	
     	response.setRecords(records);
     	response.getCounts().setTotal(repository.getRecordCount(study, view));
