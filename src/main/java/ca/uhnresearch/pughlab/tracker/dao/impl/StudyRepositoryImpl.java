@@ -111,8 +111,8 @@ public class StudyRepositoryImpl implements StudyRepository {
     	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.name.eq(name).and(views.studyId.eq(study.getId())));
     	Views view = template.queryForObject(sqlQuery, views);
     	
-    	if (views != null) {
-    		logger.info("Got a view: {}", views.toString());
+    	if (view != null) {
+    		logger.info("Got a view: {}", view.toString());
     	} else {
     		logger.info("No study found");
     	}
