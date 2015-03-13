@@ -146,10 +146,10 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudyCaseSubQuery(CaseQuery query) {
+	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Studies study, CaseQuery query) {
 		assert query != null;
 		
-		SQLSubQuery sq = new SQLSubQuery().from(cases);
+		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		
 		// If we have an ordering, use a left join to get the attribute, and order it later
 		if (query.getOrderField() != null) {
@@ -257,7 +257,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		assert attributes != null;
 		assert query != null;
 		
-		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(query);
+		ListSubQuery<Integer> caseQuery = getStudySubQueryCaseQuery(study, query);
 		Map<Integer, ObjectNode> table = new HashMap<Integer, ObjectNode>();
 		
 		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
@@ -307,6 +307,37 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public Long getRecordCount(Studies study, Views view) {
 		SQLQuery recordQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		return template.count(recordQuery);
+	}
+
+	/**
+	 * Generates an SQLQuery on cases from a CaseQuery object. This can then be incorporated
+	 * into the queries that are used to access data.
+	 * @param query
+	 * @return
+	 */
+	private ListSubQuery<Integer> getStudyCaseSubQuery(CaseQuery query) {
+		assert query != null;
+		
+		SQLSubQuery sq = new SQLSubQuery().from(cases);
+		
+		// If we have an ordering, use a left join to get the attribute, and order it later
+		if (query.getOrderField() != null) {
+			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
+			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attribute.eq(query.getOrderField())));
+			OrderSpecifier<String> ordering = (query.getOrderDirection() == CaseQuery.OrderDirection.ASC) ? c.value.asc() : c.value.desc();
+			sq = sq.orderBy(ordering);
+		}
+		
+		if (query.getOffset() != null) {
+			sq = sq.offset(query.getOffset());
+		}
+		if (query.getLimit() != null) {
+			sq = sq.limit(query.getLimit());
+		}
+	
+		return sq.list(cases.id);
+	}
+	
 	}	
 }
 
