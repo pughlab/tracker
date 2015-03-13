@@ -321,6 +321,9 @@ public class MockStudyRepository implements StudyRepository {
 
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
+		if (! data.containsKey(caseId)) {
+			return null;
+		}
 		String text = data.get(caseId).toString();
 		try {
 			return mapper.readTree(text);
