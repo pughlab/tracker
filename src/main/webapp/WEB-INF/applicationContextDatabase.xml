@@ -19,7 +19,7 @@
          <constructor-arg ref="dbcpDataSource"/>
     </bean>
 	
-	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     	<property name="dataSource" ref="dataSource"/>
 	</bean>
 	
@@ -32,6 +32,10 @@
 	</bean>
 
 	<bean id="transactionFilter" class="ca.uhnresearch.pughlab.tracker.filter.TransactionFilter">
-		<property name="transactionManager" ref="txManager"/>
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+
+	<bean id="studyRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.StudyRepositoryImpl">
+		<property name="template" ref="queryDslJdbcTemplate"/>
 	</bean>
 </beans>

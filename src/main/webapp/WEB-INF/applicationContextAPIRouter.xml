@@ -64,10 +64,6 @@
 	    </property>
 	</bean>
 		
-	<bean id="studyRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.StudyRepositoryImpl">
-		<property name="template" ref="queryDslJdbcTemplate"/>
-	</bean>
-	
 	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
