@@ -11,20 +11,10 @@ import ca.uhnresearch.pughlab.tracker.domain.Studies;
 public class StudyResponseDTO extends AbstractResponseDTO {
 
 	StudyDTO study;
-	List<ViewDTO> views = new ArrayList<ViewDTO>();
 	
 	public StudyResponseDTO(URL url, UserDTO user, Studies s) {
 		super(url, user);
 		this.study = new StudyDTO(s);
-	}
-
-	@JsonProperty
-	public List<ViewDTO> getViews() {
-		return views;
-	}
-
-	public void setViews(List<ViewDTO> views) {
-		this.views = views;
 	}
 
 	@JsonProperty

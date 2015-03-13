@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Required;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.StudyResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.StudyViewsResponseDTO;
 import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
 
@@ -42,7 +42,7 @@ public class StudyResource extends ServerResource {
     	// Now translate into DTOs
     	URL url = getRequest().getRootRef().toUrl();
     	UserDTO user = new UserDTO(currentUser);
-    	StudyResponseDTO response = new StudyResponseDTO(url, user, study);
+    	StudyViewsResponseDTO response = new StudyViewsResponseDTO(url, user, study);
     	for(Views v : viewList) {
     		
     		// Add the view if we have a read permission
@@ -53,7 +53,7 @@ public class StudyResource extends ServerResource {
     	}
     	
     	// And render back
-       	return new JacksonRepresentation<StudyResponseDTO>(response);
+       	return new JacksonRepresentation<StudyViewsResponseDTO>(response);
     }
 
 }
