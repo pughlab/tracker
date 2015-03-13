@@ -18,7 +18,7 @@ public class StudyExtractor extends Extractor {
 	
 	private StudyRepository repository;
 
-	private final Logger logger = LoggerFactory.getLogger(StudyExtractor.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Required
     public void setRepository(StudyRepository repository) {

@@ -1,5 +1,10 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +15,8 @@ public class AttributeDTO {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	private Integer id;
 	private String name;
 	private String label;
@@ -18,7 +25,7 @@ public class AttributeDTO {
 	private String description;
 	private JsonNode options;
 
-	public AttributeDTO(Attributes a) throws Exception {
+	public AttributeDTO(Attributes a) {
 		setId(a.getId());
 		setName(a.getName());
 		setLabel(a.getLabel());
@@ -28,7 +35,11 @@ public class AttributeDTO {
 		
 		String attributeOptions = a.getOptions();
 		if (attributeOptions != null) {
-			setOptions(mapper.readValue(attributeOptions, JsonNode.class));
+			try {
+				setOptions(mapper.readValue(attributeOptions, JsonNode.class));
+			} catch (IOException e) {
+				logger.error("Error in JSON attribute options", e.getMessage());
+			}
 		}
 	}
 	
