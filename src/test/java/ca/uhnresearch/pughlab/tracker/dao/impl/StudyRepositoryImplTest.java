@@ -55,7 +55,7 @@ public class StudyRepositoryImplTest {
 	public void testGetStudies() {
 		List<Studies> list = studyRepository.getAllStudies();
 		assertNotNull(list);
-		assertEquals(1, list.size());
+		assertEquals(2, list.size());
 	}
 
 	@Test
