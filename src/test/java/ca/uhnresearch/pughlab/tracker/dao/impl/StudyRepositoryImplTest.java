@@ -180,4 +180,35 @@ public class StudyRepositoryImplTest {
 		Long count = studyRepository.getRecordCount(study, view);
 		assertEquals(20, count.intValue());
 	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCase() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		JsonNode value = studyRepository.getCaseData(study, view, 1);
+		assertNotNull(value);
+		assertEquals("DEMO-01", value.get("patientId").asText());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleMissingCase() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		JsonNode value = studyRepository.getCaseData(study, view, 100);
+		assertNull(value);
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleFromDifferentStudy() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		JsonNode value = studyRepository.getCaseData(study, view, 22);
+		assertNull(value);
+	}
 }

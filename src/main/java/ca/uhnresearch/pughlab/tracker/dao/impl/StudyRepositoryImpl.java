@@ -231,36 +231,10 @@ public class StudyRepositoryImpl implements StudyRepository {
 		}
 	}
 	
-	/**
-	 * Main method for extracting record-level case data into something that can be returned. Here
-	 * the logic is very schemaless, so this method returns a list of Jackson JsonNode instances,
-	 * rather than anything more structured. This can typically be sent straight back to the client
-	 * as a response, without needing DTO mediation. 
-	 * 
-	 * Perhaps most interesting is the CaseQuery, which is a structured version of offsets, limits,
-	 * filters, sort orders, and so on.
-	 * 
-	 * @param study
-	 * @param view
-	 * @param attributes
-	 * @param query
-	 */
-	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
-		// This method retrieves the attributes we needed. In most implementations, we've done 
-		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
-		// since UNIONs generally aren't indexable, we are probably genuinely better off running
-		// separate queries for each primitive attribute type, and then assembling them in this
-		// method. This hugely reduces the complexity of the DSL here too. 
-		
-		assert study != null;
-		assert view != null;
-		assert attributes != null;
-		assert query != null;
-		
-		ListSubQuery<Integer> caseQuery = getStudySubQueryCaseQuery(study, query);
+	private List<JsonNode> getJsonData(ListSubQuery<Integer> query) {
 		Map<Integer, ObjectNode> table = new HashMap<Integer, ObjectNode>();
 		
-		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
+		SQLQuery caseIdQuery = template.newSqlQuery().from(query.as(cases));
 		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
 
 		List<JsonNode> objects = new ArrayList<JsonNode>(caseIds.size());
@@ -282,22 +256,48 @@ public class StudyRepositoryImpl implements StudyRepository {
 		SQLQuery sqlQuery;
 		List<Tuple> values;
 		
-		sqlQuery = template.newSqlQuery().from(caseQuery.as(cases)).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId))
+		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId))
 				.where(caseAttributeStrings.active.eq(true));
 		values = template.query(sqlQuery, new QTuple(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable, caseAttributeStrings.notes));
 		writeTupleAttributes(table, values);
 
-		sqlQuery = template.newSqlQuery().from(caseQuery.as(cases)).innerJoin(caseAttributeDates).on(cases.id.eq(caseAttributeDates.caseId))
+		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeDates).on(cases.id.eq(caseAttributeDates.caseId))
 			.where(caseAttributeDates.active.eq(true));
 		values = template.query(sqlQuery, new QTuple(caseAttributeDates.caseId, caseAttributeDates.attribute, caseAttributeDates.value, caseAttributeDates.notAvailable, caseAttributeDates.notes));
 		writeTupleAttributes(table, values);
 
-		sqlQuery = template.newSqlQuery().from(caseQuery.as(cases)).innerJoin(caseAttributeBooleans).on(cases.id.eq(caseAttributeBooleans.caseId))
+		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeBooleans).on(cases.id.eq(caseAttributeBooleans.caseId))
 			.where(caseAttributeBooleans.active.eq(true));
 		values = template.query(sqlQuery, new QTuple(caseAttributeBooleans.caseId, caseAttributeBooleans.attribute, caseAttributeBooleans.value, caseAttributeBooleans.notAvailable, caseAttributeBooleans.notes));
 		writeTupleAttributes(table, values);
 
 		return objects;
+
+	}
+	
+	/**
+	 * Main method for extracting record-level case data into something that can be returned. Here
+	 * the logic is very schemaless, so this method returns a list of Jackson JsonNode instances,
+	 * rather than anything more structured. This can typically be sent straight back to the client
+	 * as a response, without needing DTO mediation. 
+	 * 
+	 * Perhaps most interesting is the CaseQuery, which is a structured version of offsets, limits,
+	 * filters, sort orders, and so on.
+	 * 
+	 * @param study
+	 * @param view
+	 * @param attributes
+	 * @param query
+	 */
+	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
+		// This method retrieves the attributes we needed. In most implementations, we've done 
+		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
+		// since UNIONs generally aren't indexable, we are probably genuinely better off running
+		// separate queries for each primitive attribute type, and then assembling them in this
+		// method. This hugely reduces the complexity of the DSL here too. 
+		
+		ListSubQuery<Integer> caseQuery = getStudySubQueryCaseQuery(study, query);
+		return getJsonData(caseQuery);
 	}
 
 	/**
@@ -310,34 +310,27 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
-	 * Generates an SQLQuery on cases from a CaseQuery object. This can then be incorporated
-	 * into the queries that are used to access data.
+	 * Generates an SQLQuery on cases from a single case identifier. This can then be incorporated
+	 * into the queries that are used to access data. Note that even for a single case this returns a
+	 * list, because that way we can re-use the tuple data management. 
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudyCaseSubQuery(CaseQuery query) {
-		assert query != null;
-		
-		SQLSubQuery sq = new SQLSubQuery().from(cases);
-		
-		// If we have an ordering, use a left join to get the attribute, and order it later
-		if (query.getOrderField() != null) {
-			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
-			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attribute.eq(query.getOrderField())));
-			OrderSpecifier<String> ordering = (query.getOrderDirection() == CaseQuery.OrderDirection.ASC) ? c.value.asc() : c.value.desc();
-			sq = sq.orderBy(ordering);
-		}
-		
-		if (query.getOffset() != null) {
-			sq = sq.offset(query.getOffset());
-		}
-		if (query.getLimit() != null) {
-			sq = sq.limit(query.getLimit());
-		}
-	
+	private ListSubQuery<Integer> getStudyCaseSubQuery(Studies study, Integer caseId) {
+		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
 		return sq.list(cases.id);
 	}
 	
+
+	@Override
+	public JsonNode getCaseData(Studies study, Views view, Integer caseId) {
+		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseId);
+		List<JsonNode> listData = getJsonData(caseQuery);
+		if (listData.size() == 1) {
+			return listData.get(0);
+		} else {
+			return null;
+		}
 	}	
 }
 

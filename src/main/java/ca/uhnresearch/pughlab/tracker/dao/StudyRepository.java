@@ -23,4 +23,6 @@ public interface StudyRepository {
 	Long getRecordCount(Studies study, Views view);
 	
 	List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query);
+	
+	JsonNode getCaseData(Studies study, Views view, Integer caseId);
 }

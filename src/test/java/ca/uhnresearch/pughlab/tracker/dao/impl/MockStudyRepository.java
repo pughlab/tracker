@@ -242,13 +242,9 @@ public class MockStudyRepository implements StudyRepository {
 		}
 		return result;
 	}
-
-	/**
-	 * A mocked getData
-	 */
-	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
+	
+	private Map<Integer, JsonObject> getAllData(Studies study, Views view) {
 		
-		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
 		for(CaseAttributeStrings string : strings) {
 			Integer caseId = string.getCaseId();
@@ -271,6 +267,17 @@ public class MockStudyRepository implements StudyRepository {
 			}
 			data.get(caseId).addProperty(bool.getAttribute(), bool.getValue());
 		}
+		
+		return data;
+	}
+
+	/**
+	 * A mocked getData
+	 */
+	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
+		
+		// We build all the data in Gson, because it's easier
+		Map<Integer, JsonObject> data = getAllData(study, view);
 		
 		JsonArray result = new JsonArray();
 		List<Integer> keys = new ArrayList<Integer>(data.keySet());
@@ -307,5 +314,19 @@ public class MockStudyRepository implements StudyRepository {
 	@Override
 	public Long getRecordCount(Studies study, Views view) {
 		return new Long(caseCount);
+	}
+
+	@Override
+	public JsonNode getCaseData(Studies study, Views view, Integer caseId) {
+
+		// We build all the data in Gson, because it's easier
+		Map<Integer, JsonObject> data = getAllData(study, view);
+		String text = data.get(caseId).toString();
+		try {
+			return mapper.readTree(text);
+		} catch (IOException e) {
+			logger.error("Internal test error: {}", e.getMessage());
+			return null;
+		}
 	}
 }
