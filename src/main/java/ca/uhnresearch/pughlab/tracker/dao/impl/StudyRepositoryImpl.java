@@ -35,6 +35,9 @@ import static ca.uhnresearch.pughlab.tracker.domain.QStudies.studies;
 import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QViews.views;
 
+// Don't warn about the Law of Demeter here, as we use extensive method chaining in
+// the Querydsl implementation. And I do mean extensive. 
+@SuppressWarnings("PMD.LawOfDemeter")
 public class StudyRepositoryImpl implements StudyRepository {
 	
 	private final Logger logger = LoggerFactory.getLogger(StudyRepositoryImpl.class);
@@ -144,6 +147,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return
 	 */
 	private ListSubQuery<Integer> getStudyCaseSubQuery(CaseQuery query) {
+		assert query != null;
+		
 		SQLSubQuery sq = new SQLSubQuery().from(cases);
 		
 		// If we have an ordering, use a left join to get the attribute, and order it later
@@ -246,6 +251,11 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// since UNIONs generally aren't indexable, we are probably genuinely better off running
 		// separate queries for each primitive attribute type, and then assembling them in this
 		// method. This hugely reduces the complexity of the DSL here too. 
+		
+		assert study != null;
+		assert view != null;
+		assert attributes != null;
+		assert query != null;
 		
 		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(query);
 		Map<Integer, ObjectNode> table = new HashMap<Integer, ObjectNode>();
