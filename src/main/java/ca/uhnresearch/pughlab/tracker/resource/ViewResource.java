@@ -20,7 +20,7 @@ import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.dto.AttributeDTO;
 import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponseDTO;
 
 public class ViewResource extends ServerResource {
 
@@ -51,7 +51,7 @@ public class ViewResource extends ServerResource {
     	// Now translate into DTOs
     	URL url = getRequest().getRootRef().toUrl();
     	UserDTO user = new UserDTO(currentUser);
-    	ViewResponseDTO response = new ViewResponseDTO(url, user, study, view);
+    	ViewDataResponseDTO response = new ViewDataResponseDTO(url, user, study, view);
     	
 		for(Attributes a : attributes) {
 			response.getAttributes().add(new AttributeDTO(a));
@@ -61,6 +61,6 @@ public class ViewResource extends ServerResource {
     	response.getCounts().setTotal(repository.getRecordCount(study, view));
     	
     	// And render back
-        return new JacksonRepresentation<ViewResponseDTO>(response);
+        return new JacksonRepresentation<ViewDataResponseDTO>(response);
     }
 }
