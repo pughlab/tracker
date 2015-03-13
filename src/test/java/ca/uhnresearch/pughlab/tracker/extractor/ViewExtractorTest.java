@@ -124,4 +124,35 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		
 		extractor.handle(request, response);
 	}
+
+	/**
+	 * Tests an extractor refuses a given unauthorized view from a study and 
+	 * a view name.
+	 */
+	@Test
+	public void testNonAdminAcceptance() throws ResourceException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(true);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+		
+		Reference reference = new Reference();
+		Request request = new Request(Method.GET, reference);
+		Response response = new Response(request);
+		Studies study = repository.getStudy("DEMO");
+		request.getAttributes().put("study", study);
+		request.getAttributes().put("viewName", "complete");
+		
+		extractor.handle(request, response);
+		
+		Views view = (Views) request.getAttributes().get("view");
+		assertNotNull(view);
+		
+		assertEquals(Status.SUCCESS_OK, response.getStatus());
+
+	}
+
 }
