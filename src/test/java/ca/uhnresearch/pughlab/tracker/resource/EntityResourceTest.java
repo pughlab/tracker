@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
+import ca.uhnresearch.pughlab.tracker.domain.Cases;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
@@ -61,10 +62,10 @@ public class EntityResourceTest extends AbstractShiroTest {
 
         Studies testStudy = repository.getStudy("DEMO");		
 		Views testView = repository.getStudyView(testStudy, "complete");
-		JsonNode testEntity = repository.getCaseData(testStudy, testView, 3);
+		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
 		entityResource.getRequest().getAttributes().put("study", testStudy);
 		entityResource.getRequest().getAttributes().put("view", testView);
-		entityResource.getRequest().getAttributes().put("entity", testEntity);
+		entityResource.getRequest().getAttributes().put("entity", testCase);
 
 		Representation result = entityResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

@@ -9,9 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
+import ca.uhnresearch.pughlab.tracker.domain.Cases;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 
@@ -37,13 +36,13 @@ public class EntityExtractor extends Extractor {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
 		
-		JsonNode entityData = repository.getCaseData(study, view, caseId);
-		if (entityData == null) {
+		Cases caseValue = repository.getStudyCase(study, view, caseId);
+		if (caseValue == null) {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 
-    	logger.info("OK, continuing with the entity: {}", entityData.toString());
-		request.getAttributes().put("entity", entityData);
+    	logger.info("OK, continuing with the entity: {}", caseValue.toString());
+		request.getAttributes().put("entity", caseValue);
 		
 		return CONTINUE;
 

@@ -1,12 +1,8 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
-import org.apache.shiro.subject.Subject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
+import ca.uhnresearch.pughlab.tracker.domain.Cases;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 
@@ -57,9 +54,9 @@ public class EntityExtractorTest {
 		request.getAttributes().put("entityId", "5");
 
 		extractor.handle(request, response);
-		JsonNode value = (JsonNode) request.getAttributes().get("entity");
-		assertNotNull(value);
-		assertEquals("DEMO-05", value.get("patientId").asText());
+		Cases caseValue = (Cases) request.getAttributes().get("entity");
+		assertNotNull(caseValue);
+		assertEquals(5, caseValue.getId().intValue());
 	}
 
 	@Rule

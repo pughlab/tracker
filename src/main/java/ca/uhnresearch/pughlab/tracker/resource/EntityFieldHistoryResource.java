@@ -10,17 +10,17 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Required;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Cases;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.EntityResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.EntityHistoryResponseDTO;
 import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
 
-public class EntityResource extends ServerResource {
+import com.fasterxml.jackson.databind.JsonNode;
 
+public class EntityFieldHistoryResource extends ServerResource {
+	
 	private StudyRepository repository;
 
 	@Required
@@ -39,12 +39,13 @@ public class EntityResource extends ServerResource {
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
+    	String attribute = (String) getRequest().getAttributes().get("entityField");
     	
-    	JsonNode caseData = repository.getCaseData(study, view, caseValue);
+    	JsonNode history = repository.getCaseAttributeHistory(study, view, caseValue, attribute);
+    	EntityHistoryResponseDTO response = new EntityHistoryResponseDTO(url, user, study, view, history);
 
-    	EntityResponseDTO response = new EntityResponseDTO(url, user, study, view, caseData);
-    	
-        return new JacksonRepresentation<EntityResponseDTO>(response);
+        return new JacksonRepresentation<EntityHistoryResponseDTO>(response);
 
     }
+
 }
