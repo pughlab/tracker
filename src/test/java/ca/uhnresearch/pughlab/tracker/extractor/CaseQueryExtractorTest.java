@@ -48,4 +48,19 @@ public class CaseQueryExtractorTest {
 		assertEquals(5, query.getOffset().intValue());
 	}
 
+	@Test
+	public void testNullExtraction() {
+		
+		Reference reference = new Reference();
+		Request request = new Request(Method.GET, reference);
+		Response response = new Response(request);
+		extractor.handle(request, response);
+		
+		CaseQuery query = (CaseQuery) request.getAttributes().get("query");
+		assertNotNull(query);
+		
+		assertNull(query.getLimit());
+		assertNull(query.getOffset());
+	}
+
 }

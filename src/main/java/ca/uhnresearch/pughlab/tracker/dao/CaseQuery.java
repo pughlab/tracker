@@ -27,7 +27,7 @@ public class CaseQuery {
 	/**
 	 * When selecting a set of cases by order, for paging, specifies the start offset.
 	 */
-	private Integer offset = 0;
+	private Integer offset = null;
 
 	/**
 	 * When selecting a set of cases by order, for paging, specifies the case limit.
