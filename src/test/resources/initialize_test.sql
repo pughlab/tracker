@@ -11,6 +11,7 @@ CREATE TABLE "STUDIES" (
 );
 
 INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION", "IDENTIFIER_ATTRIBUTE_ID") VALUES (1, 'DEMO', 'A demo clinical genomics study', 2);
+INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION", "IDENTIFIER_ATTRIBUTE_ID") VALUES (2, 'SECOND', 'A second study', 2);
 
 -- =============================================================================================
 -- Now for the attributes
@@ -57,6 +58,8 @@ INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VAL
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (26, 26, 1, 'notes', 'Notes', 'string', '{"longtext":true}');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (27, 27, 1, 'study', 'Study', 'string');
 
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (28, 1, 2, 'patientId', 'Patient ID', 'string');
+
 -- =============================================================================================
 -- Now for the views
 
@@ -75,7 +78,7 @@ INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (1, 1, 'Man
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (2, 1, 'Tracks the study', 'track');
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME", "OPTIONS") VALUES (3, 1, 'Tracks only secondary', 'secondary', '{"rows":[{"attribute":"study","value":"secondary"}]}');
 
-
+INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (4, 2, 'Manages the whole study', 'complete');
 
 -- =============================================================================================
 -- Now for the view attributes
@@ -150,6 +153,8 @@ INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VAL
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (3, 20, 20, '{"classes": ["label5"]}');
 INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK", "OPTIONS") VALUES (3, 22, 22, '{"classes": ["label5"]}');
 
+INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (4, 28, 1);
+
 -- =============================================================================================
 -- Now for the cases
 
@@ -181,6 +186,12 @@ INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (17, 1);
 INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (18, 1);
 INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (19, 1);
 INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (20, 1);
+
+INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (21, 2);
+INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (22, 2);
+INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (23, 2);
+INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (24, 2);
+INSERT INTO "CASES" ("ID", "STUDY_ID") VALUES (25, 2);
 
 -- =============================================================================================
 -- Now for the case attribute values, of all types
@@ -340,3 +351,9 @@ INSERT INTO "CASE_ATTRIBUTE_DATES" ("CASE_ID", "ATTRIBUTE", "VALUE", "MODIFIED_B
 
 INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE", "ACTIVE", "MODIFIED_BY") VALUES (1, 'primarySite', 'unknown', 0, 4);
 INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE", "ACTIVE", "MODIFIED_BY") VALUES (1, 'primarySite', 'other', 0, 2);
+
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE") VALUES (21, 'patientId', 'SECOND-01');
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE") VALUES (22, 'patientId', 'SECOND-02');
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE") VALUES (23, 'patientId', 'SECOND-03');
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE") VALUES (24, 'patientId', 'SECOND-04');
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE", "VALUE") VALUES (25, 'patientId', 'SECOND-05');
