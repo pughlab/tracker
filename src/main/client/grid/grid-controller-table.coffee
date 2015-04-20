@@ -15,4 +15,5 @@ angular
       .success (response) ->
         $scope.attributes = response.attributes
         $scope.study = response.study
+        $scope.view = response.view
         $scope.permissions = response.permissions

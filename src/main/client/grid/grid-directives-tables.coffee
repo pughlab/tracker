@@ -86,13 +86,15 @@ angular
       replace: true
       scope: 
         trackerStudy: '='
+        trackerView: '='
         trackerAttributes: '='
         trackerEditingStatus: '='
       template: '<div class="handsontable tracker-table-hidden" style="width: 800px; height: 500px; overflow: hidden;"></div>'
       link: (scope, iElement, iAttrs) ->
 
-        getStudyUrl = (study) ->
-          "/api/studies/#{study.name}/views/#{study.viewName}"
+        getStudyUrl = (study, view) ->
+          console.log 'deriving study url', study, view
+          "/api/studies/#{study.name}/views/#{view.name}"
 
         handsonTable = undefined
         entityRowTable = undefined
@@ -102,7 +104,7 @@ angular
 
         handleAddRecord = (entityIdentifier, editingClasses) ->
           $http
-            .get getStudyUrl(scope.trackerStudy) + "/entities/#{entityIdentifier}", {}
+            .get getStudyUrl(scope.trackerStudy, scope.trackerView) + "/entities/#{entityIdentifier}", {}
             .success (response) ->
               
               ## We don't have a row index, but we need to find the last (but one) row
@@ -142,7 +144,7 @@ angular
 
         handleEditCell = (entityIdentifier, field, editingClasses) ->
           $http
-            .get getStudyUrl(scope.trackerStudy) + "/entities/#{entityIdentifier}", {}
+            .get getStudyUrl(scope.trackerStudy, scope.trackerView) + "/entities/#{entityIdentifier}", {}
             .success (response) ->
               columnIndex = attributeColumnTable[field]
               rowIndex = entityRowTable[entityIdentifier]
@@ -410,7 +412,7 @@ angular
             # asynchronous validation. 
 
             $http
-              .get getStudyUrl(scope.trackerStudy)
+              .get getStudyUrl(scope.trackerStudy, scope.trackerView)
               .success (response) ->
                 handsonTable.loadData(response.records)
 

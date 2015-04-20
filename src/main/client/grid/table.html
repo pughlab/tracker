@@ -1,7 +1,7 @@
 <ol class="breadcrumb">
   <li><a href="/">Home</a></li>
   <li><a href="/studies/{{study.name}}">{{study.name}}</a></li>
-  <li>{{study.viewName}}</li>
+  <li>{{view.name}}</li>
 </ol>
 
 <div ng-controller="ConnectedUserController">
@@ -24,7 +24,7 @@
   
   <div tracker-error error-message="errorMessage"></div>
   
-  <div tracker-table tracker-study="study" tracker-attributes="attributes" tracker-editing-status="editingStatus" ></div>
+  <div tracker-table tracker-study="study" tracker-view="view" tracker-attributes="attributes" tracker-editing-status="editingStatus" ></div>
 
   <div ng-controller="GridActionController">
     <button ng-show="permissions.download" class="btn btn-default" ng-click="export()">Export Spreadsheet</button>
