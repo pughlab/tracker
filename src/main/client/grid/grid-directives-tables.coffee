@@ -258,7 +258,7 @@ angular
               fieldFunction fieldData, changeValue
 
               caseIdentifier = caseRecord.id
-              baseUrl = getStudyUrl(scope.trackerStudy)
+              baseUrl = getStudyUrl(scope.trackerStudy, scope.trackerView)
 
               if ! caseIdentifier
                 payload = {}
