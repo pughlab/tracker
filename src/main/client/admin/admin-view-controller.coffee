@@ -9,27 +9,25 @@ angular
     $scope.modified = false
     $scope.originalView = undefined
     $scope.selectedAttribute = undefined
+    $scope.originalSelectedAttribute = undefined
     $scope.filterEnabled = false
 
     $scope.attributeSortableOptions = 
       connectWith: "#viewSortable"
-      update: (e, ui) ->
-        console.log 'a update', e, ui
-      remove: (e, ui) ->
-        console.log 'a remove', e, ui
+      update: (e, ui) -> null
+      remove: (e, ui) -> null
 
     $scope.viewSortableOptions = 
       connectWith: "#attributeSortable"
       update: (e, ui) ->
-        console.log 'a update', e, ui
         $scope.$evalAsync () ->
           $scope.modified = true
 
-      remove: (e, ui) ->
-        console.log 'a remove', e, ui
+      remove: (e, ui) -> null
 
     $scope.selectAttribute = (attribute) ->
       $scope.selectedAttribute = attribute
+      $scope.originalSelectedAttribute = angular.copy($scope.selectedAttribute)
    
     $scope.reset = () ->
       $scope.modified = false
@@ -64,6 +62,10 @@ angular
     $scope.$watch 'view.attributes', (value) ->
       if value != undefined and $scope.study?.attributes? and ! $scope.initializedAttributes
         removeUsedAttributes()
+
+    $scope.$watchCollection 'selectedAttribute.options', (value) ->
+      if ! angular.equals(value, $scope.originalSelectedAttribute?.options)
+        $scope.modified = true
 
     $scope.$on 'setModified', (e) ->
       $scope.modified = true

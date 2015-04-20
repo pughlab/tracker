@@ -10,15 +10,16 @@
   <tab heading="Permissions" ng-controller="RoleEditorController">
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <p class="text-muted">
           Roles can be used to manage permissions. Each user can have several roles. Normally, roles are allowed to 
           read or write certain views. There is also an administration role, able to manage the whole study. 
         </p>
       </div>
     </div>
+
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <ul ng-model="roles" id="viewSortable" class="admin-list-box">
           <li ng-repeat="role in study.roles" ng-class="{'list-selected' : role == selectedRole}" ng-click="selectRole(role)">{{role.name}}<span ng-show="role.description"> &mdash; {{role.description}}</span></li>
         </ul>
@@ -26,7 +27,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <form class="form-horizontal" role="form">
           <fieldset>
 
@@ -75,7 +76,7 @@
   <tab heading="Attributes" ng-controller="AttributeEditorController">
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <p class="text-muted">
           This creates all the available study attributes. Each attribute has a type, an unique internal key name, a label, and
           some extra options such as tags and display pinning. For example, confidential information is usually tagged, which
@@ -86,7 +87,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <ul ui-sortable="attributeSortableOptions" ng-model="study.attributes" id="attributeSortable" class="admin-list-box">
           <li ng-repeat="attribute in study.attributes" ng-class="{'list-selected' : attribute == selectedAttribute}" ng-click="selectAttribute(attribute)">{{attribute.label}} <span ng-repeat="tag in attribute.options.tags" class="label label-default">{{tag}}</span></li>
         </ul>
@@ -94,7 +95,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <form class="form-horizontal" role="form" name="attributeForm">
           <fieldset>
 
@@ -130,11 +131,6 @@
               <div class="col-md-4">
                 <select id="attribute-tags" selectize-tags options="attributeTags" model="selectedAttribute.options.tags" ng-disabled="! selectedAttribute" ></select>
               </div>
-
-              <label class="col-md-2 control-label" for="attribute-display">Display:</label>  
-              <div class="col-md-4">
-                <select id="attribute-display" selectize options="attributeDisplays" model="selectedAttribute.options.display" ng-disabled="! selectedAttribute" ></select>
-              </div>
             </div>
 
             <div class="form-group">
@@ -153,7 +149,7 @@
   <tab heading="Views" ng-controller="ViewEditorController">
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <p class="text-muted">
           This manages the available study views. Views show a subset of attributes, and can be authorized for a
           group of users. 
@@ -162,7 +158,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <ul ng-model="study.views" id="viewSortable" class="admin-list-box">
           <li ng-repeat="view in study.views" ng-class="{'list-selected' : view == selectedView}" ng-click="selectView(view)">{{view.name}} &mdash; {{view.description}} </li>
         </ul>
@@ -170,7 +166,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-12">
         <form class="form-horizontal" role="form">
           <fieldset>
 
@@ -203,13 +199,15 @@
 </tabset>
 
 <div class="row">
-  <div class="col-md-8">
+  <div class="col-md-12">
     <hr>
 
     <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
 
     <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="save(study)">Save changes</button>
     <button class="btn btn-default" ng-disabled="! modified" ng-click="reset()">Reset</button>
+
+    <button ng-show="study.audit" ng-disabled="modified" class="btn btn-default" ui-sref="adminAudit({studyName: study.name})">Show study audit log</button>
 
   </div>
 </div>

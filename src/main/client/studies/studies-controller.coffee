@@ -9,12 +9,12 @@ angular
     ## change. We should detect that. 
 
     initializePermissions = () ->
-      ##$http
-      ##  .get("/api/authentication/can/create/system/system")
-      ##  .success (response) ->
-      ##    $scope.permissions = response
-      ##  .error (response) ->
-      ##    console.log "Error", response
+      $http
+        .get("/api/authentication/can/create/system/system")
+        .success (response) ->
+          $scope.permissions = response
+        .error (response) ->
+          console.log "Error", response
 
     initializeStudies = () ->
       $http

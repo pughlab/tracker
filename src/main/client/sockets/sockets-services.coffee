@@ -1,12 +1,12 @@
 angular
   .module 'tracker.sockets'
 
-  .factory 'socketFactory', Array '$location', '$timeout', ($location, $timeout) ->
+  .factory 'socketFactory', Array '$location', ($location) ->
 
     () ->
 
-      protocol = $location.protocol()
       host = $location.host()
+      protocol = $location.protocol()
       port = $location.port()
   
       ## In some rare cases, this might need to be overridden, especially during development
@@ -15,71 +15,10 @@ angular
       ## in use while we are at it. 
   
       ## @if NODE_ENV = 'development' *
-      ## host = 'localhost'
-      ## protocol = 'http'
-      ## port = 8080
+      host = 'localhost'
+      protocol = 'http'
+      port = 3001
       ## @endif *
-      
-      class SocketEventEmitter 
-      
-        constructor: (protocol, host, port) ->
-          @events = {}
-          @atmosphere = atmosphere
-          
-          @request = {
-            url: "http://#{host}:#{port}/events"
-            contentType: "application/json"
-            logLevel: 'debug'
-            transport: 'websocket'
-            trackMessageLength: true
-            reconnectInterval: 5000
-          }
-          
-          @request.onMessage = (response) =>
-            console.log "Called onMessage", response
-            decoded = JSON.parse response.responseBody
-            if @events[decoded.type]
-              listener decoded for listener in @events[decoded.type]
-          
-          @socket = @atmosphere.subscribe @request
-                
-        addListener: (event, listener) ->
-          if @events['newListener']
-            l listener for l in @events['newListener']
-          (@events[event]?=[]).push listener
-          return @
-        
-        removeListener: (event, listener) ->
-          return @ unless @events[event]
-          @events[event] = (l for l in @events[event] when l isnt listener)
-          return @
- 
-        removeAllListeners: (event) ->
-          delete @events[event]
-          return @
-
-        ## This should transmit back through the socket
-        emit: (evt, data) =>
-          console.log "Called emit", evt, data
-          @socket.push JSON.stringify { type: evt, data: data }
-        
-        on: (evt, handler) =>
-          @addListener(evt, handler)
-        
-        once: (event, listener) ->
-          fn = =>
-            @removeListener event, fn
-            listener arguments...
-          @on event, fn
-          return @
- 
-        disconnect: () ->
-          console.log "Disconnect requested"
-          @atmosphere.unsubscribeUrl @request.url
   
-      socket = new SocketEventEmitter(protocol, host, port)
-      
-      socket.on 'newListener', (data...) ->
-        console.log "Added listener", data
-      
-      socket
+      socket = io("#{protocol}://#{host}:#{port}", {path: '/api/events', forceNew: true})  
+      return socket

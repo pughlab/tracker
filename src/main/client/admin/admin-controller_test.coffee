@@ -26,8 +26,6 @@ describe 'StudyEditorController', ->
           {id:2, study_id:1, name:"patientId", label:"Patient ID", type:"string", rank:2, options: {unique:true, display:"pin_left"}},
           {id:3, study_id:1, name:"patientInitials", label:"Patient Initials", type:"string", rank:3, options:null}
         ],
-        "identifierAttribute": "patientId",
-        "identifierAttributeLabel": "Patient ID",
         "studyId": 1,
         "studyName": "DEMO",
         "views": [
@@ -82,8 +80,6 @@ describe 'StudyEditorController', ->
           {id:2, study_id:1, name:"patientId", label:"Modified Patient ID", type:"string", rank:2, options: {unique:true, display:"pin_left"}},
           {id:3, study_id:1, name:"patientInitials", label:"Patient Initials", type:"string", rank:3, options:null}
         ],
-        "identifierAttribute": "patientId",
-        "identifierAttributeLabel": "Patient ID",
         "studyId": 1,
         "studyName": "DEMO",
         "views": [
@@ -123,8 +119,6 @@ describe 'StudyEditorController', ->
           {id:1, study_id:1, name:"dateEntered", label:"Date Entered", type:"date", rank:1, options:null},
           {id:3, study_id:1, name:"patientInitials", label:"Patient Initials", type:"string", rank:3, options:null}
         ],
-        "identifierAttribute": "patientId",
-        "identifierAttributeLabel": "Patient ID",
         "studyId": 1,
         "studyName": "DEMO",
         "views": [

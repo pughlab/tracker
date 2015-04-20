@@ -7,7 +7,7 @@
 </ol>
 
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-md-8">
     <p class="text-muted">
       Choose the attributes you want to be visible in this view. All the active attributes will be shown in the view. 
       Select the ones you want by dragging them from list of available attributes. You can remove them by dragging them
@@ -17,14 +17,14 @@
 </div>
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-6">
     <h4>Available attributes</h4>
     <ul ui-sortable="attributeSortableOptions" ng-model="study.attributes" id="attributeSortable" class="admin-list-box">
       <li ng-repeat="attribute in study.attributes">{{attribute.label}} <span ng-repeat="tag in attribute.options.tags" class="label label-default">{{tag}}</span></li>
     </ul>
   </div>
 
-  <div class="col-md-4">
+  <div class="col-md-6">
     <h4>Active attributes</h4>
     <ul ui-sortable="viewSortableOptions" ng-model="view.attributes" id="viewSortable" class="admin-list-box">
       <li ng-repeat="attribute in view.attributes" ng-class="{'list-selected' : attribute == selectedAttribute}" ng-click="selectAttribute(attribute)">{{attribute.label}} <span ng-repeat="tag in attribute.options.tags" class="label label-default">{{tag}}</span></li>
@@ -34,12 +34,35 @@
 
 <div class="row">
   <div class="col-md-12">
+    <form class="form-horizontal" role="form" name="attributeForm">
+    <div class="form-group">
+      <div class="col-md-2"></div>  
+      <div class="col-md-4 checkbox">
+        <label ng-class="selectedAttribute ? '' : 'text-muted'">
+          <input type="checkbox" name="pinned" ng-model="selectedAttribute.options.pinned" ng-disabled="! selectedAttribute">
+          Pin to the left when scrolling
+        </label>
+      </div>
+
+      <label class="col-md-2 control-label" for="attributeWidth">Width:</label>  
+      <div class="col-md-4">
+        <input id="attributeWidth" name="attributeWidth" type="text" placeholder="100%" class="form-control input-md" ng-model="selectedAttribute.options.width" ng-disabled="! selectedAttribute" ng-pattern="/\d+%/">
+        <span class="error text-danger" ng-show="attributeForm.attributeWidth.$error.pattern">Please specify a percentage!</span>
+      </div>
+    </div>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <hr>
     <div filter-editor model="view.viewOptions.rows" attributes="view.attributes"></div>
   </div>
 </div>
 
 <div class="row">
-  <div class="col-md-8">
+  <div class="col-md-12">
     <hr>
     <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="save(view)">Save changes</button>
     <button class="btn btn-default" ng-disabled="! modified" ng-click="reset()">Reset</button>

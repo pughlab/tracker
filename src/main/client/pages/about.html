@@ -1,0 +1,56 @@
+<div>
+  <ol class="breadcrumb">
+    <li><a ui-sref="home">Home</a></li>
+  </ol>
+
+  <h4>About the tracker</h4>
+
+  <p>
+    The tracker is a simple web application that enables you to collaborate on a secure
+    spreadsheet/database-like data set. Although it has some similarity to Google Docs, it
+    is designed more to accommodate tracking events in a research study. Some of its more
+    distinctive features include:
+  </p>
+
+  <ul>
+    <li>Support for multiple studies</li>
+    <li>Multiple views within a single study, each showing different sets of attributes</li>
+    <li>Attribute types include: dates, booleans, strings, and dropdowns</li>
+    <li>Support for N/A values</li>
+    <li>Fine-grained permissions on views and studies</li>
+    <li>Full audit logging of all value changes within a study</li>
+    <li>Export to Excel</li>
+  </ul>
+
+  <h4>Release notes</h4>
+
+  <h5>Version 1.2 &mdash; April 15th 2015</h5>
+
+  <ul>
+    <li>Changed grid to use Handsontable, which is much closer to Excel in style</li>
+    <li>Attributes can be "pinned" for scrolling horizontally</li>
+    <li>Rows can wrap over several lines of text</li>
+    <li>Attribute columns can have a proportionate width set</li>
+  </ul>
+
+  <p>Known issues:</p>
+
+  <ul>
+    <li>
+      There appears to be a memory leak when switching to and from the grid view. Performance 
+      will eventually degrade. To overcome this, refresh the page: this will start from a 
+      clean state.
+    </li>
+    <li>
+      Scrolling behaviour on Firefox seems dirty, especially when using the scroll bar. 
+      Chrome is probably cleaner. 
+    </li>
+  </ul>
+
+  <h5>Version 1.1 &mdash; January 9th 2015</h5>
+
+  <ul>
+    <li>Initial version</li>
+  </ul>
+
+</div>

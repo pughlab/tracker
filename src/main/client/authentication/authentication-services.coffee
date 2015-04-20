@@ -8,7 +8,7 @@ angular
 
     result =
       ping: () ->
-        $http.get('/api/studies', {}, config).success (response) ->
+        $http.get('/api/authentication/ping', {}, config).success (response) ->
           if response.user
             scope.$broadcast 'event:loginConfirmed', response.user
 

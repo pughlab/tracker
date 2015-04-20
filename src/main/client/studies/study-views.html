@@ -7,7 +7,9 @@
   <h4>Current views</h4>
 
   <ul>
-    <li ng-repeat="view in study.views"><a href="/studies/{{study.study.name}}/views/{{view.name}}">{{view.name}}</a>
+    <li ng-repeat="view in study.views">
+      <a ui-sref="studyView({studyName: study.study.name, viewName: view.name})">{{view.name}}</a>
+    </li>
   </ul>
 
 </div>

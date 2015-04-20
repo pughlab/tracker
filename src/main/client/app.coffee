@@ -3,6 +3,8 @@ angular
     'ui.bootstrap'
     'ui.router'
     'toggle-switch'
+    'tracker.account'
+    'tracker.admin'
     'tracker.filters'
     'tracker.header'
     'tracker.pages'
@@ -22,14 +24,18 @@ angular
         controller: 'StudiesController'
         templateUrl: '/tracker/studies/studies.html'
         url: '/'
+      .state 'about',
+        controller: 'PageController'
+        templateUrl: '/tracker/pages/about.html'
+        url: '/about'
       .state 'study',
         controller: 'StudyController'
         templateUrl: '/tracker/studies/study-views.html'
         url: '/studies/:studyName'
       .state 'studyView',
-        controller: 'GridController'
-        templateUrl: '/tracker/grid/grid.html'
-        url: '/studies/:studyName/views/:viewName'
+        controller: 'GridTableController'
+        templateUrl: '/tracker/grid/table.html'
+        url: '/studies/:studyName/view/:viewName'
       .state 'adminStudy',
         controller: 'StudyEditorController'
         templateUrl: '/tracker/admin/admin.html'
@@ -63,6 +69,10 @@ angular
         controller: 'AdminUserController'
         templateUrl: '/tracker/admin/admin-user.html'
         url: '/admin/users/:username'
+      .state 'adminAudit',
+        controller: 'AdminAuditController'
+        templateUrl: '/tracker/admin/admin-audit.html'
+        url: '/admin/audit/:studyName'
       .state 'error',
         controller: 'ErrorController'
         templateUrl: '/tracker/error/error.html'
@@ -111,13 +121,13 @@ angular
     scope.$on 'event:loginConfirmed', (event, user) ->
       scope.user = new User(user)
 
-      ## $http.get('/api/authentication/can/system/system/system')
-      ##  .then (response) ->
-      ##    if response.data?
-      ##      scope.user.permissions = response.data
+      $http.get('/api/authentication/can/system/system/system')
+        .then (response) ->
+          if response.data?
+            scope.user.permissions = response.data
 
-      ## if user.force_password_change
-      ##  return $state.go "adminUser", {username: user.username}
+      if user.force_password_change
+        return $state.go "adminUser", {username: user.username}
 
       retry = (req) ->
         $http(req.config).then (response) ->

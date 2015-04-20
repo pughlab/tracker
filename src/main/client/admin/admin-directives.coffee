@@ -1,6 +1,37 @@
 angular
   .module 'tracker.admin'
 
+  .directive 'auditRecordDate', () ->
+    result =
+      restrict: "A"
+      replace: false
+      scope:
+        auditRecordDate: '='
+
+      link: (scope, iElement, iAttrs) ->
+
+        scope.$watch 'auditRecordDate', (newValue) ->
+          dateString = if newValue.event_time
+            date = new Date(newValue.event_time)
+            date.toString()
+          else
+            "N/A"
+          iElement.empty().append dateString
+
+
+  .directive 'auditRecord', Array 'renderAuditRecord', (renderAuditRecord) ->
+    result =
+      restrict: "A"
+      replace: false
+      scope:
+        auditRecord: '='
+      link: (scope, iElement, iAttrs) ->
+
+        scope.$watch 'auditRecord', (newValue) ->
+          description = renderAuditRecord(newValue)
+          iElement.empty().append description
+
+
   .directive 'selectize', Array '$timeout', ($timeout) ->
     result =
       restrict: "A"
@@ -272,14 +303,12 @@ angular
       scope:
         model: '='
         attributes: '='
-      template: '<form class="form-inline">' +
+      template: '<form class="form-horizontal">' +
                 '  <div class="form-group">' +
-                '    <label for="filterFieldName">Filter field</label>' +
-                '    <select id="filterFieldName" class="form-control padded-dropdown"></select>' +
-                '  </div>' +
-                '  <div class="form-group">' +
-                '    <label for="filterFieldValue">Filter value</label>' +
-                '    <input id="filterFieldValue" class="form-control" type="text" placeholder="Filter value">' +
+                '    <label for="filterFieldName" class="col-md-2 control-label">Filter field</label>' +
+                '    <div class="col-md-4"><select id="filterFieldName" class="form-control padded-dropdown"></select></div>' +
+                '    <label for="filterFieldValue" class="col-md-2 control-label">Filter value</label>' +
+                '    <div class="col-md-4"><input id="filterFieldValue" class="form-control" type="text" placeholder="Filter value"></div>' +
                 '  </div>' +
                 '</form>'
 

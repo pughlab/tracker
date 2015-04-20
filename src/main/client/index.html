@@ -5,20 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tracker</title>
-    <!-- inject:bootstrap:css -->
-    <link rel="stylesheet" href="/vendors/css/bootstrap.css">
-	<!-- endinject -->
     <!-- inject:vendor:css -->
-    <link rel="stylesheet" href="/select2/select2.css">
-    <link rel="stylesheet" href="/bootstrap-datepicker/css/datepicker.css">
-    <link rel="stylesheet" href="/bootstrap-datepicker/css/datepicker3.css">
-    <link rel="stylesheet" href="/angular-bootstrap-toggle-switch/style/bootstrap3/angular-toggle-switch-bootstrap-3.css">
-    <link rel="stylesheet" href="/angular-ui-grid/ui-grid.css">
-    <link rel="stylesheet" href="/bootstrap-text-dropdown/css/text-dropdown.css">
-    <link rel="stylesheet" href="/selectize/dist/css/selectize.bootstrap3.css">
     <!-- endinject -->
     <!-- inject:css -->
-    <link rel="stylesheet" href="/css/app.css">
     <!-- endinject -->
   </head>
   <body role="document">
@@ -39,10 +28,21 @@
         </div>
         <div collapse="navCollapsed" class="navbar-collapse collapse" ng-controller="HeaderController">
           <ul class="nav navbar-nav">
-            <li ng-class="{ active: isActive('/')}"><a href="/">Home</a></li>
+            <li ng-class="{ active: isActive('/')}"><a ui-sref="home">Home</a></li>
+            <li ng-class="{ active: isActive('/about')}"><a ui-sref="about">About</a></li>
           </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a>Logged in as: {{user.username}}</a></li>
+          <li class="dropdown" dropdown>
+            <a href class="dropdown-toggle" dropdown-toggle>{{user.username || 'Login'}}<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li ng-hide="user"><a ui-sref="home">Log in</a></li>
+                <li ng-show="user" class="disabled"><a>Logged in as: {{user.username}}</a></li>
+                <li ng-show="user.permissions.system"><a ui-sref="adminUsers">Manage users</a></li>
+                <li ng-show="user"><a ui-sref="adminUser({username: user.username})">Account settings</a></li>
+                <li ng-show="user" class="divider"></li>
+                <li ng-show="user"><a href ng-click="logout()">Logout</a></li>
+              </ul>
+          </li>
         </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -58,6 +58,7 @@
       <div class="container-fluid">
         <p class="text-muted">
             &copy; University Health Network.
+            &mdash; <span class="git-commit"></span>
         </p>
       </div>
     </div>
@@ -65,58 +66,8 @@
     <div ng-controller="AuthenticationController"></div>
 
     <!-- inject:vendor:js -->
-    <script src="/jquery/dist/jquery.js"></script>
-    <script src="/jquery.ui/ui/core.js"></script>
-    <script src="/jquery.ui/ui/widget.js"></script>
-    <script src="/jquery.ui/ui/mouse.js"></script>
-    <script src="/jquery.ui/ui/sortable.js"></script>
-    <script src="/angular/angular.js"></script>
-    <script src="/angular-resource/angular-resource.js"></script>
-    <script src="/angular-ui-router/release/angular-ui-router.js"></script>
-    <script src="/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="/select2/select2.js"></script>
-    <script src="/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-    <script src="/socket.io-client/socket.io.js"></script>
-    <script src="/angular-bootstrap-toggle-switch/angular-toggle-switch.js"></script>
-    <script src="/angular-ui-grid/ui-grid.js"></script>
-    <script src="/angular-ui-sortable/sortable.js"></script>
-    <script src="/sifter/sifter.js"></script>
-    <script src="/microplugin/src/microplugin.js"></script>
-    <script src="/angular-validation-match/dist/angular-input-match.min.js"></script>
-    <script src="/bootstrap-text-dropdown/js/bootstrap-text-dropdown.js"></script>
-    <script src="/selectize/dist/js/selectize.js"></script>
     <!-- endinject -->
     <!-- inject:js -->
-    <script src="/util/util.js"></script>
-    <script src="/util/util-services.js"></script>
-    <script src="/util/util-directives.js"></script>
-    <script src="/tracker-templates.js"></script>
-    <script src="/studies/studies.js"></script>
-    <script src="/studies/studies-controller.js"></script>
-    <script src="/sockets/sockets.js"></script>
-    <script src="/sockets/sockets-services.js"></script>
-    <script src="/pages/page.js"></script>
-    <script src="/pages/page-controller.js"></script>
-    <script src="/header/header.js"></script>
-    <script src="/header/header-controller.js"></script>
-    <script src="/grid/grid.js"></script>
-    <script src="/grid/grid-services.js"></script>
-    <script src="/grid/grid-directives.js"></script>
-    <script src="/grid/grid-controller.js"></script>
-    <script src="/filters/filters.js"></script>
-    <script src="/error/error.js"></script>
-    <script src="/error/error-controller.js"></script>
-    <script src="/authentication/authentication.js"></script>
-    <script src="/authentication/interceptor.js"></script>
-    <script src="/authentication/authentication-services.js"></script>
-    <script src="/authentication/authentication-controller.js"></script>
-    <script src="/app.js"></script>
-    <script src="/admin/admin.js"></script>
-    <script src="/admin/admin-view-controller.js"></script>
-    <script src="/admin/admin-directives.js"></script>
-    <script src="/admin/admin-controller.js"></script>
-    <script src="/account/account.js"></script>
-    <script src="/account/account-controller.js"></script>
     <!-- endinject -->
   </body>
 </html>
