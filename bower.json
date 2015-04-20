@@ -35,7 +35,7 @@
     "selectize": "~0.11.2",
     "angular-validation-match": "~1.1.0",
     "bootstrap-text-dropdown": ">=0.1.2",
-    "atmosphere-javascript": "*"
+    "atmosphere-javascript": "*",
     "handsontable": "0.14.1",
     "naturalSort.js": "~0.7.0"
   },
@@ -47,6 +47,7 @@
       "main": [
         "modules/javascript/src/main/webapp/javascript/atmosphere.js"
       ]
+    },
     "handsontable": {
       "dependencies": {
         "zeroclipboard": ">=2.1.6",
