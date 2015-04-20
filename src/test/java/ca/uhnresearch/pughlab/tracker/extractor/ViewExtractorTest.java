@@ -50,6 +50,8 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("view:write:DEMO-complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("view:download:DEMO-complete")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
