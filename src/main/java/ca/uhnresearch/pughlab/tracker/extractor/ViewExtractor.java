@@ -26,6 +26,50 @@ public class ViewExtractor extends Extractor {
     public void setRepository(StudyRepository repository) {
         this.repository = repository;
     }
+	
+	/**
+	 * Checks that we have appropriate permissions, and sets a set of permission attributes.
+	 * @param request the request
+	 * @param study the study
+	 * @param view the view
+	 * @param currentUser the current authorized user
+	 * @throws ResourceException when there are insufficient permissions
+	 */
+	private void checkPermissions(Request request, Studies study, Views view, Subject currentUser) throws ResourceException {
+		
+		String studyAdminPermissionString = "study:admin:" + study.getName();
+		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
+		Boolean viewReadPermission = studyAdminPermission;
+		Boolean viewWritePermission = studyAdminPermission;
+		Boolean viewDownloadPermission = studyAdminPermission;
+		
+		if (studyAdminPermission) {
+			// Do nothing, as all permissions are already true
+		} else {
+			String viewReadPermissionString = "view:read:" + study.getName() + "-" + view.getName();
+			viewReadPermission = currentUser.isPermitted(viewReadPermissionString);
+			
+			String viewWritePermissionString = "view:write:" + study.getName() + "-" + view.getName();
+			viewWritePermission = currentUser.isPermitted(viewWritePermissionString);
+
+			String viewDownloadPermissionString = "view:download:" + study.getName() + "-" + view.getName();
+			viewDownloadPermission = currentUser.isPermitted(viewDownloadPermissionString);
+		}
+		
+		// If we have permission to write, by default allow reading too
+		if (viewWritePermission) {
+			viewReadPermission = viewWritePermission;
+		}
+		
+		// If we can't read, throw an error
+		if (! viewReadPermission) {
+			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+		}
+		
+		request.getAttributes().put("viewReadAllowed", viewReadPermission);
+		request.getAttributes().put("viewWriteAllowed", viewWritePermission);
+		request.getAttributes().put("viewDownloadAllowed", viewDownloadPermission);
+	}
 
 	protected int beforeHandle(Request request, Response response) {
 		
@@ -46,30 +90,14 @@ public class ViewExtractor extends Extractor {
 		// any permission on the study
     	Subject currentUser = SecurityUtils.getSubject();
 
-    	// Explicitly block access when there's not at least study read access
-    	String studyAdminPermission = "study:admin:" + study.getName();
-    	String viewPermission = "view:read:" + study.getName() + "-" + v.getName();
-    	if (! currentUser.isPermitted(studyAdminPermission) && ! currentUser.isPermitted(viewPermission)) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
-    	}
-    	
-    	logger.info("OK, continuing with the view: {}", v.getName());
-		request.getAttributes().put("view", v);
-		
 		// We set a few permissions to include in the response. This is more a convenience,
 		// as it allows the front end to enable controls. Actual access is blocked independently
 		// in the appropriate endpoints. 
+		checkPermissions(request, study, v, currentUser);
 		
-		logger.info("Adding in permissions");
-		request.getAttributes().put("viewReadAllowed", true);
+		logger.info("OK, continuing with the view: {}", v.getName());
+		request.getAttributes().put("view", v);
 		
-		String viewWritePermission = "view:write:" + study.getName() + "-" + v.getName();
-		request.getAttributes().put("viewWriteAllowed", currentUser.isPermitted(studyAdminPermission) && currentUser.isPermitted(viewWritePermission));
-		
-		String viewDownloadPermission = "view:download:" + study.getName() + "-" + v.getName();
-		request.getAttributes().put("viewDownloadAllowed", currentUser.isPermitted(studyAdminPermission) && currentUser.isPermitted(viewDownloadPermission));
-				
 		return CONTINUE;
 	}
-
 }
