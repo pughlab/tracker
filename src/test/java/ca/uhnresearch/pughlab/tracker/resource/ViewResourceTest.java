@@ -26,13 +26,13 @@ import com.google.gson.JsonObject;
 
 public class ViewResourceTest extends AbstractShiroTest {
 
-	private ViewResource viewResource;
+	private ViewDataResource viewResource;
 	private StudyRepository repository = new MockStudyRepository();
 
 	@Before
 	public void initialize() {
 		
-		viewResource = new ViewResource();
+		viewResource = new ViewDataResource();
 		viewResource.setRepository(repository);
 		Request request = new Request(Method.GET, "http://localhost:9998/services/studies");
 		Reference rootReference = new Reference("http://localhost:9998/services");

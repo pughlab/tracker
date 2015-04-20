@@ -43,6 +43,10 @@ public class ViewAttributesResource extends StudyRepositoryResource {
 		for(Attributes a : attributes) {
 			response.getAttributes().add(new AttributeDTO(a));
 		}
+		
+		response.getPermissions().setReadAllowed((Boolean) getRequest().getAttributes().get("viewReadAllowed")); 
+		response.getPermissions().setWriteAllowed((Boolean) getRequest().getAttributes().get("viewWriteAllowed")); 
+		response.getPermissions().setDownloadAllowed((Boolean) getRequest().getAttributes().get("viewDownloadAllowed")); 
     	    	
     	// And render back
         return new JacksonRepresentation<ViewAttributesResponseDTO>(response);

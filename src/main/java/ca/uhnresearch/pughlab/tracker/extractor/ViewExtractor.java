@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Required;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.dto.ViewPermissionsDTO;
 
 public class ViewExtractor extends Extractor {
 	
@@ -55,6 +56,19 @@ public class ViewExtractor extends Extractor {
     	logger.info("OK, continuing with the view: {}", v.getName());
 		request.getAttributes().put("view", v);
 		
+		// We set a few permissions to include in the response. This is more a convenience,
+		// as it allows the front end to enable controls. Actual access is blocked independently
+		// in the appropriate endpoints. 
+		
+		logger.info("Adding in permissions");
+		request.getAttributes().put("viewReadAllowed", true);
+		
+		String viewWritePermission = "view:write:" + study.getName() + "-" + v.getName();
+		request.getAttributes().put("viewWriteAllowed", currentUser.isPermitted(studyAdminPermission) && currentUser.isPermitted(viewWritePermission));
+		
+		String viewDownloadPermission = "view:download:" + study.getName() + "-" + v.getName();
+		request.getAttributes().put("viewDownloadAllowed", currentUser.isPermitted(studyAdminPermission) && currentUser.isPermitted(viewDownloadPermission));
+				
 		return CONTINUE;
 	}
 
