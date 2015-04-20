@@ -24,9 +24,9 @@ import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class ViewDataResourceTest extends AbstractShiroTest {
+public class ViewAttributesResourceTest extends AbstractShiroTest {
 
-	private ViewDataResource viewResource;
+	private ViewAttributesResource viewResource;
 	private StudyRepository repository = new MockStudyRepository();
 
 	@Before
@@ -75,7 +75,5 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		
 		JsonObject view = data.get("view").getAsJsonObject();
 		assertEquals( "complete", view.get("name").getAsString() );
-		
-		assertTrue( data.get("records").isJsonArray() );
 	}
 }
