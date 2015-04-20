@@ -100,7 +100,7 @@
  	<bean id="studiesViewsResource" class="ca.uhnresearch.pughlab.tracker.resource.StudyResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
- 	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewResource" scope="prototype">
+ 	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewDataResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
  	<bean id="viewAttributesDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewAttributesResource" scope="prototype">
