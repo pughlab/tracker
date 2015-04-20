@@ -8,27 +8,17 @@ import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
-import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
-import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.dto.AttributeDTO;
 import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributesResponseDTO;
 
-public class ViewAttributesResource extends ServerResource {
+public class ViewAttributesResource extends StudyRepositoryResource {
 
-	private StudyRepository repository;
-
-	@Required
-    public void setRepository(StudyRepository repository) {
-        this.repository = repository;
-    }
-	
     @Get("json")
     public Representation getResource()  {
 
@@ -43,18 +33,18 @@ public class ViewAttributesResource extends ServerResource {
     	assert view != null;
     	assert query != null;
     	
-    	List<Attributes> attributes = repository.getViewAttributes(study, view);
+    	List<Attributes> attributes = getRepository().getViewAttributes(study, view);
 
     	// Now translate into DTOs
     	URL url = getRequest().getRootRef().toUrl();
     	UserDTO user = new UserDTO(currentUser);
-    	ViewDataResponseDTO response = new ViewDataResponseDTO(url, user, study, view);
+    	ViewAttributesResponseDTO response = new ViewAttributesResponseDTO(url, user, study, view);
     	
 		for(Attributes a : attributes) {
 			response.getAttributes().add(new AttributeDTO(a));
 		}
     	    	
     	// And render back
-        return new JacksonRepresentation<ViewDataResponseDTO>(response);
+        return new JacksonRepresentation<ViewAttributesResponseDTO>(response);
     }
 }

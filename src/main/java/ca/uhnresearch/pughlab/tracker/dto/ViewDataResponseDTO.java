@@ -10,23 +10,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 
-public class ViewDataResponseDTO extends ViewResponseDTO {
+public class ViewDataResponseDTO extends ViewAttributesResponseDTO {
 
 	CountsDTO counts = new CountsDTO();
-	List<AttributeDTO> attributes = new ArrayList<AttributeDTO>();
 	List<JsonNode> records = new ArrayList<JsonNode>();
 
 	public ViewDataResponseDTO(URL url, UserDTO user, Studies s, Views v) {
 		super(url, user, s, v);
-	}
-
-	@JsonProperty
-	public List<AttributeDTO> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(List<AttributeDTO> attributes) {
-		this.attributes = attributes;
 	}
 
 	@JsonProperty
