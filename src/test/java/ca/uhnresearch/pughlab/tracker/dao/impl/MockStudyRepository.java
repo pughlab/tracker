@@ -366,4 +366,13 @@ public class MockStudyRepository implements StudyRepository {
 		}
 
 	}
+
+	/**
+	 * Mocked implementation of getAuditData, which doesn't really return anything useful. 
+	 */
+	@Override
+	public List<JsonNode> getAuditData(Studies study, CaseQuery query) {
+		
+		return new ArrayList<JsonNode>();
+	}
 }

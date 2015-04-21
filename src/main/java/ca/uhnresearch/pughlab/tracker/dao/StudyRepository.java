@@ -76,4 +76,10 @@ public interface StudyRepository {
 	 */
 	void setCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
 
+	/**
+	 * Retrieves the audit log data. This is formatted as a set of JSON nodes, as there is 
+	 * some reformatting of identifiers to match the tagging within the repository itself. 
+	 * @return list of JSON nodes
+	 */
+	List<JsonNode> getAuditData(Studies study, CaseQuery query);
 }

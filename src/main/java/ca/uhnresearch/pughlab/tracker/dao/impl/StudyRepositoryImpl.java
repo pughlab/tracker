@@ -430,5 +430,43 @@ public class StudyRepositoryImpl implements StudyRepository {
     		};
     	});
 	}
+
+	@Override
+	public List<JsonNode> getAuditData(Studies study, CaseQuery query) {
+		
+		
+		SQLQuery sq = template.newSqlQuery().from(auditLog).where(auditLog.studyId.eq(study.getId())).orderBy(auditLog.eventTime.desc());
+		
+		if (query.getOffset() != null) {
+			sq = sq.offset(query.getOffset());
+		}
+		if (query.getLimit() != null) {
+			sq = sq.limit(query.getLimit());
+		}
+	
+    	List<AuditLog> data = template.query(sq, auditLog);
+    	List<JsonNode> result = new ArrayList<JsonNode>();
+    	
+    	for(AuditLog audit : data) {
+    		ObjectNode obj = jsonNodeFactory.objectNode();
+    		obj.put("caseId", audit.getCaseId());
+    		obj.put("attribute", audit.getAttribute());
+    		obj.put("eventTime", audit.getEventTime().toString());
+    		obj.put("eventType", audit.getEventType());
+    		obj.put("eventUser", audit.getEventUser());
+			JsonNode argsNode = null;
+			try {
+				argsNode = objectMapper.readTree(audit.getEventArgs());
+			} catch (Exception e) {
+				logger.error("Invalid JSON arguments: {}, {}", e.getMessage(), audit.getEventArgs());
+			} finally {
+				obj.replace("eventArgs", argsNode);
+			}
+
+    		result.add(obj);
+    	}
+
+		return result;
+	}
 }
 

@@ -4,6 +4,7 @@ import static junit.framework.Assert.*;
 
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Cases;
@@ -269,4 +271,39 @@ public class StudyRepositoryImplTest {
 		assertNull(data);
 	}
 	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testAuditLog() {
+		Studies study = studyRepository.getStudy("DEMO");
+		
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(5);
+		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		
+		assertNotNull(auditEntries);
+		assertEquals(0, auditEntries.size());
+	}
+	
+	@Ignore("Ignored")
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValue() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		try {
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", null);
+		} catch (RepositoryException e) {
+			fail();
+		}
+		
+		// And now, we ought to be able to see the new audit entry in the database, and
+		// the value should be correct too. 
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "dateEntered");
+		assertNull(data);
+	}
 }
