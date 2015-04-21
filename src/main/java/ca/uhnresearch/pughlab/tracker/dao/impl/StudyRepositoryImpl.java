@@ -373,7 +373,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
     	    .innerJoin(views).on(views.id.eq(viewAttributes.viewId))
-    	    .where(attributes.studyId.eq(study.getId()).and(views.id.eq(view.getId())));
+    	    .where(attributes.studyId.eq(study.getId())
+    	    .and(views.id.eq(view.getId()))
+    	    .and(attributes.name.eq(attribute)));
     	Attributes a = template.queryForObject(sqlQuery, attributes);
     	
     	// If there isn't an attribute, we should probably throw an error.
@@ -386,13 +388,13 @@ public class StudyRepositoryImpl implements StudyRepository {
     	final ObjectNode auditLogValues = jsonNodeFactory.objectNode();
 
     	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
-    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId)).where(cases.id.eq(caseValue.getId()));
+    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId)).where(cases.id.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)));
     		oldValue = template.queryForObject(query, new QTuple(caseAttributeStrings.value, caseAttributeStrings.notAvailable));
     	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
-    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeDates).on(cases.id.eq(caseAttributeDates.caseId)).where(cases.id.eq(caseValue.getId()));
+    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeDates).on(cases.id.eq(caseAttributeDates.caseId)).where(cases.id.eq(caseValue.getId()).and(caseAttributeDates.attribute.eq(attribute)));
     		oldValue = template.queryForObject(query, new QTuple(caseAttributeDates.value, caseAttributeDates.notAvailable));
     	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
-    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeBooleans).on(cases.id.eq(caseAttributeBooleans.caseId)).where(cases.id.eq(caseValue.getId()));
+    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeBooleans).on(cases.id.eq(caseAttributeBooleans.caseId)).where(cases.id.eq(caseValue.getId()).and(caseAttributeBooleans.attribute.eq(attribute)));
     		oldValue = template.queryForObject(query, new QTuple(caseAttributeBooleans.value, caseAttributeBooleans.notAvailable));    		
     	} else {
     		throw new RuntimeException("Invalid attribute type: " + a.getType());
