@@ -212,4 +212,61 @@ public class StudyRepositoryImplTest {
 		Cases caseValue = studyRepository.getStudyCase(study, view, 22);
 		assertNull(caseValue);
 	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseValues() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		assertNotNull(data);
+		
+		String date = data.get("dateEntered").asText();
+		assertNotNull(date);
+		assertEquals("2014-08-20", date);
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeValues() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "dateEntered");
+		assertNotNull(data);
+		assertEquals("2014-08-20", data.asText());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeValuesNotApplicable() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 2);
+		
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "trackerDate");
+		assertNotNull(data);
+		assertTrue(data.isObject());
+		assertTrue(data.has("$notAvailable"));
+		assertEquals("true", data.get("$notAvailable").asText());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeMissing() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "bloodCollDate");
+		assertNull(data);
+	}
+	
 }
