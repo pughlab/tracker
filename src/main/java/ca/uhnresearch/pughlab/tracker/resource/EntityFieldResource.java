@@ -15,6 +15,8 @@ import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.domain.Cases;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
@@ -51,8 +53,15 @@ public class EntityFieldResource extends StudyRepositoryResource {
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
     	String attribute = (String) getRequest().getAttributes().get("entityField");
     	
-    	// Write the value
-    	getRepository().setCaseAttributeValue(study, view, caseValue, attribute, data);
+    	// Write the value, handling exceptions we might get, and converting them to
+    	// appropriate server responses.
+    	try {
+			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, currentUser.getPrincipal().toString(), data);
+		} catch (NotFoundException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		} catch (RepositoryException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+		}
     	
     	// Return the response, which is the same as a GET response
     	JsonNode val = getRepository().getCaseAttributeValue(study, view, caseValue, attribute);

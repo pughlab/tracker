@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,17 +16,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
+import org.springframework.data.jdbc.query.SqlInsertCallback;
 
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
+import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
+import static ca.uhnresearch.pughlab.tracker.domain.QAuditLog.auditLog;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBooleans.caseAttributeBooleans;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeDates.caseAttributeDates;
@@ -191,9 +197,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			
 			// Add the value
 			if (notAvailable != null && notAvailable) {
-				ObjectNode marked = jsonNodeFactory.objectNode();
-				marked.put("$notAvailable", Boolean.TRUE);
-				obj.replace(attributeName, marked);
+				obj.replace(attributeName, getNotAvailableValue());
 			} else if (value == null) {
 				obj.put(attributeName, (String) null);
 			} else if (value instanceof String) {
@@ -229,6 +233,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 				}
 			}
 		}
+	}
+	
+	private JsonNode getNotAvailableValue() {
+		ObjectNode marked = jsonNodeFactory.objectNode();
+		marked.put("$notAvailable", Boolean.TRUE);
+		return marked;
 	}
 	
 	private List<JsonNode> getJsonData(ListSubQuery<Integer> query) {
@@ -348,18 +358,75 @@ public class StudyRepositoryImpl implements StudyRepository {
     	return caseValue;
 	}
 
+	/**
+	 * Retrieves a single value from a case attribute.
+	 */
 	@Override
-	public JsonNode getCaseAttributeValue(Studies study, Views view,
-			Cases caseValue, String attribute) {
-		// TODO Auto-generated method stub
-		return null;
+	public JsonNode getCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute) {
+		JsonNode caseData = getCaseData(study, view, caseValue);
+		return caseData.get(attribute);
 	}
 
 	@Override
-	public void setCaseAttributeValue(Studies study, Views view,
-			Cases caseValue, String attribute, JsonNode value) {
-		// TODO Auto-generated method stub
+	public void setCaseAttributeValue(final Studies study, final Views view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
 		
+		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
+    	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
+    	    .innerJoin(views).on(views.id.eq(viewAttributes.viewId))
+    	    .where(attributes.studyId.eq(study.getId()).and(views.id.eq(view.getId())));
+    	Attributes a = template.queryForObject(sqlQuery, attributes);
+    	
+    	// If there isn't an attribute, we should probably throw an error.
+    	if (a == null) {
+    		throw new NotFoundException("Can't find attribute: " + attribute);
+    	}
+    	
+    	// Now let's pull the current attribute value, if it exists, mainly so we can generate an audit entry for it.
+    	Tuple oldValue;
+    	final ObjectNode auditLogValues = jsonNodeFactory.objectNode();
+
+    	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
+    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId)).where(cases.id.eq(caseValue.getId()));
+    		oldValue = template.queryForObject(query, new QTuple(caseAttributeStrings.value, caseAttributeStrings.notAvailable));
+    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
+    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeDates).on(cases.id.eq(caseAttributeDates.caseId)).where(cases.id.eq(caseValue.getId()));
+    		oldValue = template.queryForObject(query, new QTuple(caseAttributeDates.value, caseAttributeDates.notAvailable));
+    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
+    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeBooleans).on(cases.id.eq(caseAttributeBooleans.caseId)).where(cases.id.eq(caseValue.getId()));
+    		oldValue = template.queryForObject(query, new QTuple(caseAttributeBooleans.value, caseAttributeBooleans.notAvailable));    		
+    	} else {
+    		throw new RuntimeException("Invalid attribute type: " + a.getType());
+    	}
+    	
+    	Object oldRawValue = oldValue.get(0, Object.class);
+		Boolean oldNotAvailable = oldValue.get(1, Boolean.class);
+		if (oldNotAvailable) {
+			auditLogValues.replace("old", getNotAvailableValue());
+		} else if (oldRawValue == null) {
+			auditLogValues.put("old", (String) oldRawValue);
+		} else if (oldRawValue instanceof String) {
+			auditLogValues.put("old", (String) oldRawValue);
+		} else if (oldRawValue instanceof Date) {
+			auditLogValues.put("old", ((Date) oldRawValue).toString());
+		} else if (oldRawValue instanceof Boolean) {
+			auditLogValues.put("old", (Boolean) oldRawValue);
+		} else {
+			throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
+		}
+
+		// Right. Now we can add the new value. Which is much easier, as it's already encoded.
+		auditLogValues.replace("value", value);
+		
+    	// So here we know what type of attribute we have, and can therefore build a query to
+    	// write into the correct table. 
+    	    	
+    	template.insert(auditLog, new SqlInsertCallback() {
+    		public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+    			return sqlInsertClause.columns(auditLog.studyId, auditLog.caseId, auditLog.attribute, auditLog.eventType, auditLog.eventUser, auditLog.eventTime, auditLog.eventArgs)
+    				.values(caseValue.getId(), study.getId(), attribute, "set_value", userName, new Timestamp((new java.util.Date()).getTime()), auditLogValues.asText())
+    				.execute();
+    		};
+    	});
 	}
 }
 

@@ -74,6 +74,6 @@ public interface StudyRepository {
 	/**
 	 * Writes the attribute value for a given case, view, study, and attribute to the repository
 	 */
-	void setCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute, JsonNode value);
+	void setCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
 
 }
