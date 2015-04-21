@@ -25,9 +25,13 @@
 	
 	<bean id="studyExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.StudyExtractor">
 		<property name="repository" ref="studyRepository"/>
-		<property name="next" ref="studyRouter"/>
+		<property name="next" ref="caseQueryExtractor"/>
 	</bean>
 	
+	<bean id="caseQueryExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.CaseQueryExtractor">
+		<property name="next" ref="studyRouter"/>
+	</bean>
+
 	<bean id="studyRouter" class="org.restlet.ext.spring.SpringRouter">
 		<constructor-arg ref="apiRouter" />
 		<property name="attachments">
@@ -44,13 +48,9 @@
 	
 	<bean id="viewExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.ViewExtractor">
 		<property name="repository" ref="studyRepository"/>
-		<property name="next" ref="caseQueryExtractor"/>
-	</bean>
-	
-	<bean id="caseQueryExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.CaseQueryExtractor">
 		<property name="next" ref="viewRouter"/>
 	</bean>
-
+	
 	<bean id="viewRouter" class="org.restlet.ext.spring.SpringRouter">
 		<constructor-arg ref="studyRouter" />
 		<property name="attachments">
