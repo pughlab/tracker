@@ -7,8 +7,14 @@ import javax.annotation.Generated;
  */
 @Generated("com.mysema.query.codegen.BeanSerializer")
 public class Attributes {
+	
+	public static final String ATTRIBUTE_TYPE_STRING = "strings";
 
-    private String description;
+	public static final String ATTRIBUTE_TYPE_BOOLEAN = "booleans";
+
+	public static final String ATTRIBUTE_TYPE_DATE = "dates";
+
+	private String description;
 
     private Integer id;
 
