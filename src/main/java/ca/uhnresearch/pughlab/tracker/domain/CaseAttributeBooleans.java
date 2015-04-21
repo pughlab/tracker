@@ -8,31 +8,17 @@ import javax.annotation.Generated;
 @Generated("com.mysema.query.codegen.BeanSerializer")
 public class CaseAttributeBooleans {
 
-    private Boolean active;
-
     private String attribute;
 
     private Integer caseId;
 
     private Integer id;
 
-    private java.sql.Timestamp modified;
-
-    private Integer modifiedBy;
-
     private Boolean notAvailable;
 
     private String notes;
 
     private Boolean value;
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
 
     public String getAttribute() {
         return attribute;
@@ -56,22 +42,6 @@ public class CaseAttributeBooleans {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public java.sql.Timestamp getModified() {
-        return modified;
-    }
-
-    public void setModified(java.sql.Timestamp modified) {
-        this.modified = modified;
-    }
-
-    public Integer getModifiedBy() {
-        return modifiedBy;
-    }
-
-    public void setModifiedBy(Integer modifiedBy) {
-        this.modifiedBy = modifiedBy;
     }
 
     public Boolean getNotAvailable() {

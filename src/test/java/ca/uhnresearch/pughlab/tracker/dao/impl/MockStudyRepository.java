@@ -124,7 +124,6 @@ public class MockStudyRepository implements StudyRepository {
 	
 	private CaseAttributeStrings mockCaseAttributeStrings(Integer caseId, String attribute, String value) {
 		CaseAttributeStrings obj = new CaseAttributeStrings();
-		obj.setActive(true);
 		obj.setCaseId(caseId);
 		obj.setAttribute(attribute);
 		obj.setValue(value);
@@ -133,7 +132,6 @@ public class MockStudyRepository implements StudyRepository {
 	
 	private CaseAttributeDates mockCaseAttributeDates(Integer caseId, String attribute, Date value) {
 		CaseAttributeDates obj = new CaseAttributeDates();
-		obj.setActive(true);
 		obj.setCaseId(caseId);
 		obj.setAttribute(attribute);
 		obj.setValue(value);
@@ -142,7 +140,6 @@ public class MockStudyRepository implements StudyRepository {
 	
 	private CaseAttributeBooleans mockCaseAttributeBooleans(Integer caseId, String attribute, Boolean value) {
 		CaseAttributeBooleans obj = new CaseAttributeBooleans();
-		obj.setActive(true);
 		obj.setCaseId(caseId);
 		obj.setAttribute(attribute);
 		obj.setValue(value);
@@ -331,41 +328,6 @@ public class MockStudyRepository implements StudyRepository {
 		return result;		
 	}
 	
-	/**
-	 * Inner class, mainly as a convenience for mocking history entries with the right fields.
-	 * @author stuartw
-	 *
-	 */
-	private class HistoryEntry {
-		
-		private HistoryEntry(Boolean active, String value, String modified, String modifiedBy, Boolean notAvailable, String type) {
-			this.active = active;
-			this.value = value;
-			this.modified = modified;
-			this.modifiedBy = modifiedBy;
-			this.notAvailable = notAvailable;
-			this.type = type;
-		}
-		
-		@JsonProperty
-		Boolean active;
-
-		@JsonProperty
-		String value;
-		
-		@JsonProperty
-		String modified;
-		
-		@JsonProperty
-		String modifiedBy;
-		
-		@JsonProperty
-		Boolean notAvailable;
-		
-		@JsonProperty
-		String type;
-	}
-
 	@Override
 	public JsonNode getCaseData(Studies study, Views view, Cases caseValue) {
 		// TODO Auto-generated method stub

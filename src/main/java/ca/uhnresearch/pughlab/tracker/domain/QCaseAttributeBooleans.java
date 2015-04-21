@@ -24,17 +24,11 @@ public class QCaseAttributeBooleans extends com.mysema.query.sql.RelationalPathB
 
     public static final QCaseAttributeBooleans caseAttributeBooleans = new QCaseAttributeBooleans("case_attribute_booleans");
 
-    public final BooleanPath active = createBoolean("active");
-
     public final StringPath attribute = createString("attribute");
 
     public final NumberPath<Integer> caseId = createNumber("caseId", Integer.class);
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
-
-    public final DateTimePath<java.sql.Timestamp> modified = createDateTime("modified", java.sql.Timestamp.class);
-
-    public final NumberPath<Integer> modifiedBy = createNumber("modifiedBy", Integer.class);
 
     public final BooleanPath notAvailable = createBoolean("notAvailable");
 
@@ -65,12 +59,9 @@ public class QCaseAttributeBooleans extends com.mysema.query.sql.RelationalPathB
     }
 
     public void addMetadata() {
-        addMetadata(active, ColumnMetadata.named("ACTIVE").withIndex(5).ofType(Types.BIT).notNull());
         addMetadata(attribute, ColumnMetadata.named("ATTRIBUTE").withIndex(6).ofType(Types.VARCHAR).withSize(24).notNull());
         addMetadata(caseId, ColumnMetadata.named("CASE_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
         addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(modified, ColumnMetadata.named("MODIFIED").withIndex(3).ofType(Types.TIMESTAMP).withSize(19).notNull());
-        addMetadata(modifiedBy, ColumnMetadata.named("MODIFIED_BY").withIndex(4).ofType(Types.INTEGER).withSize(10).notNull());
         addMetadata(notAvailable, ColumnMetadata.named("NOT_AVAILABLE").withIndex(8).ofType(Types.BIT).notNull());
         addMetadata(notes, ColumnMetadata.named("NOTES").withIndex(9).ofType(Types.VARCHAR).withSize(2048));
         addMetadata(value, ColumnMetadata.named("VALUE").withIndex(7).ofType(Types.BIT));
