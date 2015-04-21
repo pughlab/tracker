@@ -421,11 +421,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
     	// So here we know what type of attribute we have, and can therefore build a query to
     	// write into the correct table. 
+		
+		logger.info("Writing audit values: {}", auditLogValues.toString());
     	    	
     	template.insert(auditLog, new SqlInsertCallback() {
     		public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
     			return sqlInsertClause.columns(auditLog.studyId, auditLog.caseId, auditLog.attribute, auditLog.eventType, auditLog.eventUser, auditLog.eventTime, auditLog.eventArgs)
-    				.values(caseValue.getId(), study.getId(), attribute, "set_value", userName, new Timestamp((new java.util.Date()).getTime()), auditLogValues.asText())
+    				.values(caseValue.getId(), study.getId(), attribute, "set_value", userName, new Timestamp((new java.util.Date()).getTime()), auditLogValues.toString())
     				.execute();
     		};
     	});
@@ -455,11 +457,13 @@ public class StudyRepositoryImpl implements StudyRepository {
     		obj.put("eventType", audit.getEventType());
     		obj.put("eventUser", audit.getEventUser());
 			JsonNode argsNode = null;
+			logger.info("Got data: {}", audit.getEventArgs().toString());
 			try {
 				argsNode = objectMapper.readTree(audit.getEventArgs());
 			} catch (Exception e) {
 				logger.error("Invalid JSON arguments: {}, {}", e.getMessage(), audit.getEventArgs());
 			} finally {
+				logger.info("Adding data: {}", argsNode.toString());
 				obj.replace("eventArgs", argsNode);
 			}
 
