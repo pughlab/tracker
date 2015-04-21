@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Required;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.ViewPermissionsDTO;
 
 public class ViewExtractor extends Extractor {
 	

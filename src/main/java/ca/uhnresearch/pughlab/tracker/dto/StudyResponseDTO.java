@@ -1,8 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

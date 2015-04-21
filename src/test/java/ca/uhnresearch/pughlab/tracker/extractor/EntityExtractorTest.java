@@ -14,8 +14,6 @@ import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.resource.ResourceException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Cases;

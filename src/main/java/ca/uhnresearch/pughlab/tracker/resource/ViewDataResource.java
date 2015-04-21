@@ -33,6 +33,7 @@ public class ViewDataResource extends ViewAttributesResource {
     	
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
+		@SuppressWarnings("unchecked")
 		List<Attributes> attributes = (List<Attributes>) getRequest().getAttributes().get("attributes");
 
     	List<JsonNode> records = getRepository().getData(study, view, attributes, query);

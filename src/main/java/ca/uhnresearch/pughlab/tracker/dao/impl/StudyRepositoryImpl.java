@@ -1,13 +1,11 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -21,11 +19,8 @@ import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
-import com.mysema.query.sql.dml.Mapper;
-import com.mysema.query.support.Expressions;
 import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.QTuple;
-import com.mysema.query.types.expr.StringExpression;
 import com.mysema.query.types.query.ListSubQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
