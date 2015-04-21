@@ -66,8 +66,14 @@ public interface StudyRepository {
 	JsonNode getCaseData(Studies study, Views view, Cases caseValue);
 	
 	/**
-	 * Retrieves the attreibute-level history for a given case, view and study from the repository
-	 * @return JSON array
+	 * Retrieves the attribute value for a given case, view, study, and attribute from the repository
+	 * @return JSON node
 	 */
-	JsonNode getCaseAttributeHistory(Studies study, Views view, Cases caseValue, String attribute);
+	JsonNode getCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute);
+
+	/**
+	 * Writes the attribute value for a given case, view, study, and attribute to the repository
+	 */
+	void setCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute, JsonNode value);
+
 }

@@ -341,95 +341,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 		}
 	}
 	
-	private class HistoryEntry {
-		
-		HistoryEntry (Tuple tuple) {
-			this.active = tuple.get(0, Boolean.class);
-			Object generic = tuple.get(1, Object.class);
-			if (generic instanceof String) {
-				this.value = jsonNodeFactory.textNode((String) generic);
-			} else if (generic instanceof Date) {
-				this.value = jsonNodeFactory.numberNode(((Date) generic).getTime());
-			} else if (generic instanceof Boolean) {
-				this.value = jsonNodeFactory.booleanNode((Boolean) generic);
-			} else {
-				throw new RuntimeException("Internal error: invalid type: " + generic.getClass().getName());
-			}
-			this.modified = tuple.get(2, Timestamp.class).getTime();
-			this.modifiedBy = tuple.get(3, Integer.class);
-			this.notAvailable = tuple.get(4, Boolean.class);
-			this.type = tuple.get(5, String.class);
-		}
-		
-		@JsonProperty 
-		Boolean active;
-		
-		@JsonProperty
-		JsonNode value;
-		
-		@JsonProperty
-		Long modified;
-		
-		@JsonProperty
-		Integer modifiedBy;
-		
-		@JsonProperty
-		Boolean notAvailable;
-		
-		@JsonProperty
-		String type;
-	}
-
-	/**
-	 * Returns the data on a single entity attribute's history, in JSON format.
-	 */
-	@Override
-	public JsonNode getCaseAttributeHistory(Studies study, Views view, Cases caseValue, String attribute) {
-
-		// The table to use might vary here, so we need to select a few different options. Unhelpfully,
-		// we don't get great polymorphism from Querydsl. But that's the same issue we faced earlier. 
-		// Logically, though, it's better to query all and merge them, as we might have changed the
-		// type of the field along the way. 
-		
-		SQLQuery sqlQuery;
-		List<HistoryEntry> allValues = new ArrayList<HistoryEntry>();
-		List<Tuple> values;
-		
-		ListSubQuery<Integer> query = getStudyCaseSubQuery(study, caseValue.getId());
-		
-		final QCaseAttributeStrings s = caseAttributeStrings;
-		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(s).on(cases.id.eq(s.caseId).and(s.attribute.eq(attribute)));
-		values = template.query(sqlQuery, new QTuple(s.active, s.value, s.modified, s.modifiedBy, s.notAvailable, Expressions.constant("string")));
-		for(Tuple t : values) {
-			allValues.add(new HistoryEntry(t));
-		}
-		
-		final QCaseAttributeDates d = caseAttributeDates;
-		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(d).on(cases.id.eq(d.caseId).and(d.attribute.eq(attribute)));
-		values = template.query(sqlQuery, new QTuple(d.active, d.value, d.modified, d.modifiedBy, d.notAvailable, Expressions.constant("date")));
-		for(Tuple t : values) {
-			allValues.add(new HistoryEntry(t));
-		}
-
-		final QCaseAttributeBooleans b = caseAttributeBooleans;
-		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(b).on(cases.id.eq(b.caseId).and(b.attribute.eq(attribute)));
-		values = template.query(sqlQuery, new QTuple(b.active, b.value, b.modified, b.modifiedBy, b.notAvailable, Expressions.constant("boolean")));
-		for(Tuple t : values) {
-			allValues.add(new HistoryEntry(t));
-		}
-		
-		// So here we should have a big list of tuples. They will, by and large, need to be merged and 
-		// sorted into a single list. If we'd been feeling ingenious, we could have sorted each and 
-		// made a merge on them, but the performance issue will be irrelevant unless the history is
-		// really huge.
-		
-		// Main issue is sorting by date and by activity, and then unpacking into JSON. So it would 
-		// be easier if we unpacked into JSON first. Or, rather, pseudo-JSON in the form of an object
-		// we can nicely serialise. That way we can sort on the objects. 
-		
-		return objectMapper.convertValue(allValues, JsonNode.class);
-	}
-
 	@Override
 	public Cases getStudyCase(Studies study, Views view, Integer caseId) {
 		logger.debug("Looking for case by identifier: {}", caseId);
@@ -443,6 +354,20 @@ public class StudyRepositoryImpl implements StudyRepository {
     	}
     	
     	return caseValue;
+	}
+
+	@Override
+	public JsonNode getCaseAttributeValue(Studies study, Views view,
+			Cases caseValue, String attribute) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setCaseAttributeValue(Studies study, Views view,
+			Cases caseValue, String attribute, JsonNode value) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 

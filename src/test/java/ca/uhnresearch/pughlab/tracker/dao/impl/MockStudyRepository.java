@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.slf4j.Logger;
@@ -366,17 +367,6 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public JsonNode getCaseAttributeHistory(Studies study, Views view, Cases caseValue, String attribute) {
-		// TODO Auto-generated method stub
-		
-		List<HistoryEntry> history = new ArrayList<HistoryEntry>();
-		history.add(new HistoryEntry(true, attribute, "2014-01-05", "stuart", false, "string"));
-		history.add(new HistoryEntry(false, "old value", "2014-01-03", "stuart", false, "string"));
-		history.add(new HistoryEntry(false, "very old value", "2014-01-01", "stuart", false, "string"));
-		return mapper.convertValue(history, JsonNode.class);
-	}
-
-	@Override
 	public JsonNode getCaseData(Studies study, Views view, Cases caseValue) {
 		// TODO Auto-generated method stub
 		// We build all the data in Gson, because it's easier
@@ -384,13 +374,31 @@ public class MockStudyRepository implements StudyRepository {
 		if (! data.containsKey(caseValue.getId())) {
 			return null;
 		}
-		String text = data.get(caseValue.getId()).toString();
+		return convertJsonElementToJsonNode(data.get(caseValue.getId()));
+	}
+
+	@Override
+	public JsonNode getCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute) {
+		
+		JsonNode caseData = getCaseData(study, view, caseValue);
+		return caseData.get(attribute);
+	}
+
+	@Override
+	public void setCaseAttributeValue(Studies study, Views view,
+			Cases caseValue, String attribute, JsonNode value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private JsonNode convertJsonElementToJsonNode(JsonElement object) {
+		String text = object.toString();
 		try {
 			return mapper.readTree(text);
 		} catch (IOException e) {
 			logger.error("Internal test error: {}", e.getMessage());
 			return null;
 		}
-	}
 
+	}
 }

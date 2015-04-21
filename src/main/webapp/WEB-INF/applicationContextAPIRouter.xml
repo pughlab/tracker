@@ -87,7 +87,7 @@
 	            </entry>
  	            <entry key="/{entityField}">
 					<bean class="org.restlet.ext.spring.SpringFinder">
-		           		<lookup-method name="create" bean="entityFieldHistoryResource" />
+		           		<lookup-method name="create" bean="entityFieldResource" />
 		           	</bean>
 	            </entry>
 	        </map>
@@ -109,7 +109,7 @@
  	<bean id="entityResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
- 	<bean id="entityFieldHistoryResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityFieldHistoryResource" scope="prototype">
+ 	<bean id="entityFieldResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityFieldResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
 	

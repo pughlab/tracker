@@ -212,15 +212,4 @@ public class StudyRepositoryImplTest {
 		Cases caseValue = studyRepository.getStudyCase(study, view, 22);
 		assertNull(caseValue);
 	}
-
-	@Test
-	@Transactional
-	@Rollback(true)
-	public void testHistory() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		JsonNode history = studyRepository.getCaseAttributeHistory(study, view, caseValue, "primarySite");
-		assertNotNull(history);
-	}
 }

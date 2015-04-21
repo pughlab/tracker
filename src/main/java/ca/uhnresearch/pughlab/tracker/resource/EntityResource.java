@@ -7,6 +7,8 @@ import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -17,9 +19,13 @@ import ca.uhnresearch.pughlab.tracker.dto.EntityResponseDTO;
 import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
 
 public class EntityResource extends StudyRepositoryResource {
-
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
     @Get("json")
-    public Representation getResource()  {
+    public Representation getResource() {
+    	
+    	logger.info("Called getResource() in EntityResource");
 
     	Subject currentUser = SecurityUtils.getSubject();
 
