@@ -8,11 +8,11 @@ import javax.annotation.Generated;
 @Generated("com.mysema.query.codegen.BeanSerializer")
 public class Attributes {
 	
-	public static final String ATTRIBUTE_TYPE_STRING = "strings";
+	public static final String ATTRIBUTE_TYPE_STRING = "string";
 
-	public static final String ATTRIBUTE_TYPE_BOOLEAN = "booleans";
+	public static final String ATTRIBUTE_TYPE_BOOLEAN = "boolean";
 
-	public static final String ATTRIBUTE_TYPE_DATE = "dates";
+	public static final String ATTRIBUTE_TYPE_DATE = "date";
 
 	private String description;
 
