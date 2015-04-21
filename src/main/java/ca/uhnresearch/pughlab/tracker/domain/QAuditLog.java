@@ -2,6 +2,7 @@ package ca.uhnresearch.pughlab.tracker.domain;
 
 import static com.mysema.query.types.PathMetadataFactory.forVariable;
 
+import java.sql.Timestamp;
 import java.sql.Types;
 
 import com.mysema.query.sql.ColumnMetadata;
@@ -26,7 +27,7 @@ public class QAuditLog extends RelationalPathBase<AuditLog> {
 
     public final StringPath attribute = createString("attribute");
 
-    public final DateTimePath<java.sql.Timestamp> eventTime = createDateTime("eventTime", java.sql.Timestamp.class);
+    public final DateTimePath<Timestamp> eventTime = createDateTime("eventTime", Timestamp.class);
 
     public final StringPath eventUser = createString("eventUser");
 
@@ -61,7 +62,7 @@ public class QAuditLog extends RelationalPathBase<AuditLog> {
         addMetadata(attribute, ColumnMetadata.named("ATTRIBUTE").withIndex(4).ofType(Types.VARCHAR).withSize(48).notNull());
         addMetadata(eventTime, ColumnMetadata.named("EVENT_TIME").withIndex(5).ofType(Types.TIMESTAMP).withSize(19).notNull());
         addMetadata(eventUser, ColumnMetadata.named("EVENT_USER").withIndex(6).ofType(Types.VARCHAR).withSize(24).notNull());
-        addMetadata(eventUser, ColumnMetadata.named("EVENT_TYPE").withIndex(7).ofType(Types.VARCHAR).withSize(12).notNull());
+        addMetadata(eventType, ColumnMetadata.named("EVENT_TYPE").withIndex(7).ofType(Types.VARCHAR).withSize(12).notNull());
         addMetadata(eventArgs, ColumnMetadata.named("EVENT_ARGS").withIndex(8).ofType(Types.VARCHAR).withSize(2048));
     }
 }
