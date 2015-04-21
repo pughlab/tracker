@@ -17,11 +17,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
+import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
 import com.mysema.query.sql.dml.SQLInsertClause;
+import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
@@ -368,7 +370,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public void setCaseAttributeValue(final Studies study, final Views view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
+	public void setCaseAttributeValue(final Studies study, final Views view, final Cases caseValue, final String attribute, final String userName, final JsonNode value) throws RepositoryException {
 		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
@@ -421,8 +423,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
     	// So here we know what type of attribute we have, and can therefore build a query to
     	// write into the correct table. 
-		
-		logger.info("Writing audit values: {}", auditLogValues.toString());
     	    	
     	template.insert(auditLog, new SqlInsertCallback() {
     		public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
@@ -431,6 +431,30 @@ public class StudyRepositoryImpl implements StudyRepository {
     				.execute();
     		};
     	});
+    	
+    	// And next, we ought to either (a) insert, or (b) update, existing values. There are lots of nasty combinations of
+    	// conditions here, because we have several tables and we may need to either insert or update, and of course, to 
+    	// figure out which. The easiest is to an attempt an update, and insert if no rows were affected.
+    	
+    	final Boolean valueNotApplicable = value.isObject() && value.has("$notAvailable");
+    	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
+    		long updateCount = template.update(caseAttributeStrings, new SqlUpdateCallback() { 
+    			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+    				return sqlUpdateClause.where(caseAttributeStrings.caseId.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)))
+    					.set(caseAttributeStrings.notAvailable, valueNotApplicable)
+    					.set(caseAttributeStrings.value, valueNotApplicable ? null : value.asText())
+    					.execute();
+    			};
+    		});
+    		if (updateCount == 0) return;
+    		template.insert(caseAttributeStrings, new SqlInsertCallback() { 
+    			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+    				return sqlInsertClause.columns(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable)
+    					.values(caseValue.getId(), attribute, valueNotApplicable ? null : value.asText(), valueNotApplicable)
+    					.execute();
+    			};
+    		});
+    	}
 	}
 
 	@Override
