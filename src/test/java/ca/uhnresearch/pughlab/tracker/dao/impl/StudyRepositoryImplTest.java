@@ -366,4 +366,44 @@ public class StudyRepositoryImplTest {
 		assertFalse(data.isNull());
 		assertEquals("DEMO-XX", data.asText());
 	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueBoolean() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		try {
+			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", booleanValue);
+		} catch (RepositoryException e) {
+			fail();
+		}
+		
+		// Check we now have an audit log entry
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(5);
+		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		assertNotNull(auditEntries);
+		assertEquals(1, auditEntries.size());
+		
+		
+		// Poke at the first audit log entry
+		JsonNode entry = auditEntries.get(0);
+		assertEquals("stuart", entry.get("eventUser").asText());
+		assertEquals("specimenAvailable", entry.get("attribute").asText());
+		assertEquals("true", entry.get("eventArgs").get("old").asText());
+		assertEquals("false", entry.get("eventArgs").get("value").asText());
+		
+		// And now, we ought to be able to see the new audit entry in the database, and
+		// the value should be correct too. Note that as we have set null, we get back a 
+		// JSON null, not a Java one. 
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenAvailable");
+		assertNotNull(data);
+		assertTrue(data.isBoolean());
+		assertEquals("false", data.asText());
+	}
 }
