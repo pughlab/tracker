@@ -2,6 +2,8 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -361,7 +363,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
-	 * Retrieves a single value from a case attribute.
+	 * Retrieves a single value from a case attribute. There is a subtle but important issue here: what is the return value for a
+	 * missing attribute. There is a Java null (when it isn't there) and a JSON null, which is there, but is null. Both can happen,
+	 * and are to some extent equivalent. One interpretation us that a set to null is actually a deletion. 
 	 */
 	@Override
 	public JsonNode getCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute) {
@@ -436,25 +440,84 @@ public class StudyRepositoryImpl implements StudyRepository {
     	// conditions here, because we have several tables and we may need to either insert or update, and of course, to 
     	// figure out which. The easiest is to an attempt an update, and insert if no rows were affected.
     	
-    	final Boolean valueNotApplicable = value.isObject() && value.has("$notAvailable");
+    	final Boolean valueNotApplicable = value != null && value.isObject() && value.has("$notAvailable");
+    	
+    	// Yuck, yuck, yuck! I'd love to do this better, but I can't think of an easy way. The values are of 
+    	// different types. Possible multiple inner classes might be one way. 
+    	
     	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
-    		long updateCount = template.update(caseAttributeStrings, new SqlUpdateCallback() { 
-    			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-    				return sqlUpdateClause.where(caseAttributeStrings.caseId.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)))
-    					.set(caseAttributeStrings.notAvailable, valueNotApplicable)
-    					.set(caseAttributeStrings.value, valueNotApplicable ? null : value.asText())
-    					.execute();
-    			};
-    		});
-    		if (updateCount == 0) return;
-    		template.insert(caseAttributeStrings, new SqlInsertCallback() { 
-    			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-    				return sqlInsertClause.columns(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable)
-    					.values(caseValue.getId(), attribute, valueNotApplicable ? null : value.asText(), valueNotApplicable)
-    					.execute();
-    			};
-    		});
+    		String finalValue = value == null ? null : value.asText();
+    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable,finalValue);
+    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
+    		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    		try {
+				final Date finalValue = value == null ? null : new Date(format.parse(value.asText()).getTime());
+	    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable, finalValue);				
+			} catch (ParseException e) {
+				throw new RuntimeException("Invalid date: " + value.toString());
+			}
+    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
+    		Boolean finalValue = value == null ? null : value.asBoolean();
+    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable, finalValue);
     	}
+	}
+	
+	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotApplicable, final String value) {
+		long updateCount = template.update(caseAttributeStrings, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(caseAttributeStrings.caseId.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)))
+					.set(caseAttributeStrings.notAvailable, valueNotApplicable)
+					.set(caseAttributeStrings.value, valueNotApplicable ? null : value)
+					.execute();
+			};
+		});
+		if (updateCount == 0) return;
+		template.insert(caseAttributeStrings, new SqlInsertCallback() { 
+			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+				return sqlInsertClause.columns(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable)
+					.values(caseValue.getId(), attribute, valueNotApplicable ? null : value, valueNotApplicable)
+					.execute();
+			};
+		});
+
+	}
+
+	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotApplicable, final Date value) {
+		long updateCount = template.update(caseAttributeDates, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(caseAttributeDates.caseId.eq(caseValue.getId()).and(caseAttributeDates.attribute.eq(attribute)))
+					.set(caseAttributeDates.notAvailable, valueNotApplicable)
+					.set(caseAttributeDates.value, valueNotApplicable ? null : value)
+					.execute();
+			};
+		});
+		if (updateCount == 0) return;
+		template.insert(caseAttributeDates, new SqlInsertCallback() { 
+			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+				return sqlInsertClause.columns(caseAttributeDates.caseId, caseAttributeDates.attribute, caseAttributeDates.value, caseAttributeDates.notAvailable)
+					.values(caseValue.getId(), attribute, valueNotApplicable ? null : value, valueNotApplicable)
+					.execute();
+			};
+		});
+	}
+
+	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotApplicable, final Boolean value) {
+		long updateCount = template.update(caseAttributeBooleans, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(caseAttributeBooleans.caseId.eq(caseValue.getId()).and(caseAttributeBooleans.attribute.eq(attribute)))
+					.set(caseAttributeBooleans.notAvailable, valueNotApplicable)
+					.set(caseAttributeBooleans.value, valueNotApplicable ? null : value)
+					.execute();
+			};
+		});
+		if (updateCount == 0) return;
+		template.insert(caseAttributeBooleans, new SqlInsertCallback() { 
+			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+				return sqlInsertClause.columns(caseAttributeBooleans.caseId, caseAttributeBooleans.attribute, caseAttributeBooleans.value, caseAttributeBooleans.notAvailable)
+					.values(caseValue.getId(), attribute, valueNotApplicable ? null : value, valueNotApplicable)
+					.execute();
+			};
+		});
 	}
 
 	@Override
