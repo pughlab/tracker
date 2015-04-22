@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -390,6 +390,16 @@ public class StudyRepositoryImpl implements StudyRepository {
     		throw new NotFoundException("Can't find attribute: " + attribute);
     	}
     	
+    	JsonNode optionsNode = null;
+    	String options = a.getOptions();
+    	if (options != null) {
+			try {
+				optionsNode = objectMapper.readTree(options);
+			} catch (Exception e) {
+				logger.error("Invalid JSON notes: {}, {}", e.getMessage(), a.getOptions());
+			}
+    	}
+    	
     	// Now let's pull the current attribute value, if it exists, mainly so we can generate an audit entry for it.
     	Tuple oldValue;
     	final ObjectNode auditLogValues = jsonNodeFactory.objectNode();
@@ -458,8 +468,23 @@ public class StudyRepositoryImpl implements StudyRepository {
     		
     		// Option values should also match one of the specified original values from the 
     		// attribute definition.
-    		if (value != null && ! value.isTextual()) {
-    			throw new InvalidValueException("Invalid string value: " + value.toString());
+    		
+    		if (optionsNode == null || ! optionsNode.has("values") || ! optionsNode.get("values").isArray()) {
+    			throw new InvalidValueException("No option values specified: " + a.getName());
+    		}
+    		
+    		if (value != null) {
+        		Boolean found = false;
+        		Iterator<JsonNode> elements = optionsNode.get("values").elements();
+        		while(elements.hasNext()) {
+        			if (elements.next().equals(value)) {
+        				found = true;
+        				break;
+        			}
+        		}
+        		if (! found) {
+        			throw new InvalidValueException("Invalid string value: " + value.toString());
+        		}
     		}
     		String finalValue = value == null ? null : value.asText();
     		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable,finalValue);

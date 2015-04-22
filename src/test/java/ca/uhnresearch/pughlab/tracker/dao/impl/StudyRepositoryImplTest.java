@@ -512,4 +512,34 @@ public class StudyRepositoryImplTest {
 		JsonNode stringValue = jsonNodeFactory.textNode("2015-02-XX");
 		studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", stringValue);
 	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueOptionValueError() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "complete");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		thrown.expect(InvalidValueException.class);
+		thrown.expectMessage(containsString("Invalid string"));
+
+		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, "sampleAvailable", "stuart", booleanValue);
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueOptionUnexpectedValueError() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "complete");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		thrown.expect(InvalidValueException.class);
+		thrown.expectMessage(containsString("Invalid string"));
+
+		JsonNode stringValue = jsonNodeFactory.textNode("BAD");
+		studyRepository.setCaseAttributeValue(study, view, caseValue, "sampleAvailable", "stuart", stringValue);
+	}
 }
