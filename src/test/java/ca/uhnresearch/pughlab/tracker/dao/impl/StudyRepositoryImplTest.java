@@ -1,12 +1,16 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import static junit.framework.Assert.*;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.util.List;
 
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.restlet.resource.ResourceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
@@ -405,5 +410,23 @@ public class StudyRepositoryImplTest {
 		assertNotNull(data);
 		assertTrue(data.isBoolean());
 		assertEquals("false", data.asText());
+	}
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueBooleanValueError() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		thrown.expect(InvalidValueException.class);
+		thrown.expectMessage(containsString("Invalid boolean"));
+
+		JsonNode stringValue = jsonNodeFactory.textNode("BAD");
+		studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", stringValue);
 	}
 }

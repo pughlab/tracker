@@ -31,6 +31,7 @@ import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
@@ -446,17 +447,26 @@ public class StudyRepositoryImpl implements StudyRepository {
     	// different types. Possible multiple inner classes might be one way. 
     	
     	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
+    		if (value != null && ! value.isTextual()) {
+    			throw new InvalidValueException("Invalid string value: " + value.toString());
+    		}
     		String finalValue = value == null ? null : value.asText();
     		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable,finalValue);
     	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
+    		if (value != null && ! value.isTextual()) {
+    			throw new InvalidValueException("Invalid date value: " + value.toString());
+    		}
     		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     		try {
-				final Date finalValue = value == null ? null : new Date(format.parse(value.asText()).getTime());
+				Date finalValue = value == null ? null : new Date(format.parse(value.asText()).getTime());
 	    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable, finalValue);				
 			} catch (ParseException e) {
-				throw new RuntimeException("Invalid date: " + value.toString());
+				throw new InvalidValueException("Invalid date value: " + value.toString());
 			}
     	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
+    		if (value != null && ! value.isBoolean()) {
+    			throw new InvalidValueException("Invalid boolean value: " + value.toString());
+    		}
     		Boolean finalValue = value == null ? null : value.asBoolean();
     		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable, finalValue);
     	}
