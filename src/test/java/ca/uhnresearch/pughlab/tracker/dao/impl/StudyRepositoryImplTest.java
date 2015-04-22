@@ -542,4 +542,53 @@ public class StudyRepositoryImplTest {
 		JsonNode stringValue = jsonNodeFactory.textNode("BAD");
 		studyRepository.setCaseAttributeValue(study, view, caseValue, "sampleAvailable", "stuart", stringValue);
 	}
+
+	// Regression test for #6 -- check that multiple writes are handled correctly. 
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueBooleanTwice() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		try {
+			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", booleanValue);
+		} catch (RepositoryException e) {
+			fail();
+		}
+		
+		try {
+			JsonNode booleanValue = jsonNodeFactory.booleanNode(true);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", booleanValue);
+		} catch (RepositoryException e) {
+			fail();
+		}
+
+		// Check we now have an audit log entry
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(5);
+		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		assertNotNull(auditEntries);
+		assertEquals(2, auditEntries.size());
+		
+		
+		// Poke at the first audit log entry
+		JsonNode entry = auditEntries.get(0);
+		assertEquals("stuart", entry.get("eventUser").asText());
+		assertEquals("specimenAvailable", entry.get("attribute").asText());
+		assertEquals("false", entry.get("eventArgs").get("old").asText());
+		assertEquals("true", entry.get("eventArgs").get("value").asText());
+		
+		// And now, we ought to be able to see the new audit entry in the database, and
+		// the value should be correct too. Note that as we have set null, we get back a 
+		// JSON null, not a Java one. 
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenAvailable");
+		assertNotNull(data);
+		assertTrue(data.isBoolean());
+		assertEquals("true", data.asText());
+	}
+
 }

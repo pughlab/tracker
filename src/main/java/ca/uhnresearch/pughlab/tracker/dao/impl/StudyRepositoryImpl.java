@@ -522,7 +522,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 					.execute();
 			};
 		});
-		if (updateCount == 0) return;
+		if (updateCount == 1) return;
 		template.insert(caseAttributeStrings, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable)
@@ -542,7 +542,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 					.execute();
 			};
 		});
-		if (updateCount == 0) return;
+		if (updateCount == 1) return;
 		template.insert(caseAttributeDates, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeDates.caseId, caseAttributeDates.attribute, caseAttributeDates.value, caseAttributeDates.notAvailable)
@@ -561,7 +561,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 					.execute();
 			};
 		});
-		if (updateCount == 0) return;
+		if (updateCount == 1) return;
 		template.insert(caseAttributeBooleans, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeBooleans.caseId, caseAttributeBooleans.attribute, caseAttributeBooleans.value, caseAttributeBooleans.notAvailable)
