@@ -429,4 +429,49 @@ public class StudyRepositoryImplTest {
 		JsonNode stringValue = jsonNodeFactory.textNode("BAD");
 		studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", stringValue);
 	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueStringValueError() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		thrown.expect(InvalidValueException.class);
+		thrown.expectMessage(containsString("Invalid string"));
+
+		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, "patientId", "stuart", booleanValue);
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueDateValueError() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		thrown.expect(InvalidValueException.class);
+		thrown.expectMessage(containsString("Invalid date"));
+
+		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", booleanValue);
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueDateValueFormatError() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		thrown.expect(InvalidValueException.class);
+		thrown.expectMessage(containsString("Invalid date"));
+
+		JsonNode stringValue = jsonNodeFactory.textNode("2015-02-XX");
+		studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", stringValue);
+	}
 }
