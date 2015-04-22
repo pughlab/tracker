@@ -394,7 +394,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     	Tuple oldValue;
     	final ObjectNode auditLogValues = jsonNodeFactory.objectNode();
 
-    	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
+    	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING) || a.getType().equals(Attributes.ATTRIBUTE_TYPE_OPTION)) {
     		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId)).where(cases.id.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)));
     		oldValue = template.queryForObject(query, new QTuple(caseAttributeStrings.value, caseAttributeStrings.notAvailable));
     	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
@@ -447,12 +447,25 @@ public class StudyRepositoryImpl implements StudyRepository {
     	// different types. Possible multiple inner classes might be one way. 
     	
     	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
+    		
     		if (value != null && ! value.isTextual()) {
     			throw new InvalidValueException("Invalid string value: " + value.toString());
     		}
     		String finalValue = value == null ? null : value.asText();
     		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable,finalValue);
-    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
+    		
+    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_OPTION)) {
+    		
+    		// Option values should also match one of the specified original values from the 
+    		// attribute definition.
+    		if (value != null && ! value.isTextual()) {
+    			throw new InvalidValueException("Invalid string value: " + value.toString());
+    		}
+    		String finalValue = value == null ? null : value.asText();
+    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable,finalValue);
+
+		} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
+			
     		if (value != null && ! value.isTextual()) {
     			throw new InvalidValueException("Invalid date value: " + value.toString());
     		}
@@ -463,12 +476,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 			} catch (ParseException e) {
 				throw new InvalidValueException("Invalid date value: " + value.toString());
 			}
+    		
     	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
+    		
     		if (value != null && ! value.isBoolean()) {
     			throw new InvalidValueException("Invalid boolean value: " + value.toString());
     		}
     		Boolean finalValue = value == null ? null : value.asBoolean();
     		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable, finalValue);
+    		
     	}
 	}
 	

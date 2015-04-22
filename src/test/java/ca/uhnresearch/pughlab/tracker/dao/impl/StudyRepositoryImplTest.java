@@ -373,6 +373,46 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueOption() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "complete");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		try {
+			JsonNode stringValue = jsonNodeFactory.textNode("St. Michaels");
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "sampleAvailable", "stuart", stringValue);
+		} catch (RepositoryException e) {
+			fail();
+		}
+		
+		// Check we now have an audit log entry
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(5);
+		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		assertNotNull(auditEntries);
+		assertEquals(1, auditEntries.size());
+		
+		
+		// Poke at the first audit log entry
+		JsonNode entry = auditEntries.get(0);
+		assertEquals("stuart", entry.get("eventUser").asText());
+		assertEquals("sampleAvailable", entry.get("attribute").asText());
+		assertEquals("LMP", entry.get("eventArgs").get("old").asText());
+		assertEquals("St. Michaels", entry.get("eventArgs").get("value").asText());
+		
+		// And now, we ought to be able to see the new audit entry in the database, and
+		// the value should be correct too. Note that as we have set null, we get back a 
+		// JSON null, not a Java one. 
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "sampleAvailable");
+		assertNotNull(data);
+		assertFalse(data.isNull());
+		assertEquals("St. Michaels", data.asText());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueBoolean() {
 		Studies study = studyRepository.getStudy("DEMO");
 		Views view = studyRepository.getStudyView(study, "track");

@@ -14,6 +14,8 @@ public class Attributes {
 
 	public static final String ATTRIBUTE_TYPE_DATE = "date";
 
+	public static final String ATTRIBUTE_TYPE_OPTION = "option";
+
 	private String description;
 
     private Integer id;
