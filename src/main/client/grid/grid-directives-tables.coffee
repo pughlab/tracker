@@ -278,11 +278,13 @@ angular
                 $http
                   .put "#{baseUrl}/entities/#{encodeURIComponent(caseIdentifier)}/#{encodeURIComponent(fieldName)}", payload
                   .success (response) ->
+                  
+                    console.log "Got PUT response", response
 
                     ## We should also get back an updated set of notes, and we need to make sure that general tags and 
                     ## field-specific notes are mirrored locally. 
 
-                    caseRecord['$notes'] = response.records[0]['$notes']
+                    ## caseRecord['$notes'] = response.records[0]['$notes']
 
                     callback true
                   .error (response) ->

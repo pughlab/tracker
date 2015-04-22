@@ -15,6 +15,7 @@ import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.domain.Cases;
@@ -56,7 +57,9 @@ public class EntityFieldResource extends StudyRepositoryResource {
     	// Write the value, handling exceptions we might get, and converting them to
     	// appropriate server responses.
     	try {
-			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, currentUser.getPrincipal().toString(), data);
+			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, currentUser.getPrincipal().toString(), data.get("value"));
+		} catch (InvalidValueException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} catch (NotFoundException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		} catch (RepositoryException e) {
