@@ -52,7 +52,7 @@ compareStrings = (a, b) -> if a < b then -1 else if a > b then 1 else 0
 gulp.task 'coffee', () ->
   gulp.src ['./src/main/client/**/*.*coffee']
     .pipe gulpCoffee()
-    .pipe gulp.dest('./target/client/tmp/app/js')
+    .pipe gulp.dest('./target/client/tmp/statics/app/js')
 
 
 gulp.task 'bootstrap', () ->
@@ -63,9 +63,9 @@ gulp.task 'bootstrap', () ->
     bootstrapStream
       .pipe gulpLess({paths: lessPaths, verbose: true})
       .pipe gulpRename('bootstrap.css')
-      .pipe gulp.dest('./target/client/tmp/vendors/css')
+      .pipe gulp.dest('./target/client/tmp/statics/vendors/css')
     fontsStream
-      .pipe gulp.dest('./target/client/tmp/app/statics/fonts')
+      .pipe gulp.dest('./target/client/tmp/statics/fonts')
   )
 
 
@@ -83,16 +83,16 @@ gulp.task 'styles', ['clean-css'], () ->
   gulp
     .src './src/main/client/app.less'
     .pipe gulpLess {paths: lessPaths}
-    .pipe gulp.dest './target/client/tmp/app/css/'
+    .pipe gulp.dest './target/client/tmp/statics/app/css/'
 
 
 gulp.task 'vendors', () ->
   bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components'}).pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
   es.merge(
     bowerStream.pipe(gulpFilter('**/*.css'))
-      .pipe(gulp.dest('./target/client/tmp/vendors/css'))
+      .pipe(gulp.dest('./target/client/tmp/statics/vendors/css'))
     bowerStream.pipe(gulpFilter('**/*.js'))
-      .pipe(gulp.dest('./target/client/tmp/vendors/js')))
+      .pipe(gulp.dest('./target/client/tmp/statics/vendors/js')))
 
 
 index = () ->
@@ -101,14 +101,14 @@ index = () ->
   cssVendorFiles = bowerStream
     .pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
     .pipe(gulpFilter('**/*.css'))
-    .pipe(gulp.dest('./vendors/css'))
+    .pipe(gulp.dest('./target/client/tmp/statics/vendors/css'))
 
   jsVendorFiles = bowerStream
     .pipe(gulpFilter('**/*.js'))
-    .pipe(gulp.dest('./vendors/js'))
+    .pipe(gulp.dest('./target/client/tmp/statics/vendors/js'))
 
   gulp.src('./src/main/client/index.html')
-    .pipe(gulpInject(gulp.src('./target/client/tmp/vendors/css/bootstrap.css'), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:bootstrap:{{ext}} -->'}))
+    .pipe(gulpInject(gulp.src('./target/client/tmp/statics/vendors/css/bootstrap.css'), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:bootstrap:{{ext}} -->'}))
     .pipe(gulpInject(es.merge(jsVendorFiles, cssVendorFiles), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
     .pipe(gulpInject(es.merge(appFiles(), cssFiles()), {ignorePath: ['target/client/tmp', 'src/main/client']}))
     .pipe(gulp.dest('./target/client/tmp/'))
@@ -131,7 +131,7 @@ buildTemplates = () ->
       stripPrefix: '/src/app'
     })
     .pipe(gulpConcat, bower.name + '-templates.js')
-    .pipe(gulp.dest, './target/client/tmp/app/js')()
+    .pipe(gulp.dest, './target/client/tmp/statics/app/js')()
 
 
 gulp.task 'build-all', ['styles', 'bootstrap', 'templates', 'coffee', 'vendors', 'assets'], index
@@ -142,15 +142,15 @@ templateFiles = (opt) ->
     .pipe(if opt and opt.min then gulpHtmlmin(htmlminOpts) else gulpUtil.noop())
 
 appVendorFiles = () ->
-  gulp.src('./target/client/tmp/vendors/**/*.js')
+  gulp.src('./target/client/tmp/statics/vendors/**/*.js')
 
 cssVendorFiles = () ->
-  gulp.src('./target/client/tmp/vendors/css/**/*.css')
+  gulp.src('./target/client/tmp/statics/vendors/css/**/*.css')
 
 appFiles = () ->
   files = [
-    './target/client/tmp/app/' + bower.name + '-templates.js',
-    './target/client/tmp/app/**/*.js',
+    './target/client/tmp/statics/app/' + bower.name + '-templates.js',
+    './target/client/tmp/statics/app/**/*.js',
     '!./target/client/tmp/**/*_test.js'
   ]
   gulp.src(files)
@@ -158,7 +158,7 @@ appFiles = () ->
     .pipe gulpAngularFilesort()
 
 cssFiles = (opt) ->
-  gulp.src('./target/client/tmp/app/css/**/*.css', opt)
+  gulp.src('./target/client/tmp/statics/app/css/**/*.css', opt)
     .pipe(gulpOrder([
-      'target/client/tmp/app/css/app.css'
+      'target/client/tmp/statics/app/css/app.css'
     ], {base: '.'}))
