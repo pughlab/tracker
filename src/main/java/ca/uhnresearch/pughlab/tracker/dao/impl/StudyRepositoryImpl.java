@@ -375,7 +375,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public void setCaseAttributeValue(final Studies study, final Views view, final Cases caseValue, final String attribute, final String userName, final JsonNode value) throws RepositoryException {
+	public void setCaseAttributeValue(final Studies study, final Views view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
 		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
@@ -451,18 +451,19 @@ public class StudyRepositoryImpl implements StudyRepository {
     	// conditions here, because we have several tables and we may need to either insert or update, and of course, to 
     	// figure out which. The easiest is to an attempt an update, and insert if no rows were affected.
     	
-    	final Boolean valueNotApplicable = value != null && value.isObject() && value.has("$notAvailable");
+    	final Boolean valueNotAvailable = value != null && value.isObject() && value.has("$notAvailable");
+    	JsonNode valueNode = valueNotAvailable ? null : value;
     	
     	// Yuck, yuck, yuck! I'd love to do this better, but I can't think of an easy way. The values are of 
     	// different types. Possible multiple inner classes might be one way. 
     	
     	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
     		
-    		if (value != null && ! value.isTextual()) {
-    			throw new InvalidValueException("Invalid string value: " + value.toString());
+    		if (valueNode != null && ! valueNode.isTextual()) {
+    			throw new InvalidValueException("Invalid string value: " + valueNode.toString());
     		}
-    		String finalValue = value == null ? null : value.asText();
-    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable,finalValue);
+    		String finalValue = valueNode == null ? null : valueNode.asText();
+    		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable,finalValue);
     		
     	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_OPTION)) {
     		
@@ -473,52 +474,52 @@ public class StudyRepositoryImpl implements StudyRepository {
     			throw new InvalidValueException("No option values specified: " + a.getName());
     		}
     		
-    		if (value != null) {
+    		if (valueNode != null) {
         		Boolean found = false;
         		Iterator<JsonNode> elements = optionsNode.get("values").elements();
         		while(elements.hasNext()) {
-        			if (elements.next().equals(value)) {
+        			if (elements.next().equals(valueNode)) {
         				found = true;
         				break;
         			}
         		}
         		if (! found) {
-        			throw new InvalidValueException("Invalid string value: " + value.toString());
+        			throw new InvalidValueException("Invalid string value: " + valueNode.toString());
         		}
     		}
-    		String finalValue = value == null ? null : value.asText();
-    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable,finalValue);
+    		String finalValue = valueNode == null ? null : valueNode.asText();
+    		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable,finalValue);
 
 		} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
 			
-    		if (value != null && ! value.isTextual()) {
-    			throw new InvalidValueException("Invalid date value: " + value.toString());
+    		if (valueNode != null && ! valueNode.isTextual()) {
+    			throw new InvalidValueException("Invalid date value: " + valueNode.toString());
     		}
     		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     		try {
-				Date finalValue = value == null ? null : new Date(format.parse(value.asText()).getTime());
-	    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable, finalValue);				
+				Date finalValue = valueNode == null ? null : new Date(format.parse(valueNode.asText()).getTime());
+	    		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable, finalValue);				
 			} catch (ParseException e) {
-				throw new InvalidValueException("Invalid date value: " + value.toString());
+				throw new InvalidValueException("Invalid date value: " + valueNode.toString());
 			}
     		
     	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
     		
-    		if (value != null && ! value.isBoolean()) {
-    			throw new InvalidValueException("Invalid boolean value: " + value.toString());
+    		if (valueNode != null && ! valueNode.isBoolean()) {
+    			throw new InvalidValueException("Invalid boolean value: " + valueNode.toString());
     		}
-    		Boolean finalValue = value == null ? null : value.asBoolean();
-    		writeCaseAttributeValue(caseValue, attribute, valueNotApplicable, finalValue);
+    		Boolean finalValue = valueNode == null ? null : valueNode.asBoolean();
+    		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable, finalValue);
     		
     	}
 	}
 	
-	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotApplicable, final String value) {
+	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final String value) {
 		long updateCount = template.update(caseAttributeStrings, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(caseAttributeStrings.caseId.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)))
-					.set(caseAttributeStrings.notAvailable, valueNotApplicable)
-					.set(caseAttributeStrings.value, valueNotApplicable ? null : value)
+					.set(caseAttributeStrings.notAvailable, valueNotAvailable)
+					.set(caseAttributeStrings.value, valueNotAvailable ? null : value)
 					.execute();
 			};
 		});
@@ -526,19 +527,19 @@ public class StudyRepositoryImpl implements StudyRepository {
 		template.insert(caseAttributeStrings, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable)
-					.values(caseValue.getId(), attribute, valueNotApplicable ? null : value, valueNotApplicable)
+					.values(caseValue.getId(), attribute, valueNotAvailable ? null : value, valueNotAvailable)
 					.execute();
 			};
 		});
 
 	}
 
-	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotApplicable, final Date value) {
+	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final Date value) {
 		long updateCount = template.update(caseAttributeDates, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(caseAttributeDates.caseId.eq(caseValue.getId()).and(caseAttributeDates.attribute.eq(attribute)))
-					.set(caseAttributeDates.notAvailable, valueNotApplicable)
-					.set(caseAttributeDates.value, valueNotApplicable ? null : value)
+					.set(caseAttributeDates.notAvailable, valueNotAvailable)
+					.set(caseAttributeDates.value, valueNotAvailable ? null : value)
 					.execute();
 			};
 		});
@@ -546,18 +547,18 @@ public class StudyRepositoryImpl implements StudyRepository {
 		template.insert(caseAttributeDates, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeDates.caseId, caseAttributeDates.attribute, caseAttributeDates.value, caseAttributeDates.notAvailable)
-					.values(caseValue.getId(), attribute, valueNotApplicable ? null : value, valueNotApplicable)
+					.values(caseValue.getId(), attribute, valueNotAvailable ? null : value, valueNotAvailable)
 					.execute();
 			};
 		});
 	}
 
-	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotApplicable, final Boolean value) {
+	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final Boolean value) {
 		long updateCount = template.update(caseAttributeBooleans, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(caseAttributeBooleans.caseId.eq(caseValue.getId()).and(caseAttributeBooleans.attribute.eq(attribute)))
-					.set(caseAttributeBooleans.notAvailable, valueNotApplicable)
-					.set(caseAttributeBooleans.value, valueNotApplicable ? null : value)
+					.set(caseAttributeBooleans.notAvailable, valueNotAvailable)
+					.set(caseAttributeBooleans.value, valueNotAvailable ? null : value)
 					.execute();
 			};
 		});
@@ -565,7 +566,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		template.insert(caseAttributeBooleans, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeBooleans.caseId, caseAttributeBooleans.attribute, caseAttributeBooleans.value, caseAttributeBooleans.notAvailable)
-					.values(caseValue.getId(), attribute, valueNotApplicable ? null : value, valueNotApplicable)
+					.values(caseValue.getId(), attribute, valueNotAvailable ? null : value, valueNotAvailable)
 					.execute();
 			};
 		});

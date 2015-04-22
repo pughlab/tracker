@@ -140,4 +140,52 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		// the right value.
 		//assertEquals( "DEMO-XX", data.get("value").getAsString() );
 	}
+
+	/**
+	 * Tests writing to a entity field. 
+	 * @throws IOException
+	 */
+	@Test
+	public void resourcePutTestNotAvailable() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Studies testStudy = repository.getStudy("DEMO");		
+		Views testView = repository.getStudyView(testStudy, "complete");
+		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
+		entityFieldResource.getRequest().getAttributes().put("view", testView);
+		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
+		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
+		
+		// This time, we need an entity value to put
+		String s = "{\"$notAvailable\":true}";
+		Reader r=new StringReader(s);
+		InputStream is=new ReaderInputStream(r);
+		InputRepresentation ir =new InputRepresentation(is);
+		ir.setCharacterSet(CharacterSet.ISO_8859_1);
+		
+		Representation result = entityFieldResource.putResource(ir);
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		
+		JsonObject view = data.get("view").getAsJsonObject();
+		assertEquals( "complete", view.get("name").getAsString() );		
+		
+		assertTrue( data.get("value").isJsonPrimitive() );
+		
+		// We're currently using a mocked repo here, so we can't really assume we get back
+		// the right value.
+		//assertEquals( "DEMO-XX", data.get("value").getAsString() );
+	}
 }

@@ -16,7 +16,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
@@ -36,6 +38,8 @@ public class StudyRepositoryImplTest {
 	
 	private JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 	
+	private static ObjectMapper objectMapper = new ObjectMapper();
+
 	@Test
 	public void testWiring() {
 		assertNotNull(studyRepository);
@@ -253,7 +257,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testSingleCaseAttributeValuesNotApplicable() {
+	public void testSingleCaseAttributeValuesNotAvailable() {
 		Studies study = studyRepository.getStudy("DEMO");
 		Views view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 2);
@@ -591,4 +595,46 @@ public class StudyRepositoryImplTest {
 		assertEquals("true", data.asText());
 	}
 
+	// Regression test for #7 -- check that N/A writes are handled correctly. 
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteValueBooleanNotAvailable() {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		try {
+			ObjectNode notAvailable = objectMapper.createObjectNode();
+			notAvailable.put("$notAvailable", true);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", notAvailable);
+		} catch (RepositoryException e) {
+			fail();
+		}
+		
+		// Check we now have an audit log entry
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(5);
+		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		assertNotNull(auditEntries);
+		assertEquals(1, auditEntries.size());
+		
+		
+		// Poke at the first audit log entry
+		JsonNode entry = auditEntries.get(0);
+		assertEquals("stuart", entry.get("eventUser").asText());
+		assertEquals("specimenAvailable", entry.get("attribute").asText());
+		assertEquals("true", entry.get("eventArgs").get("old").asText());
+		assertTrue(entry.get("eventArgs").get("value").isObject());
+		assertEquals(true, entry.get("eventArgs").get("value").get("$notAvailable").asBoolean());
+		
+		// And now, we ought to be able to see the new audit entry in the database, and
+		// the value should be correct too. Note that as we have set null, we get back a 
+		// JSON null, not a Java one. 
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenAvailable");
+		assertNotNull(data);
+		assertTrue(data.isObject());
+		assertEquals(true, data.get("$notAvailable").asBoolean());
+	}
 }
