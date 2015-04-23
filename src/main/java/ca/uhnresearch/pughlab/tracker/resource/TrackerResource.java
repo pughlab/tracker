@@ -11,6 +11,7 @@ import org.restlet.resource.Get;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
 import ca.uhnresearch.pughlab.tracker.dto.StudyListResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.StudyWithAccessDTO;
 
 public class TrackerResource extends StudyRepositoryResource<StudyListResponseDTO> {
 		
@@ -30,9 +31,40 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponseDT
     	// Query the database for studies
     	List<Studies> studyList = getRepository().getAllStudies();
     	for(Studies s : studyList) {
-    		String permission = "study:read:"+s.getName();
-    		if (currentUser.isPermitted(permission)) {
-    			dto.getStudies().add(new StudyDTO(s));
+    		
+    		String studyAdminPermissionString = "study:admin:" + s.getName();
+    		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
+    		Boolean studyReadPermission = studyAdminPermission;
+    		Boolean studyWritePermission = studyAdminPermission;
+    		Boolean studyDownloadPermission = studyAdminPermission;
+    		
+    		if (studyAdminPermission) {
+    			// Do nothing, as all permissions are already true
+    		} else {
+    			String studyReadPermissionString = "study:read:" + s.getName();
+    			studyReadPermission = currentUser.isPermitted(studyReadPermissionString);
+    			
+    			String studyWritePermissionString = "study:write:" + s.getName();
+    			studyWritePermission = currentUser.isPermitted(studyWritePermissionString);
+
+    			String studyDownloadPermissionString = "study:download:" + s.getName();
+    			studyDownloadPermission = currentUser.isPermitted(studyDownloadPermissionString);
+    		}
+
+    		if (studyWritePermission) {
+    			studyReadPermission = studyWritePermission;
+    		}
+    		
+    		
+    		// For each study, we also ought to derive the precise nature of the
+    		// allowed permissions, and embed them in a permissions DTO.
+    		
+    		if (studyReadPermission) {
+    			StudyWithAccessDTO studyDTO = new StudyWithAccessDTO(s);
+    			studyDTO.getAccess().setReadAllowed(studyReadPermission);
+    			studyDTO.getAccess().setWriteAllowed(studyWritePermission);
+    			studyDTO.getAccess().setDownloadAllowed(studyDownloadPermission);
+    			dto.getStudies().add(studyDTO);
     		}
     	}
 	}

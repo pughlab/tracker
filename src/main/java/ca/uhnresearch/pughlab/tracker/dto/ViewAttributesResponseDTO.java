@@ -30,14 +30,14 @@ public class ViewAttributesResponseDTO extends ViewResponseDTO {
 		this.attributes = attributes;
 	}
 
-	ViewPermissionsDTO permissions = new ViewPermissionsDTO();
+	PermissionsDTO permissions = new PermissionsDTO();
 
 	@JsonProperty
-	public ViewPermissionsDTO getPermissions() {
+	public PermissionsDTO getPermissions() {
 		return permissions;
 	}
 
-	public void setPermissions(ViewPermissionsDTO permissions) {
+	public void setPermissions(PermissionsDTO permissions) {
 		this.permissions = permissions;
 	}
 }

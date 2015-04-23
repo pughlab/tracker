@@ -55,6 +55,9 @@ public class TrackerResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:write:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:admin:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:download:OTHER")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -85,6 +88,9 @@ public class TrackerResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:write:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:admin:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:download:OTHER")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
