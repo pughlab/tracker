@@ -3,12 +3,13 @@ package ca.uhnresearch.pughlab.tracker.domain;
 import static com.mysema.query.types.PathMetadataFactory.*;
 
 import com.mysema.query.types.path.*;
-
 import com.mysema.query.types.PathMetadata;
-import javax.annotation.Generated;
-import com.mysema.query.types.Path;
 
+import javax.annotation.Generated;
+
+import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
+
 import java.sql.Types;
 
 
@@ -31,6 +32,8 @@ public class QViews extends com.mysema.query.sql.RelationalPathBase<Views> {
     public final StringPath name = createString("name");
 
     public final NumberPath<Integer> studyId = createNumber("studyId", Integer.class);
+
+    public final StringPath options = createString("options");
 
     public final com.mysema.query.sql.PrimaryKey<Views> primary = createPrimaryKey(id);
 
@@ -59,6 +62,7 @@ public class QViews extends com.mysema.query.sql.RelationalPathBase<Views> {
         addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
         addMetadata(name, ColumnMetadata.named("NAME").withIndex(3).ofType(Types.VARCHAR).withSize(24).notNull());
         addMetadata(studyId, ColumnMetadata.named("STUDY_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(options, ColumnMetadata.named("OPTIONS").withIndex(5).ofType(Types.VARCHAR).withSize(2048));
     }
 
 }

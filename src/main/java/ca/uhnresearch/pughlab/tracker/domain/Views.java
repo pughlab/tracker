@@ -16,6 +16,8 @@ public class Views {
 
     private Integer studyId;
 
+    private String options;
+
     public String getDescription() {
         return description;
     }
@@ -46,6 +48,14 @@ public class Views {
 
     public void setStudyId(Integer studyId) {
         this.studyId = studyId;
+    }
+
+    public String getOptions() {
+        return options;
+    }
+
+    public void setOptions(String options) {
+        this.options = options;
     }
 
 }
