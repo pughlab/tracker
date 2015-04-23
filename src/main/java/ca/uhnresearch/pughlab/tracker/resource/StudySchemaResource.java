@@ -68,8 +68,13 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
 				attributes.add(a.getAttributes());
 			}
 			
+			List<Views> views = new ArrayList<Views>();
+			for(ViewDTO v : schema.getViews()) {
+				views.add(v.getViews());
+			}
+
 			getRepository().setStudyAttributes(study, attributes);
-			
+			getRepository().setStudyViews(study, views);
 		} catch (IOException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}

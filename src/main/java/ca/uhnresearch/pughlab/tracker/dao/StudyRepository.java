@@ -30,6 +30,11 @@ public interface StudyRepository {
 	List<Views> getStudyViews(Studies study);
 
 	/**
+	 * Writes the views for a study into the repository
+	 */
+	void setStudyViews(Studies study, List<Views> views);
+
+	/**
 	 * Retrieves all the attributes for a study from the repository
 	 * @return list of attributes
 	 */

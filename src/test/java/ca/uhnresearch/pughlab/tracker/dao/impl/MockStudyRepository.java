@@ -211,6 +211,13 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	/**
+	 * A mocked setStudyViews
+	 */
+	public void setStudyViews(Studies study, List<Views> views) {
+		this.views = views;
+	}
+
+	/**
 	 * A mocked getStudyView
 	 */
 	public Views getStudyView(Studies study, String viewName) {

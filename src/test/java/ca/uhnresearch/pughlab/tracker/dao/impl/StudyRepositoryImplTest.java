@@ -736,4 +736,92 @@ public class StudyRepositoryImplTest {
 		loadedAtt1.setId(null);
 		assertTrue(EqualsBuilder.reflectionEquals(att1, loadedAtt1));
 	}
+
+	/**
+	 * Simple test of writing the exact same attributes back into the study. After
+	 * we do this, a second call should retrieve the exact same data.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetStudyViews() {
+		Studies study = studyRepository.getStudy("DEMO");
+		List<Views> list = studyRepository.getStudyViews(study);
+		assertNotNull(list);
+		assertEquals(3, list.size());
+		
+		studyRepository.setStudyViews(study, list);
+
+		List<Views> listAgain = studyRepository.getStudyViews(study);
+		
+		assertEquals(listAgain.size(), list.size());
+		int size = list.size();
+		for(int i = 0; i < size; i++) {
+			Views oldView = list.get(i);
+			Views newView = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldView, newView));
+		}
+	}
+	
+	/**
+	 * Simple test of deleting a view.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testDeleteStudyView() {
+		Studies study = studyRepository.getStudy("DEMO");
+		List<Views> list = studyRepository.getStudyViews(study);
+		assertNotNull(list);
+		assertEquals(3, list.size());
+		
+		studyRepository.setStudyViews(study, list.subList(0, 2));
+
+		List<Views> listAgain = studyRepository.getStudyViews(study);
+		assertEquals(2, listAgain.size());
+		
+		for(int i = 0; i < 2; i++) {
+			Views oldView = list.get(i);
+			Views newView = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldView, newView));
+		}
+	}
+
+	/**
+	 * Simple test of adding a number of attributes as well as deleting.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testAddStudyViews() {
+		Studies study = studyRepository.getStudy("DEMO");
+		List<Views> list = studyRepository.getStudyViews(study);
+		assertNotNull(list);
+		assertEquals(3, list.size());
+		
+		Views v1 = new Views();
+		v1.setName("test");
+		v1.setDescription("First test attribute");
+		
+		List<Views> modified = list.subList(0, 2);
+		modified.add(v1);
+		
+		studyRepository.setStudyViews(study, modified);
+
+		List<Views> listAgain = studyRepository.getStudyViews(study);
+		assertEquals(3, listAgain.size());
+		
+		for(int i = 0; i < 2; i++) {
+			Views oldAttribute = list.get(i);
+			Views newAttribute = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
+		}
+		Views loadedV1 = listAgain.get(2);
+		
+		// Cheatily clear the id, so we can compare all other fields
+		loadedV1.setId(null);
+		assertTrue(EqualsBuilder.reflectionEquals(v1, loadedV1));
+	}
+
+
 }

@@ -115,7 +115,43 @@ public class StudyRepositoryImpl implements StudyRepository {
 		return viewList;
 	}
 
-    /**
+	@Override
+	public void setStudyViews(Studies study, List<Views> newViewsList) {
+		logger.debug("Writing views for study: {}", study.getName());
+				
+		SQLQuery sqlQuery = template.newSqlQuery().from(views)
+    	    .where(views.studyId.eq(study.getId()));
+
+		List<Views> oldViewsList = template.query(sqlQuery, views);
+		
+		Map<Integer, Views> newViews = new HashMap<Integer, Views>();
+		for(Views v : newViewsList) {
+			if (v.getId() != null) {
+				newViews.put(v.getId(), v);
+			} else {
+				v.setStudyId(study.getId());
+				logger.info("Inserting view: {}", v);
+				insertView(v);
+			}
+		}
+
+		// Here, we should have existing attributes and old attributes to
+		// handle.
+		for(Views v : oldViewsList) {
+			Views newView = newViews.get(v.getId());
+			if (newView != null) {
+				// We have both old and new -- this is an update!
+				updateView(v);
+			} else {
+				// Old but no new, delete the view, remembering to
+				// delete from all attributes too.
+				logger.info("Deleting view: {}", v);
+				deleteView(v);
+			}
+		}
+	}
+
+	/**
      * Returns the named view associated with a study
      * @param study
      * @return
@@ -151,7 +187,36 @@ public class StudyRepositoryImpl implements StudyRepository {
     	List<Attributes> attributeList = template.query(sqlQuery, attributes);
     	return attributeList;
 	}
-	
+
+	private void insertView(final Views v) {
+		template.insert(views, new SqlInsertCallback() { 
+			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+				return sqlInsertClause.populate(v).execute();
+			};
+		});
+	}
+
+	private void updateView(final Views v) {
+		template.update(views, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(views.id.eq(v.getId())).populate(v).execute();
+			};
+		});
+	}
+
+	private void deleteView(final Views v) {
+		template.delete(views, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(views.id.eq(v.getId())).execute();
+			};
+		});
+		template.delete(viewAttributes, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(viewAttributes.viewId.eq(v.getId())).execute();
+			};
+		});
+	}
+
 	private void insertAttribute(final Attributes a) {
 		template.insert(attributes, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
@@ -708,5 +773,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 		return result;
 	}
+
 }
 
