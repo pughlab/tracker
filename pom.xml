@@ -204,6 +204,12 @@
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
 					<jettyXml>src/main/etc/jetty.xml</jettyXml>
+					<systemProperties>
+				        <systemProperty>
+				            <name>hsqldb.reconfig_logging</name>
+				            <value>false</value>
+				        </systemProperty>
+				    </systemProperties>
 				</configuration>
 			</plugin>
 
