@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
@@ -54,17 +55,24 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     public Representation putResource(Representation input) {
     	logger.info("Called putResource() in EntityFieldResource", input);
     	
-    	JsonNode data;
-    	
-    	try {
-			data = converter.toObject(input, JsonNode.class, this);
-		} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
-		}
-
     	Subject currentUser = SecurityUtils.getSubject();
 
     	Studies study = (Studies) getRequest().getAttributes().get("study");
+    	
+    	try {
+			StudySchemaResponseDTO schema = converter.toObject(input, StudySchemaResponseDTO.class, this);
+			logger.info("Got a new schema {}", schema);
+			
+			List<Attributes> attributes = new ArrayList<Attributes>();
+			for(AttributeDTO a : schema.getAttributes()) {
+				attributes.add(a.getAttributes());
+			}
+			
+			getRepository().setStudyAttributes(study, attributes);
+			
+		} catch (IOException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		}
     	
     	return getResource();
     }

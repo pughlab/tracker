@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class UserDTO {
 
 	private String username;
+	
+	public UserDTO() { }
 
 	public UserDTO(String username) {
 		setUsername(username);

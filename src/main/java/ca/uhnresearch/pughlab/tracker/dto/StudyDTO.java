@@ -6,6 +6,8 @@ import ca.uhnresearch.pughlab.tracker.domain.Studies;
 
 public class StudyDTO {
 	
+	public StudyDTO() { }
+	
 	public StudyDTO(Studies s) {
 		setId(s.getId());
 		setName(s.getName());

@@ -5,7 +5,9 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -24,6 +26,8 @@ public class AttributeDTO {
 	private String type;
 	private String description;
 	private JsonNode options;
+	
+	public AttributeDTO() { }
 
 	public AttributeDTO(Attributes a) {
 		setId(a.getId());
@@ -41,6 +45,23 @@ public class AttributeDTO {
 				logger.error("Error in JSON attribute options", e.getMessage());
 			}
 		}
+	}
+	
+	@JsonIgnore
+	public Attributes getAttributes() {
+		Attributes result = new Attributes();
+		result.setId(getId());
+		result.setName(getName());
+		result.setLabel(getLabel());
+		result.setRank(getRank());
+		result.setType(getType());
+		result.setDescription(getDescription());
+		try {
+			result.setOptions(mapper.writeValueAsString(getOptions()));
+		} catch (JsonProcessingException e) {
+			logger.error("Error in JSON attribute options", e.getMessage());
+		}
+		return result;
 	}
 	
 	@JsonProperty

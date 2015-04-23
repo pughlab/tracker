@@ -6,6 +6,8 @@ import ca.uhnresearch.pughlab.tracker.domain.Views;
 
 public class ViewDTO {
 	
+	public ViewDTO() { }
+	
 	public ViewDTO(Views v) {
 		setId(v.getId());
 		setName(v.getName());
