@@ -14,7 +14,6 @@ import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.dto.AttributeDTO;
 import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
 import ca.uhnresearch.pughlab.tracker.dto.StudySchemaResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyViewsResponseDTO;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
 
 public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResponseDTO> {
@@ -24,7 +23,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	
     	StudySchemaResponseDTO response = new StudySchemaResponseDTO();
     	buildResponseDTO(response);
-    	return new JacksonRepresentation<StudyViewsResponseDTO>(response);    	
+    	return new JacksonRepresentation<StudySchemaResponseDTO>(response);    	
     }
     
 	@Override
