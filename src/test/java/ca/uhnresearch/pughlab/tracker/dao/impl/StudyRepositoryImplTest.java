@@ -5,6 +5,7 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.util.List;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -646,5 +647,93 @@ public class StudyRepositoryImplTest {
 		assertNotNull(data);
 		assertTrue(data.isObject());
 		assertEquals(true, data.get("$notAvailable").asBoolean());
+	}
+	
+	/**
+	 * Simple test of writing the exact same attributes back into the study. After
+	 * we do this, a second call should retrieve the exact same data.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetStudyAttributes() {
+		Studies study = studyRepository.getStudy("DEMO");
+		List<Attributes> list = studyRepository.getStudyAttributes(study);
+		assertNotNull(list);
+		assertEquals(27, list.size());
+		
+		studyRepository.setStudyAttributes(study, list);
+
+		List<Attributes> listAgain = studyRepository.getStudyAttributes(study);
+		
+		assertEquals(listAgain.size(), list.size());
+		int size = list.size();
+		for(int i = 0; i < size; i++) {
+			Attributes oldAttribute = list.get(i);
+			Attributes newAttribute = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
+		}
+	}
+	
+	/**
+	 * Simple test of deleting a number of attributes.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testDeleteStudyAttributes() {
+		Studies study = studyRepository.getStudy("DEMO");
+		List<Attributes> list = studyRepository.getStudyAttributes(study);
+		assertNotNull(list);
+		assertEquals(27, list.size());
+		
+		studyRepository.setStudyAttributes(study, list.subList(0, 10));
+
+		List<Attributes> listAgain = studyRepository.getStudyAttributes(study);
+		assertEquals(10, listAgain.size());
+		
+		for(int i = 0; i < 10; i++) {
+			Attributes oldAttribute = list.get(i);
+			Attributes newAttribute = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
+		}
+	}
+
+	/**
+	 * Simple test of adding a number of attributes as well as deleting.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testAddStudyAttributes() {
+		Studies study = studyRepository.getStudy("DEMO");
+		List<Attributes> list = studyRepository.getStudyAttributes(study);
+		assertNotNull(list);
+		assertEquals(27, list.size());
+		
+		Attributes att1 = new Attributes();
+		att1.setName("test");
+		att1.setType("string");
+		att1.setLabel("Test");
+		att1.setDescription("First test attribute");
+		
+		List<Attributes> modified = list.subList(0, 10);
+		modified.add(att1);
+		
+		studyRepository.setStudyAttributes(study, modified);
+
+		List<Attributes> listAgain = studyRepository.getStudyAttributes(study);
+		assertEquals(11, listAgain.size());
+		
+		for(int i = 0; i < 10; i++) {
+			Attributes oldAttribute = list.get(i);
+			Attributes newAttribute = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
+		}
+		Attributes loadedAtt1 = listAgain.get(10);
+		
+		// Cheatily clear the id, so we can compare all other fields
+		loadedAtt1.setId(null);
+		assertTrue(EqualsBuilder.reflectionEquals(att1, loadedAtt1));
 	}
 }

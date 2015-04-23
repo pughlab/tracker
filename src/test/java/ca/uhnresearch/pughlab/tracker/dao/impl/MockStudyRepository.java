@@ -226,19 +226,14 @@ public class MockStudyRepository implements StudyRepository {
 	 * A mocked getStudyAttributes
 	 */
 	public List<Attributes> getStudyAttributes(Studies study) {
-		List<Attributes> result = new ArrayList<Attributes>();
-		for(Attributes a : attributes) {
-			final Integer attributeId = a.getId();
-			final Predicate<ViewAttributes> pred = new Predicate<ViewAttributes>() { 
-				public boolean apply(ViewAttributes va) {
-					return va.getAttributeId().equals(attributeId);
-				}
-			};
-			if (Iterables.any(viewAttributes, pred)) {
-				result.add(a);
-			}			
-		}
-		return result;
+		return attributes;
+	}
+	
+	/**
+	 * A mocked getStudyAttributes
+	 */
+	public void setStudyAttributes(Studies study, List<Attributes> attributes) {
+		this.attributes = attributes;
 	}
 	
 	/**
@@ -260,6 +255,20 @@ public class MockStudyRepository implements StudyRepository {
 		return result;
 	}
 	
+	/**
+	 * A mocked setViewAttributes
+	 */
+	public void setViewAttributes(Studies study, Views view, List<Attributes> attributes) {
+		return;
+	}
+	
+	/**
+	 * Returns all the attribute-level data associated with a study and a 
+	 * view, all mocked of course.
+	 * @param study
+	 * @param view
+	 * @return
+	 */
 	private Map<Integer, JsonObject> getAllData(Studies study, Views view) {
 		
 		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();

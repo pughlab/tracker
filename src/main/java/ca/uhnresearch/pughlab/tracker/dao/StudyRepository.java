@@ -30,10 +30,15 @@ public interface StudyRepository {
 	List<Views> getStudyViews(Studies study);
 
 	/**
-	 * Retrieves all the attributes for a view and study from the repository
+	 * Retrieves all the attributes for a study from the repository
 	 * @return list of attributes
 	 */
 	List<Attributes> getStudyAttributes(Studies study);
+
+	/**
+	 * Writes the attributes for a study to the repository
+	 */
+	void setStudyAttributes(Studies study, List<Attributes> attributes);
 
 	/**
 	 * Retrieves a single specified view for a study from the repository
@@ -46,6 +51,11 @@ public interface StudyRepository {
 	 * @return list of attributes
 	 */
 	List<Attributes> getViewAttributes(Studies study, Views view);
+	
+	/**
+	 * Writes the attributes for a view and study to the repository
+	 */
+	void setViewAttributes(Studies study, Views view, List<Attributes> attributes);
 	
 	/**
 	 * Retrieves the record count for a specified study/view from the repository

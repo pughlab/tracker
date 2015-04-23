@@ -14,16 +14,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
+import org.springframework.data.jdbc.query.SqlDeleteCallback;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
+import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.OrderSpecifier;
@@ -147,6 +150,82 @@ public class StudyRepositoryImpl implements StudyRepository {
 
     	List<Attributes> attributeList = template.query(sqlQuery, attributes);
     	return attributeList;
+	}
+	
+	private void insertAttribute(final Attributes a) {
+		template.insert(attributes, new SqlInsertCallback() { 
+			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+				return sqlInsertClause.populate(a).execute();
+			};
+		});
+	}
+
+	private void updateAttribute(final Attributes a) {
+		template.update(attributes, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(attributes.id.eq(a.getId())).populate(a).execute();
+			};
+		});
+	}
+
+	private void deleteAttribute(final Attributes a) {
+		template.delete(attributes, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(attributes.id.eq(a.getId())).execute();
+			};
+		});
+		template.delete(viewAttributes, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(viewAttributes.attributeId.eq(a.getId())).execute();
+			};
+		});
+	}
+
+	@Override
+	public void setStudyAttributes(Studies study, List<Attributes> atts) {
+		logger.debug("Updating study attributes");
+		
+		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
+    	    .where(attributes.studyId.eq(study.getId()))
+    	    .orderBy(attributes.rank.asc());
+
+		List<Attributes> attributeList = template.query(sqlQuery, attributes);
+		
+		// Now we can go through both lists, checking to see which attributes
+		// are to be deleted, which updated, and so on.
+		Map<Integer, Attributes> newAttributes = new HashMap<Integer, Attributes>();
+		Integer rank = 1;
+		for(Attributes a : atts) {
+			a.setRank(rank++);
+			if (a.getId() != null) {
+				newAttributes.put(a.getId(), a);
+			} else {
+				a.setStudyId(study.getId());
+				logger.info("Inserting attribute: {}", a);
+				insertAttribute(a);
+			}
+		}
+		
+		// Here, we should have existing attributes and old attributes to
+		// handle.
+		for(Attributes a : attributeList) {
+			Attributes newAttribute = newAttributes.get(a.getId());
+			if (newAttribute != null) {
+				// We have both old and new -- this is an update!
+				updateAttribute(a);
+			} else {
+				// Old but no new, delete the attribute, remembering to
+				// delete from all views too.
+				logger.info("Deleting attribute: {}", a);
+				deleteAttribute(a);
+			}
+		}
+	}
+
+	@Override
+	public void setViewAttributes(Studies study, Views view,
+			List<Attributes> attributes) {
+		// TODO Auto-generated method stub
 	}
 
     /**

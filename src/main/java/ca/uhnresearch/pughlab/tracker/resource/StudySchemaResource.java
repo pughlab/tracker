@@ -1,12 +1,21 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.restlet.data.Status;
+import org.restlet.ext.jackson.JacksonConverter;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.restlet.resource.Put;
+import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
@@ -18,6 +27,14 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
 
 public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResponseDTO> {
 	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	private JacksonConverter converter = new JacksonConverter();
+
+	/**
+	 * Returns a StudySchemaResponseDTO for the study schema. 
+	 * @return the schema
+	 */
     @Get("json")
     public Representation getResource()  {
     	
@@ -26,6 +43,36 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	return new JacksonRepresentation<StudySchemaResponseDTO>(response);    	
     }
     
+    /**
+     * Writes a new study schema. A copy of the schema is generated and 
+     * returned after it is written, which ensures the front-end is consistent
+     * with the data store.
+     * @param input the new schema
+     * @return a representation
+     */
+    @Put("json")
+    public Representation putResource(Representation input) {
+    	logger.info("Called putResource() in EntityFieldResource", input);
+    	
+    	JsonNode data;
+    	
+    	try {
+			data = converter.toObject(input, JsonNode.class, this);
+		} catch (IOException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		}
+
+    	Subject currentUser = SecurityUtils.getSubject();
+
+    	Studies study = (Studies) getRequest().getAttributes().get("study");
+    	
+    	return getResource();
+    }
+    
+    /**
+     * Builds a StudySchemaResponseDTO from the request and the repository
+     * information.  
+     */
 	@Override
 	public void buildResponseDTO(StudySchemaResponseDTO dto) {
 		super.buildResponseDTO(dto);
