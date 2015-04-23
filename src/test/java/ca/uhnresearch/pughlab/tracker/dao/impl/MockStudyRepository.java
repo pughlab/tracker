@@ -223,6 +223,25 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	/**
+	 * A mocked getStudyAttributes
+	 */
+	public List<Attributes> getStudyAttributes(Studies study) {
+		List<Attributes> result = new ArrayList<Attributes>();
+		for(Attributes a : attributes) {
+			final Integer attributeId = a.getId();
+			final Predicate<ViewAttributes> pred = new Predicate<ViewAttributes>() { 
+				public boolean apply(ViewAttributes va) {
+					return va.getAttributeId().equals(attributeId);
+				}
+			};
+			if (Iterables.any(viewAttributes, pred)) {
+				result.add(a);
+			}			
+		}
+		return result;
+	}
+	
+	/**
 	 * A mocked getViewAttributes
 	 */
 	public List<Attributes> getViewAttributes(Studies study, Views view) {

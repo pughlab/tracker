@@ -30,6 +30,12 @@ public interface StudyRepository {
 	List<Views> getStudyViews(Studies study);
 
 	/**
+	 * Retrieves all the attributes for a view and study from the repository
+	 * @return list of attributes
+	 */
+	List<Attributes> getStudyAttributes(Studies study);
+
+	/**
 	 * Retrieves a single specified view for a study from the repository
 	 * @return a view
 	 */

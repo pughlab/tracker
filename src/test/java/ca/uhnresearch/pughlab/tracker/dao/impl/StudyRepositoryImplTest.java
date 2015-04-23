@@ -103,6 +103,16 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testGetStudyAttributes() {
+		Studies study = studyRepository.getStudy("DEMO");
+		List<Attributes> list = studyRepository.getStudyAttributes(study);
+		assertNotNull(list);
+		assertEquals(27, list.size());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testGetViewAttributes() {
 		Studies study = studyRepository.getStudy("DEMO");
 		Views view = studyRepository.getStudyView(study, "complete");

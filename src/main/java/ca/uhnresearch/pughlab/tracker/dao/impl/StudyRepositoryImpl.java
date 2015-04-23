@@ -137,6 +137,24 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @param view
      * @return
      */
+	public List<Attributes> getStudyAttributes(Studies study) {
+		logger.debug("Looking for study attributes");
+		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
+    	    .where(attributes.studyId.eq(study.getId()))
+    	    .orderBy(attributes.rank.asc());
+		
+		logger.info("Executing query: {}", sqlQuery.toString());
+
+    	List<Attributes> attributeList = template.query(sqlQuery, attributes);
+    	return attributeList;
+	}
+
+    /**
+     * Returns a list of all the attributes for a given view. 
+     * @param study
+     * @param view
+     * @return
+     */
 	public List<Attributes> getViewAttributes(Studies study, Views view) {
 		logger.debug("Looking for view attributes");
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
