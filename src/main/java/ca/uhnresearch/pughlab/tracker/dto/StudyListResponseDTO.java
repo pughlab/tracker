@@ -9,9 +9,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class StudyListResponseDTO extends AbstractResponseDTO {
 
 	List<StudyDTO> studies = new ArrayList<StudyDTO>();
+	
+	public StudyListResponseDTO() { 
+		super();
+	}
 
 	public StudyListResponseDTO(URL url, UserDTO user) {
-		super(url, user);
+		super();
+		this.setServiceUrl(url);
+		this.setUser(user);
 	}
 
 	@JsonProperty

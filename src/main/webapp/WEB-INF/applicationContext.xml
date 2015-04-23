@@ -21,15 +21,22 @@
 	</bean>
 
 	<!-- Define the router -->
-	<bean name="router" class="org.restlet.ext.spring.SpringRouter">
-		<constructor-arg ref="trackerComponentChildContext" />
+	<bean name="router" class="ca.uhnresearch.pughlab.tracker.restlets.CustomSpringRouter">
+		<constructor-arg ref="trackerComponent" />
 		<property name="attachments">
 	        <map>
  	            <entry key="/api" value-ref="apiRouter" />
- 	            <entry key="/" value-ref="staticsDirectory" />
+ 	            <entry key="/statics" value-ref="staticsDirectory" />
 	        </map>
 	    </property>
+	    <property name="defaultAttachment" ref="staticsRedirector" />
 	</bean>
+	
+	<bean id="staticsRedirector" class="ca.uhnresearch.pughlab.tracker.restlets.CustomRedirector">
+        <constructor-arg ref="trackerComponent" />
+        <constructor-arg value="{o}/statics/index.html" />
+        <constructor-arg value="7" />
+    </bean>
 	
 	<bean id="staticsDirectory" class="ca.uhnresearch.pughlab.tracker.restlets.DirectoryFactoryBean">
 		<property name="component" ref="trackerComponent" />

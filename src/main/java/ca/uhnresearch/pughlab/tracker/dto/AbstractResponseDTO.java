@@ -4,11 +4,11 @@ import java.net.URL;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-abstract class AbstractResponseDTO {
+public abstract class AbstractResponseDTO {
 	
 	private URL serviceUrl;
 	private UserDTO user;
-	
+		
 	@JsonProperty
 	public URL getServiceUrl() {
 		return serviceUrl;
@@ -27,9 +27,5 @@ abstract class AbstractResponseDTO {
 		this.user = user;
 	}
 
-	protected AbstractResponseDTO(URL serviceUrl, UserDTO user) {
-		super();
-		this.serviceUrl = serviceUrl;
-		this.user = user;
-	}
+	protected AbstractResponseDTO() {};
 }

@@ -1,9 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
-import java.net.URL;
-
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -16,31 +12,34 @@ import ca.uhnresearch.pughlab.tracker.domain.Cases;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
+import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
+import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
 
-public class EntityResource extends StudyRepositoryResource {
+public class EntityResource extends StudyRepositoryResource<EntityResponseDTO> {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
     @Get("json")
     public Representation getResource() {
-    	
+    	EntityResponseDTO response = new EntityResponseDTO();
+    	buildResponseDTO(response);
+        return new JacksonRepresentation<EntityResponseDTO>(response);
+    }
+
+	@Override
+	public void buildResponseDTO(EntityResponseDTO dto) {
+		super.buildResponseDTO(dto);
+		
     	logger.info("Called getResource() in EntityResource");
-
-    	Subject currentUser = SecurityUtils.getSubject();
-
-    	URL url = getRequest().getRootRef().toUrl();
-    	UserDTO user = new UserDTO(currentUser);
 
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
     	
     	JsonNode caseData = getRepository().getCaseData(study, view, caseValue);
-
-    	EntityResponseDTO response = new EntityResponseDTO(url, user, study, view, caseData);
     	
-        return new JacksonRepresentation<EntityResponseDTO>(response);
-
-    }
+    	dto.setStudy(new StudyDTO(study));
+    	dto.setView(new ViewDTO(view));
+    	dto.setEntity(caseData);
+	}
 }

@@ -10,7 +10,11 @@ import ca.uhnresearch.pughlab.tracker.domain.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ViewAttributesResponseDTO extends ViewResponseDTO {
-
+	
+	public ViewAttributesResponseDTO() {
+		super();
+	}
+	
 	public ViewAttributesResponseDTO(URL url, UserDTO user, Studies s, Views v) {
 		super(url, user, s, v);
 	}

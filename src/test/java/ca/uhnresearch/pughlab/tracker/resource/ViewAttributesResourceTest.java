@@ -32,7 +32,7 @@ public class ViewAttributesResourceTest extends AbstractShiroTest {
 	@Before
 	public void initialize() {
 		
-		viewResource = new ViewDataResource();
+		viewResource = new ViewAttributesResource();
 		viewResource.setRepository(repository);
 		Request request = new Request(Method.GET, "http://localhost:9998/services/studies");
 		Reference rootReference = new Reference("http://localhost:9998/services");

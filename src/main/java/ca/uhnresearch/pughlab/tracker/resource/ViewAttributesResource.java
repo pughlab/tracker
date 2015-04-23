@@ -1,10 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
-import java.net.URL;
 import java.util.List;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -13,21 +10,23 @@ import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.dto.AttributeDTO;
-import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
+import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributesResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
 
-public class ViewAttributesResource extends StudyRepositoryResource {
+public class ViewAttributesResource extends StudyRepositoryResource<ViewAttributesResponseDTO> {
 	
-	protected ViewAttributesResponseDTO newViewResponse(URL url, UserDTO user, Studies study, Views view) {
-		return new ViewAttributesResponseDTO(url, user, study, view);
-	}
-	
-	protected ViewAttributesResponseDTO getViewResponse() {
-		
-    	Subject currentUser = SecurityUtils.getSubject();
-    	URL url = getRequest().getRootRef().toUrl();
-    	UserDTO user = new UserDTO(currentUser);
-    	
+    @Get("json")
+    public Representation getResource()  {
+    	ViewAttributesResponseDTO response = new ViewAttributesResponseDTO();
+    	buildResponseDTO(response);
+        return new JacksonRepresentation<ViewAttributesResponseDTO>(response);
+    }
+
+	@Override
+	public void buildResponseDTO(ViewAttributesResponseDTO dto) {
+		super.buildResponseDTO(dto);
+		    	
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
     	List<Attributes> attributes = getRepository().getViewAttributes(study, view);
@@ -36,27 +35,16 @@ public class ViewAttributesResource extends StudyRepositoryResource {
     	assert study != null;
     	assert view != null;
     	assert attributes != null;
-
-    	ViewAttributesResponseDTO response = newViewResponse(url, user, study, view);
+    	
+    	dto.setStudy(new StudyDTO(study));
+    	dto.setView(new ViewDTO(view));
 
     	for(Attributes a : attributes) {
-			response.getAttributes().add(new AttributeDTO(a));
+    		dto.getAttributes().add(new AttributeDTO(a));
 		}
 
-		response.getPermissions().setReadAllowed((Boolean) getRequest().getAttributes().get("viewReadAllowed")); 
-		response.getPermissions().setWriteAllowed((Boolean) getRequest().getAttributes().get("viewWriteAllowed")); 
-		response.getPermissions().setDownloadAllowed((Boolean) getRequest().getAttributes().get("viewDownloadAllowed")); 
-
-    	return response;
+    	dto.getPermissions().setReadAllowed((Boolean) getRequest().getAttributes().get("viewReadAllowed")); 
+    	dto.getPermissions().setWriteAllowed((Boolean) getRequest().getAttributes().get("viewWriteAllowed")); 
+    	dto.getPermissions().setDownloadAllowed((Boolean) getRequest().getAttributes().get("viewDownloadAllowed")); 
 	}
-	
-	
-    @Get("json")
-    public Representation getResource()  {
-
-		ViewAttributesResponseDTO response = getViewResponse();
-
-    	// And render back
-        return new JacksonRepresentation<ViewAttributesResponseDTO>(response);
-    }
 }

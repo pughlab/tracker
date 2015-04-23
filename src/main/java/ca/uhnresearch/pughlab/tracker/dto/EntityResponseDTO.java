@@ -11,7 +11,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class EntityResponseDTO extends ViewResponseDTO {
 
 	JsonNode entity;
-
+	
+	public EntityResponseDTO() {
+		super();
+	}
+	
 	public EntityResponseDTO(URL url, UserDTO user, Studies s, Views v, JsonNode e) {
 		super(url, user, s, v);
 		this.entity = e;

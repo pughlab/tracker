@@ -10,9 +10,15 @@ public class StudyResponseDTO extends AbstractResponseDTO {
 
 	StudyDTO study;
 	
+	public StudyResponseDTO() {
+		super();
+	}
+	
 	public StudyResponseDTO(URL url, UserDTO user, Studies s) {
-		super(url, user);
-		this.study = new StudyDTO(s);
+		super();
+		this.setServiceUrl(url);
+		this.setUser(user);
+		this.setStudy(new StudyDTO(s));
 	}
 
 	@JsonProperty

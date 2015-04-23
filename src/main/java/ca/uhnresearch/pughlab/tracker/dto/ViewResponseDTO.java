@@ -10,7 +10,11 @@ import ca.uhnresearch.pughlab.tracker.domain.Views;
 public class ViewResponseDTO extends StudyResponseDTO {
 
 	ViewDTO view;
-
+	
+	public ViewResponseDTO() {
+		super();
+	}
+	
 	public ViewResponseDTO(URL url, UserDTO user, Studies s, Views v) {
 		super(url, user, s);
 		this.view = new ViewDTO(v);

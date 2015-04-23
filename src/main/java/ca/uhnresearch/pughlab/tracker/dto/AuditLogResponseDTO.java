@@ -13,6 +13,8 @@ public class AuditLogResponseDTO extends StudyResponseDTO {
 
 	List<JsonNode> log = new ArrayList<JsonNode>();
 
+	public AuditLogResponseDTO() { }
+
 	public AuditLogResponseDTO(URL url, UserDTO user, Studies s) {
 		super(url, user, s);
 	}

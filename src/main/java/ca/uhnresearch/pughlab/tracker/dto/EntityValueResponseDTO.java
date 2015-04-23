@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class EntityValueResponseDTO extends ViewResponseDTO {
+	
+	public EntityValueResponseDTO() { }
 
 	public EntityValueResponseDTO(URL url, UserDTO user, Studies s, Views v, JsonNode val) {
 		super(url, user, s, v);

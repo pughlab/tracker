@@ -42,6 +42,7 @@
 	            	</bean>
 	            </entry>
 	            <entry key="/views/{viewName}" value-ref="viewExtractor" />
+	        	<entry key="/schema" value-ref="studySchemaResource" />
 	        </map>
 	    </property>
 	</bean>
@@ -61,6 +62,7 @@
 	            		<lookup-method name="create" bean="viewAttributesDataResource" />
 	            	</bean>
 	        	</entry>	        	
+	        	<entry key="/schema" value-ref="viewSchemaResource" />
  	            <entry key="">
 	            	<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="viewDataResource" />
@@ -100,7 +102,13 @@
  	<bean id="studiesViewsResource" class="ca.uhnresearch.pughlab.tracker.resource.StudyResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
+ 	<bean id="studySchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.StudySchemaResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
  	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewDataResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="viewSchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewSchemaResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
  	<bean id="viewAttributesDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewAttributesResource" scope="prototype">

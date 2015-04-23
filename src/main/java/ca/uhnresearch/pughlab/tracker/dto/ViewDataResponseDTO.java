@@ -14,7 +14,11 @@ public class ViewDataResponseDTO extends ViewAttributesResponseDTO {
 
 	CountsDTO counts = new CountsDTO();
 	List<JsonNode> records = new ArrayList<JsonNode>();
-
+	
+	public ViewDataResponseDTO() {
+		super();
+	}
+	
 	public ViewDataResponseDTO(URL url, UserDTO user, Studies s, Views v) {
 		super(url, user, s, v);
 	}

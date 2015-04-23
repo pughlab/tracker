@@ -12,6 +12,10 @@ public class StudyViewsResponseDTO extends StudyResponseDTO {
 	
 	List<ViewDTO> views = new ArrayList<ViewDTO>();
 
+	public StudyViewsResponseDTO() {
+		super();
+	}
+	
 	public StudyViewsResponseDTO(URL url, UserDTO user, Studies s) {
 		super(url, user, s);
 	}

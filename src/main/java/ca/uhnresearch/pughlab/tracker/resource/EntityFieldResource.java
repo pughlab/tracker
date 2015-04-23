@@ -1,7 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
-import java.net.URL;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -22,11 +21,12 @@ import ca.uhnresearch.pughlab.tracker.domain.Cases;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
 import ca.uhnresearch.pughlab.tracker.dto.EntityValueResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
+import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
+import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class EntityFieldResource extends StudyRepositoryResource {
+public class EntityFieldResource extends StudyRepositoryResource<EntityValueResponseDTO> {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -46,9 +46,6 @@ public class EntityFieldResource extends StudyRepositoryResource {
 
     	Subject currentUser = SecurityUtils.getSubject();
 
-    	URL url = getRequest().getRootRef().toUrl();
-    	UserDTO user = new UserDTO(currentUser);
-
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
@@ -66,22 +63,21 @@ public class EntityFieldResource extends StudyRepositoryResource {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 		}
     	
-    	// Return the response, which is the same as a GET response
-    	JsonNode val = getRepository().getCaseAttributeValue(study, view, caseValue, attribute);
-    	EntityValueResponseDTO response = new EntityValueResponseDTO(url, user, study, view, val);
-
-        return new JacksonRepresentation<EntityValueResponseDTO>(response);
+    	return getResource();
     }
 
 
     @Get("json")
     public Representation getResource()  {
-    	logger.info("Called getResource() in EntityFieldResource");
+    	EntityValueResponseDTO response = new EntityValueResponseDTO();
+    	buildResponseDTO(response);
+        return new JacksonRepresentation<EntityValueResponseDTO>(response);
+    }
 
-    	Subject currentUser = SecurityUtils.getSubject();
 
-    	URL url = getRequest().getRootRef().toUrl();
-    	UserDTO user = new UserDTO(currentUser);
+	@Override
+	public void buildResponseDTO(EntityValueResponseDTO dto) {
+		super.buildResponseDTO(dto);
 
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	Views view = (Views) getRequest().getAttributes().get("view");
@@ -90,8 +86,9 @@ public class EntityFieldResource extends StudyRepositoryResource {
     	
     	// Get the value and build an appropriate response
     	JsonNode val = getRepository().getCaseAttributeValue(study, view, caseValue, attribute);
-    	EntityValueResponseDTO response = new EntityValueResponseDTO(url, user, study, view, val);
-
-        return new JacksonRepresentation<EntityValueResponseDTO>(response);
-    }
+    	
+    	dto.setStudy(new StudyDTO(study));
+    	dto.setView(new ViewDTO(view));
+    	dto.setValue(val);
+	}
 }
