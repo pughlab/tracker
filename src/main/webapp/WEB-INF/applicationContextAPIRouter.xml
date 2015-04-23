@@ -36,13 +36,17 @@
 		<constructor-arg ref="apiRouter" />
 		<property name="attachments">
 	        <map>
+ 	            <entry key="/schema">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="studySchemaResource" />
+	            	</bean>
+	            </entry>
  	            <entry key="/views">
 	            	<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="studiesViewsResource" />
 	            	</bean>
 	            </entry>
 	            <entry key="/views/{viewName}" value-ref="viewExtractor" />
-	        	<entry key="/schema" value-ref="studySchemaResource" />
 	        </map>
 	    </property>
 	</bean>
@@ -62,7 +66,11 @@
 	            		<lookup-method name="create" bean="viewAttributesDataResource" />
 	            	</bean>
 	        	</entry>	        	
-	        	<entry key="/schema" value-ref="viewSchemaResource" />
+ 	            <entry key="/schema">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="viewSchemaResource" />
+	            	</bean>
+	            </entry>
  	            <entry key="">
 	            	<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="viewDataResource" />
