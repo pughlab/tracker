@@ -9,6 +9,7 @@ public class ViewDTO {
 	public ViewDTO(Views v) {
 		setId(v.getId());
 		setName(v.getName());
+		setDescription(v.getDescription());
 	}
 	
 	/**
@@ -41,6 +42,22 @@ public class ViewDTO {
 		this.id = id;
 	}
 
+	/**
+	 * @return the description
+	 */
+	@JsonProperty
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	private Integer id;
 	private String name;
+	private String description;
 }
