@@ -9,7 +9,6 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
 import ca.uhnresearch.pughlab.tracker.dto.StudyListResponseDTO;
 import ca.uhnresearch.pughlab.tracker.dto.StudyWithAccessDTO;
 
