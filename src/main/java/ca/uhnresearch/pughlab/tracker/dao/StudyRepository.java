@@ -52,6 +52,14 @@ public interface StudyRepository {
 	Views getStudyView(Studies study, String name);
 
 	/**
+	 * Updates a single view for the study
+	 * @param study
+	 * @param view
+	 * @throws RepositoryException
+	 */
+	void setStudyView(Studies study, Views view) throws RepositoryException;
+	
+	/**
 	 * Retrieves all the attributes for a view and study from the repository
 	 * @return list of attributes
 	 */

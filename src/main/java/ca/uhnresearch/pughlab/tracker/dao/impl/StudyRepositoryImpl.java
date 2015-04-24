@@ -170,6 +170,19 @@ public class StudyRepositoryImpl implements StudyRepository {
     	return view;
 	}
 
+	/**
+     * Returns the named view associated with a study
+     * @param study
+     * @return
+     */
+	public void setStudyView(Studies study, Views view) throws RepositoryException {
+		if (study.getId().equals(view.getStudyId())) {
+			updateView(view);
+		} else {
+			throw new NotFoundException("Can't update view for a different study: " + view.getName());
+		}
+	}
+
     /**
      * Returns a list of all the attributes for a given view. 
      * @param study
@@ -288,9 +301,41 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public void setViewAttributes(Studies study, Views view,
-			List<Attributes> attributes) {
-		// TODO Auto-generated method stub
+	public void setViewAttributes(Studies study, Views view, List<Attributes> newAttributes) throws RepositoryException {
+		// First, we need the list of all available attributes in the study.
+		List<Attributes> studyAttributes = getStudyAttributes(study);
+		Map<Integer, Attributes> studyAttributesTable = new HashMap<Integer, Attributes>();
+		for (Attributes a : studyAttributes) {
+			studyAttributesTable.put(a.getId(), a);
+		}
+		
+		// Next, we need a list of the current view attributes/
+		List<Attributes> oldAttributes = getViewAttributes(study, view);
+		
+		// Next, build a table of the identifiers
+		Map<Integer, Attributes> oldAttributesTable = new HashMap<Integer, Attributes>();
+		for(Attributes a : oldAttributes) {
+			oldAttributesTable.put(a.getId(), a);
+		}
+		
+		// For each new/existing attribute, we can update the options in the view attribute
+		// data. Unmatched old ones will be left in the table and deleted later.
+		for(Attributes a : newAttributes) {
+			Attributes old = oldAttributesTable.get(a.getId());
+			if (old == null) {
+				// No old attribute, this is a new one. So first check it exists within
+				// the study. If it doesn't, then we can throw an exception.
+				Attributes studyAttribute = studyAttributesTable.get(a.getId());
+				if (studyAttribute == null) {
+					throw new NotFoundException("Missing attribute: " + a.getName());
+				}
+				
+				// We're good. Add this as a new view attribute
+			} else {
+				// We do have an old attribute as well as a new one, so this is basically
+				// an update on the view attribute options. 
+			}
+		}
 	}
 
     /**

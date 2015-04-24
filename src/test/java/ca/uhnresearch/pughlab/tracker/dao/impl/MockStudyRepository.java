@@ -232,6 +232,20 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	/**
+	 * A mocked setStudyView
+	 */
+	@Override
+	public void setStudyView(Studies study, Views view) throws RepositoryException {
+		for (Views v : views) {
+			if (v.getId().equals(view.getId())) {
+				v.setOptions(view.getOptions());
+				return;
+			}
+		}
+		throw new NotFoundException("Can't find study view: " + view.getName());
+	}
+
+	/**
 	 * A mocked getStudyAttributes
 	 */
 	public List<Attributes> getStudyAttributes(Studies study) {
@@ -412,4 +426,5 @@ public class MockStudyRepository implements StudyRepository {
 		
 		return new ArrayList<JsonNode>();
 	}
+
 }
