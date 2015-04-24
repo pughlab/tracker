@@ -4,21 +4,26 @@ import static junit.framework.Assert.assertEquals;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.IOException;
 
 import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
@@ -77,5 +82,30 @@ public class StudySchemaResourceTest extends AbstractShiroTest{
 		assertEquals( 3, data.get("views").getAsJsonArray().size());
 
 		assertEquals( 5, data.get("attributes").getAsJsonArray().size());
+	}
+	
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	/**
+	 * Checks that a non-admin user is denied read access
+	 */
+	@Test
+	public void resourceTestForbidden() throws IOException {
+
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        Studies testStudy = repository.getStudy("DEMO");
+        resource.getRequest().getAttributes().put("study", testStudy);
+		
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Forbidden"));
+
+		resource.getResource();
+		return;
 	}
 }

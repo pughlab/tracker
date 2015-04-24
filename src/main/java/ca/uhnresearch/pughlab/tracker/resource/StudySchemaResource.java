@@ -58,8 +58,12 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	logger.info("Called putResource() in EntityFieldResource", input);
     	
     	Subject currentUser = SecurityUtils.getSubject();
-
     	Studies study = (Studies) getRequest().getAttributes().get("study");
+
+    	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
+    	if (! adminUser) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
     	
     	try {
 			StudySchemaResponseDTO schema = converter.toObject(input, StudySchemaResponseDTO.class, this);
@@ -93,13 +97,16 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
      * information.  
      */
 	@Override
-	public void buildResponseDTO(StudySchemaResponseDTO dto) {
+	public void buildResponseDTO(StudySchemaResponseDTO dto) throws ResourceException {
 		super.buildResponseDTO(dto);
 		
     	Studies study = (Studies) getRequest().getAttributes().get("study");
     	
     	Subject currentUser = SecurityUtils.getSubject();
     	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
+    	if (! adminUser) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
 
     	// Query the database for views
     	List<Views> viewList = getRepository().getStudyViews(study);
