@@ -1,7 +1,7 @@
 <ol class="breadcrumb">
   <li><a ui-sref="home">Home</a></li>
-  <li><a ui-sref="adminStudy({studyName: study.name})">{{study.name}}</a></li>
-  <li>{{view.viewName}}
+  <li><a ui-sref="adminStudy({studyName: study.study.name})">{{study.study.name}}</a></li>
+  <li>{{view.view.name}}
     <span ng-show="modified" class="badge alert-danger">modified</span>
   </li>
 </ol>

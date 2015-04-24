@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.*;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -17,6 +17,7 @@ import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
@@ -76,6 +77,10 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
 		JsonObject study = data.get("study").getAsJsonObject();
 		
 		assertEquals( "DEMO", study.get("name").getAsString() );
-		assertEquals( "A demo clinical genomics study", study.get("description").getAsString() );
+		assertEquals( "A demo clinical genomics study", study.get("description").getAsString());
+		
+		JsonArray attributes = data.get("attributes").getAsJsonArray();
+		assertNotNull(attributes);
+		assertEquals(5, attributes.size());
 	}
 }

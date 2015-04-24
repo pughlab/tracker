@@ -121,7 +121,7 @@
               <div class="col-md-10">
               <button class="btn btn-default" ng-click="newView()">New view</button>
               <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView" ng-click="deleteView(selectedView)">Delete view</button>
-              <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView || modified" ui-sref="adminView({studyName: study.name, viewName: selectedView.name})">Edit view</button>
+              <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView || modified" ui-sref="adminView({studyName: study.study.name, viewName: selectedView.name})">Edit view</button>
               </div>
             </div>
           </fieldset>
