@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
 import ca.uhnresearch.pughlab.tracker.domain.Views;
@@ -75,6 +77,10 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
 
 			getRepository().setStudyAttributes(study, attributes);
 			getRepository().setStudyViews(study, views);
+		} catch (NotFoundException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		} catch (RepositoryException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} catch (IOException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}

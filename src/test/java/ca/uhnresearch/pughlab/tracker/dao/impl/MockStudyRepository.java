@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.CaseAttributeBooleans;

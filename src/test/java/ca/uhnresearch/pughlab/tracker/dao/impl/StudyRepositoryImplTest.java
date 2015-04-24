@@ -656,7 +656,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testSetStudyAttributes() {
+	public void testSetStudyAttributes() throws RepositoryException {
 		Studies study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		assertNotNull(list);
@@ -681,7 +681,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testDeleteStudyAttributes() {
+	public void testDeleteStudyAttributes() throws RepositoryException {
 		Studies study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		assertNotNull(list);
@@ -705,7 +705,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testAddStudyAttributes() {
+	public void testAddStudyAttributes() throws RepositoryException {
 		Studies study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		assertNotNull(list);
@@ -744,7 +744,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testSetStudyViews() {
+	public void testSetStudyViews() throws RepositoryException {
 		Studies study = studyRepository.getStudy("DEMO");
 		List<Views> list = studyRepository.getStudyViews(study);
 		assertNotNull(list);
@@ -769,7 +769,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testDeleteStudyView() {
+	public void testDeleteStudyView() throws RepositoryException {
 		Studies study = studyRepository.getStudy("DEMO");
 		List<Views> list = studyRepository.getStudyViews(study);
 		assertNotNull(list);
@@ -793,7 +793,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testAddStudyViews() {
+	public void testAddStudyViews() throws RepositoryException {
 		Studies study = studyRepository.getStudy("DEMO");
 		List<Views> list = studyRepository.getStudyViews(study);
 		assertNotNull(list);

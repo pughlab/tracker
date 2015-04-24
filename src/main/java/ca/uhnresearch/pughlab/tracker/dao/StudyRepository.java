@@ -32,7 +32,7 @@ public interface StudyRepository {
 	/**
 	 * Writes the views for a study into the repository
 	 */
-	void setStudyViews(Studies study, List<Views> views);
+	void setStudyViews(Studies study, List<Views> views) throws RepositoryException;
 
 	/**
 	 * Retrieves all the attributes for a study from the repository
@@ -43,7 +43,7 @@ public interface StudyRepository {
 	/**
 	 * Writes the attributes for a study to the repository
 	 */
-	void setStudyAttributes(Studies study, List<Attributes> attributes);
+	void setStudyAttributes(Studies study, List<Attributes> attributes) throws RepositoryException;
 
 	/**
 	 * Retrieves a single specified view for a study from the repository
@@ -60,7 +60,7 @@ public interface StudyRepository {
 	/**
 	 * Writes the attributes for a view and study to the repository
 	 */
-	void setViewAttributes(Studies study, Views view, List<Attributes> attributes);
+	void setViewAttributes(Studies study, Views view, List<Attributes> attributes) throws RepositoryException;
 	
 	/**
 	 * Retrieves the record count for a specified study/view from the repository
