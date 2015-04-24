@@ -2,10 +2,6 @@ package ca.uhnresearch.pughlab.tracker.domain;
 
 import javax.annotation.Generated;
 
-/**
- * ViewAttributes is a Querydsl bean type
- */
-@Generated("com.mysema.query.codegen.BeanSerializer")
 public class ViewAttributes {
 
     private Integer attributeId;
