@@ -269,26 +269,26 @@ public class StudyRepositoryImpl implements StudyRepository {
 		});
 	}
 	
-	private void insertViewAttribute(final ViewAttributes va) {
+	private void insertViewAttribute(final View v, final ViewAttributes va) {
 		template.insert(viewAttributes, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.populate(va).execute();
+				return sqlInsertClause.populate(va, new ViewAttributeMapper(v)).execute();
 			};
 		});
 	}
 
-	private void deleteViewAttribute(final ViewAttributes va) {
+	private void deleteViewAttribute(final View v, final ViewAttributes va) {
 		template.delete(viewAttributes, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
-				return sqlDeleteClause.where(viewAttributes.viewId.eq(va.getViewId()).and(viewAttributes.attributeId.eq(va.getAttributeId()))).execute();
+				return sqlDeleteClause.where(viewAttributes.viewId.eq(v.getId()).and(viewAttributes.attributeId.eq(va.getId()))).execute();
 			};
 		});
 	}
 
-	private void updateViewAttribute(final ViewAttributes va) throws RepositoryException {
+	private void updateViewAttribute(final View v, final ViewAttributes va) throws RepositoryException {
 		template.update(viewAttributes, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(viewAttributes.viewId.eq(va.getViewId()).and(viewAttributes.attributeId.eq(va.getAttributeId()))).populate(va).execute();
+				return sqlUpdateClause.where(viewAttributes.viewId.eq(v.getId()).and(viewAttributes.attributeId.eq(va.getId()))).populate(va, new ViewAttributeMapper(v)).execute();
 			};
 		});
 	}
@@ -336,7 +336,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public void setViewAttributes(Study study, View view, List<Attributes> newAttributes) throws RepositoryException {
+	public void setViewAttributes(Study study, View view, List<ViewAttributes> newAttributes) throws RepositoryException {
 		// First, we need the list of all available attributes in the study.
 		List<Attributes> studyAttributes = getStudyAttributes(study);
 		Map<Integer, Attributes> studyAttributesTable = new HashMap<Integer, Attributes>();
@@ -345,7 +345,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		}
 		
 		// Next, we need a list of the current view attributes/
-		List<Attributes> oldAttributes = getViewAttributes(study, view);
+		List<ViewAttributes> oldAttributes = getViewAttributes(study, view);
 		
 		// Next, build a table of the identifiers
 		Map<Integer, Attributes> oldAttributesTable = new HashMap<Integer, Attributes>();
@@ -367,11 +367,10 @@ public class StudyRepositoryImpl implements StudyRepository {
 				}
 				
 				ViewAttributes va = new ViewAttributes();
-				va.setViewId(view.getId());
-				va.setAttributeId(studyAttribute.getId());
+				va.setId(studyAttribute.getId());
 				va.setRank(rank);
-//				va.setOptions(a.getOptions());
-				insertViewAttribute(va);
+				va.setViewOptions(a.getOptions());
+				insertViewAttribute(view, va);
 				
 			} else {
 				// We do have an old attribute as well as a new one, so this is basically
@@ -381,9 +380,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 		    	SQLQuery sqlQuery = template.newSqlQuery().from(viewAttributes)
 		    		.where(viewAttributes.viewId.eq(view.getId()).and(viewAttributes.attributeId.eq(old.getId())));
 		    	ViewAttributes va = template.queryForObject(sqlQuery, viewAttributes);
-//				va.setOptions(a.getOptions());
+				va.setViewOptions(a.getOptions());
 				va.setRank(rank);
-				updateViewAttribute(va);
+				updateViewAttribute(view, va);
 				
 				// Mark the old one as seen, so we can delete any left over.
 				oldAttributesTable.remove(a.getId());
@@ -394,9 +393,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// Right, now we can simply remove old attributes
 		for (Attributes a : oldAttributesTable.values()) {
 			ViewAttributes va = new ViewAttributes();
-			va.setViewId(view.getId());
-			va.setAttributeId(a.getId());
-			deleteViewAttribute(va);
+			va.setId(a.getId());
+			deleteViewAttribute(view, va);
 		}
 	}
 
@@ -406,7 +404,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @param view
      * @return
      */
-	public List<Attributes> getViewAttributes(Study study, View view) {
+	public List<ViewAttributes> getViewAttributes(Study study, View view) {
 		
 		logger.debug("Looking for view attributes");
 		
@@ -416,7 +414,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     	    .where(attributes.studyId.eq(study.getId()).and(views.id.eq(view.getId())))
     	    .orderBy(viewAttributes.rank.asc());
 		
-    	List<Attributes> attributeList = template.query(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
+    	List<ViewAttributes> attributeList = template.query(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
 
 		return attributeList;
 	}
@@ -571,7 +569,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param attributes
 	 * @param query
 	 */
-	public List<JsonNode> getData(Study study, View view, List<Attributes> attributes, CaseQuery query) {
+	public List<JsonNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
 		// This method retrieves the attributes we needed. In most implementations, we've done 
 		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
 		// since UNIONs generally aren't indexable, we are probably genuinely better off running

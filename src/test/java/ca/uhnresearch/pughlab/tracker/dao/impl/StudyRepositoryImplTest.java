@@ -31,6 +31,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/main/webapp/WEB-INF/applicationContextDatabase.xml" })
@@ -121,7 +122,7 @@ public class StudyRepositoryImplTest {
 	public void testGetViewAttributes() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		List<Attributes> list = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(27, list.size());
 	}
@@ -132,7 +133,7 @@ public class StudyRepositoryImplTest {
 	public void testSmallerGetViewAttributes() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<Attributes> list = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(15, list.size());
 	}
@@ -143,7 +144,7 @@ public class StudyRepositoryImplTest {
 	public void testGetData() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<Attributes> attributes = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
@@ -158,7 +159,7 @@ public class StudyRepositoryImplTest {
 	public void testGetDataNoLimit() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<Attributes> attributes = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(null);
@@ -173,7 +174,7 @@ public class StudyRepositoryImplTest {
 	public void testGetDataNoOffset() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<Attributes> attributes = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
 		CaseQuery query = new CaseQuery();
 		query.setOffset(null);
 		query.setLimit(5);
@@ -188,7 +189,7 @@ public class StudyRepositoryImplTest {
 	public void testGetDataOrdered() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<Attributes> attributes = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
@@ -837,19 +838,19 @@ public class StudyRepositoryImplTest {
 	public void testSetViewAttributes() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<Attributes> list = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(15, list.size());
 		
 		studyRepository.setViewAttributes(study, view, list);
 
-		List<Attributes> listAgain = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> listAgain = studyRepository.getViewAttributes(study, view);
 		
 		assertEquals(listAgain.size(), list.size());
 		int size = list.size();
 		for(int i = 0; i < size; i++) {
-			Attributes oldAttribute = list.get(i);
-			Attributes newAttribute = listAgain.get(i);
+			ViewAttributes oldAttribute = list.get(i);
+			ViewAttributes newAttribute = listAgain.get(i);
 			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
 		}
 	}
@@ -863,18 +864,18 @@ public class StudyRepositoryImplTest {
 	public void testDeleteViewAttributes() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<Attributes> list = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(15, list.size());
 		
 		studyRepository.setViewAttributes(study, view, list.subList(0, 10));
 
-		List<Attributes> listAgain = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> listAgain = studyRepository.getViewAttributes(study, view);
 		assertEquals(10, listAgain.size());
 		
 		for(int i = 0; i < 10; i++) {
-			Attributes oldAttribute = list.get(i);
-			Attributes newAttribute = listAgain.get(i);
+			ViewAttributes oldAttribute = list.get(i);
+			ViewAttributes newAttribute = listAgain.get(i);
 			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
 		}
 	}
@@ -888,23 +889,23 @@ public class StudyRepositoryImplTest {
 	public void testAddViewAttributes() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<Attributes> list = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(15, list.size());
 		
-		Attributes att1 = new Attributes();
+		ViewAttributes att1 = new ViewAttributes();
 		att1.setId(8);
 		att1.setName("specimenNo");
 		att1.setType("string");
 		att1.setLabel("Specimen #");
 		att1.setStudyId(study.getId());
 		
-		List<Attributes> modified = list.subList(0, 10);
+		List<ViewAttributes> modified = list.subList(0, 10);
 		modified.add(att1);
 		
 		studyRepository.setViewAttributes(study, view, modified);
 
-		List<Attributes> listAgain = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> listAgain = studyRepository.getViewAttributes(study, view);
 		assertEquals(11, listAgain.size());
 		
 		for(int i = 0; i < 10; i++) {

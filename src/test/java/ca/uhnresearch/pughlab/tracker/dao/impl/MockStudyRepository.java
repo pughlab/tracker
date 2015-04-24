@@ -71,6 +71,14 @@ public class MockStudyRepository implements StudyRepository {
 		attributes.add(mockAttribute(5, "specimenAvailable", "Biobank Specimen Available? (Yes/No)", 5, 1, "date"));
 		
 		// And the view attribute mapping
+		
+		JsonNode mockClasses = null;
+		try {
+			mockClasses = mapper.readValue("{\"classes\": [\"label5\"]}", JsonNode.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		viewAttributes.add(mockViewAttribute(1, 1, null));
 		viewAttributes.add(mockViewAttribute(2, 1, null));
 		viewAttributes.add(mockViewAttribute(3, 1, null));
@@ -79,11 +87,11 @@ public class MockStudyRepository implements StudyRepository {
 		
 		viewAttributes.add(mockViewAttribute(1, 2, null));
 		viewAttributes.add(mockViewAttribute(2, 2, null));
-		viewAttributes.add(mockViewAttribute(5, 2, "{\"classes\": [\"label5\"]}"));
+		viewAttributes.add(mockViewAttribute(5, 2, mockClasses));
 		
 		viewAttributes.add(mockViewAttribute(1, 3, null));
 		viewAttributes.add(mockViewAttribute(2, 3, null));
-		viewAttributes.add(mockViewAttribute(5, 3, "{\"classes\": [\"label5\"]}"));
+		viewAttributes.add(mockViewAttribute(5, 3, mockClasses));
 		
 		// And finally add some cases
 		for(Integer i = 0; i < caseCount; i++) {
@@ -147,11 +155,10 @@ public class MockStudyRepository implements StudyRepository {
 		return obj;
 	}
 	
-	private ViewAttributes mockViewAttribute(Integer attributeId, Integer viewId, String options) {
+	private ViewAttributes mockViewAttribute(Integer attributeId, Integer viewId, JsonNode options) {
 		ViewAttributes vatt = new ViewAttributes();
-		vatt.setAttributeId(attributeId);
-		vatt.setViewId(viewId);
-		vatt.setOptions(options);
+		vatt.setId(attributeId);
+		vatt.setViewOptions(options);
 		return vatt;
 	}
 	
@@ -262,13 +269,13 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getViewAttributes
 	 */
-	public List<Attributes> getViewAttributes(Study study, View view) {
-		List<Attributes> result = new ArrayList<Attributes>();
+	public List<ViewAttributes> getViewAttributes(Study study, View view) {
+		List<ViewAttributes> result = new ArrayList<ViewAttributes>();
 		for(Attributes a : attributes) {
 			final Integer attributeId = a.getId();
 			final Predicate<ViewAttributes> pred = new Predicate<ViewAttributes>() { 
 				public boolean apply(ViewAttributes va) {
-					return va.getAttributeId().equals(attributeId);
+					return va.getId().equals(attributeId);
 				}
 			};
 			if (Iterables.any(viewAttributes, pred)) {
@@ -281,7 +288,7 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked setViewAttributes
 	 */
-	public void setViewAttributes(Study study, View view, List<Attributes> attributes) {
+	public void setViewAttributes(Study study, View view, List<ViewAttributes> attributes) {
 		return;
 	}
 	
@@ -323,7 +330,7 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getData
 	 */
-	public List<JsonNode> getData(Study study, View view, List<Attributes> attributes, CaseQuery query) {
+	public List<JsonNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
 		
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);

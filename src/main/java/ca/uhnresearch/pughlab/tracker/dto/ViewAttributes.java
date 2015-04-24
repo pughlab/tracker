@@ -1,48 +1,16 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import javax.annotation.Generated;
+import com.fasterxml.jackson.databind.JsonNode;
 
-public class ViewAttributes {
+public class ViewAttributes extends Attributes {
 
-    private Integer attributeId;
+    private JsonNode viewOptions;
 
-    private String options;
-
-    private Integer rank;
-
-    private Integer viewId;
-
-    public Integer getAttributeId() {
-        return attributeId;
+    public JsonNode getViewOptions() {
+        return viewOptions;
     }
 
-    public void setAttributeId(Integer attributeId) {
-        this.attributeId = attributeId;
+    public void setViewOptions(JsonNode options) {
+        this.viewOptions = options;
     }
-
-    public String getOptions() {
-        return options;
-    }
-
-    public void setOptions(String options) {
-        this.options = options;
-    }
-
-    public Integer getRank() {
-        return rank;
-    }
-
-    public void setRank(Integer rank) {
-        this.rank = rank;
-    }
-
-    public Integer getViewId() {
-        return viewId;
-    }
-
-    public void setViewId(Integer viewId) {
-        this.viewId = viewId;
-    }
-
 }
-

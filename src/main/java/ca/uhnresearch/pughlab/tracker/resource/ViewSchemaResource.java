@@ -22,6 +22,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.StudySchemaResponse;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewSchemaResponse;
 
 public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaResponse> {
@@ -64,8 +65,8 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     		ViewSchemaResponse schema = converter.toObject(input, ViewSchemaResponse.class, this);
 			logger.info("Got a new schema {}", schema);
 			
-			List<Attributes> attributes = new ArrayList<Attributes>();
-			for(Attributes a : schema.getAttributes()) {
+			List<ViewAttributes> attributes = new ArrayList<ViewAttributes>();
+			for(ViewAttributes a : schema.getAttributes()) {
 				attributes.add(a);
 			}
 
@@ -100,8 +101,8 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	dto.setStudy(study);
     	dto.setView(view);
     	
-    	List<Attributes> attributes = getRepository().getViewAttributes(study, view);
-    	for (Attributes a : attributes) {
+    	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
+    	for (ViewAttributes a : attributes) {
     		dto.getAttributes().add(a);
     	}
 	}

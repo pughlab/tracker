@@ -9,9 +9,9 @@ import org.restlet.resource.Get;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 
 public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> {
@@ -36,7 +36,7 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
     	dto.setView(view);
     	
 		@SuppressWarnings("unchecked")
-		List<Attributes> attributes = (List<Attributes>) getRequest().getAttributes().get("attributes");
+		List<ViewAttributes> attributes = (List<ViewAttributes>) getRequest().getAttributes().get("attributes");
 
     	List<JsonNode> records = getRepository().getData(study, view, attributes, query);
     	dto.setRecords(records);

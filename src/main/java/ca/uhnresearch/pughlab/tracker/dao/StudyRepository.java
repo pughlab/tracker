@@ -8,6 +8,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 
 public interface StudyRepository {
 
@@ -63,12 +64,12 @@ public interface StudyRepository {
 	 * Retrieves all the attributes for a view and study from the repository
 	 * @return list of attributes
 	 */
-	List<Attributes> getViewAttributes(Study study, View view);
+	List<ViewAttributes> getViewAttributes(Study study, View view);
 	
 	/**
 	 * Writes the attributes for a view and study to the repository
 	 */
-	void setViewAttributes(Study study, View view, List<Attributes> attributes) throws RepositoryException;
+	void setViewAttributes(Study study, View view, List<ViewAttributes> attributes) throws RepositoryException;
 	
 	/**
 	 * Retrieves the record count for a specified study/view from the repository
@@ -80,7 +81,7 @@ public interface StudyRepository {
 	 * Retrieves the record-level data for a view and study from the repository
 	 * @return list of JSON nodes
 	 */
-	List<JsonNode> getData(Study study, View view, List<Attributes> attributes, CaseQuery query);
+	List<JsonNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query);
 	
 	/**
 	 * Retrieves a single specified case for a study and view from the repository

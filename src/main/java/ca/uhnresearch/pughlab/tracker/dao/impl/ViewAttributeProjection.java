@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
+import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttributes;
 
 import java.io.IOException;
 
@@ -9,14 +10,14 @@ import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.domain.QAttributes;
 import ca.uhnresearch.pughlab.tracker.domain.QViewAttributes;
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mysema.query.Tuple;
 import com.mysema.query.types.MappingProjection;
 
-public class ViewAttributeProjection extends MappingProjection<Attributes> {
+public class ViewAttributeProjection extends MappingProjection<ViewAttributes> {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -25,14 +26,15 @@ public class ViewAttributeProjection extends MappingProjection<Attributes> {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public ViewAttributeProjection(QAttributes attributes, QViewAttributes viewAttributes) {
-        super(Attributes.class, 
+        super(ViewAttributes.class, 
             attributes.id, attributes.studyId, attributes.name, attributes.description,
-            attributes.label, attributes.rank, attributes.type, attributes.options);
+            attributes.label, viewAttributes.rank, attributes.type, attributes.options,
+            viewAttributes.options);
     }
 
     @Override
-    protected Attributes map(Tuple tuple) {
-    	Attributes product = new Attributes();
+    protected ViewAttributes map(Tuple tuple) {
+    	ViewAttributes product = new ViewAttributes();
 
         product.setId(tuple.get(attributes.id));
         product.setStudyId(tuple.get(attributes.studyId));
@@ -54,6 +56,15 @@ public class ViewAttributeProjection extends MappingProjection<Attributes> {
 			}
 		}
 
+        String viewOptions = tuple.get(viewAttributes.options);
+		if (viewOptions != null) {
+			try {
+				product.setOptions(mapper.readValue(viewOptions, JsonNode.class));
+			} catch (IOException e) {
+				logger.error("Error in JSON attribute view options", e.getMessage());
+			}
+		}
+		
         return product;
     }
 

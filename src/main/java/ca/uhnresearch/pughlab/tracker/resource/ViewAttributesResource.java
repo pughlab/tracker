@@ -9,6 +9,7 @@ import org.restlet.resource.Get;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributesResponse;
 
 public class ViewAttributesResource extends StudyRepositoryResource<ViewAttributesResponse> {
@@ -26,7 +27,7 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
 		    	
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");
-    	List<Attributes> attributes = getRepository().getViewAttributes(study, view);
+    	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
     	getRequest().getAttributes().put("attributes", attributes);
 
     	assert study != null;
