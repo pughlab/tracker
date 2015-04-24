@@ -258,6 +258,31 @@ public class StudyRepositoryImpl implements StudyRepository {
 			};
 		});
 	}
+	
+	private void insertViewAttribute(final ViewAttributes va) {
+		template.insert(viewAttributes, new SqlInsertCallback() { 
+			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+				return sqlInsertClause.populate(va).execute();
+			};
+		});
+	}
+
+	private void deleteViewAttribute(final ViewAttributes va) {
+		template.delete(viewAttributes, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(viewAttributes.viewId.eq(va.getViewId()).and(viewAttributes.attributeId.eq(va.getAttributeId()))).execute();
+			};
+		});
+	}
+
+	private void updateViewAttribute(final ViewAttributes va) throws RepositoryException {
+		template.update(viewAttributes, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(viewAttributes.viewId.eq(va.getViewId()).and(viewAttributes.attributeId.eq(va.getAttributeId()))).populate(va).execute();
+			};
+		});
+	}
+
 
 	@Override
 	public void setStudyAttributes(Studies study, List<Attributes> atts) {
@@ -330,11 +355,34 @@ public class StudyRepositoryImpl implements StudyRepository {
 					throw new NotFoundException("Missing attribute: " + a.getName());
 				}
 				
-				// We're good. Add this as a new view attribute
+				ViewAttributes va = new ViewAttributes();
+				va.setViewId(view.getId());
+				va.setAttributeId(studyAttribute.getId());
+				va.setOptions(a.getOptions());
+				insertViewAttribute(va);
+				
 			} else {
 				// We do have an old attribute as well as a new one, so this is basically
-				// an update on the view attribute options. 
+				// an update on the view attribute options. But first we need to locate
+				// the existing ViewAttributes.
+				
+		    	SQLQuery sqlQuery = template.newSqlQuery().from(viewAttributes)
+		    		.where(viewAttributes.viewId.eq(view.getId()).and(viewAttributes.attributeId.eq(old.getId())));
+		    	ViewAttributes va = template.queryForObject(sqlQuery, viewAttributes);
+				va.setOptions(a.getOptions());
+				updateViewAttribute(va);
+				
+				// Mark the old one as seen, so we can delete any left over.
+				oldAttributesTable.remove(a.getId());
 			}
+		}
+		
+		// Right, now we can simply remove old attributes
+		for (Attributes a : oldAttributesTable.values()) {
+			ViewAttributes va = new ViewAttributes();
+			va.setViewId(view.getId());
+			va.setAttributeId(a.getId());
+			deleteViewAttribute(va);
 		}
 	}
 

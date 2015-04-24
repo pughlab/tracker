@@ -889,7 +889,8 @@ public class StudyRepositoryImplTest {
 		assertEquals(15, list.size());
 		
 		Attributes att1 = new Attributes();
-		att1.setName("test");
+		att1.setId(8);
+		att1.setName("specimenNo");
 		att1.setType("string");
 		att1.setLabel("Test");
 		att1.setDescription("First test attribute");
