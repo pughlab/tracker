@@ -823,5 +823,96 @@ public class StudyRepositoryImplTest {
 		assertTrue(EqualsBuilder.reflectionEquals(v1, loadedV1));
 	}
 
+	/**
+	 * Simple test of writing the exact same attributes back into the view. After
+	 * we do this, a second call should retrieve the exact same data.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetViewAttributes() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		List<Attributes> list = studyRepository.getViewAttributes(study, view);
+		assertNotNull(list);
+		assertEquals(15, list.size());
+		
+		studyRepository.setViewAttributes(study, view, list);
+
+		List<Attributes> listAgain = studyRepository.getViewAttributes(study, view);
+		
+		assertEquals(listAgain.size(), list.size());
+		int size = list.size();
+		for(int i = 0; i < size; i++) {
+			Attributes oldAttribute = list.get(i);
+			Attributes newAttribute = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
+		}
+	}
+	
+	/**
+	 * Simple test of deleting a number of attributes.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testDeleteViewAttributes() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		List<Attributes> list = studyRepository.getViewAttributes(study, view);
+		assertNotNull(list);
+		assertEquals(15, list.size());
+		
+		studyRepository.setViewAttributes(study, view, list.subList(0, 10));
+
+		List<Attributes> listAgain = studyRepository.getViewAttributes(study, view);
+		assertEquals(10, listAgain.size());
+		
+		for(int i = 0; i < 10; i++) {
+			Attributes oldAttribute = list.get(i);
+			Attributes newAttribute = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
+		}
+	}
+
+	/**
+	 * Simple test of adding a number of attributes as well as deleting.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testAddViewAttributes() throws RepositoryException {
+		Studies study = studyRepository.getStudy("DEMO");
+		Views view = studyRepository.getStudyView(study, "track");
+		List<Attributes> list = studyRepository.getViewAttributes(study, view);
+		assertNotNull(list);
+		assertEquals(15, list.size());
+		
+		Attributes att1 = new Attributes();
+		att1.setName("test");
+		att1.setType("string");
+		att1.setLabel("Test");
+		att1.setDescription("First test attribute");
+		
+		List<Attributes> modified = list.subList(0, 10);
+		modified.add(att1);
+		
+		studyRepository.setViewAttributes(study, view, modified);
+
+		List<Attributes> listAgain = studyRepository.getViewAttributes(study, view);
+		assertEquals(11, listAgain.size());
+		
+		for(int i = 0; i < 10; i++) {
+			Attributes oldAttribute = list.get(i);
+			Attributes newAttribute = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
+		}
+		Attributes loadedAtt1 = listAgain.get(10);
+		
+		// Cheatily clear the id, so we can compare all other fields
+		loadedAtt1.setId(null);
+		assertTrue(EqualsBuilder.reflectionEquals(att1, loadedAtt1));
+	}
+
 
 }
