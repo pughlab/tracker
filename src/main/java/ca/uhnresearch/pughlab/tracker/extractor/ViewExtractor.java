@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class ViewExtractor extends Extractor {
 	
@@ -34,7 +34,7 @@ public class ViewExtractor extends Extractor {
 	 * @param currentUser the current authorized user
 	 * @throws ResourceException when there are insufficient permissions
 	 */
-	private void checkPermissions(Request request, Studies study, Views view, Subject currentUser) throws ResourceException {
+	private void checkPermissions(Request request, Study study, View view, Subject currentUser) throws ResourceException {
 		
 		String studyAdminPermissionString = "study:admin:" + study.getName();
 		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
@@ -72,12 +72,12 @@ public class ViewExtractor extends Extractor {
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		Studies study = (Studies) request.getAttributes().get("study");
+		Study study = (Study) request.getAttributes().get("study");
 		String value = (String) request.getAttributes().get("viewName");
 		logger.info("Called ViewExtractor beforeHandle: {}", value);
 		
 		// Now we can extract the study and write it as a new attribute
-		Views v = repository.getStudyView(study, value);
+		View v = repository.getStudyView(study, value);
 		
 		// If we don't find a value, we can fail at this stage.
 		if (v == null) {

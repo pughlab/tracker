@@ -27,10 +27,10 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Attributes;
 import ca.uhnresearch.pughlab.tracker.domain.Cases;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/main/webapp/WEB-INF/applicationContextDatabase.xml" })
@@ -54,7 +54,7 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetStudy() {
-		Studies s = studyRepository.getStudy("DEMO");
+		Study s = studyRepository.getStudy("DEMO");
 		assertNotNull(s);
 		assertEquals("DEMO", s.getName());
 	}
@@ -63,7 +63,7 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetMissingStudy() {
-		Studies s = studyRepository.getStudy("DEMOX");
+		Study s = studyRepository.getStudy("DEMOX");
 		assertNull(s);
 	}
 	
@@ -71,7 +71,7 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetStudies() {
-		List<Studies> list = studyRepository.getAllStudies();
+		List<Study> list = studyRepository.getAllStudies();
 		assertNotNull(list);
 		assertEquals(2, list.size());
 	}
@@ -80,8 +80,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetStudyViews() {
-		Studies study = studyRepository.getStudy("DEMO");
-		List<Views> list = studyRepository.getStudyViews(study);
+		Study study = studyRepository.getStudy("DEMO");
+		List<View> list = studyRepository.getStudyViews(study);
 		assertNotNull(list);
 		assertEquals(3, list.size());
 	}
@@ -90,8 +90,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetStudyView() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views v = studyRepository.getStudyView(study, "complete");
+		Study study = studyRepository.getStudy("DEMO");
+		View v = studyRepository.getStudyView(study, "complete");
 		assertNotNull(v);
 		assertEquals("complete", v.getName());
 	}
@@ -100,8 +100,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetMissingStudyView() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views v = studyRepository.getStudyView(study, "completed");
+		Study study = studyRepository.getStudy("DEMO");
+		View v = studyRepository.getStudyView(study, "completed");
 		assertNull(v);
 	}
 
@@ -109,7 +109,7 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetStudyAttributes() {
-		Studies study = studyRepository.getStudy("DEMO");
+		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		assertNotNull(list);
 		assertEquals(27, list.size());
@@ -119,8 +119,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetViewAttributes() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "complete");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
 		List<Attributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(27, list.size());
@@ -130,8 +130,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSmallerGetViewAttributes() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		List<Attributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(15, list.size());
@@ -141,8 +141,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetData() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		List<Attributes> attributes = studyRepository.getViewAttributes(study, view);
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
@@ -156,8 +156,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetDataNoLimit() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		List<Attributes> attributes = studyRepository.getViewAttributes(study, view);
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
@@ -171,8 +171,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetDataNoOffset() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		List<Attributes> attributes = studyRepository.getViewAttributes(study, view);
 		CaseQuery query = new CaseQuery();
 		query.setOffset(null);
@@ -186,8 +186,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetDataOrdered() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		List<Attributes> attributes = studyRepository.getViewAttributes(study, view);
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
@@ -203,8 +203,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testRecordCount() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Long count = studyRepository.getRecordCount(study, view);
 		assertEquals(20, count.intValue());
 	}
@@ -213,8 +213,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCase() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		assertNotNull(caseValue);
 		assertEquals(1, caseValue.getId().intValue());
@@ -224,8 +224,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleMissingCase() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 100);
 		assertNull(caseValue);
 	}
@@ -234,8 +234,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleFromDifferentStudy() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 22);
 		assertNull(caseValue);
 	}
@@ -244,8 +244,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseValues() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
@@ -260,8 +260,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeValues() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "dateEntered");
@@ -273,8 +273,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeValuesNotAvailable() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 2);
 		
 		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "trackerDate");
@@ -288,8 +288,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeMissing() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "bloodCollDate");
@@ -300,7 +300,7 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testAuditLog() {
-		Studies study = studyRepository.getStudy("DEMO");
+		Study study = studyRepository.getStudy("DEMO");
 		
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
@@ -315,8 +315,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueDate() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
@@ -353,8 +353,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueString() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
@@ -393,8 +393,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueOption() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "complete");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
@@ -433,8 +433,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueBoolean() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
@@ -476,8 +476,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueBooleanValueError() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		thrown.expect(InvalidValueException.class);
@@ -491,8 +491,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueStringValueError() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		thrown.expect(InvalidValueException.class);
@@ -506,8 +506,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueDateValueError() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		thrown.expect(InvalidValueException.class);
@@ -521,8 +521,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueDateValueFormatError() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		thrown.expect(InvalidValueException.class);
@@ -536,8 +536,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueOptionValueError() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "complete");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		thrown.expect(InvalidValueException.class);
@@ -551,8 +551,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueOptionUnexpectedValueError() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "complete");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		thrown.expect(InvalidValueException.class);
@@ -567,8 +567,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueBooleanTwice() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
@@ -615,8 +615,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueBooleanNotAvailable() {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
@@ -661,7 +661,7 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSetStudyAttributes() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
+		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		assertNotNull(list);
 		assertEquals(27, list.size());
@@ -686,7 +686,7 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testDeleteStudyAttributes() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
+		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		assertNotNull(list);
 		assertEquals(27, list.size());
@@ -710,7 +710,7 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testAddStudyAttributes() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
+		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		assertNotNull(list);
 		assertEquals(27, list.size());
@@ -749,20 +749,20 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSetStudyViews() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		List<Views> list = studyRepository.getStudyViews(study);
+		Study study = studyRepository.getStudy("DEMO");
+		List<View> list = studyRepository.getStudyViews(study);
 		assertNotNull(list);
 		assertEquals(3, list.size());
 		
 		studyRepository.setStudyViews(study, list);
 
-		List<Views> listAgain = studyRepository.getStudyViews(study);
+		List<View> listAgain = studyRepository.getStudyViews(study);
 		
 		assertEquals(listAgain.size(), list.size());
 		int size = list.size();
 		for(int i = 0; i < size; i++) {
-			Views oldView = list.get(i);
-			Views newView = listAgain.get(i);
+			View oldView = list.get(i);
+			View newView = listAgain.get(i);
 			assertTrue(EqualsBuilder.reflectionEquals(oldView, newView));
 		}
 	}
@@ -774,19 +774,19 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testDeleteStudyView() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		List<Views> list = studyRepository.getStudyViews(study);
+		Study study = studyRepository.getStudy("DEMO");
+		List<View> list = studyRepository.getStudyViews(study);
 		assertNotNull(list);
 		assertEquals(3, list.size());
 		
 		studyRepository.setStudyViews(study, list.subList(0, 2));
 
-		List<Views> listAgain = studyRepository.getStudyViews(study);
+		List<View> listAgain = studyRepository.getStudyViews(study);
 		assertEquals(2, listAgain.size());
 		
 		for(int i = 0; i < 2; i++) {
-			Views oldView = list.get(i);
-			Views newView = listAgain.get(i);
+			View oldView = list.get(i);
+			View newView = listAgain.get(i);
 			assertTrue(EqualsBuilder.reflectionEquals(oldView, newView));
 		}
 	}
@@ -798,29 +798,29 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testAddStudyViews() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		List<Views> list = studyRepository.getStudyViews(study);
+		Study study = studyRepository.getStudy("DEMO");
+		List<View> list = studyRepository.getStudyViews(study);
 		assertNotNull(list);
 		assertEquals(3, list.size());
 		
-		Views v1 = new Views();
+		View v1 = new View();
 		v1.setName("test");
 		v1.setDescription("First test attribute");
 		
-		List<Views> modified = list.subList(0, 2);
+		List<View> modified = list.subList(0, 2);
 		modified.add(v1);
 		
 		studyRepository.setStudyViews(study, modified);
 
-		List<Views> listAgain = studyRepository.getStudyViews(study);
+		List<View> listAgain = studyRepository.getStudyViews(study);
 		assertEquals(3, listAgain.size());
 		
 		for(int i = 0; i < 2; i++) {
-			Views oldAttribute = list.get(i);
-			Views newAttribute = listAgain.get(i);
+			View oldAttribute = list.get(i);
+			View newAttribute = listAgain.get(i);
 			assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
 		}
-		Views loadedV1 = listAgain.get(2);
+		View loadedV1 = listAgain.get(2);
 		
 		// Cheatily clear the id, so we can compare all other fields
 		loadedV1.setId(null);
@@ -835,8 +835,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSetViewAttributes() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		List<Attributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(15, list.size());
@@ -861,8 +861,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testDeleteViewAttributes() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		List<Attributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(15, list.size());
@@ -886,8 +886,8 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testAddViewAttributes() throws RepositoryException {
-		Studies study = studyRepository.getStudy("DEMO");
-		Views view = studyRepository.getStudyView(study, "track");
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
 		List<Attributes> list = studyRepository.getViewAttributes(study, view);
 		assertNotNull(list);
 		assertEquals(15, list.size());

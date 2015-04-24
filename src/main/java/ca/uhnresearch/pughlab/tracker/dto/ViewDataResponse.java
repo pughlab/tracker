@@ -7,19 +7,16 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
+public class ViewDataResponse extends ViewAttributesResponse {
 
-public class ViewDataResponseDTO extends ViewAttributesResponseDTO {
-
-	CountsDTO counts = new CountsDTO();
+	Counts counts = new Counts();
 	List<JsonNode> records = new ArrayList<JsonNode>();
 	
-	public ViewDataResponseDTO() {
+	public ViewDataResponse() {
 		super();
 	}
 	
-	public ViewDataResponseDTO(URL url, UserDTO user, Studies s, Views v) {
+	public ViewDataResponse(URL url, User user, Study s, View v) {
 		super(url, user, s, v);
 	}
 
@@ -33,11 +30,11 @@ public class ViewDataResponseDTO extends ViewAttributesResponseDTO {
 	}
 
 	@JsonProperty
-	public CountsDTO getCounts() {
+	public Counts getCounts() {
 		return counts;
 	}
 
-	public void setCounts(CountsDTO counts) {
+	public void setCounts(Counts counts) {
 		this.counts = counts;
 	}
 }

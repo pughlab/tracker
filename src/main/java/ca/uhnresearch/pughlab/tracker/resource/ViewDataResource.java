@@ -9,33 +9,31 @@ import org.restlet.resource.Get;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
-import ca.uhnresearch.pughlab.tracker.domain.Attributes;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 
-public class ViewDataResource extends StudyRepositoryResource<ViewDataResponseDTO> {
+public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> {
 
 	@Get("json")
     public Representation getResource()  {
-		ViewDataResponseDTO response = new ViewDataResponseDTO();
+		ViewDataResponse response = new ViewDataResponse();
 		buildResponseDTO(response);
-        return new JacksonRepresentation<ViewDataResponseDTO>(response);
+        return new JacksonRepresentation<ViewDataResponse>(response);
     }
 	
 	@Override
-	public void buildResponseDTO(ViewDataResponseDTO dto) {
+	public void buildResponseDTO(ViewDataResponse dto) {
 		super.buildResponseDTO(dto);
 		
     	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
     	assert query != null;
 
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
-    	Views view = (Views) getRequest().getAttributes().get("view");
-    	dto.setStudy(new StudyDTO(study));
-    	dto.setView(new ViewDTO(view));
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	View view = (View) getRequest().getAttributes().get("view");
+    	dto.setStudy(study);
+    	dto.setView(view);
     	
 		@SuppressWarnings("unchecked")
 		List<Attributes> attributes = (List<Attributes>) getRequest().getAttributes().get("attributes");

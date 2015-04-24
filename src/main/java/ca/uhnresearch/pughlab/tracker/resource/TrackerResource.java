@@ -8,28 +8,28 @@ import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.dto.StudyListResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyWithAccessDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.StudyListResponse;
+import ca.uhnresearch.pughlab.tracker.dto.StudyWithAccess;
 
-public class TrackerResource extends StudyRepositoryResource<StudyListResponseDTO> {
+public class TrackerResource extends StudyRepositoryResource<StudyListResponse> {
 		
     @Get("json")
     public Representation getResource()  {
-    	StudyListResponseDTO response = new StudyListResponseDTO();
+    	StudyListResponse response = new StudyListResponse();
     	buildResponseDTO(response);
-       	return new JacksonRepresentation<StudyListResponseDTO>(response);
+       	return new JacksonRepresentation<StudyListResponse>(response);
     }
 
 	@Override
-	public void buildResponseDTO(StudyListResponseDTO dto) {
+	public void buildResponseDTO(StudyListResponse dto) {
 		super.buildResponseDTO(dto);
 		
     	Subject currentUser = SecurityUtils.getSubject();
     	
     	// Query the database for studies
-    	List<Studies> studyList = getRepository().getAllStudies();
-    	for(Studies s : studyList) {
+    	List<Study> studyList = getRepository().getAllStudies();
+    	for(Study s : studyList) {
     		
     		String studyAdminPermissionString = "study:admin:" + s.getName();
     		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
@@ -54,16 +54,19 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponseDT
     			studyReadPermission = studyWritePermission;
     		}
     		
-    		
+  
     		// For each study, we also ought to derive the precise nature of the
     		// allowed permissions, and embed them in a permissions DTO.
     		
     		if (studyReadPermission) {
-    			StudyWithAccessDTO studyDTO = new StudyWithAccessDTO(s);
-    			studyDTO.getAccess().setReadAllowed(studyReadPermission);
-    			studyDTO.getAccess().setWriteAllowed(studyWritePermission);
-    			studyDTO.getAccess().setDownloadAllowed(studyDownloadPermission);
-    			dto.getStudies().add(studyDTO);
+    			StudyWithAccess study = new StudyWithAccess();
+    			study.setId(s.getId());
+    			study.setName(s.getName());
+    			study.setDescription(s.getDescription());
+    			study.getAccess().setReadAllowed(studyReadPermission);
+    			study.getAccess().setWriteAllowed(studyWritePermission);
+    			study.getAccess().setDownloadAllowed(studyDownloadPermission);
+    			dto.getStudies().add(study);
     		}
     	}
 	}

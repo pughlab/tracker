@@ -26,8 +26,8 @@ import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 
@@ -66,8 +66,8 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         
-        Studies testStudy = repository.getStudy("DEMO");		
-		Views testView = repository.getStudyView(testStudy, "complete");
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
 		
@@ -104,8 +104,8 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         
-        Studies testStudy = repository.getStudy("DEMO");		
-		Views testView = repository.getStudyView(testStudy, "complete");
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
 				

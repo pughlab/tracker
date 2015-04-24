@@ -1,11 +1,8 @@
-package ca.uhnresearch.pughlab.tracker.domain;
+package ca.uhnresearch.pughlab.tracker.dto;
 
-import javax.annotation.Generated;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Attributes is a Querydsl bean type
- */
-@Generated("com.mysema.query.codegen.BeanSerializer")
 public class Attributes {
 	
 	public static final String ATTRIBUTE_TYPE_STRING = "string";
@@ -24,7 +21,7 @@ public class Attributes {
 
     private String name;
 
-    private String options;
+    private JsonNode options;
 
     private Integer rank;
 
@@ -32,6 +29,7 @@ public class Attributes {
 
     private String type;
 
+	@JsonProperty
     public String getDescription() {
         return description;
     }
@@ -40,6 +38,7 @@ public class Attributes {
         this.description = description;
     }
 
+	@JsonProperty
     public Integer getId() {
         return id;
     }
@@ -48,6 +47,7 @@ public class Attributes {
         this.id = id;
     }
 
+	@JsonProperty
     public String getLabel() {
         return label;
     }
@@ -56,6 +56,7 @@ public class Attributes {
         this.label = label;
     }
 
+	@JsonProperty
     public String getName() {
         return name;
     }
@@ -64,14 +65,16 @@ public class Attributes {
         this.name = name;
     }
 
-    public String getOptions() {
+	@JsonProperty
+    public JsonNode getOptions() {
         return options;
     }
 
-    public void setOptions(String options) {
+    public void setOptions(JsonNode options) {
         this.options = options;
     }
 
+	@JsonProperty
     public Integer getRank() {
         return rank;
     }
@@ -80,6 +83,7 @@ public class Attributes {
         this.rank = rank;
     }
 
+	@JsonProperty
     public Integer getStudyId() {
         return studyId;
     }
@@ -88,6 +92,7 @@ public class Attributes {
         this.studyId = studyId;
     }
 
+	@JsonProperty
     public String getType() {
         return type;
     }
@@ -95,6 +100,5 @@ public class Attributes {
     public void setType(String type) {
         this.type = type;
     }
-
 }
 

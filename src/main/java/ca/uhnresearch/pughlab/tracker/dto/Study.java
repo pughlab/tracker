@@ -1,21 +1,16 @@
-package ca.uhnresearch.pughlab.tracker.domain;
+package ca.uhnresearch.pughlab.tracker.dto;
 
-import javax.annotation.Generated;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Studies is a Querydsl bean type
- */
-@Generated("com.mysema.query.codegen.BeanSerializer")
-public class Studies {
+public class Study {
 
     private String description;
 
     private Integer id;
 
-    private Integer identifierAttributeId;
-
     private String name;
 
+	@JsonProperty
     public String getDescription() {
         return description;
     }
@@ -24,6 +19,7 @@ public class Studies {
         this.description = description;
     }
 
+	@JsonProperty
     public Integer getId() {
         return id;
     }
@@ -32,14 +28,7 @@ public class Studies {
         this.id = id;
     }
 
-    public Integer getIdentifierAttributeId() {
-        return identifierAttributeId;
-    }
-
-    public void setIdentifierAttributeId(Integer identifierAttributeId) {
-        this.identifierAttributeId = identifierAttributeId;
-    }
-
+	@JsonProperty
     public String getName() {
         return name;
     }

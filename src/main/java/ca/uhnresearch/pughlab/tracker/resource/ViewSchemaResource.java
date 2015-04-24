@@ -18,16 +18,13 @@ import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
-import ca.uhnresearch.pughlab.tracker.domain.Attributes;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.AttributeDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudySchemaResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewSchemaResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.StudySchemaResponse;
+import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewSchemaResponse;
 
-public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaResponseDTO> {
+public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaResponse> {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -36,9 +33,9 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     @Get("json")
     public Representation getResource()  {
     	
-    	ViewSchemaResponseDTO response = new ViewSchemaResponseDTO();
+    	ViewSchemaResponse response = new ViewSchemaResponse();
     	buildResponseDTO(response);
-    	return new JacksonRepresentation<ViewSchemaResponseDTO>(response);    	
+    	return new JacksonRepresentation<ViewSchemaResponse>(response);    	
     }
 
     /**
@@ -54,8 +51,8 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	
     	Subject currentUser = SecurityUtils.getSubject();
 
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
-    	Views view = (Views) getRequest().getAttributes().get("view");
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	View view = (View) getRequest().getAttributes().get("view");
 
     	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
     	if (! adminUser) {
@@ -64,12 +61,12 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
 
     	// And now to grab the new attributes and render back.
     	try {
-    		ViewSchemaResponseDTO schema = converter.toObject(input, ViewSchemaResponseDTO.class, this);
+    		ViewSchemaResponse schema = converter.toObject(input, ViewSchemaResponse.class, this);
 			logger.info("Got a new schema {}", schema);
 			
 			List<Attributes> attributes = new ArrayList<Attributes>();
-			for(AttributeDTO a : schema.getAttributes()) {
-				attributes.add(a.getAttributes());
+			for(Attributes a : schema.getAttributes()) {
+				attributes.add(a);
 			}
 
 			getRepository().setViewAttributes(study, view, attributes);
@@ -86,11 +83,11 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     }
     
 	@Override
-	public void buildResponseDTO(ViewSchemaResponseDTO dto) throws ResourceException {
+	public void buildResponseDTO(ViewSchemaResponse dto) throws ResourceException {
 		super.buildResponseDTO(dto);
 		
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
-    	Views view = (Views) getRequest().getAttributes().get("view");
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	View view = (View) getRequest().getAttributes().get("view");
 
     	Subject currentUser = SecurityUtils.getSubject();
 
@@ -100,12 +97,12 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
-    	dto.setStudy(new StudyDTO(study));
-    	dto.setView(new ViewDTO(view));
+    	dto.setStudy(study);
+    	dto.setView(view);
     	
     	List<Attributes> attributes = getRepository().getViewAttributes(study, view);
     	for (Attributes a : attributes) {
-    		dto.getAttributes().add(new AttributeDTO(a));
+    		dto.getAttributes().add(a);
     	}
 	}
 }

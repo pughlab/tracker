@@ -8,10 +8,10 @@ import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
-import ca.uhnresearch.pughlab.tracker.dto.AbstractResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.UserDTO;
+import ca.uhnresearch.pughlab.tracker.dto.AbstractResponse;
+import ca.uhnresearch.pughlab.tracker.dto.User;
 
-public abstract class StudyRepositoryResource<T extends AbstractResponseDTO> extends ServerResource {
+public abstract class StudyRepositoryResource<T extends AbstractResponse> extends ServerResource {
 
 	private StudyRepository repository;
 
@@ -26,7 +26,7 @@ public abstract class StudyRepositoryResource<T extends AbstractResponseDTO> ext
 
 	public void buildResponseDTO(T dto) {
     	Subject currentUser = SecurityUtils.getSubject();
-    	UserDTO user = new UserDTO(currentUser);
+    	User user = new User(currentUser);
     	URL url = getRequest().getRootRef().toUrl();
 
     	dto.setUser(user);

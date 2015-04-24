@@ -8,43 +8,41 @@ import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyViewsResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.StudyViewsResponse;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
-public class StudyResource extends StudyRepositoryResource<StudyViewsResponseDTO> {
+public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
 	
     @Get("json")
     public Representation getResource()  {
-    	StudyViewsResponseDTO response = new StudyViewsResponseDTO();
+    	StudyViewsResponse response = new StudyViewsResponse();
     	buildResponseDTO(response);
-       	return new JacksonRepresentation<StudyViewsResponseDTO>(response);
+       	return new JacksonRepresentation<StudyViewsResponse>(response);
     }
 
     
 	@Override
-	public void buildResponseDTO(StudyViewsResponseDTO dto) {
+	public void buildResponseDTO(StudyViewsResponse dto) {
 		super.buildResponseDTO(dto);
 		
     	// Query the database for studies
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
-    	dto.setStudy(new StudyDTO(study));
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	dto.setStudy(study);
     	
     	Subject currentUser = SecurityUtils.getSubject();
     	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
 
     	// Query the database for views
-    	List<Views> viewList = getRepository().getStudyViews(study);
+    	List<View> viewList = getRepository().getStudyViews(study);
     	
     	// Now translate into DTOs
-    	for(Views v : viewList) {
+    	for(View v : viewList) {
     		
     		// Add the view if we have a read permission
     		String permission = "view:read:" + study.getName() + "-" + v.getName();
     		if (adminUser || currentUser.isPermitted(permission)) {
-    			dto.getViews().add(new ViewDTO(v));
+    			dto.getViews().add(v);
     		}
     	}
 	}

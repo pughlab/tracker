@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Cases;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class EntityExtractor extends Extractor {
 
@@ -27,8 +27,8 @@ public class EntityExtractor extends Extractor {
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		Studies study = (Studies) request.getAttributes().get("study");
-		Views view = (Views) request.getAttributes().get("view");
+		Study study = (Study) request.getAttributes().get("study");
+		View view = (View) request.getAttributes().get("view");
 		String idValue = (String) request.getAttributes().get("entityId");
 		
 		Integer caseId = Integer.parseInt(idValue);
