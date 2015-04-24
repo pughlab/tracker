@@ -5,6 +5,8 @@ import static com.mysema.query.types.PathMetadataFactory.forVariable;
 import java.sql.Timestamp;
 import java.sql.Types;
 
+import ca.uhnresearch.pughlab.tracker.dto.AuditLog;
+
 import com.mysema.query.sql.ColumnMetadata;
 import com.mysema.query.sql.RelationalPathBase;
 import com.mysema.query.types.Path;

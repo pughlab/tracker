@@ -2,6 +2,8 @@ package ca.uhnresearch.pughlab.tracker.domain;
 
 import java.sql.Types;
 
+import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeBase;
+
 import com.mysema.query.sql.ColumnMetadata;
 import com.mysema.query.types.PathMetadata;
 import com.mysema.query.types.path.BooleanPath;

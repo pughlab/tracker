@@ -26,14 +26,14 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.CaseAttributeBooleans;
-import ca.uhnresearch.pughlab.tracker.domain.CaseAttributeDates;
-import ca.uhnresearch.pughlab.tracker.domain.CaseAttributeStrings;
-import ca.uhnresearch.pughlab.tracker.domain.Cases;
-import ca.uhnresearch.pughlab.tracker.domain.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeBooleans;
+import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeDates;
+import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeStrings;
+import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 
 public class MockStudyRepository implements StudyRepository {
 
