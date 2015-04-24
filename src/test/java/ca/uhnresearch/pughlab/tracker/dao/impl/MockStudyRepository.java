@@ -47,7 +47,7 @@ public class MockStudyRepository implements StudyRepository {
 	List<Study> studies = new ArrayList<Study>();
 	List<Attributes> attributes = new ArrayList<Attributes>();
 	List<View> views = new ArrayList<View>();
-	List<ViewAttributes> viewAttributes = new ArrayList<ViewAttributes>();
+	Map<Integer, List<ViewAttributes>> viewAttributes = new HashMap<Integer, List<ViewAttributes>>();
 	List<Cases> cases = new ArrayList<Cases>();
 	List<CaseAttributeStrings> strings = new ArrayList<CaseAttributeStrings>();
 	List<CaseAttributeDates> dates = new ArrayList<CaseAttributeDates>();
@@ -79,20 +79,24 @@ public class MockStudyRepository implements StudyRepository {
 			e.printStackTrace();
 		}
 		
-		viewAttributes.add(mockViewAttribute(1, 1, null));
-		viewAttributes.add(mockViewAttribute(2, 1, null));
-		viewAttributes.add(mockViewAttribute(3, 1, null));
-		viewAttributes.add(mockViewAttribute(4, 1, null));
-		viewAttributes.add(mockViewAttribute(5, 1, null));
+		viewAttributes.put(1, new ArrayList<ViewAttributes>());
+		viewAttributes.put(2, new ArrayList<ViewAttributes>());
+		viewAttributes.put(3, new ArrayList<ViewAttributes>());
 		
-		viewAttributes.add(mockViewAttribute(1, 2, null));
-		viewAttributes.add(mockViewAttribute(2, 2, null));
-		viewAttributes.add(mockViewAttribute(5, 2, mockClasses));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(0), null));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(1), null));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(2), null));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(3), null));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(4), null));
 		
-		viewAttributes.add(mockViewAttribute(1, 3, null));
-		viewAttributes.add(mockViewAttribute(2, 3, null));
-		viewAttributes.add(mockViewAttribute(5, 3, mockClasses));
-		
+		viewAttributes.get(2).add(mockViewAttribute(attributes.get(0), null));
+		viewAttributes.get(2).add(mockViewAttribute(attributes.get(1), null));
+		viewAttributes.get(2).add(mockViewAttribute(attributes.get(4), mockClasses));
+
+		viewAttributes.get(3).add(mockViewAttribute(attributes.get(0), null));
+		viewAttributes.get(3).add(mockViewAttribute(attributes.get(1), null));
+		viewAttributes.get(3).add(mockViewAttribute(attributes.get(4), mockClasses));
+
 		// And finally add some cases
 		for(Integer i = 0; i < caseCount; i++) {
 			cases.add(mockCase(i));
@@ -155,10 +159,15 @@ public class MockStudyRepository implements StudyRepository {
 		return obj;
 	}
 	
-	private ViewAttributes mockViewAttribute(Integer attributeId, Integer viewId, JsonNode options) {
+	private ViewAttributes mockViewAttribute(Attributes att, JsonNode viewOptions) {
 		ViewAttributes vatt = new ViewAttributes();
-		vatt.setId(attributeId);
-		vatt.setViewOptions(options);
+		vatt.setId(att.getId());
+		vatt.setName(att.getName());
+		vatt.setLabel(att.getLabel());
+		vatt.setRank(att.getRank());
+		vatt.setStudyId(att.getStudyId());
+		vatt.setType(att.getType());
+		vatt.setViewOptions(viewOptions);
 		return vatt;
 	}
 	
@@ -270,19 +279,7 @@ public class MockStudyRepository implements StudyRepository {
 	 * A mocked getViewAttributes
 	 */
 	public List<ViewAttributes> getViewAttributes(Study study, View view) {
-		List<ViewAttributes> result = new ArrayList<ViewAttributes>();
-		for(Attributes a : attributes) {
-			final Integer attributeId = a.getId();
-			final Predicate<ViewAttributes> pred = new Predicate<ViewAttributes>() { 
-				public boolean apply(ViewAttributes va) {
-					return va.getId().equals(attributeId);
-				}
-			};
-			if (Iterables.any(viewAttributes, pred)) {
-				result.add(a);
-			}			
-		}
-		return result;
+		return viewAttributes.get(view.getId());
 	}
 	
 	/**

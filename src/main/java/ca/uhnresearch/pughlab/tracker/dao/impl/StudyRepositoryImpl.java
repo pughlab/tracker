@@ -29,10 +29,7 @@ import com.mysema.query.sql.SQLSubQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
-import com.mysema.query.types.MappingProjection;
 import com.mysema.query.types.OrderSpecifier;
-import com.mysema.query.types.Projections;
-import com.mysema.query.types.QBean;
 import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
 
@@ -377,9 +374,11 @@ public class StudyRepositoryImpl implements StudyRepository {
 				// an update on the view attribute options. But first we need to locate
 				// the existing ViewAttributes.
 				
-		    	SQLQuery sqlQuery = template.newSqlQuery().from(viewAttributes)
+		    	SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
+		    		.innerJoin(viewAttributes)
+		    		.on(attributes.id.eq(viewAttributes.attributeId))
 		    		.where(viewAttributes.viewId.eq(view.getId()).and(viewAttributes.attributeId.eq(old.getId())));
-		    	ViewAttributes va = template.queryForObject(sqlQuery, viewAttributes);
+		    	ViewAttributes va = template.queryForObject(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
 				va.setViewOptions(a.getOptions());
 				va.setRank(rank);
 				updateViewAttribute(view, va);
@@ -651,22 +650,12 @@ public class StudyRepositoryImpl implements StudyRepository {
     	    .where(attributes.studyId.eq(study.getId())
     	    .and(views.id.eq(view.getId()))
     	    .and(attributes.name.eq(attribute)));
-    	Attributes a = template.queryForObject(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
+    	ViewAttributes a = template.queryForObject(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
     	
     	// If there isn't an attribute, we should probably throw an error.
     	if (a == null) {
     		throw new NotFoundException("Can't find attribute: " + attribute);
     	}
-    	
-    	JsonNode optionsNode = null;
-//    	String options = a.getOptions();
-//    	if (options != null) {
-//			try {
-//				optionsNode = objectMapper.readTree(options);
-//			} catch (Exception e) {
-//				logger.error("Invalid JSON notes: {}, {}", e.getMessage(), a.getOptions());
-//			}
-//    	}
     	
     	// Now let's pull the current attribute value, if it exists, mainly so we can generate an audit entry for it.
     	Tuple oldValue;
@@ -738,13 +727,13 @@ public class StudyRepositoryImpl implements StudyRepository {
     		// Option values should also match one of the specified original values from the 
     		// attribute definition.
     		
-    		if (optionsNode == null || ! optionsNode.has("values") || ! optionsNode.get("values").isArray()) {
+    		if (a.getOptions() == null || ! a.getOptions().has("values") || ! a.getOptions().get("values").isArray()) {
     			throw new InvalidValueException("No option values specified: " + a.getName());
     		}
     		
     		if (valueNode != null) {
         		Boolean found = false;
-        		Iterator<JsonNode> elements = optionsNode.get("values").elements();
+        		Iterator<JsonNode> elements = a.getOptions().get("values").elements();
         		while(elements.hasNext()) {
         			if (elements.next().equals(valueNode)) {
         				found = true;
