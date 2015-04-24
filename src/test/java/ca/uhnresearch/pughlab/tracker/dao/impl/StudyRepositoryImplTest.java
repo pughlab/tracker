@@ -10,6 +10,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,6 +35,8 @@ import ca.uhnresearch.pughlab.tracker.domain.Views;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/main/webapp/WEB-INF/applicationContextDatabase.xml" })
 public class StudyRepositoryImplTest {
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
     private StudyRepository studyRepository;
@@ -892,8 +896,8 @@ public class StudyRepositoryImplTest {
 		att1.setId(8);
 		att1.setName("specimenNo");
 		att1.setType("string");
-		att1.setLabel("Test");
-		att1.setDescription("First test attribute");
+		att1.setLabel("Specimen #");
+		att1.setStudyId(study.getId());
 		
 		List<Attributes> modified = list.subList(0, 10);
 		modified.add(att1);
@@ -911,9 +915,9 @@ public class StudyRepositoryImplTest {
 		Attributes loadedAtt1 = listAgain.get(10);
 		
 		// Cheatily clear the id, so we can compare all other fields
-		loadedAtt1.setId(null);
+		loadedAtt1.setId(att1.getId());
+		loadedAtt1.setRank(att1.getRank());
 		assertTrue(EqualsBuilder.reflectionEquals(att1, loadedAtt1));
 	}
-
 
 }

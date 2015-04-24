@@ -345,6 +345,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		// For each new/existing attribute, we can update the options in the view attribute
 		// data. Unmatched old ones will be left in the table and deleted later.
+		Integer rank = 0;
 		for(Attributes a : newAttributes) {
 			Attributes old = oldAttributesTable.get(a.getId());
 			if (old == null) {
@@ -358,6 +359,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 				ViewAttributes va = new ViewAttributes();
 				va.setViewId(view.getId());
 				va.setAttributeId(studyAttribute.getId());
+				va.setRank(rank);
 				va.setOptions(a.getOptions());
 				insertViewAttribute(va);
 				
@@ -370,11 +372,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 		    		.where(viewAttributes.viewId.eq(view.getId()).and(viewAttributes.attributeId.eq(old.getId())));
 		    	ViewAttributes va = template.queryForObject(sqlQuery, viewAttributes);
 				va.setOptions(a.getOptions());
+				va.setRank(rank);
 				updateViewAttribute(va);
 				
 				// Mark the old one as seen, so we can delete any left over.
 				oldAttributesTable.remove(a.getId());
 			}
+			rank++;
 		}
 		
 		// Right, now we can simply remove old attributes
@@ -400,10 +404,9 @@ public class StudyRepositoryImpl implements StudyRepository {
     	    .where(attributes.studyId.eq(study.getId()).and(views.id.eq(view.getId())))
     	    .orderBy(viewAttributes.rank.asc());
 		
-		logger.info("Executing query: {}", sqlQuery.toString());
-
     	List<Attributes> attributeList = template.query(sqlQuery, attributes);
-    	return attributeList;
+
+		return attributeList;
 	}
 
 	/**
