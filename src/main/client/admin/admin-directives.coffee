@@ -342,7 +342,7 @@ angular
               valueField: 'name'
               labelField: 'label'
               searchField: 'label'
-              sortField: 'sId'
+              sortField: '$sId'
               options: []
               create: false
 
@@ -360,9 +360,9 @@ angular
           if Array.isArray value
             selectize.off 'change'
             selectize.clearOptions()
-            selectize.addOption {sId: -1, name: '', label: 'None'}
+            selectize.addOption {$sId: -1, name: '', label: 'None'}
             for option, i in value
-              option.sId = i
+              option.$sId = i
               selectize.addOption(option)
             $timeout () ->
               selectize.setValue selectedValue, true
