@@ -23,7 +23,6 @@ import org.restlet.resource.ResourceException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.Studies;
@@ -89,9 +88,10 @@ public class StudySchemaResourceTest extends AbstractShiroTest{
 
 	/**
 	 * Checks that a non-admin user is denied read access
+	 * @throws IOException
 	 */
 	@Test
-	public void resourceTestForbidden() throws IOException {
+	public void resourceTestForbidden() throws ResourceException {
 
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
