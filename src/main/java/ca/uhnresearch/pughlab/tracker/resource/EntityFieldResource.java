@@ -17,16 +17,14 @@ import org.slf4j.LoggerFactory;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
-import ca.uhnresearch.pughlab.tracker.domain.Cases;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.EntityValueResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Cases;
+import ca.uhnresearch.pughlab.tracker.dto.EntityValueResponse;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class EntityFieldResource extends StudyRepositoryResource<EntityValueResponseDTO> {
+public class EntityFieldResource extends StudyRepositoryResource<EntityValueResponse> {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -46,8 +44,8 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     	Subject currentUser = SecurityUtils.getSubject();
 
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
-    	Views view = (Views) getRequest().getAttributes().get("view");
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	View view = (View) getRequest().getAttributes().get("view");
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
     	String attribute = (String) getRequest().getAttributes().get("entityField");
     	
@@ -69,26 +67,26 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     @Get("json")
     public Representation getResource()  {
-    	EntityValueResponseDTO response = new EntityValueResponseDTO();
+    	EntityValueResponse response = new EntityValueResponse();
     	buildResponseDTO(response);
-        return new JacksonRepresentation<EntityValueResponseDTO>(response);
+        return new JacksonRepresentation<EntityValueResponse>(response);
     }
 
 
 	@Override
-	public void buildResponseDTO(EntityValueResponseDTO dto) {
+	public void buildResponseDTO(EntityValueResponse dto) {
 		super.buildResponseDTO(dto);
 
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
-    	Views view = (Views) getRequest().getAttributes().get("view");
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	View view = (View) getRequest().getAttributes().get("view");
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
     	String attribute = (String) getRequest().getAttributes().get("entityField");
     	
     	// Get the value and build an appropriate response
     	JsonNode val = getRepository().getCaseAttributeValue(study, view, caseValue, attribute);
     	
-    	dto.setStudy(new StudyDTO(study));
-    	dto.setView(new ViewDTO(view));
+    	dto.setStudy(study);
+    	dto.setView(view);
     	dto.setValue(val);
 	}
 }

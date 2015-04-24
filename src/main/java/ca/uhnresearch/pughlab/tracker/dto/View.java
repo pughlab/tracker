@@ -1,12 +1,16 @@
-package ca.uhnresearch.pughlab.tracker.domain;
+package ca.uhnresearch.pughlab.tracker.dto;
 
-import javax.annotation.Generated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Views is a Querydsl bean type
- */
-@Generated("com.mysema.query.codegen.BeanSerializer")
-public class Views {
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class View {
+
+	private static ObjectMapper mapper = new ObjectMapper();
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private String description;
 
@@ -18,6 +22,7 @@ public class Views {
 
     private String options;
 
+	@JsonProperty
     public String getDescription() {
         return description;
     }
@@ -26,6 +31,7 @@ public class Views {
         this.description = description;
     }
 
+	@JsonProperty
     public Integer getId() {
         return id;
     }
@@ -34,6 +40,7 @@ public class Views {
         this.id = id;
     }
 
+	@JsonProperty
     public String getName() {
         return name;
     }
@@ -42,6 +49,7 @@ public class Views {
         this.name = name;
     }
 
+    // Don't JSON the study identifier. We'll always have a study too
     public Integer getStudyId() {
         return studyId;
     }
@@ -50,6 +58,7 @@ public class Views {
         this.studyId = studyId;
     }
 
+	@JsonProperty
     public String getOptions() {
         return options;
     }

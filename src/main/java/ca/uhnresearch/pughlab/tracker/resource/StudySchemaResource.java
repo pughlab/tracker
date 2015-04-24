@@ -16,19 +16,14 @@ import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
-import ca.uhnresearch.pughlab.tracker.domain.Attributes;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.AttributeDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudySchemaResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.StudySchemaResponse;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
-public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResponseDTO> {
+public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResponse> {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -41,9 +36,9 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     @Get("json")
     public Representation getResource()  {
     	
-    	StudySchemaResponseDTO response = new StudySchemaResponseDTO();
+    	StudySchemaResponse response = new StudySchemaResponse();
     	buildResponseDTO(response);
-    	return new JacksonRepresentation<StudySchemaResponseDTO>(response);    	
+    	return new JacksonRepresentation<StudySchemaResponse>(response);    	
     }
     
     /**
@@ -58,7 +53,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	logger.info("Called putResource() in EntityFieldResource", input);
     	
     	Subject currentUser = SecurityUtils.getSubject();
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
+    	Study study = (Study) getRequest().getAttributes().get("study");
 
     	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
     	if (! adminUser) {
@@ -66,17 +61,17 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	}
     	
     	try {
-			StudySchemaResponseDTO schema = converter.toObject(input, StudySchemaResponseDTO.class, this);
+			StudySchemaResponse schema = converter.toObject(input, StudySchemaResponse.class, this);
 			logger.info("Got a new schema {}", schema);
 			
 			List<Attributes> attributes = new ArrayList<Attributes>();
-			for(AttributeDTO a : schema.getAttributes()) {
-				attributes.add(a.getAttributes());
+			for(Attributes a : schema.getAttributes()) {
+				attributes.add(a);
 			}
 			
-			List<Views> views = new ArrayList<Views>();
-			for(ViewDTO v : schema.getViews()) {
-				views.add(v.getViews());
+			List<View> views = new ArrayList<View>();
+			for(View v : schema.getViews()) {
+				views.add(v);
 			}
 
 			getRepository().setStudyAttributes(study, attributes);
@@ -97,10 +92,10 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
      * information.  
      */
 	@Override
-	public void buildResponseDTO(StudySchemaResponseDTO dto) throws ResourceException {
+	public void buildResponseDTO(StudySchemaResponse dto) throws ResourceException {
 		super.buildResponseDTO(dto);
 		
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
+    	Study study = (Study) getRequest().getAttributes().get("study");
     	
     	Subject currentUser = SecurityUtils.getSubject();
     	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
@@ -109,24 +104,24 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	}
 
     	// Query the database for views
-    	List<Views> viewList = getRepository().getStudyViews(study);
+    	List<View> viewList = getRepository().getStudyViews(study);
     	
     	// Now translate into DTOs
-    	for(Views v : viewList) {
+    	for(View v : viewList) {
     		
     		// Add the view if we have a read permission
     		String permission = "view:read:" + study.getName() + "-" + v.getName();
     		if (adminUser || currentUser.isPermitted(permission)) {
-    			dto.getViews().add(new ViewDTO(v));
+    			dto.getViews().add(v);
     		}
     	}
     	
     	// And get the attributes for the study
     	List<Attributes> attributes = getRepository().getStudyAttributes(study);
     	for(Attributes a : attributes) {
-    		dto.getAttributes().add(new AttributeDTO(a));
+    		dto.getAttributes().add(a);
 		}
 
-    	dto.setStudy(new StudyDTO(study));
+    	dto.setStudy(study);
 	}
 }

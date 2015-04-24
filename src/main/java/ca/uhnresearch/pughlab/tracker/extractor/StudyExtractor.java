@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 
 public class StudyExtractor extends Extractor {
 	
@@ -30,7 +30,7 @@ public class StudyExtractor extends Extractor {
 		String value = (String) request.getAttributes().get("studyName");
 		
 		// Now we can extract the study and write it as a new attribute
-		Studies s = repository.getStudy(value);
+		Study s = repository.getStudy(value);
 		
 		// If we don't find a value, we can fail at this stage.
 		if (s == null) {

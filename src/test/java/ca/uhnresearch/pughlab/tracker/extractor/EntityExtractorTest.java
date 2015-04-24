@@ -16,9 +16,9 @@ import org.restlet.resource.ResourceException;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Cases;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.dto.Cases;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class EntityExtractorTest {
 
@@ -45,9 +45,9 @@ public class EntityExtractorTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 		
-		Studies study = repository.getStudy("DEMO");
+		Study study = repository.getStudy("DEMO");
 		request.getAttributes().put("study", study);
-		Views view = repository.getStudyView(study, "complete");
+		View view = repository.getStudyView(study, "complete");
 		request.getAttributes().put("view", view);
 		request.getAttributes().put("entityId", "5");
 
@@ -67,9 +67,9 @@ public class EntityExtractorTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 		
-		Studies study = repository.getStudy("DEMO");
+		Study study = repository.getStudy("DEMO");
 		request.getAttributes().put("study", study);
-		Views view = repository.getStudyView(study, "complete");
+		View view = repository.getStudyView(study, "complete");
 		request.getAttributes().put("view", view);
 		request.getAttributes().put("entityId", "12");
 

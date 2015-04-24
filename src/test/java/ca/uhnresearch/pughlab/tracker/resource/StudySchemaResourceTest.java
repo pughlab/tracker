@@ -25,7 +25,7 @@ import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 public class StudySchemaResourceTest extends AbstractShiroTest{
@@ -63,7 +63,7 @@ public class StudySchemaResourceTest extends AbstractShiroTest{
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         
-        Studies testStudy = repository.getStudy("DEMO");
+        Study testStudy = repository.getStudy("DEMO");
         resource.getRequest().getAttributes().put("study", testStudy);
 		
 		Representation result = resource.getResource();
@@ -99,7 +99,7 @@ public class StudySchemaResourceTest extends AbstractShiroTest{
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         
-        Studies testStudy = repository.getStudy("DEMO");
+        Study testStudy = repository.getStudy("DEMO");
         resource.getRequest().getAttributes().put("study", testStudy);
 		
 		thrown.expect(ResourceException.class);

@@ -20,7 +20,7 @@ import org.restlet.resource.ResourceException;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 public class StudyExtractorTest extends AbstractShiroTest {
@@ -56,7 +56,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 		request.getAttributes().put("studyName", "DEMO");
 		extractor.handle(request, response);
 		
-		Studies study = (Studies) request.getAttributes().get("study");
+		Study study = (Study) request.getAttributes().get("study");
 		assertNotNull(study);
 	}
 

@@ -2,7 +2,7 @@ package ca.uhnresearch.pughlab.tracker.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CountsDTO {
+public class Counts {
 	private Long total;
 
 	@JsonProperty

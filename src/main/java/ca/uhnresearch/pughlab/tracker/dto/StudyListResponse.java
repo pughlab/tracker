@@ -6,26 +6,26 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class StudyListResponseDTO extends AbstractResponseDTO {
+public class StudyListResponse extends AbstractResponse {
 
-	List<StudyDTO> studies = new ArrayList<StudyDTO>();
+	List<Study> studies = new ArrayList<Study>();
 	
-	public StudyListResponseDTO() { 
+	public StudyListResponse() { 
 		super();
 	}
 
-	public StudyListResponseDTO(URL url, UserDTO user) {
+	public StudyListResponse(URL url, User user) {
 		super();
 		this.setServiceUrl(url);
 		this.setUser(user);
 	}
 
 	@JsonProperty
-	public List<StudyDTO> getStudies() {
+	public List<Study> getStudies() {
 		return studies;
 	}
 
-	public void setStudies(List<StudyDTO> studies) {
+	public void setStudies(List<Study> studies) {
 		this.studies = studies;
 	}
 

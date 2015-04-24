@@ -8,38 +8,36 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import ca.uhnresearch.pughlab.tracker.domain.Cases;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.EntityResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Cases;
+import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
-public class EntityResource extends StudyRepositoryResource<EntityResponseDTO> {
+public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
     @Get("json")
     public Representation getResource() {
-    	EntityResponseDTO response = new EntityResponseDTO();
+    	EntityResponse response = new EntityResponse();
     	buildResponseDTO(response);
-        return new JacksonRepresentation<EntityResponseDTO>(response);
+        return new JacksonRepresentation<EntityResponse>(response);
     }
 
 	@Override
-	public void buildResponseDTO(EntityResponseDTO dto) {
+	public void buildResponseDTO(EntityResponse dto) {
 		super.buildResponseDTO(dto);
 		
     	logger.info("Called getResource() in EntityResource");
 
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
-    	Views view = (Views) getRequest().getAttributes().get("view");
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	View view = (View) getRequest().getAttributes().get("view");
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
     	
     	JsonNode caseData = getRepository().getCaseData(study, view, caseValue);
     	
-    	dto.setStudy(new StudyDTO(study));
-    	dto.setView(new ViewDTO(view));
+    	dto.setStudy(study);
+    	dto.setView(view);
     	dto.setEntity(caseData);
 	}
 }

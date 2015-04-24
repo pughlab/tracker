@@ -1,14 +1,16 @@
 package ca.uhnresearch.pughlab.tracker.domain;
 
 import static com.mysema.query.types.PathMetadataFactory.*;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 
 import com.mysema.query.types.path.*;
-
 import com.mysema.query.types.PathMetadata;
-import javax.annotation.Generated;
-import com.mysema.query.types.Path;
 
+import javax.annotation.Generated;
+
+import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
+
 import java.sql.Types;
 
 

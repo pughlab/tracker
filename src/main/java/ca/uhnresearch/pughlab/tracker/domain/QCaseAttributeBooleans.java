@@ -1,13 +1,13 @@
 package ca.uhnresearch.pughlab.tracker.domain;
 
 import static com.mysema.query.types.PathMetadataFactory.*;
+import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeBooleans;
 
 import com.mysema.query.types.path.*;
-
 import com.mysema.query.types.PathMetadata;
 import com.mysema.query.types.Path;
-
 import com.mysema.query.sql.ColumnMetadata;
+
 import java.sql.Types;
 
 public class QCaseAttributeBooleans extends QCaseAttributeBase<CaseAttributeBooleans> {

@@ -13,25 +13,24 @@ import org.restlet.resource.ResourceException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLogResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
+import ca.uhnresearch.pughlab.tracker.dto.AuditLogResponse;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 
-public class AuditResource extends StudyRepositoryResource<AuditLogResponseDTO> {
+public class AuditResource extends StudyRepositoryResource<AuditLogResponse> {
 
     @Get("json")
     public Representation getResource()  {
-    	AuditLogResponseDTO response = new AuditLogResponseDTO();
+    	AuditLogResponse response = new AuditLogResponse();
     	buildResponseDTO(response);
-    	return new JacksonRepresentation<AuditLogResponseDTO>(response);
+    	return new JacksonRepresentation<AuditLogResponse>(response);
     }
 
 	@Override
-	public void buildResponseDTO(AuditLogResponseDTO dto) {
+	public void buildResponseDTO(AuditLogResponse dto) {
 		super.buildResponseDTO(dto);
 		
     	// Query the database for studies
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
+    	Study study = (Study) getRequest().getAttributes().get("study");
     	
     	Subject currentUser = SecurityUtils.getSubject();
     	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
@@ -46,7 +45,7 @@ public class AuditResource extends StudyRepositoryResource<AuditLogResponseDTO> 
     	List<JsonNode> auditData = getRepository().getAuditData(study, query);
 
     	// Build the response
-    	dto.setStudy(new StudyDTO(study));
+    	dto.setStudy(study);
     	dto.setLog(auditData);
 	}
 }

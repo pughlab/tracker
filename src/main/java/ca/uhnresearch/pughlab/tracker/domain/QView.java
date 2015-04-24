@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.domain;
 
 import static com.mysema.query.types.PathMetadataFactory.*;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 
 import com.mysema.query.types.path.*;
 import com.mysema.query.types.PathMetadata;
@@ -19,11 +20,11 @@ import java.sql.Types;
  * QViews is a Querydsl query type for Views
  */
 @Generated("com.mysema.query.sql.codegen.MetaDataSerializer")
-public class QViews extends com.mysema.query.sql.RelationalPathBase<Views> {
+public class QView extends com.mysema.query.sql.RelationalPathBase<View> {
 
     private static final long serialVersionUID = 260109481;
 
-    public static final QViews views = new QViews("views");
+    public static final QView views = new QView("views");
 
     public final StringPath description = createString("description");
 
@@ -35,25 +36,25 @@ public class QViews extends com.mysema.query.sql.RelationalPathBase<Views> {
 
     public final StringPath options = createString("options");
 
-    public final com.mysema.query.sql.PrimaryKey<Views> primary = createPrimaryKey(id);
+    public final com.mysema.query.sql.PrimaryKey<View> primary = createPrimaryKey(id);
 
-    public QViews(String variable) {
-        super(Views.class, forVariable(variable), "null", "views");
+    public QView(String variable) {
+        super(View.class, forVariable(variable), "null", "views");
         addMetadata();
     }
 
-    public QViews(String variable, String schema, String table) {
-        super(Views.class, forVariable(variable), schema, table);
+    public QView(String variable, String schema, String table) {
+        super(View.class, forVariable(variable), schema, table);
         addMetadata();
     }
 
-    public QViews(Path<? extends Views> path) {
+    public QView(Path<? extends View> path) {
         super(path.getType(), path.getMetadata(), "null", "views");
         addMetadata();
     }
 
-    public QViews(PathMetadata<?> metadata) {
-        super(Views.class, metadata, "null", "views");
+    public QView(PathMetadata<?> metadata) {
+        super(View.class, metadata, "null", "views");
         addMetadata();
     }
 

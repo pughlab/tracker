@@ -39,15 +39,21 @@ import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.AuditLog;
+import ca.uhnresearch.pughlab.tracker.dto.Cases;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QAuditLog.auditLog;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBooleans.caseAttributeBooleans;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeDates.caseAttributeDates;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings.caseAttributeStrings;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
-import static ca.uhnresearch.pughlab.tracker.domain.QStudies.studies;
+import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
 import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttributes;
-import static ca.uhnresearch.pughlab.tracker.domain.QViews.views;
+import static ca.uhnresearch.pughlab.tracker.domain.QView.views;
 
 // Don't warn about the Law of Demeter here, as we use extensive method chaining in
 // the Querydsl implementation. And I do mean extensive. 
@@ -72,11 +78,11 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @param study
      * @return
      */
-    public List<Studies> getAllStudies() {
+    public List<Study> getAllStudies() {
 		logger.debug("Looking for all studies");
 
     	SQLQuery sqlQuery = template.newSqlQuery().from(studies);
-    	List<Studies> studyList = template.query(sqlQuery, studies);
+    	List<Study> studyList = template.query(sqlQuery, studies);
     	logger.info("Got some studies: {}", studyList.toString());
 
     	return studyList;
@@ -87,10 +93,10 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @param study
      * @return
      */
-	public Studies getStudy(String name) {
+	public Study getStudy(String name) {
 		logger.debug("Looking for study by name: {}", name);
     	SQLQuery sqlQuery = template.newSqlQuery().from(studies).where(studies.name.eq(name));
-    	Studies study = template.queryForObject(sqlQuery, studies);
+    	Study study = template.queryForObject(sqlQuery, studies);
     	
     	if (study != null) {
     		logger.info("Got a study: {}", study.toString());
@@ -106,26 +112,26 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @param study
      * @return
      */
-	public List<Views> getStudyViews(Studies study) {
+	public List<View> getStudyViews(Study study) {
 		logger.debug("Looking for views for study: {}", study.getName());
     	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.studyId.eq(study.getId()));
-    	List<Views> viewList = template.query(sqlQuery, views);
+    	List<View> viewList = template.query(sqlQuery, views);
     	logger.info("Got some views: {}", viewList.toString());
 
 		return viewList;
 	}
 
 	@Override
-	public void setStudyViews(Studies study, List<Views> newViewsList) {
+	public void setStudyViews(Study study, List<View> newViewsList) {
 		logger.debug("Writing views for study: {}", study.getName());
 				
 		SQLQuery sqlQuery = template.newSqlQuery().from(views)
     	    .where(views.studyId.eq(study.getId()));
 
-		List<Views> oldViewsList = template.query(sqlQuery, views);
+		List<View> oldViewsList = template.query(sqlQuery, views);
 		
-		Map<Integer, Views> newViews = new HashMap<Integer, Views>();
-		for(Views v : newViewsList) {
+		Map<Integer, View> newViews = new HashMap<Integer, View>();
+		for(View v : newViewsList) {
 			if (v.getId() != null) {
 				newViews.put(v.getId(), v);
 			} else {
@@ -137,8 +143,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 		// Here, we should have existing attributes and old attributes to
 		// handle.
-		for(Views v : oldViewsList) {
-			Views newView = newViews.get(v.getId());
+		for(View v : oldViewsList) {
+			View newView = newViews.get(v.getId());
 			if (newView != null) {
 				// We have both old and new -- this is an update!
 				updateView(v);
@@ -156,10 +162,10 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @param study
      * @return
      */
-	public Views getStudyView(Studies study, String name) {
+	public View getStudyView(Study study, String name) {
 		logger.debug("Looking for study by name: {}", name);
     	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.name.eq(name).and(views.studyId.eq(study.getId())));
-    	Views view = template.queryForObject(sqlQuery, views);
+    	View view = template.queryForObject(sqlQuery, views);
     	
     	if (view != null) {
     		logger.info("Got a view: {}", view.toString());
@@ -175,33 +181,34 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @param study
      * @return
      */
-	public void setStudyView(Studies study, Views view) throws RepositoryException {
+	public void setStudyView(Study study, View view) throws RepositoryException {
 		if (study.getId().equals(view.getStudyId())) {
 			updateView(view);
 		} else {
 			throw new NotFoundException("Can't update view for a different study: " + view.getName());
 		}
 	}
-
+	
     /**
      * Returns a list of all the attributes for a given view. 
      * @param study
      * @param view
      * @return
      */
-	public List<Attributes> getStudyAttributes(Studies study) {
+	public List<Attributes> getStudyAttributes(Study study) {
 		logger.debug("Looking for study attributes");
+		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .where(attributes.studyId.eq(study.getId()))
     	    .orderBy(attributes.rank.asc());
 		
 		logger.info("Executing query: {}", sqlQuery.toString());
 
-    	List<Attributes> attributeList = template.query(sqlQuery, attributes);
+    	List<Attributes> attributeList = template.query(sqlQuery, new AttributeProjection(attributes));
     	return attributeList;
 	}
 
-	private void insertView(final Views v) {
+	private void insertView(final View v) {
 		template.insert(views, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.populate(v).execute();
@@ -209,7 +216,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		});
 	}
 
-	private void updateView(final Views v) {
+	private void updateView(final View v) {
 		template.update(views, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(views.id.eq(v.getId())).populate(v).execute();
@@ -217,7 +224,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		});
 	}
 
-	private void deleteView(final Views v) {
+	private void deleteView(final View v) {
 		template.delete(views, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
 				return sqlDeleteClause.where(views.id.eq(v.getId())).execute();
@@ -233,7 +240,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private void insertAttribute(final Attributes a) {
 		template.insert(attributes, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.populate(a).execute();
+				return sqlInsertClause.populate(a, new AttributeMapper()).execute();
 			};
 		});
 	}
@@ -241,7 +248,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private void updateAttribute(final Attributes a) {
 		template.update(attributes, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(attributes.id.eq(a.getId())).populate(a).execute();
+				return sqlUpdateClause.where(attributes.id.eq(a.getId())).populate(a, new AttributeMapper()).execute();
 			};
 		});
 	}
@@ -259,40 +266,40 @@ public class StudyRepositoryImpl implements StudyRepository {
 		});
 	}
 	
-	private void insertViewAttribute(final ViewAttributes va) {
+	private void insertViewAttribute(final View v, final ViewAttributes va) {
 		template.insert(viewAttributes, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.populate(va).execute();
+				return sqlInsertClause.populate(va, new ViewAttributeMapper(v)).execute();
 			};
 		});
 	}
 
-	private void deleteViewAttribute(final ViewAttributes va) {
+	private void deleteViewAttribute(final View v, final ViewAttributes va) {
 		template.delete(viewAttributes, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
-				return sqlDeleteClause.where(viewAttributes.viewId.eq(va.getViewId()).and(viewAttributes.attributeId.eq(va.getAttributeId()))).execute();
+				return sqlDeleteClause.where(viewAttributes.viewId.eq(v.getId()).and(viewAttributes.attributeId.eq(va.getId()))).execute();
 			};
 		});
 	}
 
-	private void updateViewAttribute(final ViewAttributes va) throws RepositoryException {
+	private void updateViewAttribute(final View v, final ViewAttributes va) throws RepositoryException {
 		template.update(viewAttributes, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(viewAttributes.viewId.eq(va.getViewId()).and(viewAttributes.attributeId.eq(va.getAttributeId()))).populate(va).execute();
+				return sqlUpdateClause.where(viewAttributes.viewId.eq(v.getId()).and(viewAttributes.attributeId.eq(va.getId()))).populate(va, new ViewAttributeMapper(v)).execute();
 			};
 		});
 	}
 
 
 	@Override
-	public void setStudyAttributes(Studies study, List<Attributes> atts) {
+	public void setStudyAttributes(Study study, List<Attributes> atts) {
 		logger.debug("Updating study attributes");
 		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .where(attributes.studyId.eq(study.getId()))
     	    .orderBy(attributes.rank.asc());
 
-		List<Attributes> attributeList = template.query(sqlQuery, attributes);
+		List<Attributes> attributeList = template.query(sqlQuery, new AttributeProjection(attributes));
 		
 		// Now we can go through both lists, checking to see which attributes
 		// are to be deleted, which updated, and so on.
@@ -326,7 +333,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public void setViewAttributes(Studies study, Views view, List<Attributes> newAttributes) throws RepositoryException {
+	public void setViewAttributes(Study study, View view, List<ViewAttributes> newAttributes) throws RepositoryException {
 		// First, we need the list of all available attributes in the study.
 		List<Attributes> studyAttributes = getStudyAttributes(study);
 		Map<Integer, Attributes> studyAttributesTable = new HashMap<Integer, Attributes>();
@@ -335,7 +342,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		}
 		
 		// Next, we need a list of the current view attributes/
-		List<Attributes> oldAttributes = getViewAttributes(study, view);
+		List<ViewAttributes> oldAttributes = getViewAttributes(study, view);
 		
 		// Next, build a table of the identifiers
 		Map<Integer, Attributes> oldAttributesTable = new HashMap<Integer, Attributes>();
@@ -357,23 +364,24 @@ public class StudyRepositoryImpl implements StudyRepository {
 				}
 				
 				ViewAttributes va = new ViewAttributes();
-				va.setViewId(view.getId());
-				va.setAttributeId(studyAttribute.getId());
+				va.setId(studyAttribute.getId());
 				va.setRank(rank);
-				va.setOptions(a.getOptions());
-				insertViewAttribute(va);
+				va.setViewOptions(a.getOptions());
+				insertViewAttribute(view, va);
 				
 			} else {
 				// We do have an old attribute as well as a new one, so this is basically
 				// an update on the view attribute options. But first we need to locate
 				// the existing ViewAttributes.
 				
-		    	SQLQuery sqlQuery = template.newSqlQuery().from(viewAttributes)
+		    	SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
+		    		.innerJoin(viewAttributes)
+		    		.on(attributes.id.eq(viewAttributes.attributeId))
 		    		.where(viewAttributes.viewId.eq(view.getId()).and(viewAttributes.attributeId.eq(old.getId())));
-		    	ViewAttributes va = template.queryForObject(sqlQuery, viewAttributes);
-				va.setOptions(a.getOptions());
+		    	ViewAttributes va = template.queryForObject(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
+				va.setViewOptions(a.getOptions());
 				va.setRank(rank);
-				updateViewAttribute(va);
+				updateViewAttribute(view, va);
 				
 				// Mark the old one as seen, so we can delete any left over.
 				oldAttributesTable.remove(a.getId());
@@ -384,9 +392,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// Right, now we can simply remove old attributes
 		for (Attributes a : oldAttributesTable.values()) {
 			ViewAttributes va = new ViewAttributes();
-			va.setViewId(view.getId());
-			va.setAttributeId(a.getId());
-			deleteViewAttribute(va);
+			va.setId(a.getId());
+			deleteViewAttribute(view, va);
 		}
 	}
 
@@ -396,15 +403,17 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @param view
      * @return
      */
-	public List<Attributes> getViewAttributes(Studies study, Views view) {
+	public List<ViewAttributes> getViewAttributes(Study study, View view) {
+		
 		logger.debug("Looking for view attributes");
+		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
     	    .innerJoin(views).on(views.id.eq(viewAttributes.viewId))
     	    .where(attributes.studyId.eq(study.getId()).and(views.id.eq(view.getId())))
     	    .orderBy(viewAttributes.rank.asc());
 		
-    	List<Attributes> attributeList = template.query(sqlQuery, attributes);
+    	List<ViewAttributes> attributeList = template.query(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
 
 		return attributeList;
 	}
@@ -415,7 +424,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Studies study, CaseQuery query) {
+	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, CaseQuery query) {
 		assert query != null;
 		
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
@@ -559,7 +568,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param attributes
 	 * @param query
 	 */
-	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
+	public List<JsonNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
 		// This method retrieves the attributes we needed. In most implementations, we've done 
 		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
 		// since UNIONs generally aren't indexable, we are probably genuinely better off running
@@ -574,7 +583,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Returns the record count for a study).
 	 */
 	@Override
-	public Long getRecordCount(Studies study, Views view) {
+	public Long getRecordCount(Study study, View view) {
 		SQLQuery recordQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		return template.count(recordQuery);
 	}
@@ -586,7 +595,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudyCaseSubQuery(Studies study, Integer caseId) {
+	private ListSubQuery<Integer> getStudyCaseSubQuery(Study study, Integer caseId) {
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
 		return sq.list(cases.id);
 	}
@@ -596,7 +605,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Returns the case data for a single study entity, in JSON format.
 	 */
 	@Override
-	public JsonNode getCaseData(Studies study, Views view, Cases caseValue) {
+	public JsonNode getCaseData(Study study, View view, Cases caseValue) {
 		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseValue.getId());
 		List<JsonNode> listData = getJsonData(caseQuery);
 		if (listData.size() == 1) {
@@ -607,7 +616,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 	@Override
-	public Cases getStudyCase(Studies study, Views view, Integer caseId) {
+	public Cases getStudyCase(Study study, View view, Integer caseId) {
 		logger.debug("Looking for case by identifier: {}", caseId);
     	SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
     	Cases caseValue = template.queryForObject(sqlQuery, cases);
@@ -627,13 +636,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * and are to some extent equivalent. One interpretation us that a set to null is actually a deletion. 
 	 */
 	@Override
-	public JsonNode getCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute) {
+	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute) {
 		JsonNode caseData = getCaseData(study, view, caseValue);
 		return caseData.get(attribute);
 	}
 
 	@Override
-	public void setCaseAttributeValue(final Studies study, final Views view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
+	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
 		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
@@ -641,21 +650,11 @@ public class StudyRepositoryImpl implements StudyRepository {
     	    .where(attributes.studyId.eq(study.getId())
     	    .and(views.id.eq(view.getId()))
     	    .and(attributes.name.eq(attribute)));
-    	Attributes a = template.queryForObject(sqlQuery, attributes);
+    	ViewAttributes a = template.queryForObject(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
     	
     	// If there isn't an attribute, we should probably throw an error.
     	if (a == null) {
     		throw new NotFoundException("Can't find attribute: " + attribute);
-    	}
-    	
-    	JsonNode optionsNode = null;
-    	String options = a.getOptions();
-    	if (options != null) {
-			try {
-				optionsNode = objectMapper.readTree(options);
-			} catch (Exception e) {
-				logger.error("Invalid JSON notes: {}, {}", e.getMessage(), a.getOptions());
-			}
     	}
     	
     	// Now let's pull the current attribute value, if it exists, mainly so we can generate an audit entry for it.
@@ -728,13 +727,13 @@ public class StudyRepositoryImpl implements StudyRepository {
     		// Option values should also match one of the specified original values from the 
     		// attribute definition.
     		
-    		if (optionsNode == null || ! optionsNode.has("values") || ! optionsNode.get("values").isArray()) {
+    		if (a.getOptions() == null || ! a.getOptions().has("values") || ! a.getOptions().get("values").isArray()) {
     			throw new InvalidValueException("No option values specified: " + a.getName());
     		}
     		
     		if (valueNode != null) {
         		Boolean found = false;
-        		Iterator<JsonNode> elements = optionsNode.get("values").elements();
+        		Iterator<JsonNode> elements = a.getOptions().get("values").elements();
         		while(elements.hasNext()) {
         			if (elements.next().equals(valueNode)) {
         				found = true;
@@ -831,7 +830,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public List<JsonNode> getAuditData(Studies study, CaseQuery query) {
+	public List<JsonNode> getAuditData(Study study, CaseQuery query) {
 		
 		
 		SQLQuery sq = template.newSqlQuery().from(auditLog).where(auditLog.studyId.eq(study.getId())).orderBy(auditLog.eventTime.desc());

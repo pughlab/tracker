@@ -1,4 +1,4 @@
-package ca.uhnresearch.pughlab.tracker.domain;
+package ca.uhnresearch.pughlab.tracker.dto;
 
 public class CaseAttributeBooleans extends CaseAttributeBase {
 

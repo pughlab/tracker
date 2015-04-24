@@ -2,21 +2,18 @@ package ca.uhnresearch.pughlab.tracker.dto;
 
 import java.net.URL;
 
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class EntityResponseDTO extends ViewResponseDTO {
+public class EntityResponse extends ViewResponse {
 
 	JsonNode entity;
 	
-	public EntityResponseDTO() {
+	public EntityResponse() {
 		super();
 	}
 	
-	public EntityResponseDTO(URL url, UserDTO user, Studies s, Views v, JsonNode e) {
+	public EntityResponse(URL url, User user, Study s, View v, JsonNode e) {
 		super(url, user, s, v);
 		this.entity = e;
 	}

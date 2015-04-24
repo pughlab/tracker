@@ -2,9 +2,9 @@ package ca.uhnresearch.pughlab.tracker.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PermissionsDTO {
+public class Permissions {
 
-	public PermissionsDTO() { }
+	public Permissions() { }
 	
 	/**
 	 * @return the readAllowed

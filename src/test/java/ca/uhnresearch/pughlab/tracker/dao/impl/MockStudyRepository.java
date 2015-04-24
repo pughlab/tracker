@@ -26,14 +26,14 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Attributes;
-import ca.uhnresearch.pughlab.tracker.domain.CaseAttributeBooleans;
-import ca.uhnresearch.pughlab.tracker.domain.CaseAttributeDates;
-import ca.uhnresearch.pughlab.tracker.domain.CaseAttributeStrings;
-import ca.uhnresearch.pughlab.tracker.domain.Cases;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeBooleans;
+import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeDates;
+import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeStrings;
+import ca.uhnresearch.pughlab.tracker.dto.Cases;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 
 public class MockStudyRepository implements StudyRepository {
 
@@ -44,10 +44,10 @@ public class MockStudyRepository implements StudyRepository {
 	private static final Integer caseCount = 10;
 
 
-	List<Studies> studies = new ArrayList<Studies>();
+	List<Study> studies = new ArrayList<Study>();
 	List<Attributes> attributes = new ArrayList<Attributes>();
-	List<Views> views = new ArrayList<Views>();
-	List<ViewAttributes> viewAttributes = new ArrayList<ViewAttributes>();
+	List<View> views = new ArrayList<View>();
+	Map<Integer, List<ViewAttributes>> viewAttributes = new HashMap<Integer, List<ViewAttributes>>();
 	List<Cases> cases = new ArrayList<Cases>();
 	List<CaseAttributeStrings> strings = new ArrayList<CaseAttributeStrings>();
 	List<CaseAttributeDates> dates = new ArrayList<CaseAttributeDates>();
@@ -71,20 +71,32 @@ public class MockStudyRepository implements StudyRepository {
 		attributes.add(mockAttribute(5, "specimenAvailable", "Biobank Specimen Available? (Yes/No)", 5, 1, "date"));
 		
 		// And the view attribute mapping
-		viewAttributes.add(mockViewAttribute(1, 1, null));
-		viewAttributes.add(mockViewAttribute(2, 1, null));
-		viewAttributes.add(mockViewAttribute(3, 1, null));
-		viewAttributes.add(mockViewAttribute(4, 1, null));
-		viewAttributes.add(mockViewAttribute(5, 1, null));
 		
-		viewAttributes.add(mockViewAttribute(1, 2, null));
-		viewAttributes.add(mockViewAttribute(2, 2, null));
-		viewAttributes.add(mockViewAttribute(5, 2, "{\"classes\": [\"label5\"]}"));
+		JsonNode mockClasses = null;
+		try {
+			mockClasses = mapper.readValue("{\"classes\": [\"label5\"]}", JsonNode.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
-		viewAttributes.add(mockViewAttribute(1, 3, null));
-		viewAttributes.add(mockViewAttribute(2, 3, null));
-		viewAttributes.add(mockViewAttribute(5, 3, "{\"classes\": [\"label5\"]}"));
+		viewAttributes.put(1, new ArrayList<ViewAttributes>());
+		viewAttributes.put(2, new ArrayList<ViewAttributes>());
+		viewAttributes.put(3, new ArrayList<ViewAttributes>());
 		
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(0), null));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(1), null));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(2), null));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(3), null));
+		viewAttributes.get(1).add(mockViewAttribute(attributes.get(4), null));
+		
+		viewAttributes.get(2).add(mockViewAttribute(attributes.get(0), null));
+		viewAttributes.get(2).add(mockViewAttribute(attributes.get(1), null));
+		viewAttributes.get(2).add(mockViewAttribute(attributes.get(4), mockClasses));
+
+		viewAttributes.get(3).add(mockViewAttribute(attributes.get(0), null));
+		viewAttributes.get(3).add(mockViewAttribute(attributes.get(1), null));
+		viewAttributes.get(3).add(mockViewAttribute(attributes.get(4), mockClasses));
+
 		// And finally add some cases
 		for(Integer i = 0; i < caseCount; i++) {
 			cases.add(mockCase(i));
@@ -147,16 +159,20 @@ public class MockStudyRepository implements StudyRepository {
 		return obj;
 	}
 	
-	private ViewAttributes mockViewAttribute(Integer attributeId, Integer viewId, String options) {
+	private ViewAttributes mockViewAttribute(Attributes att, JsonNode viewOptions) {
 		ViewAttributes vatt = new ViewAttributes();
-		vatt.setAttributeId(attributeId);
-		vatt.setViewId(viewId);
-		vatt.setOptions(options);
+		vatt.setId(att.getId());
+		vatt.setName(att.getName());
+		vatt.setLabel(att.getLabel());
+		vatt.setRank(att.getRank());
+		vatt.setStudyId(att.getStudyId());
+		vatt.setType(att.getType());
+		vatt.setViewOptions(viewOptions);
 		return vatt;
 	}
 	
-	private Studies mockStudy(Integer id, String name, String description) {
-		Studies study = new Studies();
+	private Study mockStudy(Integer id, String name, String description) {
+		Study study = new Study();
 		study.setId(id);
 		study.setName(name);
 		study.setDescription(description);
@@ -174,8 +190,8 @@ public class MockStudyRepository implements StudyRepository {
 		return att;
 	}
 
-	private Views mockView(Integer id, String name, String description, Integer studyId) {
-		Views view = new Views();
+	private View mockView(Integer id, String name, String description, Integer studyId) {
+		View view = new View();
 		view.setId(id);
 		view.setStudyId(studyId);
 		view.setName(name);
@@ -184,8 +200,8 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	// Mocked getStudy
-	public Studies getStudy(String name) {
-		for(Studies s : studies) {
+	public Study getStudy(String name) {
+		for(Study s : studies) {
 			if (s.getName().equals(name)) {
 				return s;
 			}
@@ -194,16 +210,16 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	// Mocked getAll
-	public List<Studies> getAllStudies() {
+	public List<Study> getAllStudies() {
 		return studies;
 	}
 	
 	/**
 	 * A mocked getStudyViews
 	 */
-	public List<Views> getStudyViews(Studies study) {
-		List<Views> result = new ArrayList<Views>();
-		for (Views v : views) {
+	public List<View> getStudyViews(Study study) {
+		List<View> result = new ArrayList<View>();
+		for (View v : views) {
 			if (v.getStudyId().equals(study.getId())) {
 				result.add(v);
 			}
@@ -215,15 +231,15 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked setStudyViews
 	 */
-	public void setStudyViews(Studies study, List<Views> views) {
+	public void setStudyViews(Study study, List<View> views) {
 		this.views = views;
 	}
 
 	/**
 	 * A mocked getStudyView
 	 */
-	public Views getStudyView(Studies study, String viewName) {
-		for (Views v : views) {
+	public View getStudyView(Study study, String viewName) {
+		for (View v : views) {
 			if (v.getStudyId().equals(study.getId()) && v.getName().equals(viewName)) {
 				return v;
 			}
@@ -235,8 +251,8 @@ public class MockStudyRepository implements StudyRepository {
 	 * A mocked setStudyView
 	 */
 	@Override
-	public void setStudyView(Studies study, Views view) throws RepositoryException {
-		for (Views v : views) {
+	public void setStudyView(Study study, View view) throws RepositoryException {
+		for (View v : views) {
 			if (v.getId().equals(view.getId())) {
 				v.setOptions(view.getOptions());
 				return;
@@ -248,40 +264,28 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getStudyAttributes
 	 */
-	public List<Attributes> getStudyAttributes(Studies study) {
+	public List<Attributes> getStudyAttributes(Study study) {
 		return attributes;
 	}
 	
 	/**
 	 * A mocked getStudyAttributes
 	 */
-	public void setStudyAttributes(Studies study, List<Attributes> attributes) {
+	public void setStudyAttributes(Study study, List<Attributes> attributes) {
 		this.attributes = attributes;
 	}
 	
 	/**
 	 * A mocked getViewAttributes
 	 */
-	public List<Attributes> getViewAttributes(Studies study, Views view) {
-		List<Attributes> result = new ArrayList<Attributes>();
-		for(Attributes a : attributes) {
-			final Integer attributeId = a.getId();
-			final Predicate<ViewAttributes> pred = new Predicate<ViewAttributes>() { 
-				public boolean apply(ViewAttributes va) {
-					return va.getAttributeId().equals(attributeId);
-				}
-			};
-			if (Iterables.any(viewAttributes, pred)) {
-				result.add(a);
-			}			
-		}
-		return result;
+	public List<ViewAttributes> getViewAttributes(Study study, View view) {
+		return viewAttributes.get(view.getId());
 	}
 	
 	/**
 	 * A mocked setViewAttributes
 	 */
-	public void setViewAttributes(Studies study, Views view, List<Attributes> attributes) {
+	public void setViewAttributes(Study study, View view, List<ViewAttributes> attributes) {
 		return;
 	}
 	
@@ -292,7 +296,7 @@ public class MockStudyRepository implements StudyRepository {
 	 * @param view
 	 * @return
 	 */
-	private Map<Integer, JsonObject> getAllData(Studies study, Views view) {
+	private Map<Integer, JsonObject> getAllData(Study study, View view) {
 		
 		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
 		for(CaseAttributeStrings string : strings) {
@@ -323,7 +327,7 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getData
 	 */
-	public List<JsonNode> getData(Studies study, Views view, List<Attributes> attributes, CaseQuery query) {
+	public List<JsonNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
 		
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
@@ -361,12 +365,12 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public Long getRecordCount(Studies study, Views view) {
+	public Long getRecordCount(Study study, View view) {
 		return new Long(caseCount);
 	}
 
 	@Override
-	public Cases getStudyCase(Studies study, Views view, Integer caseId) {
+	public Cases getStudyCase(Study study, View view, Integer caseId) {
 		
 		Cases result = null;
 		for (Cases c : cases) {
@@ -379,7 +383,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 	
 	@Override
-	public JsonNode getCaseData(Studies study, Views view, Cases caseValue) {
+	public JsonNode getCaseData(Study study, View view, Cases caseValue) {
 		// TODO Auto-generated method stub
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
@@ -390,14 +394,14 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public JsonNode getCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute) {
+	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute) {
 		
 		JsonNode caseData = getCaseData(study, view, caseValue);
 		return caseData.get(attribute);
 	}
 
 	@Override
-	public void setCaseAttributeValue(Studies study, Views view, Cases caseValue, String attribute, String userName, JsonNode value) {
+	public void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) {
 		
 		// Well, yes, in theory we can just write in a new value, but this is all mocked
 		// and it's actually a mirror of the correct value. Strictly, here, we need to 
@@ -422,7 +426,7 @@ public class MockStudyRepository implements StudyRepository {
 	 * Mocked implementation of getAuditData, which doesn't really return anything useful. 
 	 */
 	@Override
-	public List<JsonNode> getAuditData(Studies study, CaseQuery query) {
+	public List<JsonNode> getAuditData(Study study, CaseQuery query) {
 		
 		return new ArrayList<JsonNode>();
 	}

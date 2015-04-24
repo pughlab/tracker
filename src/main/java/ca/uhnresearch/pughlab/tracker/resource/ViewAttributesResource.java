@@ -6,41 +6,39 @@ import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
-import ca.uhnresearch.pughlab.tracker.domain.Attributes;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
-import ca.uhnresearch.pughlab.tracker.dto.AttributeDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewAttributesResponseDTO;
-import ca.uhnresearch.pughlab.tracker.dto.ViewDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
+import ca.uhnresearch.pughlab.tracker.dto.ViewAttributesResponse;
 
-public class ViewAttributesResource extends StudyRepositoryResource<ViewAttributesResponseDTO> {
+public class ViewAttributesResource extends StudyRepositoryResource<ViewAttributesResponse> {
 	
     @Get("json")
     public Representation getResource()  {
-    	ViewAttributesResponseDTO response = new ViewAttributesResponseDTO();
+    	ViewAttributesResponse response = new ViewAttributesResponse();
     	buildResponseDTO(response);
-        return new JacksonRepresentation<ViewAttributesResponseDTO>(response);
+        return new JacksonRepresentation<ViewAttributesResponse>(response);
     }
 
 	@Override
-	public void buildResponseDTO(ViewAttributesResponseDTO dto) {
+	public void buildResponseDTO(ViewAttributesResponse dto) {
 		super.buildResponseDTO(dto);
 		    	
-    	Studies study = (Studies) getRequest().getAttributes().get("study");
-    	Views view = (Views) getRequest().getAttributes().get("view");
-    	List<Attributes> attributes = getRepository().getViewAttributes(study, view);
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	View view = (View) getRequest().getAttributes().get("view");
+    	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
     	getRequest().getAttributes().put("attributes", attributes);
 
     	assert study != null;
     	assert view != null;
     	assert attributes != null;
     	
-    	dto.setStudy(new StudyDTO(study));
-    	dto.setView(new ViewDTO(view));
+    	dto.setStudy(study);
+    	dto.setView(view);
 
     	for(Attributes a : attributes) {
-    		dto.getAttributes().add(new AttributeDTO(a));
+    		dto.getAttributes().add(a);
 		}
 
     	dto.getPermissions().setReadAllowed((Boolean) getRequest().getAttributes().get("viewReadAllowed")); 

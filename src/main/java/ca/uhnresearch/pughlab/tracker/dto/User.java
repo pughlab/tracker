@@ -4,17 +4,17 @@ import org.apache.shiro.subject.Subject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserDTO {
+public class User {
 
 	private String username;
 	
-	public UserDTO() { }
+	public User() { }
 
-	public UserDTO(String username) {
+	public User(String username) {
 		setUsername(username);
 	}
 	
-	public UserDTO(Subject subject) {
+	public User(Subject subject) {
 		setUsername(subject.getPrincipal().toString());
 	}
 

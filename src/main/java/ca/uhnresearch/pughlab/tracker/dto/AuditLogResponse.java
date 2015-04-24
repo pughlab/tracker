@@ -7,15 +7,13 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-
-public class AuditLogResponseDTO extends StudyResponseDTO {
+public class AuditLogResponse extends StudyResponse {
 
 	List<JsonNode> log = new ArrayList<JsonNode>();
 
-	public AuditLogResponseDTO() { }
+	public AuditLogResponse() { }
 
-	public AuditLogResponseDTO(URL url, UserDTO user, Studies s) {
+	public AuditLogResponse(URL url, User user, Study s) {
 		super(url, user, s);
 	}
 

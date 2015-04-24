@@ -17,8 +17,8 @@ import org.restlet.representation.Representation;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.domain.Views;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.google.gson.Gson;
@@ -56,8 +56,8 @@ public class ViewDataResourceTest extends AbstractShiroTest {
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
-        Studies testStudy = repository.getStudy("DEMO");		
-		Views testView = repository.getStudyView(testStudy, "complete");
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
 		viewResource.getRequest().getAttributes().put("study", testStudy);
 		viewResource.getRequest().getAttributes().put("view", testView);
 		CaseQuery query = new CaseQuery();
