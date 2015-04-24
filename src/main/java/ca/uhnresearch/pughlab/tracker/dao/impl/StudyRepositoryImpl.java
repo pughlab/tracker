@@ -240,7 +240,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private void insertAttribute(final Attributes a) {
 		template.insert(attributes, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.populate(a).execute();
+				return sqlInsertClause.populate(a, new AttributeMapper()).execute();
 			};
 		});
 	}
@@ -248,7 +248,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private void updateAttribute(final Attributes a) {
 		template.update(attributes, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(attributes.id.eq(a.getId())).populate(a).execute();
+				return sqlUpdateClause.where(attributes.id.eq(a.getId())).populate(a, new AttributeMapper()).execute();
 			};
 		});
 	}
@@ -299,7 +299,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     	    .where(attributes.studyId.eq(study.getId()))
     	    .orderBy(attributes.rank.asc());
 
-		List<Attributes> attributeList = template.query(sqlQuery, attributes);
+		List<Attributes> attributeList = template.query(sqlQuery, new AttributeProjection(attributes));
 		
 		// Now we can go through both lists, checking to see which attributes
 		// are to be deleted, which updated, and so on.
