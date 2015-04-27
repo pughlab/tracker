@@ -102,9 +102,9 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testGetStudyViewOptions() {
 		Study study = studyRepository.getStudy("DEMO");
-		View v = studyRepository.getStudyView(study, "track");
+		View v = studyRepository.getStudyView(study, "secondary");
 		assertNotNull(v);
-		assertEquals("complete", v.getName());
+		assertEquals("secondary", v.getName());
 		
 		assertNotNull(v.getOptions());
 		assertNotNull(v.getOptions().get("rows"));

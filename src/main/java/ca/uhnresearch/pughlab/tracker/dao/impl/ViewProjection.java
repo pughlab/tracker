@@ -24,8 +24,7 @@ public class ViewProjection extends MappingProjection<View> {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public ViewProjection(QView views) {
-        super(View.class, 
-        		views.id, views.studyId, views.name, views.description, views.options);
+        super(View.class, views.id, views.studyId, views.name, views.description, views.options);
     }
 
     @Override

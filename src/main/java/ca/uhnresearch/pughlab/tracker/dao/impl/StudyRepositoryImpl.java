@@ -115,7 +115,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public List<View> getStudyViews(Study study) {
 		logger.debug("Looking for views for study: {}", study.getName());
     	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.studyId.eq(study.getId()));
-    	List<View> viewList = template.query(sqlQuery, views);
+    	List<View> viewList = template.query(sqlQuery, new ViewProjection(views));
     	logger.info("Got some views: {}", viewList.toString());
 
 		return viewList;
@@ -211,7 +211,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private void insertView(final View v) {
 		template.insert(views, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.populate(v).execute();
+				return sqlInsertClause.populate(v, new ViewMapper()).execute();
 			};
 		});
 	}
@@ -219,7 +219,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private void updateView(final View v) {
 		template.update(views, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(views.id.eq(v.getId())).populate(v).execute();
+				return sqlUpdateClause.where(views.id.eq(v.getId())).populate(v, new ViewMapper()).execute();
 			};
 		});
 	}
