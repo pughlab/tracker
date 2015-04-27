@@ -100,6 +100,24 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testGetStudyViewOptions() {
+		Study study = studyRepository.getStudy("DEMO");
+		View v = studyRepository.getStudyView(study, "track");
+		assertNotNull(v);
+		assertEquals("complete", v.getName());
+		
+		assertNotNull(v.getOptions());
+		assertNotNull(v.getOptions().get("rows"));
+		assertTrue(v.getOptions().get("rows").isArray());
+		assertEquals(1, v.getOptions().get("rows").size());
+		assertNotNull(v.getOptions().get("rows").get(0));
+		assertTrue(v.getOptions().get("rows").get(0).isObject());
+		assertEquals("study", v.getOptions().get("rows").get(0).get("attribute").asText());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testGetMissingStudyView() {
 		Study study = studyRepository.getStudy("DEMO");
 		View v = studyRepository.getStudyView(study, "completed");

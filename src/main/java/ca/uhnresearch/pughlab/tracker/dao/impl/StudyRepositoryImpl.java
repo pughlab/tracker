@@ -128,8 +128,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 		SQLQuery sqlQuery = template.newSqlQuery().from(views)
     	    .where(views.studyId.eq(study.getId()));
 
-		List<View> oldViewsList = template.query(sqlQuery, views);
-		
+		List<View> oldViewsList = template.query(sqlQuery, new ViewProjection(views));		
+
 		Map<Integer, View> newViews = new HashMap<Integer, View>();
 		for(View v : newViewsList) {
 			if (v.getId() != null) {
@@ -165,8 +165,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public View getStudyView(Study study, String name) {
 		logger.debug("Looking for study by name: {}", name);
     	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.name.eq(name).and(views.studyId.eq(study.getId())));
-    	View view = template.queryForObject(sqlQuery, views);
-    	
+    	View view = template.queryForObject(sqlQuery, new ViewProjection(views));
+
     	if (view != null) {
     		logger.info("Got a view: {}", view.toString());
     	} else {

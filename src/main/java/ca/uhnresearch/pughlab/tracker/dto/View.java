@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class View {
@@ -20,7 +21,7 @@ public class View {
 
     private Integer studyId;
 
-    private String options;
+    private JsonNode options;
 
 	@JsonProperty
     public String getDescription() {
@@ -59,11 +60,11 @@ public class View {
     }
 
 	@JsonProperty
-    public String getOptions() {
+    public JsonNode getOptions() {
         return options;
     }
 
-    public void setOptions(String options) {
+    public void setOptions(JsonNode options) {
         this.options = options;
     }
 
