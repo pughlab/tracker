@@ -16,14 +16,14 @@ public class ViewAttributesResponse extends ViewResponse {
 		super(url, user, s, v);
 	}
 
-	List<Attributes> attributes = new ArrayList<Attributes>();
+	List<ViewAttributes> attributes = new ArrayList<ViewAttributes>();
 
 	@JsonProperty
-	public List<Attributes> getAttributes() {
+	public List<ViewAttributes> getAttributes() {
 		return attributes;
 	}
 
-	public void setAttributes(List<Attributes> attributes) {
+	public void setAttributes(List<ViewAttributes> attributes) {
 		this.attributes = attributes;
 	}
 

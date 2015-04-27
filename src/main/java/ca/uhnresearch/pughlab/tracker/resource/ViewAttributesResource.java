@@ -28,7 +28,6 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");
     	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
-    	getRequest().getAttributes().put("attributes", attributes);
 
     	assert study != null;
     	assert view != null;
@@ -36,10 +35,7 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
     	
     	dto.setStudy(study);
     	dto.setView(view);
-
-    	for(Attributes a : attributes) {
-    		dto.getAttributes().add(a);
-		}
+    	dto.setAttributes(attributes);
 
     	dto.getPermissions().setReadAllowed((Boolean) getRequest().getAttributes().get("viewReadAllowed")); 
     	dto.getPermissions().setWriteAllowed((Boolean) getRequest().getAttributes().get("viewWriteAllowed")); 

@@ -9,7 +9,7 @@ angular
     $scope.shown = false
 
     $scope.export = () ->
-      location.href = "/api/studies/#{encodeURIComponent($stateParams.studyName)}/views/#{encodeURIComponent($stateParams.viewName)}?page=all&mimeType=application/vnd.ms-excel"
+      location.href = "/api/studies/#{encodeURIComponent($stateParams.studyName)}/views/#{encodeURIComponent($stateParams.viewName)}?page=all&media=xml"
 
 
   ## Controller to handle connected users

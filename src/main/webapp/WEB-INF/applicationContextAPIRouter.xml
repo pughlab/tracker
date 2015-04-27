@@ -115,6 +115,7 @@
 	</bean>
  	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewDataResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
+		<property name="excelWriter" ref="excelWriter"/>
 	</bean>
  	<bean id="viewSchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewSchemaResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
@@ -128,5 +129,6 @@
  	<bean id="entityFieldResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityFieldResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
+	<bean id="excelWriter" class="ca.uhnresearch.pughlab.tracker.services.impl.ExcelWriterImpl"></bean>
 	
 </beans>
