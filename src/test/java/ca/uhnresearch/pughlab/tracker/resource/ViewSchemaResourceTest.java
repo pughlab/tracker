@@ -5,6 +5,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.IOException;
 
@@ -17,6 +18,7 @@ import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
 
@@ -76,6 +78,49 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
 		
 		Gson gson = new Gson();
 		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		JsonObject study = data.get("study").getAsJsonObject();
+		
+		assertEquals( "DEMO", study.get("name").getAsString() );
+		assertEquals( "A demo clinical genomics study", study.get("description").getAsString());
+		
+		JsonArray attributes = data.get("attributes").getAsJsonArray();
+		assertNotNull(attributes);
+		assertEquals(5, attributes.size());
+	}
+	
+	/**
+	 * Checks that options can be written for a view
+	 * @throws IOException
+	 */
+	@Test
+	public void resourceTestWrite() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		resource.getRequest().getAttributes().put("study", testStudy);
+		resource.getRequest().getAttributes().put("view", testView);
+		
+		Representation readResult = resource.getResource();
+		
+		
+		Gson gson = new Gson();
+		JsonObject readData = gson.fromJson(readResult.getText(), JsonObject.class);
+		
+		JsonObject writeData = readData;
+		Representation writeRepresentation = new StringRepresentation(writeData.toString(), APPLICATION_JSON);   
+		
+		Representation writeResult = resource.putResource(writeRepresentation);
+		
+		assertEquals("application/json", writeResult.getMediaType().toString());		
+		JsonObject data = gson.fromJson(writeResult.getText(), JsonObject.class);
 		
 		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
 		JsonObject study = data.get("study").getAsJsonObject();

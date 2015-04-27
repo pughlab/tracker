@@ -73,10 +73,10 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
 			// Write the view attributes
 			getRepository().setViewAttributes(study, view, attributes);
 			
-			// And write the view options
-			view.setOptions(schema.getViewOptions());
+			// And write the view options if we should
+			view.setOptions(schema.getView().getOptions());
 			getRepository().setStudyView(study, view);
-
+			
 		} catch (NotFoundException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		} catch (RepositoryException e) {
@@ -110,5 +110,5 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	for (ViewAttributes a : attributes) {
     		dto.getAttributes().add(a);
     	}
-	}
+   	}
 }

@@ -19,8 +19,6 @@ public class ViewSchemaResponse extends ViewResponse {
 
 	List<ViewAttributes> attributes = new ArrayList<ViewAttributes>();
 
-	JsonNode viewOptions = null;
-
 	@JsonProperty
 	public List<ViewAttributes> getAttributes() {
 		return attributes;
@@ -28,20 +26,5 @@ public class ViewSchemaResponse extends ViewResponse {
 
 	public void setAttributes(List<ViewAttributes> attributes) {
 		this.attributes = attributes;
-	}
-	
-	/**
-	 * @return the viewOptions
-	 */
-	@JsonProperty
-	public JsonNode getViewOptions() {
-		return viewOptions;
-	}
-
-	/**
-	 * @param viewOptions the viewOptions to set
-	 */
-	public void setViewOptions(JsonNode viewOptions) {
-		this.viewOptions = viewOptions;
 	}
 }

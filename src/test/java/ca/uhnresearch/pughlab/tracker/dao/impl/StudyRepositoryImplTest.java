@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -113,6 +114,43 @@ public class StudyRepositoryImplTest {
 		assertNotNull(v.getOptions().get("rows").get(0));
 		assertTrue(v.getOptions().get("rows").get(0).isObject());
 		assertEquals("study", v.getOptions().get("rows").get(0).get("attribute").asText());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetStudyViewOptions() {
+		Study study = studyRepository.getStudy("DEMO");
+		View v = studyRepository.getStudyView(study, "track");
+		assertNotNull(v);
+		assertEquals("track", v.getName());
+		
+		ObjectNode viewOptions = objectMapper.createObjectNode();
+		ObjectNode viewOptionDescriptor = objectMapper.createObjectNode();
+		ArrayNode viewArray = objectMapper.createArrayNode();
+		viewOptionDescriptor.put("attribute", "dateEntered");
+		viewOptionDescriptor.put("value", "test");
+		viewArray.add(viewOptionDescriptor);
+		viewOptions.set("rows", viewArray);
+		
+		v.setOptions(viewOptions);
+		
+		try {
+			studyRepository.setStudyView(study, v);
+		} catch (RepositoryException e) {
+			fail();
+		}
+		
+		View modifiedView = studyRepository.getStudyView(study, "track");
+		
+		assertNotNull(modifiedView.getOptions());
+		assertNotNull(modifiedView.getOptions().get("rows"));
+		assertTrue(modifiedView.getOptions().get("rows").isArray());
+		assertEquals(1, modifiedView.getOptions().get("rows").size());
+		assertNotNull(modifiedView.getOptions().get("rows").get(0));
+		assertTrue(modifiedView.getOptions().get("rows").get(0).isObject());
+		assertEquals("dateEntered", modifiedView.getOptions().get("rows").get(0).get("attribute").asText());
+		assertEquals("test", modifiedView.getOptions().get("rows").get(0).get("value").asText());
 	}
 
 	@Test
