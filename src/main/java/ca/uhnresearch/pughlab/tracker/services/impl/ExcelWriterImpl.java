@@ -49,7 +49,6 @@ public class ExcelWriterImpl implements ExcelWriter {
 	}
 	
 	private void writeWorksheets(Document doc, Element parent, ViewDataResponse data) {
-		logger.info("Writing worksheets: {}", data);
 		Element worksheet = doc.createElement("ss:Worksheet");
 		worksheet.setAttribute("ss:Name", "Data");
 		
@@ -75,11 +74,9 @@ public class ExcelWriterImpl implements ExcelWriter {
 	}
 	
 	private void writeTableBody(Document doc, Element parent, ViewDataResponse data) {
-		logger.info("Writing table body: {}", data);
 		Element start = doc.createElement("ss:Row");
 		parent.appendChild(start);
 		for (Attributes column : data.getAttributes()) {
-			logger.info("Writing {}", column.getLabel());
 			writeStringCell(doc, start, column.getLabel());
 		}
 		
@@ -107,8 +104,6 @@ public class ExcelWriterImpl implements ExcelWriter {
 	}
 	
 	private void writeDateCell(Document doc, Element parent, String date) {
-		logger.info("Writing date cell: {}", date);
-
 		Element cell = doc.createElement("ss:Cell");
 		cell.setAttribute("ss:StyleID", "date1");
 		parent.appendChild(cell);
@@ -122,8 +117,6 @@ public class ExcelWriterImpl implements ExcelWriter {
 	
 
 	private void writeBooleanCell(Document doc, Element parent, Boolean data) {
-		logger.info("Writing boolean cell: {}", data);
-
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 		
@@ -135,15 +128,11 @@ public class ExcelWriterImpl implements ExcelWriter {
 	}
 	
 	private void writeEmptyCell(Document doc, Element parent) {
-		logger.info("Writing empty cell");
-
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 	}
 	
 	private void writeNotAvailableCell(Document doc, Element parent) {
-		logger.info("Writing not available cell");
-
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 
@@ -155,8 +144,6 @@ public class ExcelWriterImpl implements ExcelWriter {
 	}
 
 	private void writeStringCell(Document doc, Element parent, String data) {
-		logger.info("Writing string cell: {}", data);
-
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 		
