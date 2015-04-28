@@ -97,12 +97,21 @@ public class SocketEventServer {
         		// Before we record this user, tell everyone else someone new has connected
         		
         		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
-        		event.getData().setSender(subject.getPrincipal().toString());
+        		event.getData().setUser(subject.getPrincipal().toString());
         		event.getData().setScope(scope);
         		sendMessage(event, scope);
         		
         		// Also, on a join, we want to tell the newly connected resource about
-        		// everyone already connected. 
+        		// everyone already connected.
+        		List<String> uuids = watcherListByScope.get(scope);
+        		for (String uuid : uuids) {        			
+            		AtmosphereResource other = resources.get(uuid);
+            		UpdateEvent otherEvent = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
+            		Subject otherSubject = (Subject) other.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
+            		otherEvent.getData().setUser(otherSubject.getPrincipal().toString());
+            		otherEvent.getData().setScope(scope);
+            		sendMessage(otherEvent, r);
+        		}
         	}
         	
         	watcherListByScope.get(scope).add(resourceKey);
@@ -147,7 +156,7 @@ public class SocketEventServer {
 		// And after we have disconnected, tell everyone else we are gone.
         Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
 		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_DISCONNECTED);
-		event.getData().setSender(subject.getPrincipal().toString());
+		event.getData().setUser(subject.getPrincipal().toString());
 		event.getData().setScope(scope);
 		sendMessage(event, scope);
 	}

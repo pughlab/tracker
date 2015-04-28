@@ -28,17 +28,17 @@ public class UpdateEvent {
 	}
 	
 	public class EventData {
-		private String sender;
+		private String user;
 		private String scope;
 		private long time = (new Date()).getTime();
 
 		@JsonProperty
-		public String getSender() {
-			return sender;
+		public String getUser() {
+			return user;
 		}
 
-		public void setSender(String sender) {
-			this.sender = sender;
+		public void setUser(String user) {
+			this.user = user;
 		}
 
 		@JsonProperty

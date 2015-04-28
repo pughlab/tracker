@@ -781,7 +781,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     	if (manager != null) {
     		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_SET_FIELD);
     		event.getData().setScope(study.getName());
-    		event.getData().setSender(userName);
+    		event.getData().setUser(userName);
     		manager.sendMessage(event);
     	}
 	}
