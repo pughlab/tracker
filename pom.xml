@@ -8,7 +8,7 @@
 
 	<properties>
 		<restlet.version>2.3.1</restlet.version>
-		<spring.version>3.1.4.RELEASE</spring.version>
+		<spring.version>4.1.6.RELEASE</spring.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<hsqldb.version>2.3.2</hsqldb.version>
 		<querydsl.version>3.6.1</querydsl.version>
@@ -117,12 +117,12 @@
 		<dependency>
          	<groupId>org.atmosphere</groupId>
          	<artifactId>atmosphere-runtime</artifactId>
-         	<version>2.2.6</version>
+         	<version>2.3.0</version>
       	</dependency>
       	<dependency>
 			<groupId>org.atmosphere</groupId>
 			<artifactId>atmosphere-spring</artifactId>
-			<version>2.2.1</version>
+			<version>2.3.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.atmosphere</groupId>
