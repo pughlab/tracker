@@ -36,7 +36,7 @@
 		<property name="resourceRoot" value="file:///Users/stuartw/git/tracker-java-restlet/target/client/tmp" />
 	</bean>
 	
-	<bean id="trackerUpdateManager" class="ca.uhnresearch.pughlab.tracker.sockets.UpdateEventManager">
+	<bean id="socketEventServer" class="ca.uhnresearch.pughlab.tracker.sockets.SocketEventServer">
 	</bean>
 	
 </beans>

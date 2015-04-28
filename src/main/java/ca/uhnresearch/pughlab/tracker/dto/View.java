@@ -1,17 +1,9 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class View {
-
-	private static ObjectMapper mapper = new ObjectMapper();
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private String description;
 

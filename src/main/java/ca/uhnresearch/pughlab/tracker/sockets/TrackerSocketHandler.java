@@ -17,7 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -37,14 +38,16 @@ public class TrackerSocketHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private UpdateEventManager eventManager;
+	private SocketEventServer server;
+
+	private ObjectMapper mapper = new ObjectMapper();
 
 
 	@Heartbeat
     public void onHeartbeat(final AtmosphereResourceEvent event) {
-        logger.info("Heartbeat send by {}", event.getResource());
+        logger.info("Heartbeat send by {}", event.getResource().uuid());
     }
-
+	
     /**
      * Invoked when the connection as been fully established and suspended, e.g ready for receiving messages.
      *
@@ -55,24 +58,16 @@ public class TrackerSocketHandler {
 
         logger.info("Browser {} connected", r.uuid());
         
+        getEventManager().registerAtmosphereResource(r);
+        
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         logger.info("Subject: {}", subject.getPrincipal());
         
         // When we are ready, we should actually send a welcome message to the client. This starts off
         // much of the protocol.
         
-        UpdateEvent event = new UpdateEvent(null, UpdateEvent.WELCOME_EVENT);
-        event.setRecipient(subject.getPrincipal().toString());
-        
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
-        	// Sends to just this one resource -- correct for a welcome event
-			r.getBroadcaster().broadcast(mapper.writeValueAsString(event), r);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_WELCOME);
+        getEventManager().sendMessage(event, r);
     }
 
     /**
@@ -87,6 +82,7 @@ public class TrackerSocketHandler {
         } else if (event.isClosedByClient()) {
             logger.info("Browser {} closed the connection", event.getResource().uuid());
         }
+        getEventManager().unregisterAtmosphereResource(event.getResource());
     }
 
     /**
@@ -99,28 +95,30 @@ public class TrackerSocketHandler {
     @Message
     public String onMessage(AtmosphereResource r, String input) throws IOException {
     	
-    	ObjectMapper mapper = new ObjectMapper();
+    	logger.info("Message received: {}", input);
     	UpdateEvent message = mapper.readValue(input, UpdateEvent.class);
+    	logger.info("Translated message: {}", message);
+    	getEventManager().receivedMessage(message, r);
 
-        Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-        
-        logger.info("Subject: {}", subject.getPrincipal());
-        logger.info("Event type: {}", message.getClass().getCanonicalName());
-        logger.info("Event manager: {}", eventManager);
-
-        logger.info("{} just sent {}", message.getSender(), message.getType());
-                
-        return input;
+    	return input;
     }
 
-	public UpdateEventManager getEventManager() {
-		return eventManager;
+    /**
+     * Gets the current event manager.
+     * @return the event manager
+     */
+	public SocketEventServer getEventManager() {
+		return server;
 	}
 
+	/**
+	 * Sets the current event manager. Used with dependency injection. 
+	 * @param eventManager
+	 */
 	@Inject
-	@Named("trackerUpdateManager")
-	public void setEventManager(UpdateEventManager eventManager) {
-		logger.info("Setting eventManager to: {}", eventManager);
-		this.eventManager = eventManager;
+	@Named("socketEventServer")
+	public void setEventManager(SocketEventServer server) {
+		logger.info("Setting eventManager to: {}", server);
+		this.server = server;
 	}
 }

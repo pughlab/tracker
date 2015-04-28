@@ -38,8 +38,9 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 @ContextConfiguration(locations = { "file:src/main/webapp/WEB-INF/applicationContextDatabase.xml" })
 public class StudyRepositoryImplTest {
 	
+	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-
+		
 	@Autowired
     private StudyRepository studyRepository;
 	

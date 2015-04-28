@@ -18,9 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
-import ca.uhnresearch.pughlab.tracker.dto.StudySchemaResponse;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewSchemaResponse;

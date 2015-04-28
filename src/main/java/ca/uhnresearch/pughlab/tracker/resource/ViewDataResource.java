@@ -2,7 +2,6 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.util.List;
 
-import org.restlet.Response;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
 import org.restlet.ext.jackson.JacksonRepresentation;

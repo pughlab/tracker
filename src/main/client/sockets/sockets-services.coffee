@@ -35,6 +35,21 @@ angular
             reconnectInterval: 5000
           }
           
+          @request.onOpen = (response) ->
+            console.log "Called onOpen", response
+          
+          @request.onReopen = (response) ->
+            console.log "Called onReopen", response
+          
+          @request.onReconnect = (response) ->
+            console.log "Called onReconnect", response
+          
+          @request.onError = (response) ->
+            console.log "Called onError", response
+          
+          @request.onClose = (response) ->
+            console.log "Called onClose", response
+          
           @request.onMessage = (response) =>
             console.log "Called onMessage", response
             decoded = JSON.parse response.responseBody

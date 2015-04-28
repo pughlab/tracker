@@ -34,6 +34,7 @@ import ca.uhnresearch.pughlab.tracker.services.impl.ExcelWriterImpl;
 
 public class ExcelWriterImplTest {
 
+	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private ViewDataResource viewResource;

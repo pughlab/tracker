@@ -204,12 +204,12 @@ angular
         scope.$on 'socket:welcome', (evt, data) ->
           userControllerScope = evt.targetScope
           if scope.trackerStudy 
-            userControllerScope.$emit 'socket:join', { 'scope': scope.trackerStudy }
+            userControllerScope.$emit 'socket:join', { "scope": scope.trackerStudy.name, "time" : (new Date()).valueOf() }
 
 
         scope.$watch 'trackerStudy', (study) ->
           if userControllerScope
-            userControllerScope.$emit 'socket:join', { 'scope': study.name }
+            userControllerScope.$emit 'socket:join', { 'scope': study.name, "time" : (new Date()).valueOf() }
 
 
         scope.$watch 'trackerAttributes', (attributes, old) ->

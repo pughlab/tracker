@@ -45,6 +45,8 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
+import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.UpdateEventManager;
 import static ca.uhnresearch.pughlab.tracker.domain.QAuditLog.auditLog;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBooleans.caseAttributeBooleans;
@@ -65,6 +67,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 	
 	private static ObjectMapper objectMapper = new ObjectMapper();
+	
+	private UpdateEventManager manager;
 
 	private QueryDslJdbcTemplate template;
 
@@ -769,6 +773,17 @@ public class StudyRepositoryImpl implements StudyRepository {
     		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable, finalValue);
     		
     	}
+    	
+    	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
+    	// this if we have an UpdateEventManager set. 
+    	
+    	UpdateEventManager manager = getUpdateEventManager();
+    	if (manager != null) {
+    		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_SET_FIELD);
+    		event.getData().setScope(study.getName());
+    		event.getData().setSender(userName);
+    		manager.sendMessage(event);
+    	}
 	}
 	
 	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final String value) {
@@ -868,6 +883,20 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 		return result;
 	}
+	
+	/**
+	 * Getter for an update event manager. 
+	 */
+	public UpdateEventManager getUpdateEventManager() {
+		return manager;
+	}
 
+	/**
+	 * Setter for an update event manager, allowing events to be triggered from the repository.
+	 * @param manager
+	 */
+	public void setUpdateEventManager(UpdateEventManager manager) {
+		this.manager = manager;
+	}
 }
 

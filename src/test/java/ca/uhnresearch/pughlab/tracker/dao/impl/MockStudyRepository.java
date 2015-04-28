@@ -13,8 +13,6 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,6 +32,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
+import ca.uhnresearch.pughlab.tracker.events.UpdateEventManager;
 
 public class MockStudyRepository implements StudyRepository {
 
@@ -42,7 +41,6 @@ public class MockStudyRepository implements StudyRepository {
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	private static final Integer caseCount = 10;
-
 
 	List<Study> studies = new ArrayList<Study>();
 	List<Attributes> attributes = new ArrayList<Attributes>();
@@ -431,4 +429,10 @@ public class MockStudyRepository implements StudyRepository {
 		return new ArrayList<JsonNode>();
 	}
 
+	/**
+	 * Mocked setter for an update event manager
+	 */
+	public void setUpdateEventManager(UpdateEventManager manager) {
+		// Do nothing
+	}
 }
