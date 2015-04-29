@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * event context for the whole application, and should be used as a singleton for the
  * application. 
  */
-public class SocketEventServer {
+public class SocketEventService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private Map<String, AtmosphereResource> resources = new HashMap<String, AtmosphereResource>();

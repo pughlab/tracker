@@ -38,7 +38,7 @@ public class TrackerSocketHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private SocketEventServer server;
+	private SocketEventService server;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -107,7 +107,7 @@ public class TrackerSocketHandler {
      * Gets the current event manager.
      * @return the event manager
      */
-	public SocketEventServer getEventManager() {
+	public SocketEventService getEventManager() {
 		return server;
 	}
 
@@ -116,8 +116,8 @@ public class TrackerSocketHandler {
 	 * @param eventManager
 	 */
 	@Inject
-	@Named("socketEventServer")
-	public void setEventManager(SocketEventServer server) {
+	@Named("socketEventService")
+	public void setEventManager(SocketEventService server) {
 		logger.info("Setting eventManager to: {}", server);
 		this.server = server;
 	}

@@ -2,11 +2,11 @@ package ca.uhnresearch.pughlab.tracker.events.impl;
 
 import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEventManager;
-import ca.uhnresearch.pughlab.tracker.sockets.SocketEventServer;
+import ca.uhnresearch.pughlab.tracker.sockets.SocketEventService;
 
 public class SocketUpdateEventManager implements UpdateEventManager {
 	
-	private SocketEventServer server;
+	private SocketEventService server;
 
 	@Override
 	public void sendMessage(UpdateEvent event) {
@@ -16,14 +16,14 @@ public class SocketUpdateEventManager implements UpdateEventManager {
 	/**
 	 * @return the eventManager
 	 */
-	public SocketEventServer getSocketEventServer() {
+	public SocketEventService getSocketEventService() {
 		return server;
 	}
 
 	/**
 	 * @param eventManager the eventManager to set
 	 */
-	public void setSocketEventServer(SocketEventServer eventManager) {
+	public void setSocketEventService(SocketEventService eventManager) {
 		this.server = eventManager;
 	}
 	

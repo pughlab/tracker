@@ -41,7 +41,9 @@
 	</bean>
 	
 	<bean id="updateEventManager" class="ca.uhnresearch.pughlab.tracker.events.impl.SocketUpdateEventManager">
-		<property name="socketEventServer" ref="socketEventServer" />
+		<property name="socketEventService" ref="socketEventService" />
 	</bean>
 	
+	<bean id="socketEventService" class="ca.uhnresearch.pughlab.tracker.sockets.SocketEventService">
+	</bean>
 </beans>
