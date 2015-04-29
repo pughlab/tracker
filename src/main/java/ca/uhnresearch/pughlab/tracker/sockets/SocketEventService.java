@@ -106,6 +106,16 @@ public class SocketEventService {
         		List<String> uuids = watcherListByScope.get(scope);
         		for (String uuid : uuids) {        			
             		AtmosphereResource other = resources.get(uuid);
+            		if (other == null) {
+            			logger.error("Whoa! Something removed a resource: {}, {}", uuid, other);
+            			resources.remove(uuid);
+            			continue;
+            		}
+            		if (other.getRequest() == null) {
+            			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, other);
+            			resources.remove(uuid);
+            			continue;
+            		}
             		UpdateEvent otherEvent = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
             		Subject otherSubject = (Subject) other.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
             		otherEvent.getData().setUser(otherSubject.getPrincipal().toString());

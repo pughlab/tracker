@@ -14,9 +14,9 @@ public class UpdateEvent {
 
 	public static final String EVENT_NEW_RECORD = "record";
 
-	public static final String EVENT_USER_CONNECTED = "connect";
+	public static final String EVENT_USER_CONNECTED = "userconnect";
 
-	public static final String EVENT_USER_DISCONNECTED = "disconnect";
+	public static final String EVENT_USER_DISCONNECTED = "userdisconnect";
 
 	private String type;
 	private EventData data = new EventData();

@@ -45,7 +45,7 @@ public class TrackerSocketHandler {
 
 	@Heartbeat
     public void onHeartbeat(final AtmosphereResourceEvent event) {
-        logger.info("Heartbeat send by {}", event.getResource().uuid());
+//        logger.info("Heartbeat send by {}", event.getResource().uuid());
     }
 	
     /**

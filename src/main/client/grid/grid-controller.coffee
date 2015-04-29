@@ -18,14 +18,16 @@ angular
 
     socket = socketFactory()
 
-    socket.on 'userConnected', (data) ->
+    socket.on 'userconnect', (event) ->
+      console.log 'Got userconnect event', event.data.user
       $scope.$apply () ->
-        if not (data.name in $scope.currentUsers)
-          $scope.currentUsers.push data.name
+        if not (event.data.user in $scope.currentUsers)
+          $scope.currentUsers.push event.data.user
 
-    socket.on 'userDisconnected', (data) ->
+    socket.on 'userdisconnect', (event) ->
+      console.log 'Got userdisconnect event', event.data.user
       $scope.$apply () ->
-        $scope.currentUsers = (user for user in $scope.currentUsers when user != data.name)
+        $scope.currentUsers = (user for user in $scope.currentUsers when user != event.data.user)
 
     ## If we get a disconnect, we forget all users. We probably should also generate an alert to let people
     ## know that we are currently locked. 
