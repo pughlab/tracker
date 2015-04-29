@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.shiro.subject.Subject;
 import org.atmosphere.cpr.AtmosphereResource;
@@ -139,6 +140,9 @@ public class SocketEventService {
 	 */
 	public void registerAtmosphereResource(AtmosphereResource resource) {
 		String uuid = resource.uuid();
+		if (uuid == null) {
+			throw new IllegalArgumentException("Can't register a resource without a UUID");
+		}
 		logger.info("Registering AtmosphereResource: {}", uuid);
 		resources.put(uuid, resource);
 	}
@@ -162,6 +166,11 @@ public class SocketEventService {
 		}
 		
 		resources.remove(uuid);
+		
+		logger.info("After removal");
+		for(Entry<String, AtmosphereResource> entry : resources.entrySet()) {
+			logger.info("Found: {} => {}", entry.getKey(), entry.getValue());
+		}
 		
 		// And after we have disconnected, tell everyone else we are gone.
         Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
