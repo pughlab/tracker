@@ -55,18 +55,26 @@ public class SocketEventService {
 	 * Sends a message to all connected resources with a given scope.
 	 */
 	public void sendMessage(UpdateEvent event, String scope) {
-		assert scope != null;
+		if (scope == null) {
+			throw new IllegalArgumentException("Can't send to a null scope");
+		}
+		
 		logger.info("Sending message to everyone watching: {}", scope);
 		List<String> resourceKeys = watcherListByScope.get(scope);
 		if (resourceKeys != null) {
-			for (String key : resourceKeys) {
-				AtmosphereResource r = resources.get(key);
-				if (r == null) {
-					logger.error("Can't send message to missing resource: {}", key);
-				} else {
-					logger.info("Sending message to resource: {}", r.uuid());
-					sendMessage(event, r);
-				}
+			for (String uuid : resourceKeys) {
+				AtmosphereResource r = resources.get(uuid);
+        		if (r == null) {
+        			logger.error("Whoa! Something removed a resource: {}, {}", uuid, r);
+        			resources.remove(uuid);
+        			continue;
+        		}
+        		if (r.getRequest() == null) {
+        			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, r);
+        			resources.remove(uuid);
+        			continue;
+        		}
+				sendMessage(event, r);
 			}
 		}
 	}
@@ -97,31 +105,36 @@ public class SocketEventService {
         	} else {
         		// Before we record this user, tell everyone else someone new has connected
         		
+        		logger.info("Sending to scope watchers");
         		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
         		event.getData().setUser(subject.getPrincipal().toString());
         		event.getData().setScope(scope);
         		sendMessage(event, scope);
         		
-        		// Also, on a join, we want to tell the newly connected resource about
-        		// everyone already connected.
-        		List<String> uuids = watcherListByScope.get(scope);
-        		for (String uuid : uuids) {        			
-            		AtmosphereResource other = resources.get(uuid);
-            		if (other == null) {
-            			logger.error("Whoa! Something removed a resource: {}, {}", uuid, other);
-            			resources.remove(uuid);
-            			continue;
-            		}
-            		if (other.getRequest() == null) {
-            			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, other);
-            			resources.remove(uuid);
-            			continue;
-            		}
-            		UpdateEvent otherEvent = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
-            		Subject otherSubject = (Subject) other.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-            		otherEvent.getData().setUser(otherSubject.getPrincipal().toString());
-            		otherEvent.getData().setScope(scope);
-            		sendMessage(otherEvent, r);
+        		// And now, before we add the new user, we need to tell them about everyone
+        		// else. 
+        		List<String> resourceKeys = watcherListByScope.get(scope);
+        		logger.info("Existing: {}", resourceKeys);
+        		if (resourceKeys != null) {
+        			for (String uuid : resourceKeys) {
+        				AtmosphereResource other = resources.get(uuid);
+                		if (other == null) {
+                			logger.error("Whoa! Something removed a resource: {}, {}", uuid, other);
+                			resources.remove(uuid);
+                			continue;
+                		}
+                		if (other.getRequest() == null) {
+                			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, other);
+                			resources.remove(uuid);
+                			continue;
+                		}
+
+                		// Get the other user
+                		Subject otherSubject = (Subject) other.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
+                		String otherUser = otherSubject.getPrincipal().toString();
+                		event.getData().setUser(otherUser);
+                		sendMessage(event, r);
+        			}
         		}
         	}
         	
@@ -143,6 +156,7 @@ public class SocketEventService {
 		if (uuid == null) {
 			throw new IllegalArgumentException("Can't register a resource without a UUID");
 		}
+		
 		logger.info("Registering AtmosphereResource: {}", uuid);
 		resources.put(uuid, resource);
 	}
@@ -153,6 +167,10 @@ public class SocketEventService {
 	 */
 	public void unregisterAtmosphereResource(AtmosphereResource resource) {
 		String uuid = resource.uuid();
+		if (uuid == null) {
+			throw new IllegalArgumentException("Can't register a resource without a UUID");
+		}
+
 		logger.info("Unregistering AtmosphereResource: {}", uuid);
 		
 		String scope = scopeByWatcher.get(uuid);
@@ -167,16 +185,18 @@ public class SocketEventService {
 		
 		resources.remove(uuid);
 		
-		logger.info("After removal");
+		logger.info("After removal: registered resources");
 		for(Entry<String, AtmosphereResource> entry : resources.entrySet()) {
 			logger.info("Found: {} => {}", entry.getKey(), entry.getValue());
 		}
 		
 		// And after we have disconnected, tell everyone else we are gone.
-        Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_DISCONNECTED);
-		event.getData().setUser(subject.getPrincipal().toString());
-		event.getData().setScope(scope);
-		sendMessage(event, scope);
+		if (scope != null) {
+	        Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
+			UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_DISCONNECTED);
+			event.getData().setUser(subject.getPrincipal().toString());
+			event.getData().setScope(scope);
+			sendMessage(event, scope);
+		}
 	}
 }
