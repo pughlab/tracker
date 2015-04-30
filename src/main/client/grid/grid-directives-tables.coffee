@@ -111,7 +111,7 @@ angular
               ## and insert after it. We'll also have to manage inserting all that data
               ## nicely. We'll also want to do a highlight trick on the row. 
 
-              record = response.records[0]
+              record = response.entity
 
               ## Add in a new row
               totalRows = handsonTable.countRows()
@@ -220,19 +220,20 @@ angular
             ## highlight it in some way, and arrange for a request for a more up-to-date
             ## value. Note that the value is never transmitted over the socket. 
 
-            scope.$on 'socket:entityPropertyChange', (evt, original) ->
-              console.log "Got socket:entityPropertyChange", evt, original
+            scope.$on 'socket:field', (evt, original) ->
+              console.log "Got socket:field", evt, original
 
               ## If we get a cell editing event, we need to identify the cell element, and then update
               ## the right stuff. We might need to do something similar for a row, too. 
               
               if handsonTable != undefined and original.data.userNumber != -1
-
                 handleEditCell original.data.parameters.case, original.data.parameters.field, original.data.editingClasses
 
-              ##else if handsonTable != undefined and data.userNumber != -1
-              ##
-              ##  handleAddRecord data.params.id, data.editingClasses
+
+            scope.$on 'socket:record', (evt, original) ->
+              console.log "Got socket:record", evt, original
+              if handsonTable != undefined and original.data.userNumber != -1
+                handleAddRecord original.data.parameters.case, original.data.editingClasses
 
 
             ## Needs to find the case identifier, which requires a bit of poking around

@@ -42,8 +42,13 @@ angular
       event.data.userNumber = $scope.currentUsers.indexOf(event.data.user)
       if event.data.userNumber != -1
         event.data.editingClasses = "editedCellText editedCellUser-#{event.data.userNumber}"
+      $scope.$broadcast 'socket:field', event
 
-      $scope.$broadcast 'socket:entityPropertyChange', event
+    socket.on 'record', (event) ->
+      event.data.userNumber = $scope.currentUsers.indexOf(event.data.user)
+      if event.data.userNumber != -1
+        event.data.editingClasses = "editedCellText editedCellUser-#{event.data.userNumber}"
+      $scope.$broadcast 'socket:record', event
 
     $scope.$on 'socket:join', (evt, event) ->
       socket.emit 'join', event

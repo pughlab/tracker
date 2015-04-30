@@ -916,7 +916,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return the new case
 	 */
 	@Override
-	public Cases newStudyCase(final Study study, final View view) throws RepositoryException {
+	public Cases newStudyCase(final Study study, final View view, final String userName) throws RepositoryException {
 		Integer caseId = template.insertWithKey(cases, new SqlInsertWithKeyCallback<Integer>() { 
 			public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(cases.studyId).values(study.getId()).executeWithKey(cases.id);
@@ -930,6 +930,22 @@ public class StudyRepositoryImpl implements StudyRepository {
 		Cases newCase = new Cases();
 		newCase.setStudyId(study.getId());
 		newCase.setId(caseId);
+
+    	UpdateEventService manager = getUpdateEventService();
+    	if (manager != null) {
+    		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_NEW_RECORD);
+    		event.getData().setScope(study.getName());
+    		event.getData().setUser(userName);
+    		
+    		final JsonNodeFactory factory = JsonNodeFactory.instance;
+    		ObjectNode parameters = factory.objectNode();
+    		parameters.put("case", newCase.getId());
+    		
+    		event.getData().setParameters(parameters);
+
+    		manager.sendMessage(event);
+    	}
+    	
 		return newCase;
 	}
 }

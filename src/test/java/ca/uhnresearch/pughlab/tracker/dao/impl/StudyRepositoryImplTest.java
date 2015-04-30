@@ -1030,7 +1030,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 
-		Cases newCase = studyRepository.newStudyCase(study, view);
+		Cases newCase = studyRepository.newStudyCase(study, view, "test");
 		assertNotNull(newCase);
 		assertNotNull(newCase.getId());
 		assertNotNull(newCase.getStudyId());

@@ -95,7 +95,7 @@ public interface StudyRepository {
 	 * Makes a new, empty, case
 	 * @return the case identifier
 	 */
-	Cases newStudyCase(Study study, View view) throws RepositoryException;
+	Cases newStudyCase(Study study, View view, String userName) throws RepositoryException;
 
 	/**
 	 * Retrieves the record-level data for a given case, view and study from the repository

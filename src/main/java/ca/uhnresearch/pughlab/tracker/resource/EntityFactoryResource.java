@@ -54,7 +54,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     		EntityResponse caseData = converter.toObject(input, EntityResponse.class, this);
 			logger.info("Got new case data {}", caseData);
 			
-			Cases newCase = getRepository().newStudyCase(study, view);
+			Cases newCase = getRepository().newStudyCase(study, view, currentUser.getPrincipal().toString());
 			if (newCase == null) {
 				throw new RuntimeException("Error creating new case");
 			}

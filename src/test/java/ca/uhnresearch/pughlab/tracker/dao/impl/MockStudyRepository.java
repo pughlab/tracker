@@ -443,7 +443,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public Cases newStudyCase(Study study, View view) throws RepositoryException {
+	public Cases newStudyCase(Study study, View view, String userName) throws RepositoryException {
 		Cases newCase = new Cases();
 		newCase.setId(nextCaseId++);
 		cases.add(newCase);
