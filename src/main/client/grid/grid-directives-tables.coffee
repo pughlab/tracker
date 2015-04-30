@@ -150,7 +150,7 @@ angular
               rowIndex = entityRowTable[entityIdentifier]
               return if !columnIndex or !rowIndex
 
-              value = response.records[0][field]
+              value = response.entity[field]
               colData = handsonTable.getCellMeta(rowIndex, columnIndex)
 
               holder = {}
@@ -220,19 +220,19 @@ angular
             ## highlight it in some way, and arrange for a request for a more up-to-date
             ## value. Note that the value is never transmitted over the socket. 
 
-            scope.$on 'socket:entityPropertyChange', (evt, data) ->
-              console.log "Got socket:entityPropertyChange", evt, data
+            scope.$on 'socket:entityPropertyChange', (evt, original) ->
+              console.log "Got socket:entityPropertyChange", evt, original
 
               ## If we get a cell editing event, we need to identify the cell element, and then update
               ## the right stuff. We might need to do something similar for a row, too. 
               
-              if handsonTable != undefined and data.type == 'cell' and data.userNumber != -1
+              if handsonTable != undefined and original.data.userNumber != -1
 
-                handleEditCell data.params.id, data.params.field, data.editingClasses
+                handleEditCell original.data.parameters.case, original.data.parameters.field, original.data.editingClasses
 
-              else if handsonTable != undefined and data.type == 'record' and data.userNumber != -1
-
-                handleAddRecord data.params.id, data.editingClasses
+              ##else if handsonTable != undefined and data.userNumber != -1
+              ##
+              ##  handleAddRecord data.params.id, data.editingClasses
 
 
             ## Needs to find the case identifier, which requires a bit of poking around
