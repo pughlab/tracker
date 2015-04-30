@@ -1,12 +1,15 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.restlet.data.Status;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
@@ -34,7 +37,7 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
     	View view = (View) getRequest().getAttributes().get("view");
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
     	
-    	JsonNode caseData = getRepository().getCaseData(study, view, caseValue);
+    	ObjectNode caseData = getRepository().getCaseData(study, view, caseValue);
     	
     	dto.setStudy(study);
     	dto.setView(view);

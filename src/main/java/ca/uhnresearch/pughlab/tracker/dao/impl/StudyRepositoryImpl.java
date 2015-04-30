@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import org.springframework.data.jdbc.query.SqlDeleteCallback;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
+import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
 import com.mysema.query.Tuple;
@@ -517,18 +518,18 @@ public class StudyRepositoryImpl implements StudyRepository {
 		return marked;
 	}
 	
-	private List<JsonNode> getJsonData(ListSubQuery<Integer> query) {
+	private List<ObjectNode> getJsonData(ListSubQuery<Integer> query) {
 		Map<Integer, ObjectNode> table = new HashMap<Integer, ObjectNode>();
 		
 		SQLQuery caseIdQuery = template.newSqlQuery().from(query.as(cases));
 		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
 
-		List<JsonNode> objects = new ArrayList<JsonNode>(caseIds.size());
+		List<ObjectNode> objects = new ArrayList<ObjectNode>(caseIds.size());
 		
 		Integer index = 0;
 		for(Integer id : caseIds) {
 			ObjectNode obj = jsonNodeFactory.objectNode();
-			objects.add(index++, (JsonNode) obj);
+			objects.add(index++, obj);
 			table.put(id, obj);
 		}
 		
@@ -572,7 +573,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param attributes
 	 * @param query
 	 */
-	public List<JsonNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
+	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
 		// This method retrieves the attributes we needed. In most implementations, we've done 
 		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
 		// since UNIONs generally aren't indexable, we are probably genuinely better off running
@@ -609,9 +610,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Returns the case data for a single study entity, in JSON format.
 	 */
 	@Override
-	public JsonNode getCaseData(Study study, View view, Cases caseValue) {
+	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseValue.getId());
-		List<JsonNode> listData = getJsonData(caseQuery);
+		List<ObjectNode> listData = getJsonData(caseQuery);
 		if (listData.size() == 1) {
 			return listData.get(0);
 		} else {
@@ -906,6 +907,30 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	public void setUpdateEventService(UpdateEventService manager) {
 		this.manager = manager;
+	}
+
+	/**
+	 * Creates and returns a case object for a new case. The only fields set will be the
+	 * study identifier and the case identifier, but these are enough for finding and 
+	 * working with this case. 
+	 * @return the new case
+	 */
+	@Override
+	public Cases newStudyCase(final Study study, final View view) throws RepositoryException {
+		Integer caseId = template.insertWithKey(cases, new SqlInsertWithKeyCallback<Integer>() { 
+			public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
+				return sqlInsertClause.columns(cases.studyId).values(study.getId()).executeWithKey(cases.id);
+			};
+		});
+		
+		if (caseId == null) {
+			throw new InvalidValueException("Can't create new case");
+		}
+		
+		Cases newCase = new Cases();
+		newCase.setStudyId(study.getId());
+		newCase.setId(caseId);
+		return newCase;
 	}
 }
 

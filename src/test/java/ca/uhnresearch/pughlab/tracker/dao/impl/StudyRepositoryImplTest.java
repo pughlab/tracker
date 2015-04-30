@@ -205,7 +205,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
-		List<JsonNode> list = studyRepository.getData(study, view, attributes, query);
+		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
 		assertNotNull(list);
 		assertEquals(10, list.size());
 	}
@@ -220,7 +220,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(null);
-		List<JsonNode> list = studyRepository.getData(study, view, attributes, query);
+		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
 		assertNotNull(list);
 		assertEquals(20, list.size());
 	}
@@ -235,7 +235,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(null);
 		query.setLimit(5);
-		List<JsonNode> list = studyRepository.getData(study, view, attributes, query);
+		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
 		assertNotNull(list);
 		assertEquals(5, list.size());
 	}
@@ -252,7 +252,7 @@ public class StudyRepositoryImplTest {
 		query.setLimit(5);
 		query.setOrderField("consentDate");
 		query.setOrderDirection(CaseQuery.OrderDirection.DESC);
-		List<JsonNode> list = studyRepository.getData(study, view, attributes, query);
+		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
 		assertNotNull(list);
 		assertEquals(5, list.size());
 	}
@@ -1020,4 +1020,25 @@ public class StudyRepositoryImplTest {
 		assertTrue(EqualsBuilder.reflectionEquals(att1, loadedAtt1));
 	}
 
+	/**
+	 * Simple test of adding a number of attributes as well as deleting.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testNewCase() throws RepositoryException {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		Cases newCase = studyRepository.newStudyCase(study, view);
+		assertNotNull(newCase);
+		assertNotNull(newCase.getId());
+		assertNotNull(newCase.getStudyId());
+		
+		// And now let's dig out the new case -- mainly to check that we can actually
+		// follow this identifier.
+		Cases caseValue = studyRepository.getStudyCase(study, view, newCase.getId());
+		assertNotNull(caseValue);
+		assertEquals(newCase.getId(), caseValue.getId());
+	}
 }

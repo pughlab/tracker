@@ -11,6 +11,7 @@ import org.restlet.resource.Get;
 import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -58,7 +59,7 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 		List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
 		dto.setAttributes(attributes);
 		
-    	List<JsonNode> records = getRepository().getData(study, view, attributes, query);
+    	List<ObjectNode> records = getRepository().getData(study, view, attributes, query);
     	dto.setRecords(records);
     	dto.getCounts().setTotal(getRepository().getRecordCount(study, view));
 

@@ -32,7 +32,19 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 	
     @Put("json")
     public Representation putResource(Representation input) {
+    	
     	logger.info("Called putResource() in EntityFieldResource", input);
+    	Subject currentUser = SecurityUtils.getSubject();
+
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	View view = (View) getRequest().getAttributes().get("view");
+    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
+    	String attribute = (String) getRequest().getAttributes().get("entityField");
+    	
+    	boolean writeUser = currentUser.isPermitted("study:write:" + study.getName());
+    	if (! writeUser) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
     	
     	JsonNode data;
     	
@@ -42,13 +54,6 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
 
-    	Subject currentUser = SecurityUtils.getSubject();
-
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
-    	String attribute = (String) getRequest().getAttributes().get("entityField");
-    	
     	// Write the value, handling exceptions we might get, and converting them to
     	// appropriate server responses.
     	try {

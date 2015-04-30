@@ -265,11 +265,10 @@ angular
               if ! caseIdentifier
                 payload = {}
                 payload[fieldName] = fieldData[fieldName]
-                payload = JSON.stringify payload
                 $http
-                  .post "#{baseUrl}/record", payload
+                  .post "#{baseUrl}/entities", JSON.stringify {entity: payload}
                   .success (response) =>
-                    id = response.records[0].id
+                    id = response.entity.id
                     @instance.getSourceDataAtRow(@row).id = id
                     callback true
                   .error (response) ->

@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ViewDataResponse extends ViewAttributesResponse {
 
 	Counts counts = new Counts();
-	List<JsonNode> records = new ArrayList<JsonNode>();
+	List<ObjectNode> records = new ArrayList<ObjectNode>();
 	
 	public ViewDataResponse() {
 		super();
@@ -21,11 +21,11 @@ public class ViewDataResponse extends ViewAttributesResponse {
 	}
 
 	@JsonProperty
-	public List<JsonNode> getRecords() {
+	public List<ObjectNode> getRecords() {
 		return records;
 	}
 
-	public void setRecords(List<JsonNode> records) {
+	public void setRecords(List<ObjectNode> records) {
 		this.records = records;
 	}
 

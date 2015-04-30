@@ -5,6 +5,8 @@ import static junit.framework.Assert.assertTrue;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +16,9 @@ import java.io.StringReader;
 import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.Method;
@@ -22,6 +26,8 @@ import org.restlet.data.Reference;
 import org.restlet.engine.io.ReaderInputStream;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -104,7 +110,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(true);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -152,7 +158,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(true);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -187,5 +193,40 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		// We're currently using a mocked repo here, so we can't really assume we get back
 		// the right value.
 		//assertEquals( "DEMO-XX", data.get("value").getAsString() );
+	}
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+	
+
+	/**
+	 * Tests that writing to a entity field with only read access permitted fails
+	 * appropriately. 
+	 * @throws IOException
+	 */
+	@Test
+	public void resourcePutTestForbidden() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
+		entityFieldResource.getRequest().getAttributes().put("view", testView);
+		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
+		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
+		
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Forbidden"));
+
+		entityFieldResource.putResource(new StringRepresentation("", APPLICATION_JSON));
+		return;
 	}
 }

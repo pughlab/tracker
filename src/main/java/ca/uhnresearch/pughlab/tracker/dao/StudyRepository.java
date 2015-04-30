@@ -3,6 +3,7 @@ package ca.uhnresearch.pughlab.tracker.dao;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
@@ -82,19 +83,25 @@ public interface StudyRepository {
 	 * Retrieves the record-level data for a view and study from the repository
 	 * @return list of JSON nodes
 	 */
-	List<JsonNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query);
+	List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query);
 	
 	/**
 	 * Retrieves a single specified case for a study and view from the repository
 	 * @return a case
 	 */
 	Cases getStudyCase(Study study, View view, Integer caseId);
+	
+	/**
+	 * Makes a new, empty, case
+	 * @return the case identifier
+	 */
+	Cases newStudyCase(Study study, View view) throws RepositoryException;
 
 	/**
 	 * Retrieves the record-level data for a given case, view and study from the repository
 	 * @return JSON object
 	 */
-	JsonNode getCaseData(Study study, View view, Cases caseValue);
+	ObjectNode getCaseData(Study study, View view, Cases caseValue);
 	
 	/**
 	 * Retrieves the attribute value for a given case, view, study, and attribute from the repository

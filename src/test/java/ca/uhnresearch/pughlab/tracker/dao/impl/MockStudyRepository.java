@@ -13,6 +13,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -42,6 +43,7 @@ public class MockStudyRepository implements StudyRepository {
 	
 	private static final Integer caseCount = 10;
 
+	Integer nextCaseId = caseCount;
 	List<Study> studies = new ArrayList<Study>();
 	List<Attributes> attributes = new ArrayList<Attributes>();
 	List<View> views = new ArrayList<View>();
@@ -297,6 +299,11 @@ public class MockStudyRepository implements StudyRepository {
 	private Map<Integer, JsonObject> getAllData(Study study, View view) {
 		
 		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
+		for(Cases caseRecord : cases) {
+			if (! data.containsKey(caseRecord.getId())) {
+				data.put(caseRecord.getId(), new JsonObject());
+			}
+		}
 		for(CaseAttributeStrings string : strings) {
 			Integer caseId = string.getCaseId();
 			if (! data.containsKey(caseId)) {
@@ -325,7 +332,7 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getData
 	 */
-	public List<JsonNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
+	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
 		
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
@@ -345,13 +352,13 @@ public class MockStudyRepository implements StudyRepository {
 		
 		// Now render it to a string (using Gson);
 		String text = result.toString();
-		List<JsonNode> returnable = new ArrayList<JsonNode>();
+		List<ObjectNode> returnable = new ArrayList<ObjectNode>();
 		
 		// And now back into Jackson (!)
 		try {
 			Iterator<JsonNode> i = mapper.readTree(text).elements();
 			while(i.hasNext()) {
-				returnable.add(i.next());
+				returnable.add((ObjectNode) i.next());
 			}
 		} catch (JsonProcessingException e) {
 			logger.error("Internal test error: {}", e.getMessage());
@@ -381,20 +388,19 @@ public class MockStudyRepository implements StudyRepository {
 	}
 	
 	@Override
-	public JsonNode getCaseData(Study study, View view, Cases caseValue) {
-		// TODO Auto-generated method stub
+	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
 		if (! data.containsKey(caseValue.getId())) {
 			return null;
 		}
-		return convertJsonElementToJsonNode(data.get(caseValue.getId()));
+		return convertJsonElementToObjectNode(data.get(caseValue.getId()));
 	}
 
 	@Override
 	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute) {
 		
-		JsonNode caseData = getCaseData(study, view, caseValue);
+		ObjectNode caseData = getCaseData(study, view, caseValue);
 		return caseData.get(attribute);
 	}
 
@@ -409,10 +415,10 @@ public class MockStudyRepository implements StudyRepository {
 		return;
 	}
 
-	private JsonNode convertJsonElementToJsonNode(JsonElement object) {
+	private ObjectNode convertJsonElementToObjectNode(JsonElement object) {
 		String text = object.toString();
 		try {
-			return mapper.readTree(text);
+			return (ObjectNode) mapper.readTree(text);
 		} catch (IOException e) {
 			logger.error("Internal test error: {}", e.getMessage());
 			return null;
@@ -434,5 +440,13 @@ public class MockStudyRepository implements StudyRepository {
 	 */
 	public void setUpdateEventService(UpdateEventService manager) {
 		// Do nothing
+	}
+
+	@Override
+	public Cases newStudyCase(Study study, View view) throws RepositoryException {
+		Cases newCase = new Cases();
+		newCase.setId(nextCaseId++);
+		cases.add(newCase);
+		return newCase;
 	}
 }

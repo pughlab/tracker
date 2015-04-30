@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
@@ -66,7 +66,7 @@ public class ExcelWriterImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(100000);
-    	List<JsonNode> records = repository.getData(study, view, attributes, query);
+    	List<ObjectNode> records = repository.getData(study, view, attributes, query);
     	dto.setRecords(records);
     	
     	dto.getCounts().setTotal(repository.getRecordCount(study, view));

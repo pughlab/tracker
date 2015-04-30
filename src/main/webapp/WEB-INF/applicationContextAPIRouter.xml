@@ -60,7 +60,7 @@
 		<constructor-arg ref="studyRouter" />
 		<property name="attachments">
 	        <map>
-	            <entry key="/entities/{entityId}" value-ref="entityExtractor" />
+	            <entry key="/entities" value-ref="entityFactoryRouter" />
 	        	<entry key="/attributes">
 	        		<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="viewAttributesDataResource" />
@@ -80,7 +80,20 @@
 	    </property>
 	</bean>
 	
-		
+	<bean id="entityFactoryRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="studyRouter" />
+		<property name="attachments">
+	        <map>
+	            <entry key="{entityId}" value-ref="entityExtractor" />
+ 	            <entry key="">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="entityFactoryResource" />
+	            	</bean>
+	            </entry>
+	        </map>
+	    </property>
+	</bean>
+	
 	<bean id="entityExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.EntityExtractor">
 		<property name="repository" ref="studyRepository"/>
 		<property name="next" ref="entityRouter"/>
@@ -121,6 +134,9 @@
 		<property name="repository" ref="studyRepository"/>
 	</bean>
  	<bean id="viewAttributesDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewAttributesResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="entityFactoryResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityFactoryResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
  	<bean id="entityResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityResource" scope="prototype">
