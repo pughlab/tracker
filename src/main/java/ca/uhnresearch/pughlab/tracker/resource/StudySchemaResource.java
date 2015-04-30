@@ -108,12 +108,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	
     	// Now translate into DTOs
     	for(View v : viewList) {
-    		
-    		// Add the view if we have a read permission
-    		String permission = "view:read:" + study.getName() + "-" + v.getName();
-    		if (adminUser || currentUser.isPermitted(permission)) {
-    			dto.getViews().add(v);
-    		}
+    		dto.getViews().add(v);
     	}
     	
     	// And get the attributes for the study
