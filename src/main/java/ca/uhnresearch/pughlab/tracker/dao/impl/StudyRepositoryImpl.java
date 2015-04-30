@@ -678,8 +678,9 @@ public class StudyRepositoryImpl implements StudyRepository {
     		throw new RuntimeException("Invalid attribute type: " + a.getType());
     	}
     	
-    	Object oldRawValue = oldValue.get(0, Object.class);
-		Boolean oldNotAvailable = oldValue.get(1, Boolean.class);
+    	// It is very possible there is no old value, so we ought to handle that appropriately.
+    	Object oldRawValue = oldValue == null ? null : oldValue.get(0, Object.class);
+		Boolean oldNotAvailable = oldValue == null ? false : oldValue.get(1, Boolean.class);
 		if (oldNotAvailable) {
 			auditLogValues.replace("old", getNotAvailableValue());
 		} else if (oldRawValue == null) {
@@ -703,7 +704,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     	template.insert(auditLog, new SqlInsertCallback() {
     		public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
     			return sqlInsertClause.columns(auditLog.studyId, auditLog.caseId, auditLog.attribute, auditLog.eventType, auditLog.eventUser, auditLog.eventTime, auditLog.eventArgs)
-    				.values(caseValue.getId(), study.getId(), attribute, "set_value", userName, new Timestamp((new java.util.Date()).getTime()), auditLogValues.toString())
+    				.values(study.getId(), caseValue.getId(), attribute, "set_value", userName, new Timestamp((new java.util.Date()).getTime()), auditLogValues.toString())
     				.execute();
     		};
     	});
