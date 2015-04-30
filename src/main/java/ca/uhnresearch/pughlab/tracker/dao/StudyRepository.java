@@ -9,7 +9,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEventManager;
+import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
 
 public interface StudyRepository {
 
@@ -114,5 +114,5 @@ public interface StudyRepository {
 	 */
 	List<JsonNode> getAuditData(Study study, CaseQuery query);
 	
-	void setUpdateEventManager(UpdateEventManager manager);
+	void setUpdateEventService(UpdateEventService manager);
 }

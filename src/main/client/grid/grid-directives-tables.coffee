@@ -221,9 +221,11 @@ angular
             ## value. Note that the value is never transmitted over the socket. 
 
             scope.$on 'socket:entityPropertyChange', (evt, data) ->
+              console.log "Got socket:entityPropertyChange", evt, data
 
               ## If we get a cell editing event, we need to identify the cell element, and then update
               ## the right stuff. We might need to do something similar for a row, too. 
+              
               if handsonTable != undefined and data.type == 'cell' and data.userNumber != -1
 
                 handleEditCell data.params.id, data.params.field, data.editingClasses

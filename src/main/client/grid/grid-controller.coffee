@@ -35,18 +35,18 @@ angular
       $scope.$evalAsync () ->
         $scope.currentUsers = []
 
-    socket.on 'welcome', (data) ->
-      $scope.$broadcast 'socket:welcome', data
+    socket.on 'welcome', (event) ->
+      $scope.$broadcast 'socket:welcome', event
 
-    socket.on 'gridEdit', (data) ->
-      data.userNumber = $scope.currentUsers.indexOf(data.user)
-      if data.userNumber != -1
-        data.editingClasses = "editedCellText editedCellUser-#{data.userNumber}"
+    socket.on 'field', (event) ->
+      event.data.userNumber = $scope.currentUsers.indexOf(event.data.user)
+      if event.data.userNumber != -1
+        event.data.editingClasses = "editedCellText editedCellUser-#{event.data.userNumber}"
 
-      $scope.$broadcast 'socket:entityPropertyChange', data
+      $scope.$broadcast 'socket:entityPropertyChange', event
 
-    $scope.$on 'socket:join', (evt, data) ->
-      socket.emit 'join', data
+    $scope.$on 'socket:join', (evt, event) ->
+      socket.emit 'join', event
 
     $scope.$on '$destroy', () ->
       socket.disconnect()

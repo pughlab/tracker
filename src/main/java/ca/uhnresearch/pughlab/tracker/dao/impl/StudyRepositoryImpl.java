@@ -46,7 +46,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEventManager;
+import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
 import static ca.uhnresearch.pughlab.tracker.domain.QAuditLog.auditLog;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBooleans.caseAttributeBooleans;
@@ -68,7 +68,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	private static ObjectMapper objectMapper = new ObjectMapper();
 	
-	private UpdateEventManager manager;
+	private UpdateEventService manager;
 
 	private QueryDslJdbcTemplate template;
 
@@ -776,13 +776,21 @@ public class StudyRepositoryImpl implements StudyRepository {
     	}
     	
     	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
-    	// this if we have an UpdateEventManager set. 
+    	// this if we have an UpdateEventService set. 
     	
-    	UpdateEventManager manager = getUpdateEventManager();
+    	UpdateEventService manager = getUpdateEventService();
     	if (manager != null) {
     		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_SET_FIELD);
     		event.getData().setScope(study.getName());
     		event.getData().setUser(userName);
+    		
+    		final JsonNodeFactory factory = JsonNodeFactory.instance;
+    		ObjectNode parameters = factory.objectNode();
+    		parameters.put("field", attribute);
+    		parameters.put("case", caseValue.getId());
+    		
+    		event.getData().setParameters(parameters);
+
     		manager.sendMessage(event);
     	}
 	}
@@ -888,7 +896,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	/**
 	 * Getter for an update event manager. 
 	 */
-	public UpdateEventManager getUpdateEventManager() {
+	public UpdateEventService getUpdateEventService() {
 		return manager;
 	}
 
@@ -896,7 +904,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Setter for an update event manager, allowing events to be triggered from the repository.
 	 * @param manager
 	 */
-	public void setUpdateEventManager(UpdateEventManager manager) {
+	public void setUpdateEventService(UpdateEventService manager) {
 		this.manager = manager;
 	}
 }

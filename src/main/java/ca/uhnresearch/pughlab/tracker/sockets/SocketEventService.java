@@ -67,12 +67,12 @@ public class SocketEventService {
         		if (r == null) {
         			logger.error("Whoa! Something removed a resource: {}, {}", uuid, r);
         			resources.remove(uuid);
-        			continue;
+        			throw new RuntimeException("Whoa! Something removed a resource: " + uuid);
         		}
         		if (r.getRequest() == null) {
         			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, r);
         			resources.remove(uuid);
-        			continue;
+        			throw new RuntimeException("Whoa! Something removed a resource request: " + uuid);
         		}
 				sendMessage(event, r);
 			}
@@ -121,12 +121,12 @@ public class SocketEventService {
                 		if (other == null) {
                 			logger.error("Whoa! Something removed a resource: {}, {}", uuid, other);
                 			resources.remove(uuid);
-                			continue;
+                			throw new RuntimeException("Whoa! Something removed a resource: " + uuid);
                 		}
                 		if (other.getRequest() == null) {
                 			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, other);
                 			resources.remove(uuid);
-                			continue;
+                			throw new RuntimeException("Whoa! Something removed a resource request: " + uuid);
                 		}
 
                 		// Get the other user
@@ -178,7 +178,9 @@ public class SocketEventService {
 			logger.info("Found scope being watched: {}", scope);
 			
 			List<String> watchers = watcherListByScope.get(scope);
-			assert watchers.remove(uuid);
+			if (! watchers.remove(uuid)) {
+				throw new RuntimeException("Failed to remove watcher: " + uuid);
+			}
 			
 			scopeByWatcher.remove(uuid);
 		}
