@@ -1,6 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,10 +13,6 @@ public class StudyViewsResponse extends StudyResponse {
 		super();
 	}
 	
-	public StudyViewsResponse(URL url, User user, Study s) {
-		super(url, user, s);
-	}
-
 	@JsonProperty
 	public List<View> getViews() {
 		return views;

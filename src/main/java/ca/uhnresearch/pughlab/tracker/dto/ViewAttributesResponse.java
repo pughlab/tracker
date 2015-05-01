@@ -1,6 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,10 +11,6 @@ public class ViewAttributesResponse extends ViewResponse {
 		super();
 	}
 	
-	public ViewAttributesResponse(URL url, User user, Study s, View v) {
-		super(url, user, s, v);
-	}
-
 	List<ViewAttributes> attributes = new ArrayList<ViewAttributes>();
 
 	@JsonProperty

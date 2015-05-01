@@ -3,6 +3,9 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import static junit.framework.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.easymock.EasyMock.*;
@@ -28,12 +31,15 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.sql.RelationalPath;
+import com.mysema.query.sql.SQLQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.domain.QAuditLog;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.AuditLog;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
@@ -400,6 +406,89 @@ public class StudyRepositoryImplTest {
 		
 		assertNotNull(auditEntries);
 		assertEquals(0, auditEntries.size());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testAuditLogWithNoLimits() {
+		Study study = studyRepository.getStudy("DEMO");
+		
+		CaseQuery query = new CaseQuery();
+		query.setOffset(null);
+		query.setLimit(null);
+		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		
+		assertNotNull(auditEntries);
+		assertEquals(0, auditEntries.size());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testAuditLogWithBadData() {
+		Study study = studyRepository.getStudy("DEMO");
+		
+		CaseQuery query = new CaseQuery();
+		query.setOffset(null);
+		query.setLimit(null);
+		
+		List<AuditLog> data = new ArrayList<AuditLog>();
+		AuditLog entry = new AuditLog();
+		entry.setEventTime(Timestamp.from(Instant.now()));
+		entry.setEventArgs("{");
+		data.add(entry);
+		
+		QueryDslJdbcTemplate originalTemplate = studyRepository.getTemplate();
+		QueryDslJdbcTemplate mockTemplate = createMock(QueryDslJdbcTemplate.class);
+		expect(mockTemplate.newSqlQuery()).andStubReturn(originalTemplate.newSqlQuery());
+		expect(mockTemplate.query(anyObject(SQLQuery.class), anyObject(QAuditLog.class))).andStubReturn(data);
+		replay(mockTemplate);
+		
+		studyRepository.setTemplate(mockTemplate);
+		List<JsonNode> auditEntries = null;
+
+		try {
+			auditEntries = studyRepository.getAuditData(study, query);
+		} finally {
+			studyRepository.setTemplate(originalTemplate);
+		}
+		
+		assertNotNull(auditEntries);
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testAuditLogWithGoodData() {
+		Study study = studyRepository.getStudy("DEMO");
+		
+		CaseQuery query = new CaseQuery();
+		query.setOffset(null);
+		query.setLimit(null);
+		
+		List<AuditLog> data = new ArrayList<AuditLog>();
+		AuditLog entry = new AuditLog();
+		entry.setEventTime(Timestamp.from(Instant.now()));
+		entry.setEventArgs("{\"old\":null,\"value\":100}");
+		data.add(entry);
+		
+		QueryDslJdbcTemplate originalTemplate = studyRepository.getTemplate();
+		QueryDslJdbcTemplate mockTemplate = createMock(QueryDslJdbcTemplate.class);
+		expect(mockTemplate.newSqlQuery()).andStubReturn(originalTemplate.newSqlQuery());
+		expect(mockTemplate.query(anyObject(SQLQuery.class), anyObject(QAuditLog.class))).andStubReturn(data);
+		replay(mockTemplate);
+		
+		studyRepository.setTemplate(mockTemplate);
+		List<JsonNode> auditEntries = null;
+
+		try {
+			auditEntries = studyRepository.getAuditData(study, query);
+		} finally {
+			studyRepository.setTemplate(originalTemplate);
+		}
+		
+		assertNotNull(auditEntries);
 	}
 	
 	@Test

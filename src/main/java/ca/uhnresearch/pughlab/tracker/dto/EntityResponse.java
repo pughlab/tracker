@@ -1,7 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import java.net.URL;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -13,11 +11,6 @@ public class EntityResponse extends ViewResponse {
 		super();
 	}
 	
-	public EntityResponse(URL url, User user, Study s, View v, ObjectNode e) {
-		super(url, user, s, v);
-		this.entity = e;
-	}
-
 	/**
 	 * @return the entity
 	 */

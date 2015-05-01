@@ -1,7 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import java.net.URL;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ViewResponse extends StudyResponse {
@@ -12,11 +10,6 @@ public class ViewResponse extends StudyResponse {
 		super();
 	}
 	
-	public ViewResponse(URL url, User user, Study s, View v) {
-		super(url, user, s);
-		this.view = v;
-	}
-
 	@JsonProperty
 	public View getView() {
 		return view;

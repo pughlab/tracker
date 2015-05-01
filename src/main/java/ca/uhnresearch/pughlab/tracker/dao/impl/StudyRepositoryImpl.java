@@ -454,87 +454,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 		return sq.list(cases.id);
 	}
-	
-	/**
-	 * Writes values from a set of data tuples retrieved with a very specific order within getData,
-	 * and wires them into JSON values for returning. 
-	 * @param table
-	 * @param values
-	 */
-	private void writeTupleAttributes(Map<Integer, ObjectNode> table, List<Tuple> values) {
-		for(Tuple v : values) {
-			Integer caseId = v.get(0, Integer.class);
-			String attributeName = v.get(1, String.class);
-			Object value = v.get(2, Object.class);
-			Boolean notAvailable = v.get(3, Boolean.class);
-			String notes = v.get(4, String.class);
-			
-			ObjectNode obj = table.get(caseId);
-			
-			// Add the case identifier
-			obj.put("id", caseId);
-			
-			// Add the value
-			if (notAvailable != null && notAvailable) {
-				obj.replace(attributeName, getNotAvailableValue());
-			} else if (value == null) {
-				obj.put(attributeName, (String) null);
-			} else if (value instanceof String) {
-				obj.put(attributeName, (String) value);
-			} else if (value instanceof Date) {
-				obj.put(attributeName, ((Date) value).toString());
-			} else if (value instanceof Boolean) {
-				obj.put(attributeName, (Boolean) value);
-			} else {
-				throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
-			}
-			
-			// If we have notes, we need to add them. They are added in a per-record
-			// holder attribute, $notes, and need to be decoded from JSON. 
-			if (notes != null) {
-				JsonNode notesNode = null;
-				try {
-					notesNode = objectMapper.readTree(notes);
-				} catch (Exception e) {
-					logger.error("Invalid JSON notes: {}, {}", e.getMessage(), notes);
-				} finally {
-					ObjectNode recordNotesNode;
-					
-					if (! obj.has("$notes")) {
-						recordNotesNode = jsonNodeFactory.objectNode();
-						obj.set("$notes", recordNotesNode);
-					} else {
-						recordNotesNode = (ObjectNode) obj.get("$notes");
-					}
-					if (notesNode != null) {
-						recordNotesNode.set(attributeName, notesNode);
-					}
-				}
-			}
-		}
-	}
-	
-	private JsonNode getNotAvailableValue() {
-		ObjectNode marked = jsonNodeFactory.objectNode();
-		marked.put("$notAvailable", Boolean.TRUE);
-		return marked;
-	}
-	
+		
 	private List<ObjectNode> getJsonData(ListSubQuery<Integer> query) {
-		Map<Integer, ObjectNode> table = new HashMap<Integer, ObjectNode>();
 		
 		SQLQuery caseIdQuery = template.newSqlQuery().from(query.as(cases));
 		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
+		CaseObjectBuilder builder = new CaseObjectBuilder(caseIds);
 
-		List<ObjectNode> objects = new ArrayList<ObjectNode>(caseIds.size());
-		
-		Integer index = 0;
-		for(Integer id : caseIds) {
-			ObjectNode obj = jsonNodeFactory.objectNode();
-			objects.add(index++, obj);
-			table.put(id, obj);
-		}
-		
 		// Right. Now we can add in the attributes from a set of related queries, using the same basic
 		// case query as a starting point. Yes, we're re-doing this query more times than I'd like, but
 		// we can optimize later.
@@ -547,18 +473,17 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId));
 		values = template.query(sqlQuery, new QTuple(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable, caseAttributeStrings.notes));
-		writeTupleAttributes(table, values);
+		builder.addTupleAttributes(values);
 
 		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeDates).on(cases.id.eq(caseAttributeDates.caseId));
 		values = template.query(sqlQuery, new QTuple(caseAttributeDates.caseId, caseAttributeDates.attribute, caseAttributeDates.value, caseAttributeDates.notAvailable, caseAttributeDates.notes));
-		writeTupleAttributes(table, values);
+		builder.addTupleAttributes(values);
 
 		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeBooleans).on(cases.id.eq(caseAttributeBooleans.caseId));
 		values = template.query(sqlQuery, new QTuple(caseAttributeBooleans.caseId, caseAttributeBooleans.attribute, caseAttributeBooleans.value, caseAttributeBooleans.notAvailable, caseAttributeBooleans.notes));
-		writeTupleAttributes(table, values);
+		builder.addTupleAttributes(values);
 
-		return objects;
-
+		return builder.getCaseObjects();
 	}
 	
 	/**
@@ -647,6 +572,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 		JsonNode caseData = getCaseData(study, view, caseValue);
 		return caseData.get(attribute);
 	}
+	
+
+	private JsonNode getNotAvailableValue() {
+		ObjectNode marked = jsonNodeFactory.objectNode();
+		marked.put("$notAvailable", Boolean.TRUE);
+		return marked;
+	}
+
 
 	@Override
 	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
@@ -888,11 +821,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 				argsNode = objectMapper.readTree(audit.getEventArgs());
 			} catch (Exception e) {
 				logger.error("Invalid JSON arguments: {}, {}", e.getMessage(), audit.getEventArgs());
-			} finally {
-				logger.info("Adding data: {}", argsNode.toString());
-				obj.replace("eventArgs", argsNode);
 			}
-
+			
+			obj.replace("eventArgs", argsNode);
     		result.add(obj);
     	}
 
