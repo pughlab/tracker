@@ -1,10 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.sockets;
 
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.*;
+import static org.easymock.EasyMock.*;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import org.apache.shiro.subject.Subject;
 import org.atmosphere.cpr.AtmosphereRequest;
@@ -12,7 +9,10 @@ import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.FrameworkConfig;
 import org.easymock.EasyMock;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,10 @@ public class SocketEventServiceTest {
 		AtmosphereRequest request = createMockedRequest(subject);
         return createMockedResource("0B53896A-35CD-4C6A-8531-99A47E398D04", request);
 	}
-		
+	
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
 	@Test
 	public void testRegister() {
         AtmosphereResource resource1 = getResource1();
@@ -74,6 +77,17 @@ public class SocketEventServiceTest {
 	}
 
 	@Test
+	public void testRegisterInvalid() {
+        AtmosphereResource resource = createMock(AtmosphereResource.class);
+        expect(resource.uuid()).andStubReturn(null);
+        replay(resource);
+
+		thrown.expect(IllegalArgumentException.class);
+
+        service.registerAtmosphereResource(resource);
+	}
+
+	@Test
 	public void testUnregisterWithoutRegistering() {
         AtmosphereResource resource1 = getResource1();
         replay(resource1);
@@ -81,6 +95,17 @@ public class SocketEventServiceTest {
         service.unregisterAtmosphereResource(resource1);
 
         verify(resource1);
+	}
+
+	@Test
+	public void testUnregisterInvalid() {
+        AtmosphereResource resource = createMock(AtmosphereResource.class);
+        expect(resource.uuid()).andStubReturn(null);
+        replay(resource);
+
+		thrown.expect(IllegalArgumentException.class);
+
+        service.unregisterAtmosphereResource(resource);
 	}
 
 	@Test

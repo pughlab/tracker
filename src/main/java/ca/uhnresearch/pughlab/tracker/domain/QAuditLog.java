@@ -9,8 +9,6 @@ import ca.uhnresearch.pughlab.tracker.dto.AuditLog;
 
 import com.mysema.query.sql.ColumnMetadata;
 import com.mysema.query.sql.RelationalPathBase;
-import com.mysema.query.types.Path;
-import com.mysema.query.types.PathMetadata;
 import com.mysema.query.types.path.DateTimePath;
 import com.mysema.query.types.path.NumberPath;
 import com.mysema.query.types.path.StringPath;
@@ -42,21 +40,6 @@ public class QAuditLog extends RelationalPathBase<AuditLog> {
         addMetadata();
     }
     
-    public QAuditLog(String variable, String schema, String table) {
-        super(AuditLog.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QAuditLog(Path<? extends AuditLog> path) {
-        super(path.getType(), path.getMetadata(), "null", "audit_log");
-        addMetadata();
-    }
-
-    public QAuditLog(PathMetadata<?> metadata) {
-        super(AuditLog.class, metadata, "null", "audit_log");
-        addMetadata();
-    }
-
     public void addMetadata() {
         addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
         addMetadata(studyId, ColumnMetadata.named("STUDY_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());

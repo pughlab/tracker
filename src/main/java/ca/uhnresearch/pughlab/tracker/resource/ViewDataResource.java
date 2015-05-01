@@ -10,7 +10,6 @@ import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.resource.Get;
 import org.w3c.dom.Document;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
@@ -49,7 +48,6 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 		super.buildResponseDTO(dto);
 		
     	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
-    	assert query != null;
 
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");

@@ -4,8 +4,6 @@ import static com.mysema.query.types.PathMetadataFactory.*;
 import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeDates;
 
 import com.mysema.query.types.path.*;
-import com.mysema.query.types.PathMetadata;
-import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
@@ -22,21 +20,6 @@ public class QCaseAttributeDates extends QCaseAttributeBase<CaseAttributeDates> 
 
     public QCaseAttributeDates(String variable) {
         super(CaseAttributeDates.class, forVariable(variable), "null", "case_attribute_dates");
-        addMetadata();
-    }
-
-    public QCaseAttributeDates(String variable, String schema, String table) {
-        super(CaseAttributeDates.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QCaseAttributeDates(Path<? extends CaseAttributeDates> path) {
-        super(path.getType(), path.getMetadata(), "null", "case_attribute_dates");
-        addMetadata();
-    }
-
-    public QCaseAttributeDates(PathMetadata<?> metadata) {
-        super(CaseAttributeDates.class, metadata, "null", "case_attribute_dates");
         addMetadata();
     }
 

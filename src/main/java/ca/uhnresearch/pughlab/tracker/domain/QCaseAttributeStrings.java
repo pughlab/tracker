@@ -4,8 +4,6 @@ import static com.mysema.query.types.PathMetadataFactory.*;
 import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeStrings;
 
 import com.mysema.query.types.path.*;
-import com.mysema.query.types.PathMetadata;
-import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
@@ -22,21 +20,6 @@ public class QCaseAttributeStrings extends QCaseAttributeBase<CaseAttributeStrin
 
     public QCaseAttributeStrings(String variable) {
         super(CaseAttributeStrings.class, forVariable(variable), "null", "case_attribute_strings");
-        addMetadata();
-    }
-
-    public QCaseAttributeStrings(String variable, String schema, String table) {
-        super(CaseAttributeStrings.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QCaseAttributeStrings(Path<? extends CaseAttributeStrings> path) {
-        super(path.getType(), path.getMetadata(), "null", "case_attribute_strings");
-        addMetadata();
-    }
-
-    public QCaseAttributeStrings(PathMetadata<?> metadata) {
-        super(CaseAttributeStrings.class, metadata, "null", "case_attribute_strings");
         addMetadata();
     }
 

@@ -8,7 +8,7 @@ public abstract class CaseAttributeBase {
 
     private Integer id;
 
-    private Boolean notAvailable;
+    private Boolean notAvailable = false;
 
     private String notes;
 

@@ -4,8 +4,6 @@ import static com.mysema.query.types.PathMetadataFactory.*;
 import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeBooleans;
 
 import com.mysema.query.types.path.*;
-import com.mysema.query.types.PathMetadata;
-import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
@@ -22,21 +20,6 @@ public class QCaseAttributeBooleans extends QCaseAttributeBase<CaseAttributeBool
 
     public QCaseAttributeBooleans(String variable) {
         super(CaseAttributeBooleans.class, forVariable(variable), "null", "case_attribute_booleans");
-        addMetadata();
-    }
-
-    public QCaseAttributeBooleans(String variable, String schema, String table) {
-        super(CaseAttributeBooleans.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QCaseAttributeBooleans(Path<? extends CaseAttributeBooleans> path) {
-        super(path.getType(), path.getMetadata(), "null", "case_attribute_booleans");
-        addMetadata();
-    }
-
-    public QCaseAttributeBooleans(PathMetadata<?> metadata) {
-        super(CaseAttributeBooleans.class, metadata, "null", "case_attribute_booleans");
         addMetadata();
     }
 

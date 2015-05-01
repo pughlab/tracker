@@ -28,10 +28,6 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
     	View view = (View) getRequest().getAttributes().get("view");
     	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
 
-    	assert study != null;
-    	assert view != null;
-    	assert attributes != null;
-    	
     	dto.setStudy(study);
     	dto.setView(view);
     	dto.setAttributes(attributes);

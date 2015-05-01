@@ -4,22 +4,10 @@ import static com.mysema.query.types.PathMetadataFactory.*;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
 import com.mysema.query.types.path.*;
-import com.mysema.query.types.PathMetadata;
-
-import javax.annotation.Generated;
-
-import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
-
-
-
-/**
- * QViews is a Querydsl query type for Views
- */
-@Generated("com.mysema.query.sql.codegen.MetaDataSerializer")
 public class QView extends com.mysema.query.sql.RelationalPathBase<View> {
 
     private static final long serialVersionUID = 260109481;
@@ -40,21 +28,6 @@ public class QView extends com.mysema.query.sql.RelationalPathBase<View> {
 
     public QView(String variable) {
         super(View.class, forVariable(variable), "null", "views");
-        addMetadata();
-    }
-
-    public QView(String variable, String schema, String table) {
-        super(View.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QView(Path<? extends View> path) {
-        super(path.getType(), path.getMetadata(), "null", "views");
-        addMetadata();
-    }
-
-    public QView(PathMetadata<?> metadata) {
-        super(View.class, metadata, "null", "views");
         addMetadata();
     }
 

@@ -145,6 +145,13 @@
  	<bean id="entityFieldResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityFieldResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
-	<bean id="excelWriter" class="ca.uhnresearch.pughlab.tracker.services.impl.ExcelWriterImpl"></bean>
+	
+	<bean id="excelWriter" class="ca.uhnresearch.pughlab.tracker.services.impl.ExcelWriterImpl">
+		<property name="documentBuilderFactory" ref="documentBuilderFactory" />
+	</bean>
+	
+	<bean id="documentBuilderFactory" class="javax.xml.parsers.DocumentBuilder" factory-method="newInstance" />
+	
+	
 	
 </beans>

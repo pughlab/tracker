@@ -1,10 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 
@@ -25,19 +21,15 @@ import org.restlet.resource.ResourceException;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 public class EntityFactoryResourceTest extends AbstractShiroTest {
 
-	private Gson gson = new Gson();
 	private EntityFactoryResource resource;
 	private StudyRepository repository = new MockStudyRepository();
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;

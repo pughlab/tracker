@@ -4,22 +4,11 @@ import static com.mysema.query.types.PathMetadataFactory.*;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 
 import com.mysema.query.types.path.*;
-import com.mysema.query.types.PathMetadata;
 
-import javax.annotation.Generated;
-
-import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
-
-
-
-/**
- * QStudies is a Querydsl query type for Studies
- */
-@Generated("com.mysema.query.sql.codegen.MetaDataSerializer")
 public class QStudy extends com.mysema.query.sql.RelationalPathBase<Study> {
 
     private static final long serialVersionUID = -1476278366;
@@ -36,21 +25,6 @@ public class QStudy extends com.mysema.query.sql.RelationalPathBase<Study> {
 
     public QStudy(String variable) {
         super(Study.class, forVariable(variable), "null", "studies");
-        addMetadata();
-    }
-
-    public QStudy(String variable, String schema, String table) {
-        super(Study.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QStudy(Path<? extends Study> path) {
-        super(path.getType(), path.getMetadata(), "null", "studies");
-        addMetadata();
-    }
-
-    public QStudy(PathMetadata<?> metadata) {
-        super(Study.class, metadata, "null", "studies");
         addMetadata();
     }
 

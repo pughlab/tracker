@@ -68,7 +68,7 @@ public class MockStudyRepository implements StudyRepository {
 		attributes.add(mockAttribute(2, "patientId", "Patient", 2, 1, "string"));
 		attributes.add(mockAttribute(3, "mrn", "MRN", 3, 1, "string"));
 		attributes.add(mockAttribute(4, "consentDate", "Date of Consent", 4, 1, "date"));
-		attributes.add(mockAttribute(5, "specimenAvailable", "Biobank Specimen Available? (Yes/No)", 5, 1, "date"));
+		attributes.add(mockAttribute(5, "specimenAvailable", "Biobank Specimen Available? (Yes/No)", 5, 1, "boolean"));
 		
 		// And the view attribute mapping
 		
@@ -109,6 +109,7 @@ public class MockStudyRepository implements StudyRepository {
 		for(Integer i = 0; i < caseCount; i++) {
 			Calendar date = Calendar.getInstance();
 			date.set(2014, 8, i + 10);
+			dates.add(mockCaseAttributeDates(i, "dateEntered", new Date(date.getTimeInMillis())));
 			dates.add(mockCaseAttributeDates(i, "consentDate", new Date(date.getTimeInMillis())));
 			strings.add(mockCaseAttributeStrings(i, "patientId", String.format("DEMO-%02d", i)));
 		}
@@ -126,7 +127,6 @@ public class MockStudyRepository implements StudyRepository {
 		bv.setNotAvailable(true);
 		booleans.add(bv);
 		booleans.add(mockCaseAttributeBooleans(4, "specimenAvailable", false));
-	
 	}
 	
 	private Cases mockCase(Integer id) {
@@ -309,24 +309,42 @@ public class MockStudyRepository implements StudyRepository {
 			if (! data.containsKey(caseId)) {
 				data.put(caseId, new JsonObject());
 			}
-			data.get(caseId).addProperty(string.getAttribute(), string.getValue());
+			if (string.getNotAvailable()) {
+				data.get(caseId).add(string.getAttribute(), getNotAvailableValue());
+			} else {
+				data.get(caseId).addProperty(string.getAttribute(), string.getValue());
+			}
 		}
 		for(CaseAttributeDates date : dates) {
 			Integer caseId = date.getCaseId();
 			if (! data.containsKey(caseId)) {
 				data.put(caseId, new JsonObject());
 			}
-			data.get(caseId).addProperty(date.getAttribute(), date.getValue().toString());
+			if (date.getNotAvailable()) {
+				data.get(caseId).add(date.getAttribute(), getNotAvailableValue());
+			} else {
+				data.get(caseId).addProperty(date.getAttribute(), date.getValue().toString());
+			}
 		}
 		for(CaseAttributeBooleans bool : booleans) {
 			Integer caseId = bool.getCaseId();
 			if (! data.containsKey(caseId)) {
 				data.put(caseId, new JsonObject());
 			}
-			data.get(caseId).addProperty(bool.getAttribute(), bool.getValue());
+			if (bool.getNotAvailable()) {
+				data.get(caseId).add(bool.getAttribute(), getNotAvailableValue());
+			} else {
+				data.get(caseId).addProperty(bool.getAttribute(), bool.getValue());
+			}
 		}
 		
 		return data;
+	}
+	
+	private JsonObject getNotAvailableValue() {
+		JsonObject value = new JsonObject();
+		value.addProperty("$notAvailable", true);
+		return value;
 	}
 
 	/**

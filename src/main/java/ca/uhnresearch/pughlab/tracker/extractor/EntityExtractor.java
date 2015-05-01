@@ -31,8 +31,10 @@ public class EntityExtractor extends Extractor {
 		View view = (View) request.getAttributes().get("view");
 		String idValue = (String) request.getAttributes().get("entityId");
 		
-		Integer caseId = Integer.parseInt(idValue);
-		if (caseId == null) {
+		Integer caseId = null;
+		try {
+			caseId = Integer.parseInt(idValue);
+		} catch (NumberFormatException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
 		

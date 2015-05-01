@@ -20,23 +20,24 @@ public class ExcelWriterImpl implements ExcelWriter {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private final String EXCEL_NAMESPACE = "urn:schemas-microsoft-com:office:spreadsheet";
+	
+	private DocumentBuilderFactory documentBuilderfactory;
 
 	@Override
 	public Document getExcelDocument(ViewDataResponse data) {
 		
 		Document doc = null;
-		
+				
 		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setNamespaceAware(true);
-			
-			DocumentBuilder builder = factory.newDocumentBuilder();
+			documentBuilderfactory.setNamespaceAware(true);			
+			DocumentBuilder builder = documentBuilderfactory.newDocumentBuilder();
 			doc = builder.newDocument();
 						
 		} catch (ParserConfigurationException e) {
-			logger.error("Failed to generate XML parser: " + e.getMessage());
 			throw new RuntimeException("Failed to generate XML parser");
 		}
+		
+		logger.debug("Writing Excel XML data");
 		
 		Element rootElement = doc.createElementNS(EXCEL_NAMESPACE, "ss:Workbook");
 		rootElement.setAttribute("xmlns:ss", EXCEL_NAMESPACE);
@@ -152,5 +153,12 @@ public class ExcelWriterImpl implements ExcelWriter {
 		body.appendChild(doc.createTextNode(data));
 		
 		cell.appendChild(body);
+	}
+
+	/**
+	 * @param documentBuilderfactory the documentBuilderfactory to set
+	 */
+	public void setDocumentBuilderfactory(DocumentBuilderFactory documentBuilderfactory) {
+		this.documentBuilderfactory = documentBuilderfactory;
 	}
 }

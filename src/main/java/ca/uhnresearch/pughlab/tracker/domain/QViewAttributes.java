@@ -4,22 +4,10 @@ import static com.mysema.query.types.PathMetadataFactory.*;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 
 import com.mysema.query.types.path.*;
-import com.mysema.query.types.PathMetadata;
-
-import javax.annotation.Generated;
-
-import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
-
-
-
-/**
- * QViewAttributes is a Querydsl query type for ViewAttributes
- */
-@Generated("com.mysema.query.sql.codegen.MetaDataSerializer")
 public class QViewAttributes extends com.mysema.query.sql.RelationalPathBase<ViewAttributes> {
 
     private static final long serialVersionUID = 1993272833;
@@ -38,21 +26,6 @@ public class QViewAttributes extends com.mysema.query.sql.RelationalPathBase<Vie
 
     public QViewAttributes(String variable) {
         super(ViewAttributes.class, forVariable(variable), "null", "view_attributes");
-        addMetadata();
-    }
-
-    public QViewAttributes(String variable, String schema, String table) {
-        super(ViewAttributes.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QViewAttributes(Path<? extends ViewAttributes> path) {
-        super(path.getType(), path.getMetadata(), "null", "view_attributes");
-        addMetadata();
-    }
-
-    public QViewAttributes(PathMetadata<?> metadata) {
-        super(ViewAttributes.class, metadata, "null", "view_attributes");
         addMetadata();
     }
 

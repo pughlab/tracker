@@ -4,22 +4,11 @@ import static com.mysema.query.types.PathMetadataFactory.*;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 
 import com.mysema.query.types.path.*;
-import com.mysema.query.types.PathMetadata;
 
-import javax.annotation.Generated;
-
-import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
-
-
-
-/**
- * QCases is a Querydsl query type for Cases
- */
-@Generated("com.mysema.query.sql.codegen.MetaDataSerializer")
 public class QCases extends com.mysema.query.sql.RelationalPathBase<Cases> {
 
     private static final long serialVersionUID = 242337150;
@@ -36,21 +25,6 @@ public class QCases extends com.mysema.query.sql.RelationalPathBase<Cases> {
 
     public QCases(String variable) {
         super(Cases.class, forVariable(variable), "null", "cases");
-        addMetadata();
-    }
-
-    public QCases(String variable, String schema, String table) {
-        super(Cases.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QCases(Path<? extends Cases> path) {
-        super(path.getType(), path.getMetadata(), "null", "cases");
-        addMetadata();
-    }
-
-    public QCases(PathMetadata<?> metadata) {
-        super(Cases.class, metadata, "null", "cases");
         addMetadata();
     }
 

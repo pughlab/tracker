@@ -1,8 +1,11 @@
 package ca.uhnresearch.pughlab.tracker.services;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -10,9 +13,13 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import static junit.framework.Assert.*;
+import static org.easymock.EasyMock.*;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
@@ -76,15 +83,69 @@ public class ExcelWriterImplTest {
 	
 	@Test
 	public void excelTest() {
-		assertNotNull(dto);
+    	assertNotNull(dto);
 		
-		Document result = excelWriter.getExcelDocument(dto);
+    	excelWriter.setDocumentBuilderfactory(DocumentBuilderFactory.newInstance());
+    	Document result = excelWriter.getExcelDocument(dto);
 		assertNotNull(result);
 		
 		String xml = getStringFromDocument(result);
 		assertNotNull(xml);
 	}
 	
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	@Test
+	public void excelTestBadDocumentBuilder() throws ParserConfigurationException {
+    	assertNotNull(dto);
+    	
+    	DocumentBuilderFactory badBuilder = createMock(DocumentBuilderFactory.class);
+    	badBuilder.setNamespaceAware(true);
+    	expectLastCall();
+    	expect(badBuilder.newDocumentBuilder()).andThrow(new ParserConfigurationException("Bad parser"));
+    	replay(badBuilder);
+    	
+		thrown.expect(RuntimeException.class);
+		thrown.expectMessage(containsString("Failed to generate XML parser"));
+		
+    	excelWriter.setDocumentBuilderfactory(badBuilder);
+    	excelWriter.getExcelDocument(dto);
+	}
+	
+	
+	@Test
+	public void excelTestBadAttributes() throws ParserConfigurationException {
+    	assertNotNull(dto);
+    	
+    	excelWriter.setDocumentBuilderfactory(DocumentBuilderFactory.newInstance());
+    	
+    	ViewDataResponse alternate = new ViewDataResponse();
+    	alternate.setUser(dto.getUser());
+    	alternate.setStudy(dto.getStudy());
+    	alternate.setServiceUrl(dto.getServiceUrl());
+    	alternate.setRecords(dto.getRecords());
+    	
+    	List<ViewAttributes> attributes = dto.getAttributes();
+    	ViewAttributes first = new ViewAttributes();
+    	first.setId(attributes.get(0).getId());
+    	first.setName(attributes.get(0).getName());
+    	first.setType("xxx");
+    	first.setLabel(attributes.get(0).getLabel());
+    	
+    	List<ViewAttributes> newAttributes = new ArrayList<ViewAttributes>();
+    	newAttributes.addAll(attributes);
+    	newAttributes.remove(0);
+    	newAttributes.add(0,  first);
+    	alternate.setAttributes(newAttributes);
+
+		thrown.expect(RuntimeException.class);
+		thrown.expectMessage(containsString("Invalid type: xxx"));
+		
+    	excelWriter.getExcelDocument(alternate);
+	}
+	
+
 	private String getStringFromDocument(Document doc) {
 		try {
 			DOMSource domSource = new DOMSource(doc);

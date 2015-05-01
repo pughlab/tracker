@@ -51,6 +51,19 @@ public class SocketEventService {
 		}
 	}
 	
+	private void checkResource(String uuid, AtmosphereResource r) throws RuntimeException {
+		if (r == null) {
+			logger.error("Whoa! Something removed a resource: {}, {}", uuid, r);
+			resources.remove(uuid);
+			throw new RuntimeException("Whoa! Something removed a resource: " + uuid);
+		}
+		if (r.getRequest() == null) {
+			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, r);
+			resources.remove(uuid);
+			throw new RuntimeException("Whoa! Something removed a resource request: " + uuid);
+		}
+	}
+	
 	/**
 	 * Sends a message to all connected resources with a given scope.
 	 */
@@ -64,16 +77,7 @@ public class SocketEventService {
 		if (resourceKeys != null) {
 			for (String uuid : resourceKeys) {
 				AtmosphereResource r = resources.get(uuid);
-        		if (r == null) {
-        			logger.error("Whoa! Something removed a resource: {}, {}", uuid, r);
-        			resources.remove(uuid);
-        			throw new RuntimeException("Whoa! Something removed a resource: " + uuid);
-        		}
-        		if (r.getRequest() == null) {
-        			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, r);
-        			resources.remove(uuid);
-        			throw new RuntimeException("Whoa! Something removed a resource request: " + uuid);
-        		}
+				checkResource(uuid, r);
 				sendMessage(event, r);
 			}
 		}
@@ -118,16 +122,7 @@ public class SocketEventService {
         		if (resourceKeys != null) {
         			for (String uuid : resourceKeys) {
         				AtmosphereResource other = resources.get(uuid);
-                		if (other == null) {
-                			logger.error("Whoa! Something removed a resource: {}, {}", uuid, other);
-                			resources.remove(uuid);
-                			throw new RuntimeException("Whoa! Something removed a resource: " + uuid);
-                		}
-                		if (other.getRequest() == null) {
-                			logger.error("Whoa! Something removed a resource request for: {}, {}", uuid, other);
-                			resources.remove(uuid);
-                			throw new RuntimeException("Whoa! Something removed a resource request: " + uuid);
-                		}
+        				checkResource(uuid, other);
 
                 		// Get the other user
                 		Subject otherSubject = (Subject) other.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);

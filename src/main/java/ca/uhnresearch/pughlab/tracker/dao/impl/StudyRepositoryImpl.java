@@ -78,7 +78,11 @@ public class StudyRepositoryImpl implements StudyRepository {
         this.template = template;
     }
 
-    /**
+    public QueryDslJdbcTemplate getTemplate() {
+        return template;
+    }
+
+	/**
      * Returns a list of studies
      * @param study
      * @return
@@ -430,7 +434,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return
 	 */
 	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, CaseQuery query) {
-		assert query != null;
 		
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		
@@ -467,7 +470,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 			String notes = v.get(4, String.class);
 			
 			ObjectNode obj = table.get(caseId);
-			assert obj != null;
 			
 			// Add the case identifier
 			obj.put("id", caseId);
@@ -797,11 +799,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final String value) {
+		final String writableValue = valueNotAvailable ? null : value;
 		long updateCount = template.update(caseAttributeStrings, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(caseAttributeStrings.caseId.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)))
 					.set(caseAttributeStrings.notAvailable, valueNotAvailable)
-					.set(caseAttributeStrings.value, valueNotAvailable ? null : value)
+					.set(caseAttributeStrings.value, writableValue)
 					.execute();
 			};
 		});
@@ -809,7 +812,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		template.insert(caseAttributeStrings, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable)
-					.values(caseValue.getId(), attribute, valueNotAvailable ? null : value, valueNotAvailable)
+					.values(caseValue.getId(), attribute, writableValue, valueNotAvailable)
 					.execute();
 			};
 		});
@@ -817,11 +820,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final Date value) {
+		final Date writableValue = valueNotAvailable ? null : value;
 		long updateCount = template.update(caseAttributeDates, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(caseAttributeDates.caseId.eq(caseValue.getId()).and(caseAttributeDates.attribute.eq(attribute)))
 					.set(caseAttributeDates.notAvailable, valueNotAvailable)
-					.set(caseAttributeDates.value, valueNotAvailable ? null : value)
+					.set(caseAttributeDates.value, writableValue)
 					.execute();
 			};
 		});
@@ -829,18 +833,19 @@ public class StudyRepositoryImpl implements StudyRepository {
 		template.insert(caseAttributeDates, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeDates.caseId, caseAttributeDates.attribute, caseAttributeDates.value, caseAttributeDates.notAvailable)
-					.values(caseValue.getId(), attribute, valueNotAvailable ? null : value, valueNotAvailable)
+					.values(caseValue.getId(), attribute, writableValue, valueNotAvailable)
 					.execute();
 			};
 		});
 	}
 
 	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final Boolean value) {
+		final Boolean writableValue = valueNotAvailable ? null : value;
 		long updateCount = template.update(caseAttributeBooleans, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(caseAttributeBooleans.caseId.eq(caseValue.getId()).and(caseAttributeBooleans.attribute.eq(attribute)))
 					.set(caseAttributeBooleans.notAvailable, valueNotAvailable)
-					.set(caseAttributeBooleans.value, valueNotAvailable ? null : value)
+					.set(caseAttributeBooleans.value, writableValue)
 					.execute();
 			};
 		});
@@ -848,7 +853,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		template.insert(caseAttributeBooleans, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(caseAttributeBooleans.caseId, caseAttributeBooleans.attribute, caseAttributeBooleans.value, caseAttributeBooleans.notAvailable)
-					.values(caseValue.getId(), attribute, valueNotAvailable ? null : value, valueNotAvailable)
+					.values(caseValue.getId(), attribute, writableValue, valueNotAvailable)
 					.execute();
 			};
 		});

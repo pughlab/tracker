@@ -78,4 +78,23 @@ public class EntityExtractorTest {
 
 		extractor.handle(request, response);
 	}
+
+	@Test
+	public void testInvalidEntity() {
+		
+		Reference reference = new Reference();
+		Request request = new Request(Method.GET, reference);
+		Response response = new Response(request);
+		
+		Study study = repository.getStudy("DEMO");
+		request.getAttributes().put("study", study);
+		View view = repository.getStudyView(study, "complete");
+		request.getAttributes().put("view", view);
+		request.getAttributes().put("entityId", "");
+
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Bad Request"));
+
+		extractor.handle(request, response);
+	}
 }

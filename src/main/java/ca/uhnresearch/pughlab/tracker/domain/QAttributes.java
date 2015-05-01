@@ -4,22 +4,11 @@ import static com.mysema.query.types.PathMetadataFactory.*;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 
 import com.mysema.query.types.path.*;
-import com.mysema.query.types.PathMetadata;
 
-import javax.annotation.Generated;
-
-import com.mysema.query.types.Path;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
-
-
-
-/**
- * QAttributes is a Querydsl query type for Attributes
- */
-@Generated("com.mysema.query.sql.codegen.MetaDataSerializer")
 public class QAttributes extends com.mysema.query.sql.RelationalPathBase<Attributes> {
 
     private static final long serialVersionUID = 1988295676;
@@ -46,21 +35,6 @@ public class QAttributes extends com.mysema.query.sql.RelationalPathBase<Attribu
 
     public QAttributes(String variable) {
         super(Attributes.class, forVariable(variable), "null", "attributes");
-        addMetadata();
-    }
-
-    public QAttributes(String variable, String schema, String table) {
-        super(Attributes.class, forVariable(variable), schema, table);
-        addMetadata();
-    }
-
-    public QAttributes(Path<? extends Attributes> path) {
-        super(path.getType(), path.getMetadata(), "null", "attributes");
-        addMetadata();
-    }
-
-    public QAttributes(PathMetadata<?> metadata) {
-        super(Attributes.class, metadata, "null", "attributes");
         addMetadata();
     }
 
