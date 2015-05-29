@@ -13,8 +13,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.Tuple;
 import com.mysema.query.types.QTuple;

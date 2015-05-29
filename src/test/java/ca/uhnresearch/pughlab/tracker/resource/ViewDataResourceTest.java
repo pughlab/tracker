@@ -2,7 +2,6 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import static junit.framework.Assert.*;
 import static org.easymock.EasyMock.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.IOException;
 
@@ -13,16 +12,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
-import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;

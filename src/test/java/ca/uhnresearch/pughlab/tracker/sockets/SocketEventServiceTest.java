@@ -1,7 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.sockets;
 
 import static org.easymock.EasyMock.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
 
 import org.apache.shiro.subject.Subject;
 import org.atmosphere.cpr.AtmosphereRequest;
@@ -12,7 +11,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
