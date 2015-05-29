@@ -5,8 +5,17 @@
 	<artifactId>tracker-java-restlet</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
+	
+	<name>tracker</name>
+	<description>
+	A generic tracking system designed for easy and secure data recording within large
+	distributed research projects.
+	</description>
+	<inceptionYear>2014</inceptionYear>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
 		<restlet.version>2.3.1</restlet.version>
 		<spring.version>4.1.6.RELEASE</spring.version>
 		<slf4j.version>1.7.7</slf4j.version>
@@ -14,6 +23,7 @@
 		<querydsl.version>3.6.1</querydsl.version>
 		<shiro.version>1.2.3</shiro.version>
 		<quartz.version>2.2.1</quartz.version>
+		<jackson.version>2.4.4</jackson.version>
 	</properties>
 	
 	<licenses>
@@ -23,6 +33,51 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    
+    <issueManagement>
+	    <system>GitHub Issues</system>
+	    <url>https://github.com/pughlab/tracker/issues</url>
+	</issueManagement>
+
+	<scm>
+	    <url>https://github.com/pughlab/tracker</url>
+	    <connection>scm:git:git@github.com:pughlab/tracker.git</connection>
+	    <developerConnection>scm:git:git@github.com:pughlab/tracker.git</developerConnection>
+	</scm>
+        
+    <developers>
+		<developer>
+			<id>stuartw</id>
+			<name>Stuart Watt</name>
+			<email>stuart@morungos.com</email>
+			<organization>University Health Network</organization>
+			<organizationUrl>http://uhnresearch.ca</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>America/Toronto</timezone>
+		</developer>
+	</developers>
+	
+	<contributors>
+		<contributor>
+			<name>Lillian Siu</name>
+			<organization>University Health Network</organization>
+				<organizationUrl>http://uhn.ca</organizationUrl>
+			<roles>
+				<role>project sponsor</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Trevor Pugh</name>
+			<organization>University Health Network</organization>
+			<organizationUrl>http://uhnresearch.ca</organizationUrl>
+			<roles>
+				<role>project lead</role>
+			</roles>
+		</contributor>
+	</contributors>
 
 	<dependencies>
 		<dependency>
@@ -41,34 +96,42 @@
 			<version>${restlet.version}</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.apache.shiro</groupId>
-		    <artifactId>shiro-core</artifactId>
-		    <version>${shiro.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.apache.shiro</groupId>
-		    <artifactId>shiro-web</artifactId>
-		    <version>${shiro.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.spring</artifactId>
 			<version>${restlet.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.jackson</artifactId>
 			<version>${restlet.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-annotations</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
@@ -83,18 +146,10 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -104,7 +159,6 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
@@ -120,6 +174,41 @@
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-sql</artifactId>
 			<version>${querydsl.version}</version>
+		</dependency>
+		
+		<!-- Jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-annotations</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		
+		<!-- Shiro -->
+		<dependency>
+		    <groupId>org.apache.shiro</groupId>
+		    <artifactId>shiro-core</artifactId>
+		    <version>${shiro.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.shiro</groupId>
+		    <artifactId>shiro-web</artifactId>
+		    <version>${shiro.version}</version>
 		</dependency>
 		
 		<!-- Quartz framework -->
@@ -157,7 +246,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -210,6 +298,61 @@
 		</dependency>
 				
 	</dependencies>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.yaml</groupId>
+				<artifactId>snakeyaml</artifactId>
+				<version>1.13</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-webmvc</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-expression</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-jdbc</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-tx</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
@@ -500,7 +643,6 @@
 			            <!-- Two rule sets that come bundled with PMD -->
 			            <ruleset>rulesets/java/basic.xml</ruleset>
 			            <ruleset>rulesets/java/codesize.xml</ruleset>
-			            <ruleset>rulesets/java/coupling.xml</ruleset>
 			            <ruleset>rulesets/java/comments.xml</ruleset>
 			            <ruleset>rulesets/java/design.xml</ruleset>
 			            <ruleset>rulesets/java/imports.xml</ruleset>
