@@ -14,6 +14,14 @@
 		<querydsl.version>3.6.1</querydsl.version>
 		<shiro.version>1.2.3</shiro.version>
 	</properties>
+	
+	<licenses>
+        <license>
+            <name>BSD 3-Clause License</name>
+            <url>http://opensource.org/licenses/BSD-3-Clause</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
 	<dependencies>
 		<dependency>
