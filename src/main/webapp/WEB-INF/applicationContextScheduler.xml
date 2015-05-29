@@ -8,20 +8,27 @@
 	                    http://www.springframework.org/schema/util
 	                    http://www.springframework.org/schema/util/spring-util.xsd">
 
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	    <property name="triggers">
+	        <list>
+	            <ref bean="cronTrigger"/>
+	        </list>
+	    </property>
+	</bean>
 
 	<!-- Run the job every 5 seconds only on Weekends -->
     <bean id="cronTrigger"  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="jobDetail" ref="complexJobDetail" />
-        <property name="cronExpression" value="0/5 * * * * *" />
+        <property name="jobDetail" ref="scheduledJobDetail" />
+        <property name="cronExpression" value="0 * * * * ?" />
     </bean>
     
-    <bean name="complexJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-        <property name="jobClass" value="ca.uhnresearch.pughlab.tracker.scheduling.ScheduledJob" />
-        <property name="jobDataMap">
-            <map>
-            </map>
-        </property>
-        <property name="durability" value="true" />
-    </bean>
-	                    
+    <bean id="scheduledJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject" ref="scheduledJob"/>
+	    <property name="targetMethod" value="execute"/>
+	    <property name="concurrent" value="false"/>
+	</bean>
+	
+	<bean id="scheduledJob" class="ca.uhnresearch.pughlab.tracker.scheduling.ScheduledJob">
+	</bean>
+    
 </beans>
