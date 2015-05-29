@@ -150,7 +150,7 @@
 		<property name="documentBuilderFactory" ref="documentBuilderFactory" />
 	</bean>
 	
-	<bean id="documentBuilderFactory" class="javax.xml.parsers.DocumentBuilder" factory-method="newInstance" />
+	<bean id="documentBuilderFactory" class="javax.xml.parsers.DocumentBuilderFactory" factory-method="newInstance" />
 	
 	
 	

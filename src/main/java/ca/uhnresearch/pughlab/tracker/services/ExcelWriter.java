@@ -9,5 +9,5 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 public interface ExcelWriter {
 	Document getExcelDocument(ViewDataResponse data);
 	
-	void setDocumentBuilderfactory(DocumentBuilderFactory documentBuilderfactory);
+	void setDocumentBuilderFactory(DocumentBuilderFactory documentBuilderFactory);
 }

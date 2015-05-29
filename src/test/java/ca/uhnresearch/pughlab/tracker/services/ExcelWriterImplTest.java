@@ -85,7 +85,7 @@ public class ExcelWriterImplTest {
 	public void excelTest() {
     	assertNotNull(dto);
 		
-    	excelWriter.setDocumentBuilderfactory(DocumentBuilderFactory.newInstance());
+    	excelWriter.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
     	Document result = excelWriter.getExcelDocument(dto);
 		assertNotNull(result);
 		
@@ -109,7 +109,7 @@ public class ExcelWriterImplTest {
 		thrown.expect(RuntimeException.class);
 		thrown.expectMessage(containsString("Failed to generate XML parser"));
 		
-    	excelWriter.setDocumentBuilderfactory(badBuilder);
+    	excelWriter.setDocumentBuilderFactory(badBuilder);
     	excelWriter.getExcelDocument(dto);
 	}
 	
@@ -118,7 +118,7 @@ public class ExcelWriterImplTest {
 	public void excelTestBadAttributes() throws ParserConfigurationException {
     	assertNotNull(dto);
     	
-    	excelWriter.setDocumentBuilderfactory(DocumentBuilderFactory.newInstance());
+    	excelWriter.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
     	
     	ViewDataResponse alternate = new ViewDataResponse();
     	alternate.setUser(dto.getUser());

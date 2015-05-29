@@ -22,6 +22,7 @@
 			WEB-INF/applicationContext.xml
 			WEB-INF/applicationContextDatabase.xml
 			WEB-INF/applicationContextAPIRouter.xml
+			WEB-INF/applicationContextScheduler.xml
 		</param-value>
 	</context-param>
 	

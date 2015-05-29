@@ -133,9 +133,9 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		query.setOffset(0);
 		resource.getRequest().getAttributes().put("query", query);
 		
-		DocumentBuilderFactory documentBuilderfactory = DocumentBuilderFactory.newInstance();
-		documentBuilderfactory.setNamespaceAware(true);			
-		DocumentBuilder builder = documentBuilderfactory.newDocumentBuilder();
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setNamespaceAware(true);			
+		DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
 		Document doc = builder.newDocument();
 
         ExcelWriter mockWriter = createMock(ExcelWriter.class);

@@ -13,6 +13,7 @@
 		<hsqldb.version>2.3.2</hsqldb.version>
 		<querydsl.version>3.6.1</querydsl.version>
 		<shiro.version>1.2.3</shiro.version>
+		<quartz.version>2.2.1</quartz.version>
 	</properties>
 	
 	<licenses>
@@ -120,6 +121,18 @@
 			<artifactId>querydsl-sql</artifactId>
 			<version>${querydsl.version}</version>
 		</dependency>
+		
+		<!-- Quartz framework -->
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${quartz.version}</version>
+        </dependency>
 
 		<!-- Websockets -->
 		<dependency>
@@ -515,6 +528,17 @@
 			<id>maven-restlet</id>
 			<name>Public online Restlet repository</name>
 			<url>http://maven.restlet.com</url>
+		</repository>
+		<repository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus Snapshots</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 </project>

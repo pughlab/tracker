@@ -21,7 +21,7 @@ public class ExcelWriterImpl implements ExcelWriter {
 	
 	private final String EXCEL_NAMESPACE = "urn:schemas-microsoft-com:office:spreadsheet";
 	
-	private DocumentBuilderFactory documentBuilderfactory;
+	private DocumentBuilderFactory documentBuilderFactory;
 
 	@Override
 	public Document getExcelDocument(ViewDataResponse data) {
@@ -29,8 +29,8 @@ public class ExcelWriterImpl implements ExcelWriter {
 		Document doc = null;
 				
 		try {
-			documentBuilderfactory.setNamespaceAware(true);			
-			DocumentBuilder builder = documentBuilderfactory.newDocumentBuilder();
+			documentBuilderFactory.setNamespaceAware(true);			
+			DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
 			doc = builder.newDocument();
 						
 		} catch (ParserConfigurationException e) {
@@ -156,9 +156,9 @@ public class ExcelWriterImpl implements ExcelWriter {
 	}
 
 	/**
-	 * @param documentBuilderfactory the documentBuilderfactory to set
+	 * @param documentBuilderFactory the documentBuilderFactory to set
 	 */
-	public void setDocumentBuilderfactory(DocumentBuilderFactory documentBuilderfactory) {
-		this.documentBuilderfactory = documentBuilderfactory;
+	public void setDocumentBuilderFactory(DocumentBuilderFactory documentBuilderFactory) {
+		this.documentBuilderFactory = documentBuilderFactory;
 	}
 }
