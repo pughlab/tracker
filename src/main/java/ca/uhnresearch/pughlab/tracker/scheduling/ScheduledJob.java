@@ -29,6 +29,10 @@ public class ScheduledJob  {
 		context = engine.getContext();
 		
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream("tracker.js");
+		if (in == null) {
+			return;
+		}
+		
 		Reader reader = new InputStreamReader(in);
 		
 		try {
