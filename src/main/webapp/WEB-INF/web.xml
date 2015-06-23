@@ -86,7 +86,7 @@
         </init-param>
         <init-param>
   			<param-name>org.restlet.clients</param-name>
-  			<param-value>HTTP HTTPS FILE</param-value>
+  			<param-value>HTTP HTTPS FILE CLAP</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
@@ -95,5 +95,5 @@
 		<servlet-name>tracker</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-
+	
 </web-app>

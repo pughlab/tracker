@@ -11,6 +11,16 @@
 	<bean id="trackerComponent" class="org.restlet.ext.spring.SpringComponent">
 		<property name="defaultTarget" ref="trackerApplication" />
 	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    	<property name="targetObject"><value>#{trackerComponent.getClients()}</value></property>
+    	<property name="targetMethod"><value>add</value></property>
+    	<property name="arguments">
+	        <list>
+	            <value type="org.restlet.data.Protocol">CLAP</value>
+	        </list>
+	    </property>
+    </bean>
 
 	<bean id="trackerComponentChildContext" class="org.restlet.Context"> 
 		<lookup-method name="createChildContext" bean="trackerComponent.context" /> 
@@ -21,19 +31,25 @@
 	</bean>
 
 	<!-- Define the router -->
-	<bean name="router" class="org.restlet.ext.spring.SpringRouter">
+	<bean id="router" class="org.restlet.ext.spring.SpringRouter">
 		<constructor-arg ref="trackerComponentChildContext" />
 		<property name="attachments">
 	        <map>
  	            <entry key="/api" value-ref="apiRouter" />
- 	            <entry key="/" value-ref="staticsDirectory" />
+ 	            <entry key="" value-ref="staticsRewrite" />
 	        </map>
 	    </property>
     </bean>
-	
+    
+    <bean id="staticsRewrite" class="ca.uhnresearch.pughlab.tracker.restlets.DefaultingFilterFactoryBean">
+		<property name="component" ref="trackerComponent" />
+		<property name="next" ref="staticsDirectory" />
+		<property name="defaultPath" value="/index.html" />
+    </bean>
+    
 	<bean id="staticsDirectory" class="ca.uhnresearch.pughlab.tracker.restlets.DirectoryFactoryBean">
 		<property name="component" ref="trackerComponent" />
-		<property name="resourceRoot" value="file:///Users/stuartw/git/tracker-java-restlet/target/client/tmp" />
+		<property name="resourceRoot" value="clap://thread/client" />
 	</bean>
 	
 </beans>
