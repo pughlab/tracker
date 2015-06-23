@@ -21,18 +21,19 @@ public class ScheduledJob  {
 	private ScriptContext context;
 	
 	ScheduledJob() {
-		logger.info("Initializing scheduled job");
-		
-		ScriptEngineManager mgr = new ScriptEngineManager();
-		ScriptEngine engine = mgr.getEngineByName("javascript");
-		engine.setBindings(getInitialBindings(engine), ScriptContext.ENGINE_SCOPE);
-		context = engine.getContext();
 		
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream("tracker.js");
 		if (in == null) {
 			return;
 		}
 		
+		ScriptEngineManager mgr = new ScriptEngineManager();
+		ScriptEngine engine = mgr.getEngineByName("javascript");
+		engine.setBindings(getInitialBindings(engine), ScriptContext.ENGINE_SCOPE);
+		context = engine.getContext();
+		
+		logger.info("Initializing scheduled job");
+
 		Reader reader = new InputStreamReader(in);
 		
 		try {
@@ -50,6 +51,6 @@ public class ScheduledJob  {
 	}
 	
     protected void execute() throws JobExecutionException {
-        logger.info("Scheduled ping");
+        logger.debug("Scheduled ping");
     }
 }
