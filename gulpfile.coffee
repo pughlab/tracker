@@ -52,7 +52,7 @@ compareStrings = (a, b) -> if a < b then -1 else if a > b then 1 else 0
 gulp.task 'coffee', () ->
   gulp.src ['./src/main/client/**/*.*coffee']
     .pipe gulpCoffee()
-    .pipe gulp.dest('./target/client/tmp/statics/app/js')
+    .pipe gulp.dest('./target/client/tmp/client/statics/app/js')
 
 
 gulp.task 'bootstrap', () ->
@@ -63,14 +63,14 @@ gulp.task 'bootstrap', () ->
     bootstrapStream
       .pipe gulpLess({paths: lessPaths, verbose: true})
       .pipe gulpRename('bootstrap.css')
-      .pipe gulp.dest('./target/client/tmp/statics/vendors/css')
+      .pipe gulp.dest('./target/client/tmp/client/statics/vendors/css')
     fontsStream
-      .pipe gulp.dest('./target/client/tmp/statics/fonts')
+      .pipe gulp.dest('./target/client/tmp/client/statics/fonts')
   )
 
 
 gulp.task 'clean-css', (cb) ->
-  del './target/client/tmp/app.css/app.css', cb
+  del './target/client/tmp/client/app.css', cb
 
 
 gulp.task 'styles', ['clean-css'], () ->
@@ -83,16 +83,16 @@ gulp.task 'styles', ['clean-css'], () ->
   gulp
     .src './src/main/client/app.less'
     .pipe gulpLess {paths: lessPaths}
-    .pipe gulp.dest './target/client/tmp/statics/app/css/'
+    .pipe gulp.dest './target/client/tmp/client/statics/app/css/'
 
 
 gulp.task 'vendors', () ->
   bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components'}).pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
   es.merge(
     bowerStream.pipe(gulpFilter('**/*.css'))
-      .pipe(gulp.dest('./target/client/tmp/statics/vendors/css'))
+      .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/css'))
     bowerStream.pipe(gulpFilter('**/*.js'))
-      .pipe(gulp.dest('./target/client/tmp/statics/vendors/js')))
+      .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js')))
 
 
 index = () ->
@@ -101,17 +101,17 @@ index = () ->
   cssVendorFiles = bowerStream
     .pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
     .pipe(gulpFilter('**/*.css'))
-    .pipe(gulp.dest('./target/client/tmp/statics/vendors/css'))
+    .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/css'))
 
   jsVendorFiles = bowerStream
     .pipe(gulpFilter('**/*.js'))
-    .pipe(gulp.dest('./target/client/tmp/statics/vendors/js'))
+    .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js'))
 
   gulp.src('./src/main/client/index.html')
-    .pipe(gulpInject(gulp.src('./target/client/tmp/statics/vendors/css/bootstrap.css'), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:bootstrap:{{ext}} -->'}))
-    .pipe(gulpInject(es.merge(jsVendorFiles, cssVendorFiles), {ignorePath: ['target/client/tmp'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
-    .pipe(gulpInject(es.merge(appFiles(), cssFiles()), {ignorePath: ['target/client/tmp', 'src/main/client']}))
-    .pipe(gulp.dest('./target/client/tmp/'))
+    .pipe(gulpInject(gulp.src('./target/client/tmp/client/statics/vendors/css/bootstrap.css'), {ignorePath: ['target/client/tmp/client'], starttag: '<!-- inject:bootstrap:{{ext}} -->'}))
+    .pipe(gulpInject(es.merge(jsVendorFiles, cssVendorFiles), {ignorePath: ['target/client/tmp/client'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
+    .pipe(gulpInject(es.merge(appFiles(), cssFiles()), {ignorePath: ['target/client/tmp/client', 'src/main/client']}))
+    .pipe(gulp.dest('./target/client/tmp/client/'))
 
 
 gulp.task 'templates', () ->
@@ -120,7 +120,7 @@ gulp.task 'templates', () ->
   
 gulp.task 'assets', () ->
   gulp.src './src/main/client/assets/statics/**'
-    .pipe gulp.dest './target/client/tmp/statics'
+    .pipe gulp.dest './target/client/tmp/client/statics'
 
 
 buildTemplates = () ->
@@ -131,7 +131,7 @@ buildTemplates = () ->
       stripPrefix: '/src/app'
     })
     .pipe(gulpConcat, bower.name + '-templates.js')
-    .pipe(gulp.dest, './target/client/tmp/statics/app/js')()
+    .pipe(gulp.dest, './target/client/tmp/client/statics/app/js')()
 
 
 gulp.task 'build-all', ['styles', 'bootstrap', 'templates', 'coffee', 'vendors', 'assets'], index
@@ -142,23 +142,23 @@ templateFiles = (opt) ->
     .pipe(if opt and opt.min then gulpHtmlmin(htmlminOpts) else gulpUtil.noop())
 
 appVendorFiles = () ->
-  gulp.src('./target/client/tmp/statics/vendors/**/*.js')
+  gulp.src('./target/client/tmp/client/statics/vendors/**/*.js')
 
 cssVendorFiles = () ->
-  gulp.src('./target/client/tmp/statics/vendors/css/**/*.css')
+  gulp.src('./target/client/tmp/client/statics/vendors/css/**/*.css')
 
 appFiles = () ->
   files = [
-    './target/client/tmp/statics/app/' + bower.name + '-templates.js',
-    './target/client/tmp/statics/app/**/*.js',
-    '!./target/client/tmp/**/*_test.js'
+    './target/client/tmp/client/statics/app/' + bower.name + '-templates.js',
+    './target/client/tmp/client/statics/app/**/*.js',
+    '!./target/client/tmp/client/**/*_test.js'
   ]
   gulp.src(files)
     .pipe sort (a, b) -> compareStrings(a.relative, b.relative)
     .pipe gulpAngularFilesort()
 
 cssFiles = (opt) ->
-  gulp.src('./target/client/tmp/statics/app/css/**/*.css', opt)
+  gulp.src('./target/client/tmp/client/statics/app/css/**/*.css', opt)
     .pipe(gulpOrder([
-      'target/client/tmp/statics/app/css/app.css'
+      'target/client/tmp/client/statics/app/css/app.css'
     ], {base: '.'}))

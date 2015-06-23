@@ -355,6 +355,7 @@
 	</dependencyManagement>
 
 	<build>
+	
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -383,6 +384,8 @@
 					<webApp>
 						<contextPath>/</contextPath>
 					</webApp>
+					<testClassesDirectory>${project.build.directory}/client/tmp</testClassesDirectory>
+					<useTestScope>true</useTestScope>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
 					<jettyXml>src/main/etc/jetty.xml</jettyXml>
@@ -453,7 +456,8 @@
 				<configuration>
 					<webResources>
 						<resource>
-							<directory>target/client/tmp</directory>
+							<targetPath>WEB-INF/classes</targetPath>
+							<directory>${project.build.directory}/client/tmp</directory>
 						</resource>
 					</webResources>
 				</configuration>
