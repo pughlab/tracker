@@ -210,6 +210,11 @@
 		    <artifactId>shiro-web</artifactId>
 		    <version>${shiro.version}</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.apache.shiro</groupId>
+		    <artifactId>shiro-spring</artifactId>
+		    <version>${shiro.version}</version>
+		</dependency>
 		
 		<!-- Quartz framework -->
 		<dependency>
