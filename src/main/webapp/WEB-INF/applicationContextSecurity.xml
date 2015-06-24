@@ -11,34 +11,33 @@
 	<bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager">
 	</bean>
 	
-	<bean id="authenticationRealm" class="org.apache.shiro.realm.SimpleAccountRealm">
+	<bean id="passwordMatcher" class="ca.uhnresearch.pughlab.tracker.security.BcryptPasswordMatcher">
 	</bean>
 	
-	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    	<property name="targetObject" ref="authenticationRealm" />
-    	<property name="targetMethod"><value>addAccount</value></property>
-    	<property name="arguments">
-	        <list>
-	        	<value>admin</value>
-	        	<value>admin</value>
-	        	<value>ROLE_ADMIN</value>
-	        </list>
-	    </property>
-    </bean>
-	                    
-	<bean id="authorizationRealm" class="ca.uhnresearch.pughlab.tracker.security.AuthorizationRealm">
+	<bean id="authenticationRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
+		<property name="dataSource" ref="dataSource" />
+		<property name="credentialsMatcher" ref="passwordMatcher" />
+		<property name="permissionsLookupEnabled" value="true" />
+		<property name="authenticationQuery">
+			<value>
+				SELECT HASH FROM USERS WHERE USERNAME = ?
+			</value>
+		</property>
+		<property name="userRolesQuery">
+			<value>
+				SELECT ROLE_NAME FROM USER_ROLES WHERE USERNAME = ?
+			</value>
+		</property>
+		<property name="permissionsQuery">
+			<value>
+				SELECT PERMISSION FROM ROLES_PERMISSIONS WHERE ROLE_NAME = ?
+			</value>
+		</property>
 	</bean>
-	
-	<bean id="authenticationStrategy" class="org.apache.shiro.authc.pam.FirstSuccessfulStrategy"></bean>
 	
 	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
 		<property name="cacheManager" ref="cacheManager" />
-		<property name="realms">
-	        <util:list>
-	            <ref bean="authenticationRealm" />
-	            <ref bean="authorizationRealm" />              
-	        </util:list>
-	    </property>
+		<property name="realm" ref="authenticationRealm" />
 	</bean>
 	
 	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>

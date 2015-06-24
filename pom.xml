@@ -215,6 +215,11 @@
 		    <artifactId>shiro-spring</artifactId>
 		    <version>${shiro.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.mindrot</groupId>
+			<artifactId>jbcrypt</artifactId>
+			<version>0.3m</version>
+		</dependency>
 		
 		<!-- Quartz framework -->
 		<dependency>
