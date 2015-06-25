@@ -43,7 +43,10 @@ public class EntityExtractor extends Extractor {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 
-    	logger.info("OK, continuing with the entity: {}", caseValue.toString());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Continuing with the entity: {}", caseValue.toString());
+		}
+		
 		request.getAttributes().put("entity", caseValue);
 		
 		return CONTINUE;

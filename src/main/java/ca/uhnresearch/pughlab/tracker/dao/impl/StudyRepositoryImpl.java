@@ -92,7 +92,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 
     	SQLQuery sqlQuery = template.newSqlQuery().from(studies);
     	List<Study> studyList = template.query(sqlQuery, studies);
-    	logger.info("Got some studies: {}", studyList.toString());
+    	logger.debug("Got some studies: {}", studyList.toString());
 
     	return studyList;
     }
@@ -108,9 +108,9 @@ public class StudyRepositoryImpl implements StudyRepository {
     	Study study = template.queryForObject(sqlQuery, studies);
     	
     	if (study != null) {
-    		logger.info("Got a study: {}", study.toString());
+    		logger.debug("Got a study: {}", study.toString());
     	} else {
-    		logger.info("No study found");
+    		logger.debug("No study found");
     	}
     	
     	return study;
@@ -125,7 +125,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		logger.debug("Looking for views for study: {}", study.getName());
     	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.studyId.eq(study.getId()));
     	List<View> viewList = template.query(sqlQuery, new ViewProjection(views));
-    	logger.info("Got some views: {}", viewList.toString());
+    	logger.debug("Got some views: {}", viewList.toString());
 
 		return viewList;
 	}
@@ -145,7 +145,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 				newViews.put(v.getId(), v);
 			} else {
 				v.setStudyId(study.getId());
-				logger.info("Inserting view: {}", v);
+				logger.debug("Inserting view: {}", v);
 				insertView(v);
 			}
 		}
@@ -160,7 +160,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			} else {
 				// Old but no new, delete the view, remembering to
 				// delete from all attributes too.
-				logger.info("Deleting view: {}", v);
+				logger.debug("Deleting view: {}", v);
 				deleteView(v);
 			}
 		}
@@ -177,9 +177,9 @@ public class StudyRepositoryImpl implements StudyRepository {
     	View view = template.queryForObject(sqlQuery, new ViewProjection(views));
 
     	if (view != null) {
-    		logger.info("Got a view: {}", view.toString());
+    		logger.debug("Got a view: {}", view.toString());
     	} else {
-    		logger.info("No study found");
+    		logger.debug("No study found");
     	}
     	
     	return view;
@@ -211,7 +211,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     	    .where(attributes.studyId.eq(study.getId()))
     	    .orderBy(attributes.rank.asc());
 		
-		logger.info("Executing query: {}", sqlQuery.toString());
+		logger.debug("Executing query: {}", sqlQuery.toString());
 
     	List<Attributes> attributeList = template.query(sqlQuery, new AttributeProjection(attributes));
     	return attributeList;
@@ -320,7 +320,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 				newAttributes.put(a.getId(), a);
 			} else {
 				a.setStudyId(study.getId());
-				logger.info("Inserting attribute: {}", a);
+				logger.debug("Inserting attribute: {}", a);
 				insertAttribute(a);
 			}
 		}
@@ -335,7 +335,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			} else {
 				// Old but no new, delete the attribute, remembering to
 				// delete from all views too.
-				logger.info("Deleting attribute: {}", a);
+				logger.debug("Deleting attribute: {}", a);
 				deleteAttribute(a);
 			}
 		}
@@ -554,9 +554,9 @@ public class StudyRepositoryImpl implements StudyRepository {
     	Cases caseValue = template.queryForObject(sqlQuery, cases);
     	
     	if (caseValue != null) {
-    		logger.info("Got a case: {}", caseValue.toString());
+    		logger.debug("Got a case: {}", caseValue.toString());
     	} else {
-    		logger.info("No case found");
+    		logger.debug("No case found");
     	}
     	
     	return caseValue;
@@ -816,7 +816,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     		obj.put("eventType", audit.getEventType());
     		obj.put("eventUser", audit.getEventUser());
 			JsonNode argsNode = null;
-			logger.info("Got data: {}", audit.getEventArgs().toString());
+			logger.debug("Got data: {}", audit.getEventArgs().toString());
 			try {
 				argsNode = objectMapper.readTree(audit.getEventArgs());
 			} catch (Exception e) {
