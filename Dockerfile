@@ -1,9 +1,4 @@
 FROM ubuntu:14.04
-#Build with 'docker comp
-#Run with 'docker run -p 9999:9999 -t -i tracker' and load on localhost:9999
-#Omit -i to use ctrl-c to detach
-#https://github.com/docker/docker/issues/2838
-
 #Needs Java 8, make, git
 #http://askubuntu.com/questions/464755/how-to-install-openjdk-8-on-14-04-lts
 RUN 	apt-get -y -q update &&\
