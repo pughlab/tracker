@@ -14,7 +14,7 @@ RUN	apt-get install -y -q gdebi &&\
 	gdebi --non-interactive maven3_3.2.1-0~ppa1_all.deb &&\
 	ln -s /usr/share/maven3/bin/mvn /usr/bin/mvn
 #clone the 'develop' branch on the tracker repo and install
-RUN 	git clone https://github.com/morgantaschuk/tracker.git &&\
+RUN 	git clone https://github.com/pughlab/tracker.git &&\
 	cd tracker &&\
 	mvn install
 
