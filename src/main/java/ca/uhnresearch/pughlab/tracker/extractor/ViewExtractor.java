@@ -74,7 +74,7 @@ public class ViewExtractor extends Extractor {
 		
 		Study study = (Study) request.getAttributes().get("study");
 		String value = (String) request.getAttributes().get("viewName");
-		logger.info("Called ViewExtractor beforeHandle: {}", value);
+		logger.debug("Called ViewExtractor beforeHandle: {}", value);
 		
 		// Now we can extract the study and write it as a new attribute
 		View v = repository.getStudyView(study, value);
@@ -94,7 +94,7 @@ public class ViewExtractor extends Extractor {
 		// in the appropriate endpoints. 
 		checkPermissions(request, study, v, currentUser);
 		
-		logger.info("OK, continuing with the view: {}", v.getName());
+		logger.debug("OK, continuing with the view: {}", v.getName());
 		request.getAttributes().put("view", v);
 		
 		return CONTINUE;

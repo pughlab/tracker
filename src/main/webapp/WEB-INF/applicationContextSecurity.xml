@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/util
+	                    http://www.springframework.org/schema/util/spring-util.xsd">
+	                    
+	<bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager">
+	</bean>
+	
+	<bean id="passwordMatcher" class="ca.uhnresearch.pughlab.tracker.security.BcryptPasswordMatcher">
+	</bean>
+	
+	<bean id="authenticationRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
+		<property name="dataSource" ref="dataSource" />
+		<property name="credentialsMatcher" ref="passwordMatcher" />
+		<property name="permissionsLookupEnabled" value="true" />
+		<property name="authenticationQuery">
+			<value>
+				SELECT HASH FROM USERS WHERE USERNAME = ?
+			</value>
+		</property>
+		<property name="userRolesQuery">
+			<value>
+				SELECT ROLE_NAME FROM USER_ROLES WHERE USERNAME = ?
+			</value>
+		</property>
+		<property name="permissionsQuery">
+			<value>
+				SELECT PERMISSION FROM ROLES_PERMISSIONS WHERE ROLE_NAME = ?
+			</value>
+		</property>
+	</bean>
+	
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="cacheManager" ref="cacheManager" />
+		<property name="realm" ref="authenticationRealm" />
+	</bean>
+	
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+	
+	<bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
+		<property name="loginUrl" value="/api/authentication/login" />
+	</bean>
+	
+	<bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
+	</bean>
+
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+	    <property name="securityManager" ref="securityManager"/>
+	    
+	    <property name="filters">
+	        <util:map>
+	            <entry key="sessionAuthentication" value-ref="sessionAuthenticationFilter" />
+	            <entry key="sessionAccess" value-ref="sessionAccessFilter" />
+	        </util:map>
+	    </property>
+	    
+	    <property name="filterChainDefinitions">
+	        <value>
+	            /api/authentication/login = sessionAuthentication
+	            /api/authentication/logout = logout
+				/api/** = sessionAccess
+				/events/** = sessionAccess
+				/** = anon
+	        </value>
+	    </property>
+	    
+	    
+	</bean>
+	
+</beans>
