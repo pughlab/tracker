@@ -42,31 +42,34 @@
 	
 	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 	
+	<bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
+		<property name="loginUrl" value="/api/authentication/login" />
+	</bean>
+	
+	<bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
+	</bean>
+
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
 	    <property name="securityManager" ref="securityManager"/>
 	    
-	    <!-- override these for application-specific URLs if you like:
-	    <property name="loginUrl" value="/login.jsp"/>
-	    <property name="successUrl" value="/home.jsp"/>
-	    <property name="unauthorizedUrl" value="/unauthorized.jsp"/> -->
-	    <!-- The 'filters' property is not necessary since any declared javax.servlet.Filter bean  -->
-	    <!-- defined will be automatically acquired and available via its beanName in chain        -->
-	    <!-- definitions, but you can perform instance overrides or name aliases here if you like: -->
-	    <!-- <property name="filters">
+	    <property name="filters">
 	        <util:map>
-	            <entry key="anAlias" value-ref="someFilter"/>
+	            <entry key="sessionAuthentication" value-ref="sessionAuthenticationFilter" />
+	            <entry key="sessionAccess" value-ref="sessionAccessFilter" />
 	        </util:map>
-	    </property> -->
+	    </property>
 	    
 	    <property name="filterChainDefinitions">
 	        <value>
-	            # some example chain definitions:
-				/api/** = authcBasic
-				/events/** = authcBasic
+	            /api/authentication/login = sessionAuthentication
+	            /api/authentication/logout = logout
+				/api/** = sessionAccess
+				/events/** = sessionAccess
 				/** = anon
-	            # more URL-to-FilterChain definitions here
 	        </value>
 	    </property>
+	    
+	    
 	</bean>
 	
 </beans>

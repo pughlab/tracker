@@ -89,6 +89,7 @@ angular
 
   .config Array '$httpProvider', ($httpProvider) ->
     $httpProvider.interceptors.push 'httpInterceptor'
+    $httpProvider.defaults.withCredentials = true
 
 
   .run Array '$rootScope', '$http', '$timeout', '$state', 'authenticationService', (scope, $http, $timeout, $state, authenticationService) ->
