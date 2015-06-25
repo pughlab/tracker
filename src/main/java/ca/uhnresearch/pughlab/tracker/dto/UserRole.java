@@ -1,12 +1,10 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class UserRole {
 
     private Integer id;
     
-    private Integer userId;
+    private String username;
 
     private Integer roleId;
 
@@ -25,17 +23,17 @@ public class UserRole {
 	}
 
 	/**
-	 * @return the userId
+	 * @return the username
 	 */
-	public Integer getUserId() {
-		return userId;
+	public String getUsername() {
+		return username;
 	}
 
 	/**
 	 * @param userId the userId to set
 	 */
-	public void setUserId(Integer userId) {
-		this.userId = userId;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	/**

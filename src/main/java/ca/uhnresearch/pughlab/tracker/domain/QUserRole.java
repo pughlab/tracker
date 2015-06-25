@@ -8,6 +8,7 @@ import ca.uhnresearch.pughlab.tracker.dto.UserRole;
 
 import com.mysema.query.sql.ColumnMetadata;
 import com.mysema.query.types.path.NumberPath;
+import com.mysema.query.types.path.StringPath;
 
 public class QUserRole extends com.mysema.query.sql.RelationalPathBase<UserRole>{
 
@@ -16,8 +17,8 @@ public class QUserRole extends com.mysema.query.sql.RelationalPathBase<UserRole>
 	public static final QUserRole userRoles = new QUserRole("user_roles");
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
-
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    
+    public final StringPath username = createString("username");
 
     public final NumberPath<Integer> roleId = createNumber("roleId", Integer.class);
 
@@ -28,7 +29,7 @@ public class QUserRole extends com.mysema.query.sql.RelationalPathBase<UserRole>
 
     public void addMetadata() {
         addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(userId, ColumnMetadata.named("USER_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(username, ColumnMetadata.named("USERNAME").withIndex(2).ofType(Types.VARCHAR).withSize(24).notNull());
         addMetadata(roleId, ColumnMetadata.named("ROLE_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
     }
 
