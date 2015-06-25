@@ -8,9 +8,10 @@ angular
 
     result =
       ping: () ->
-        $http.get('/api/studies', {}, config).success (response) ->
-          if response.user
-            scope.$broadcast 'event:loginConfirmed', response.user
+        console.log 'Initializing authentication'
+        ## $http.get('/api/studies', {}, config).success (response) ->
+        ##   if response.user
+        ##    scope.$broadcast 'event:loginConfirmed', response.user
 
       login: (targetScope, username, password) ->
 
