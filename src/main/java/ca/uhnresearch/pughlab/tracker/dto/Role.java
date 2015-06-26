@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Role {
 
+    private Integer id;
+
 	private String name;
 
 	public Role() { }
@@ -13,8 +15,24 @@ public class Role {
 	}
 
 	/**
+	 * @return the id
+	 */
+	@JsonProperty
+    public Integer getId() {
+        return id;
+    }
+
+	/**
+	 * @param id the id to set
+	 */
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+	/**
 	 * @return the name
 	 */
+	@JsonProperty
 	public String getName() {
 		return name;
 	}

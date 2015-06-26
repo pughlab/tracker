@@ -14,7 +14,7 @@ public class QRole extends com.mysema.query.sql.RelationalPathBase<Role> {
 	
 	private static final long serialVersionUID = 4817944294016671308L;
 
-	public static final QRole users = new QRole("roles");
+	public static final QRole roles = new QRole("roles");
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
