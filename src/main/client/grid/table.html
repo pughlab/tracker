@@ -15,7 +15,7 @@
 
   <h3>
     <div ng-show="permissions.writeAllowed" style="display:inline-block;">
-      <toggle-switch model="editingStatus" class="switch-danger switch-small" knob-label="Editing"><toggle-switch>
+      <toggle-switch ng-model="editingStatus" class="switch-danger switch-small" knob-label="Editing"><toggle-switch>
     </div>
     <small ng-show="currentUsers.length">
       Also connected:
