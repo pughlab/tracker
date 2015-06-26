@@ -12,6 +12,7 @@
 		<constructor-arg ref="router" />
 		<property name="attachments">
 	        <map>
+	            <entry key="/admin" value-ref="adminAuthorizer" />
 	            <entry key="/studies">
 	            	<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="studiesResource" />
@@ -20,7 +21,23 @@
 	            <entry key="/studies/{studyName}" value-ref="studyExtractor" />
 	        </map>
 	    </property>
-
+	</bean>
+	
+	<bean id="adminAuthorizer" class="ca.uhnresearch.pughlab.tracker.restlets.AdminAuthorizer">
+		<property name="next" ref="adminRouter" />
+	</bean>
+	
+	<bean id="adminRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="apiRouter" />
+		<property name="attachments">
+	        <map>
+	            <entry key="/roles">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="rolesResource" />
+	            	</bean>
+	            </entry>
+			</map>
+		</property>
 	</bean>
 	
 	<bean id="studyExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.StudyExtractor">
@@ -146,6 +163,10 @@
 		<property name="repository" ref="studyRepository"/>
 	</bean>
 	
+	<bean id="rolesResource" class="ca.uhnresearch.pughlab.tracker.resource.RoleListResource" scope="prototype">
+		<property name="repository" ref="authorizationRepository"/>
+	</bean>
+
 	<bean id="excelWriter" class="ca.uhnresearch.pughlab.tracker.services.impl.ExcelWriterImpl">
 		<property name="documentBuilderFactory" ref="documentBuilderFactory" />
 	</bean>
