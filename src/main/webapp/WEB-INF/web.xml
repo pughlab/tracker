@@ -29,6 +29,7 @@
 	<filter>
 	    <filter-name>shiroFilter</filter-name>
 	    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <async-supported>true</async-supported>
 	    <init-param>
 	        <param-name>targetFilterLifecycle</param-name>
 	        <param-value>true</param-value>
@@ -47,6 +48,7 @@
  	<filter>
 		<filter-name>transactionFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <async-supported>true</async-supported>
 	</filter>
 	<filter-mapping>
 		<filter-name>transactionFilter</filter-name>
@@ -91,6 +93,7 @@
   			<param-value>HTTP HTTPS FILE CLAP</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
 	</servlet>
 
 	<servlet-mapping>
