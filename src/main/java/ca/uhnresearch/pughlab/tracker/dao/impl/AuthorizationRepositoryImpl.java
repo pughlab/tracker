@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
+import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QRole.roles;
 import static ca.uhnresearch.pughlab.tracker.domain.QUserRole.userRoles;
 import static ca.uhnresearch.pughlab.tracker.domain.QView.views;
@@ -12,9 +13,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import org.springframework.data.jdbc.query.SqlDeleteCallback;
+import org.springframework.data.jdbc.query.SqlInsertCallback;
+import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
+import com.mysema.query.sql.dml.SQLInsertClause;
+import com.mysema.query.sql.dml.SQLUpdateClause;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
@@ -88,6 +93,32 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		});
 	}
 
+	/**
+	 * Saves (and possibly creates) a role
+	 */
+	@Override
+	public void saveRole(final Role role) {
+		if (role.getId() != null) {
+			
+			// We have an identifier, so we're updating the role -- basically this is a rename
+			template.update(roles, new SqlUpdateCallback() { 
+				public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+					return sqlUpdateClause.where(roles.id.eq(role.getId())).populate(role).execute();
+				};
+			});
+			
+		} else {
+			
+			// The identifier is null, let's create a new role
+			template.insert(roles, new SqlInsertCallback() { 
+				public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+					return sqlInsertClause.populate(role).execute();
+				};
+			});
+		}
+		
+	}
+	
 	/**
 	 * Returns a list of users associated with a role
 	 */

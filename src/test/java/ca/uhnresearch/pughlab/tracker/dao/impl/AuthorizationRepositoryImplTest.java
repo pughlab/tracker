@@ -1,10 +1,13 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
+import static org.junit.matchers.JUnitMatchers.containsString;
 import junit.framework.Assert;
 
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -26,6 +30,9 @@ public class AuthorizationRepositoryImplTest {
 		
 	@Autowired
     private AuthorizationRepositoryImpl authorizationRepository;
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	/**
 	 * Checks that a list of roles is returned correctly.
@@ -110,7 +117,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void tesDeleteRole() {
+	public void testDeleteRole() {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		Assert.assertNotNull(role);
 
@@ -118,5 +125,54 @@ public class AuthorizationRepositoryImplTest {
 		
 		Role search = authorizationRepository.getRole("ROLE_ADMIN");
 		Assert.assertNull(search);
+	}
+	
+	/**
+	 * Checks that a role can be renamed successfully.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testRenameRole() {
+		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		Assert.assertNotNull(role);
+
+		role.setName("ROLE_CAT_HERDER");
+		authorizationRepository.saveRole(role);
+		
+		Role search = authorizationRepository.getRole("ROLE_CAT_HERDER");
+		Assert.assertNotNull(search);
+		Assert.assertEquals(role.getId(), search.getId());
+	}
+
+	/**
+	 * Checks that a role can be created successfully.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testCreateRole() {
+		Role role = new Role();
+		role.setName("ROLE_CAT_HERDER");
+		authorizationRepository.saveRole(role);
+		
+		Role search = authorizationRepository.getRole("ROLE_CAT_HERDER");
+		Assert.assertNotNull(search);
+		Assert.assertNotNull(search.getId());
+	}
+
+	/**
+	 * Checks that a role that already exists will throw something.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testCreateExistingRole() {
+		Role role = new Role();
+		role.setName("ROLE_ADMIN");
+		
+		thrown.expect(RuntimeException.class);
+
+		authorizationRepository.saveRole(role);
 	}
 }

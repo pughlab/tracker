@@ -22,6 +22,11 @@ public interface AuthorizationRepository {
 	void deleteRole(Role role);
 
 	/**
+	 * Saves (and possibly creates) a role
+	 */
+	void saveRole(Role role);
+
+	/**
 	 * Retrieves the list of users associated with a role
 	 */
 	List<String> getRoleUsers(Role role);
