@@ -141,15 +141,44 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	}
 
 	@Override
-	public void setRoleUsers(Role role, List<String> users) {
-		// TODO Auto-generated method stub
+	public void setRoleUsers(final Role role, final List<String> users) {
+		
+		// First of all, let's remove the current list of users.
+		template.delete(userRoles, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(userRoles.roleId.eq(role.getId())).execute();
+			};
+		});
 
+		// Now we can add all the users back in again.
+		template.insert(userRoles, new SqlInsertCallback() { 
+			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+				for(String s : users) {
+					sqlInsertClause.set(userRoles.roleId, role.getId()).set(userRoles.username, s).addBatch();
+				}
+				return sqlInsertClause.execute();
+			};
+		});
 	}
 
 	@Override
-	public void setRolePermissions(Role role, List<String> permissions) {
-		// TODO Auto-generated method stub
+	public void setRolePermissions(final Role role, final List<String> permissions) {
 
+		// First of all, let's remove the current list of permissions.
+		template.delete(rolePermissions, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(rolePermissions.roleId.eq(role.getId())).execute();
+			};
+		});
+
+		// Now we can add all the users back in again.
+		template.insert(rolePermissions, new SqlInsertCallback() { 
+			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+				for(String s : permissions) {
+					sqlInsertClause.set(rolePermissions.roleId, role.getId()).set(rolePermissions.permission, s).addBatch();
+				}
+				return sqlInsertClause.execute();
+			};
+		});
 	}
-
 }

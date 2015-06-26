@@ -3,6 +3,7 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import junit.framework.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Rule;
@@ -174,5 +175,45 @@ public class AuthorizationRepositoryImplTest {
 		thrown.expect(RuntimeException.class);
 
 		authorizationRepository.saveRole(role);
+	}
+	
+	/**
+	 * Checks that a list of users for a role is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetRoleUsers() {
+		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		List<String> users = new ArrayList<String>();
+		users.add("morag");
+		users.add("mungo");
+		users.add("misty");
+		authorizationRepository.setRoleUsers(role, users);
+		
+		List<String> list = authorizationRepository.getRoleUsers(role);
+		Assert.assertEquals(3, list.size());
+		Assert.assertEquals("morag", list.get(0));
+		Assert.assertEquals("mungo", list.get(1));
+		Assert.assertEquals("misty", list.get(2));
+	}
+
+	/**
+	 * Checks that a list of users for a role is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetRolePermissions() {
+		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		List<String> permissions = new ArrayList<String>();
+		permissions.add("study:X:read");
+		permissions.add("study:X:write");
+		authorizationRepository.setRolePermissions(role, permissions);
+		
+		List<String> list = authorizationRepository.getRolePermissions(role);
+		Assert.assertEquals(2, list.size());
+		Assert.assertEquals("study:X:read", list.get(0));
+		Assert.assertEquals("study:X:write", list.get(1));
 	}
 }
