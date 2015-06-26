@@ -61,13 +61,18 @@ public class TrackerSocketHandler {
         getEventManager().registerAtmosphereResource(r);
         
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-        logger.info("Subject: {}", subject.getPrincipal());
+        if (subject != null) {
+            logger.info("Subject: {}", subject.getPrincipal());
+        	
+            // When we are ready, we should actually send a welcome message to the client. This starts off
+            // much of the protocol.
+            
+            UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_WELCOME);
+            getEventManager().sendMessage(event, r);
+        } else {
+        	logger.error("No subject principal available");
+        }
         
-        // When we are ready, we should actually send a welcome message to the client. This starts off
-        // much of the protocol.
-        
-        UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_WELCOME);
-        getEventManager().sendMessage(event, r);
     }
 
     /**
