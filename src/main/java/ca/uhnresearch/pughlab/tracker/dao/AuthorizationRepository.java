@@ -15,6 +15,11 @@ public interface AuthorizationRepository {
 	 * Retrieves a role by name
 	 */
 	Role getRole(String name);
+	
+	/**
+	 * Deletes a role
+	 */
+	void deleteRole(Role role);
 
 	/**
 	 * Retrieves the list of users associated with a role

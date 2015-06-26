@@ -73,4 +73,50 @@ public class AuthorizationRepositoryImplTest {
 		Role role = authorizationRepository.getRole("ROLE_CAST_HERDER");
 		Assert.assertNull(role);
 	}
+
+	/**
+	 * Checks that a list of users for a role is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetRoleUsers() {
+		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		List<String> list = authorizationRepository.getRoleUsers(role);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(1, list.size());
+		Assert.assertEquals("admin", list.get(0));
+	}
+
+	/**
+	 * Checks that a list of permissions for a role is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetRolePermissions() {
+		Role role = authorizationRepository.getRole("ROLE_DEMO_TRACK");
+		List<String> list = authorizationRepository.getRolePermissions(role);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(3, list.size());		
+		Assert.assertEquals("study:read:DEMO", list.get(0));
+		Assert.assertEquals("view:read:DEMO-track", list.get(1));
+		Assert.assertEquals("view:write:DEMO-track", list.get(2));
+	}
+
+	/**
+	 * Checks that a role can be deleted successfully.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void tesDeleteRole() {
+		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		Assert.assertNotNull(role);
+
+		authorizationRepository.deleteRole(role);
+		
+		Role search = authorizationRepository.getRole("ROLE_ADMIN");
+		Assert.assertNull(search);
+	}
 }
