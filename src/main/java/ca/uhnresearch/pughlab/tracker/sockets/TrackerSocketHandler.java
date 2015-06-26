@@ -11,13 +11,13 @@ import org.atmosphere.cpr.AtmosphereResourceEvent;
 import org.atmosphere.cpr.FrameworkConfig;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.HeartbeatInterceptor;
-import org.atmosphere.interceptor.ShiroInterceptor;
 import org.atmosphere.interceptor.SuspendTrackerInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.security.SpringShiroInterceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -32,7 +32,7 @@ import javax.inject.Named;
 		AtmosphereResourceLifecycleInterceptor.class,
 		HeartbeatInterceptor.class,
 		SuspendTrackerInterceptor.class,
-		ShiroInterceptor.class
+		SpringShiroInterceptor.class
 })
 public class TrackerSocketHandler {
 
