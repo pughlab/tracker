@@ -65,7 +65,7 @@ gulp.task 'bootstrap', () ->
       .pipe gulpRename('bootstrap.css')
       .pipe gulp.dest('./target/client/tmp/client/statics/vendors/css')
     fontsStream
-      .pipe gulp.dest('./target/client/tmp/client/statics/fonts')
+      .pipe gulp.dest('./target/client/tmp/client/statics/vendors/fonts')
   )
 
 
@@ -92,7 +92,8 @@ gulp.task 'vendors', () ->
     bowerStream.pipe(gulpFilter('**/*.css'))
       .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/css'))
     bowerStream.pipe(gulpFilter('**/*.js'))
-      .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js')))
+      .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js'))
+  )
 
 
 index = () ->
