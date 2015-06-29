@@ -10,6 +10,7 @@ angular
     'tracker.pages'
     'tracker.studies'
     'tracker.grid'
+    'tracker.authorization'
     'tracker.authentication'
     'tracker.admin'
     'tracker.account'
@@ -48,27 +49,27 @@ angular
         controller: 'PageController'
         templateUrl: '/tracker/authentication/logout.html'
         url: '/logout'
-      .state 'account',
-        templateUrl: '/tracker/account/account.html'
-      .state 'account.password',
-        controller: 'AccountController'
-        templateUrl: '/tracker/account/password.html'
-      .state 'account.settings',
-        controller: 'AccountController'
-        templateUrl: '/tracker/account/settings.html'
-        url: '/account/:username'
+#      .state 'account',
+#        templateUrl: '/tracker/account/account.html'
+#      .state 'account.password',
+#        controller: 'AccountController'
+#        templateUrl: '/tracker/account/password.html'
+#      .state 'account.settings',
+#        controller: 'AccountController'
+#        templateUrl: '/tracker/account/settings.html'
+#        url: '/account/:username'
       .state 'adminCreate',
         controller: 'CreateStudyController'
         templateUrl: '/tracker/admin/admin-new-study.html'
         url: '/admin/new/create'
-      .state 'adminUsers',
-        controller: 'AdminUsersController'
-        templateUrl: '/tracker/admin/admin-users.html'
-        url: '/admin/users'
-      .state 'adminUser',
-        controller: 'AdminUserController'
-        templateUrl: '/tracker/admin/admin-user.html'
-        url: '/admin/users/:username'
+      .state 'authorizationRoles',
+        controller: 'AuthorizationRolesController'
+        templateUrl: '/tracker/authorization/authorization-roles.html'
+        url: '/authorization/roles'
+      .state 'authorizationRole',
+        controller: 'AuthorizationRoleController'
+        templateUrl: '/tracker/authorization/authorization-role.html'
+        url: '/authorization/roles/:name'
       .state 'adminAudit',
         controller: 'AdminAuditController'
         templateUrl: '/tracker/admin/admin-audit.html'

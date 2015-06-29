@@ -40,6 +40,10 @@
 		<property name="updateEventService" ref="socketUpdateEventService" />
 	</bean>
 	
+	<bean id="authorizationRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.AuthorizationRepositoryImpl">
+		<property name="template" ref="queryDslJdbcTemplate"/>
+	</bean>
+	
 	<bean id="socketUpdateEventService" class="ca.uhnresearch.pughlab.tracker.events.impl.SocketUpdateEventService">
 		<property name="socketEventService" ref="socketEventService" />
 	</bean>

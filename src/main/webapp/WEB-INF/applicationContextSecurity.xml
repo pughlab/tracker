@@ -25,12 +25,12 @@
 		</property>
 		<property name="userRolesQuery">
 			<value>
-				SELECT ROLE_NAME FROM USER_ROLES WHERE USERNAME = ?
+				SELECT R.NAME FROM USER_ROLES UR JOIN ROLES R ON UR.ROLE_ID = R.ID WHERE UR.USERNAME = ?
 			</value>
 		</property>
 		<property name="permissionsQuery">
 			<value>
-				SELECT PERMISSION FROM ROLES_PERMISSIONS WHERE ROLE_NAME = ?
+				SELECT RP.PERMISSION FROM ROLE_PERMISSIONS RP JOIN ROLES R ON RP.ROLE_ID = R.ID WHERE R.NAME = ?
 			</value>
 		</property>
 	</bean>

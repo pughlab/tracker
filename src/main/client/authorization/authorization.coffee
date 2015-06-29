@@ -1,4 +1,4 @@
-angular.module 'tracker.admin', [
+angular.module 'tracker.authorization', [
   'ui.sortable'
   'ui.bootstrap.tabs'
   'ui.bootstrap.alert'
