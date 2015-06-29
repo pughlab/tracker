@@ -4,7 +4,6 @@ import java.net.URL;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
@@ -24,7 +23,6 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
        	return new JacksonRepresentation<RoleListResponse>(response);
     }
 
-	@RequiresPermissions("admin")
 	public void buildResponseDTO(RoleListResponse dto) {
     	Subject currentUser = SecurityUtils.getSubject();
     	User user = new User(currentUser);

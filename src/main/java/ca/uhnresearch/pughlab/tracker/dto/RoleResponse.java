@@ -4,24 +4,24 @@ import java.util.List;
 
 public class RoleResponse extends AbstractResponse {
 
-	private String name;
+	private Role role;
 
 	private List<String> users;
 
 	private List<String> permissions;
 
 	/**
-	 * @return the name
+	 * @return the role
 	 */
-	public String getName() {
-		return name;
+	public Role getRole() {
+		return role;
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param role the role to set
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	/**
