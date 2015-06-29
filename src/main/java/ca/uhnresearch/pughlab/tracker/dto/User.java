@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +9,11 @@ public class User {
 
 	private String username;
 	
-	public User() { }
+	private Boolean administrator = false;
+	
+	public User() { 
+		this(SecurityUtils.getSubject());
+	}
 
 	public User(String username) {
 		setUsername(username);
@@ -16,6 +21,9 @@ public class User {
 	
 	public User(Subject subject) {
 		setUsername(subject.getPrincipal().toString());
+		if (subject.hasRole("ROLE_ADMIN")) {
+			setAdministrator(true);
+		}
 	}
 
 	@JsonProperty
@@ -27,4 +35,12 @@ public class User {
 		this.username = username;
 	}
 
+	@JsonProperty
+	public Boolean getAdministrator() {
+		return administrator;
+	}
+
+	public void setAdministrator(Boolean administrator) {
+		this.administrator = administrator;
+	}
 }

@@ -39,7 +39,7 @@
             <ul class="dropdown-menu" role="menu">
                 <li ng-hide="user"><a ui-sref="home">Log in</a></li>
                 <li ng-show="user" class="disabled"><a>Logged in as: {{user.username}}</a></li>
-                <li ng-show="user.permissions.system"><a ui-sref="adminUsers">Manage users</a></li>
+                <li ng-show="user.administrator"><a ui-sref="authorizationRoles">Manage roles</a></li>
                 <li ng-show="user" class="divider"></li>
                 <li ng-show="user"><a href ng-click="logout()">Logout</a></li>
               </ul>
