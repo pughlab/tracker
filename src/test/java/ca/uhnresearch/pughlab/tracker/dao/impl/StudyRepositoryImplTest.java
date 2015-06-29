@@ -356,6 +356,33 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testSingleCaseValuesNotes() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		assertNotNull(data);
+		
+		JsonNode notes = data.get("$notes");
+		assertNotNull(notes);
+		
+		// No notes here
+		assertNull(notes.get("specimenAvailable"));
+
+		// Notes here
+		JsonNode consentDateNotes = notes.get("consentDate");
+		assertNotNull(consentDateNotes);
+
+		JsonNode consentDateLocked = consentDateNotes.get("locked");
+		assertNotNull(consentDateLocked);
+		assertTrue(consentDateLocked.isBoolean());
+		assertTrue(consentDateLocked.asBoolean());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testSingleCaseAttributeValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
