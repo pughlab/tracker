@@ -2,7 +2,6 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;

@@ -17,6 +17,7 @@ import com.mysema.query.Tuple;
 
 public class CaseObjectBuilder {
 
+	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;

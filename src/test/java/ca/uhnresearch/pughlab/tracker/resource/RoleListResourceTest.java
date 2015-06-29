@@ -14,7 +14,6 @@ import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;

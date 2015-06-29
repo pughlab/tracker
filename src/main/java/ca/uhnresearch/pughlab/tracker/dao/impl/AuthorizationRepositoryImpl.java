@@ -1,10 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
-import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 import static ca.uhnresearch.pughlab.tracker.domain.QRole.roles;
 import static ca.uhnresearch.pughlab.tracker.domain.QUserRole.userRoles;
-import static ca.uhnresearch.pughlab.tracker.domain.QView.views;
 import static ca.uhnresearch.pughlab.tracker.domain.QRolePermission.rolePermissions;
 
 import java.util.List;
@@ -21,14 +18,10 @@ import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
-import com.mysema.query.types.OrderSpecifier;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
-import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
-import ca.uhnresearch.pughlab.tracker.dto.Study;
-import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 

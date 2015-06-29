@@ -1,6 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import static org.junit.matchers.JUnitMatchers.containsString;
 import junit.framework.Assert;
 
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
-import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 
 @RunWith(SpringJUnit4ClassRunner.class)
