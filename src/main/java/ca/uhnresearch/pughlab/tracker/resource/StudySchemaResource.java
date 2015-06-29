@@ -50,7 +50,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
      */
     @Put("json")
     public Representation putResource(Representation input) {
-    	logger.info("Called putResource() in EntityFieldResource", input);
+    	logger.debug("Called putResource() in EntityFieldResource", input);
     	
     	Subject currentUser = SecurityUtils.getSubject();
     	Study study = (Study) getRequest().getAttributes().get("study");
@@ -62,7 +62,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	
     	try {
 			StudySchemaResponse schema = converter.toObject(input, StudySchemaResponse.class, this);
-			logger.info("Got a new schema {}", schema);
+			logger.debug("Got a new schema {}", schema);
 			
 			List<Attributes> attributes = new ArrayList<Attributes>();
 			for(Attributes a : schema.getAttributes()) {

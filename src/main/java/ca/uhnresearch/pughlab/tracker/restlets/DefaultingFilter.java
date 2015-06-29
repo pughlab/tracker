@@ -21,7 +21,7 @@ public class DefaultingFilter extends Filter {
 	
 	@Override
 	protected int doHandle (Request request, Response response) {
-		logger.info("doHandle FILTER: " + request.getResourceRef().getPath());
+		logger.debug("doHandle FILTER: " + request.getResourceRef().getPath());
 		int result = super.doHandle(request, response);
 		if (response.getStatus().equals(Status.CLIENT_ERROR_NOT_FOUND)) {
 			response.setStatus(Status.SUCCESS_OK);

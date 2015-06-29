@@ -46,7 +46,7 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
      */
     @Put("json")
     public Representation putResource(Representation input) {
-    	logger.info("Called putResource() in ViewSchemaResource", input);
+    	logger.debug("Called putResource() in ViewSchemaResource", input);
     	
     	Subject currentUser = SecurityUtils.getSubject();
 
@@ -61,7 +61,7 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	// And now to grab the new attributes and render back.
     	try {
     		ViewSchemaResponse schema = converter.toObject(input, ViewSchemaResponse.class, this);
-			logger.info("Got a new schema {}", schema);
+			logger.debug("Got a new schema {}", schema);
 			
 			List<ViewAttributes> attributes = new ArrayList<ViewAttributes>();
 			for(ViewAttributes a : schema.getAttributes()) {

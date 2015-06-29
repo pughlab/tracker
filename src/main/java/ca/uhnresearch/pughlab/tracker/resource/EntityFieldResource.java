@@ -33,7 +33,7 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     @Put("json")
     public Representation putResource(Representation input) {
     	
-    	logger.info("Called putResource() in EntityFieldResource", input);
+    	logger.debug("Called putResource() in EntityFieldResource", input);
     	Subject currentUser = SecurityUtils.getSubject();
 
     	Study study = (Study) getRequest().getAttributes().get("study");

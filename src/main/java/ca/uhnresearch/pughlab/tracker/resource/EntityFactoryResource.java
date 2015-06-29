@@ -52,7 +52,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	// And now to grab the new attributes and render back.
     	try {
     		EntityResponse caseData = converter.toObject(input, EntityResponse.class, this);
-			logger.info("Got new case data {}", caseData);
+			logger.debug("Got new case data {}", caseData);
 			
 			Cases newCase = getRepository().newStudyCase(study, view, currentUser.getPrincipal().toString());
 			if (newCase == null) {
@@ -91,7 +91,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 	public void buildResponseDTO(EntityResponse dto) {
 		super.buildResponseDTO(dto);
 		
-    	logger.info("Called getResource() in EntityResource");
+    	logger.debug("Called getResource() in EntityResource");
 
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");

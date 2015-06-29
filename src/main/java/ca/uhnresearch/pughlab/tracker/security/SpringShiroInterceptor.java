@@ -51,9 +51,9 @@ public class SpringShiroInterceptor extends AtmosphereInterceptorAdapter {
                     r.getRequest().setAttribute(FrameworkConfig.SECURITY_SUBJECT, currentUser);
                 }
             } catch (UnavailableSecurityManagerException ex) {
-                logger.info("Shiro Web Security : {}", ex.getMessage());
+                logger.debug("Shiro Web Security : {}", ex.getMessage());
             } catch (java.lang.IllegalStateException ex) {
-                logger.info("Shiro Web Environment : {}", ex.getMessage());
+                logger.debug("Shiro Web Environment : {}", ex.getMessage());
             }
         }
 

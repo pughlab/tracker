@@ -28,7 +28,7 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 	public void buildResponseDTO(EntityResponse dto) {
 		super.buildResponseDTO(dto);
 		
-    	logger.info("Called getResource() in EntityResource");
+    	logger.debug("Called getResource() in EntityResource");
 
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");

@@ -23,7 +23,7 @@ public class SpringDirectory extends Directory {
      */
     public SpringDirectory(Context context, Reference rootLocalReference) {
         super(context, rootLocalReference);
-    	logger.info("Constructor called with context: {}", context.toString());
+    	logger.debug("Constructor called with context: {}", context.toString());
     }
  
     /**
@@ -34,12 +34,12 @@ public class SpringDirectory extends Directory {
      */
     public SpringDirectory(Restlet parent, Reference rootLocalReference) {
     	super(parent.getContext(), rootLocalReference);
-    	logger.info("Constructor called with context: {}", parent.getContext().toString());
+    	logger.debug("Constructor called with context: {}", parent.getContext().toString());
     }
 
     public Reference getRootRef() {
     	Reference called = super.getRootRef();
-    	logger.info("Someone asked for this: {}", called.toString());
+    	logger.debug("Someone asked for this: {}", called.toString());
     	return called;
     }
 }

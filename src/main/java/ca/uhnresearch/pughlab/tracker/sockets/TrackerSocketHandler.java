@@ -56,13 +56,13 @@ public class TrackerSocketHandler {
     @Ready
     public void onReady(final AtmosphereResource r) {
 
-        logger.info("Browser {} connected", r.uuid());
+        logger.debug("Browser {} connected", r.uuid());
         
         getEventManager().registerAtmosphereResource(r);
         
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         if (subject != null) {
-            logger.info("Subject: {}", subject.getPrincipal());
+            logger.debug("Subject: {}", subject.getPrincipal());
         	
             // When we are ready, we should actually send a welcome message to the client. This starts off
             // much of the protocol.
@@ -83,9 +83,9 @@ public class TrackerSocketHandler {
     @Disconnect
     public void onDisconnect(AtmosphereResourceEvent event) {
         if (event.isCancelled()) {
-            logger.info("Browser {} unexpectedly disconnected", event.getResource().uuid());
+            logger.debug("Browser {} unexpectedly disconnected", event.getResource().uuid());
         } else if (event.isClosedByClient()) {
-            logger.info("Browser {} closed the connection", event.getResource().uuid());
+            logger.debug("Browser {} closed the connection", event.getResource().uuid());
         }
         getEventManager().unregisterAtmosphereResource(event.getResource());
     }
@@ -100,9 +100,9 @@ public class TrackerSocketHandler {
     @Message
     public String onMessage(AtmosphereResource r, String input) throws IOException {
     	
-    	logger.info("Message received: {}", input);
+    	logger.debug("Message received: {}", input);
     	UpdateEvent message = mapper.readValue(input, UpdateEvent.class);
-    	logger.info("Translated message: {}", message);
+    	logger.debug("Translated message: {}", message);
     	getEventManager().receivedMessage(message, r);
 
     	return input;
@@ -123,7 +123,7 @@ public class TrackerSocketHandler {
 	@Inject
 	@Named("socketEventService")
 	public void setEventManager(SocketEventService server) {
-		logger.info("Setting eventManager to: {}", server);
+		logger.debug("Setting eventManager to: {}", server);
 		this.server = server;
 	}
 }

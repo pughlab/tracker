@@ -39,7 +39,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     	
     	try {
     		RoleResponse data = converter.toObject(input, RoleResponse.class, this);
-			logger.info("Got a new role response {}", data);
+			logger.debug("Got a new role response {}", data);
 			
 			Role role = data.getRole();
 			

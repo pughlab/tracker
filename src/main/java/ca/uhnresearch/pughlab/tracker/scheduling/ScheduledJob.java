@@ -32,7 +32,7 @@ public class ScheduledJob  {
 		engine.setBindings(getInitialBindings(engine), ScriptContext.ENGINE_SCOPE);
 		context = engine.getContext();
 		
-		logger.info("Initializing scheduled job");
+		logger.debug("Initializing scheduled job");
 
 		Reader reader = new InputStreamReader(in);
 		
