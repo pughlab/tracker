@@ -52,6 +52,21 @@ public class AuthorizationRepositoryImplTest {
 	}
 
 	/**
+	 * Checks that a list of roles is returned correctly with a case query and offset.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetRolesQuery() {
+		CaseQuery query = new CaseQuery();
+		query.setOffset(2);
+
+		List<Role> list = authorizationRepository.getRoles(query);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(2, list.size());
+	}
+
+	/**
 	 * Checks that a role is found by name correctly.
 	 */
 	@Test

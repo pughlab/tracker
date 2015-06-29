@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
+import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 import static ca.uhnresearch.pughlab.tracker.domain.QRole.roles;
 import static ca.uhnresearch.pughlab.tracker.domain.QUserRole.userRoles;
 import static ca.uhnresearch.pughlab.tracker.domain.QView.views;
@@ -20,9 +21,11 @@ import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
+import com.mysema.query.types.OrderSpecifier;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
@@ -47,7 +50,15 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
      */
 	@Override
 	public List<Role> getRoles(CaseQuery query) {
-    	SQLQuery sqlQuery = template.newSqlQuery().from(roles);
+    	SQLQuery sqlQuery = template.newSqlQuery().from(roles).orderBy(roles.name.asc());
+    	
+		if (query.getOffset() != null) {
+			sqlQuery = sqlQuery.offset(query.getOffset());
+		}
+		if (query.getLimit() != null) {
+			sqlQuery = sqlQuery.limit(query.getLimit());
+		}
+
     	List<Role> roleList = template.query(sqlQuery, roles);
 		return roleList;
 	}
