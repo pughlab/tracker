@@ -20,7 +20,7 @@ angular
           password: password
 
         $http
-          .post '/api/authentication/login', payload, config
+          .post '/api/authorization/login', payload, config
 
           .success (response, status) ->
             targetScope.$broadcast 'event:loginApproved', response.user
@@ -31,6 +31,6 @@ angular
 
       logout: () ->
         $http
-          .post('/api/authentication/logout', {}, config)
+          .post('/api/authorization/logout', {}, config)
           .success (response) ->
             scope.$broadcast 'event:logoutConfirmed'

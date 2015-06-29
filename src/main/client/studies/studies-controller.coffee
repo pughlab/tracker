@@ -8,20 +8,11 @@ angular
     ## Permissions and studies can both change when the user and/or their permissions
     ## change. We should detect that. 
 
-    initializePermissions = () ->
-      $http
-        .get("/api/authentication/can/create/system/system")
-        .success (response) ->
-          $scope.permissions = response
-        .error (response) ->
-          console.log "Error", response
-
     initializeStudies = () ->
       $http
         .get('/api/studies')
         .success (response) ->
           $scope.studies = response
-          initializePermissions()
         .error (response) ->
           console.log "Error", response
 

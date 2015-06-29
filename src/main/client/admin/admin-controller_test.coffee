@@ -15,7 +15,7 @@ describe 'StudyEditorController', ->
       $injector.get('$controller')('StudyEditorController', $scope: scope, $stateParams: {studyName: 'DEMO', viewName: 'track'})
 
     $httpBackend
-      .when 'GET', '/api/authentication/ping'
+      .when 'GET', '/api/authorization/ping'
       .respond {"data" : {"user" : {"username" : "guest"}}}
 
     $httpBackend

@@ -123,14 +123,6 @@ angular
     scope.$on 'event:loginConfirmed', (event, user) ->
       scope.user = new User(user)
 
-      ## $http.get('/api/authentication/can/system/system/system')
-      ##  .then (response) ->
-      ##    if response.data?
-      ##      scope.user.permissions = response.data
-
-      ## if user.force_password_change
-      ##  return $state.go "adminUser", {username: user.username}
-
       retry = (req) ->
         $http(req.config).then (response) ->
           req.deferred.resolve(response)

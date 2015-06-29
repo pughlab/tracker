@@ -43,7 +43,7 @@
 	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 	
 	<bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
-		<property name="loginUrl" value="/api/authentication/login" />
+		<property name="loginUrl" value="/api/authorization/login" />
 	</bean>
 	
 	<bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
@@ -61,8 +61,8 @@
 	    
 	    <property name="filterChainDefinitions">
 	        <value>
-	            /api/authentication/login = sessionAuthentication
-	            /api/authentication/logout = logout
+	            /api/authorization/login = sessionAuthentication
+	            /api/authorization/logout = logout
 				/api/** = sessionAccess
 				/events/** = sessionAccess
 				/** = anon

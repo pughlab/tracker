@@ -144,7 +144,7 @@ angular
           load: (query, callback) ->
             username = query.trim()
             $http
-              .get "/api/authentication/user/#{encodeURIComponent(username)}/exists"
+              .get "/api/authorization/user/#{encodeURIComponent(username)}/exists"
               .success (response) ->
                 callback [response]
               .error (response) ->

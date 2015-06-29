@@ -19,7 +19,7 @@ angular
         $scope.modified = true
 
     $http
-      .get "/api/authentication/user/#{encodeURIComponent($stateParams.username)}"
+      .get "/api/authorization/user/#{encodeURIComponent($stateParams.username)}"
       .success (data) ->
         $scope.user = data
         originalUser = angular.copy($scope.user)
