@@ -61,9 +61,13 @@ angular
 
     $scope.saveRole = (role) ->
       role = angular.copy(role)
-      console.log "Saving", role
+      response = {}
+      response.role = {id: role.id, name: role.name}
+      response.users = role.users
+      response.permissions = role.permissions
+      console.log "Saving", response
       $http
-        .put "/api/authorization/roles/#{encodeURIComponent($stateParams.name)}", role
+        .put "/api/authorization/roles/#{encodeURIComponent($stateParams.name)}", response
         .success (response) ->
           $scope.alerts.push {type: 'success', msg: "Successfully saved"}
         .error (response) ->

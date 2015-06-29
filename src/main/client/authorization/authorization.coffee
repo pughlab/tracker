@@ -4,5 +4,6 @@ angular.module 'tracker.authorization', [
   'ui.bootstrap.alert'
   'ui.bootstrap.pagination'
   'validation.match'
+  'tracker.controls'
   'tracker.util'
 ]

@@ -1,20 +1,31 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.restlet.data.Status;
+import org.restlet.ext.jackson.JacksonConverter;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
+import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.RoleResponse;
 import ca.uhnresearch.pughlab.tracker.dto.User;
 
 public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private JacksonConverter converter = new JacksonConverter();
 
     @Get("json")
     public Representation getResource()  {
@@ -24,10 +35,26 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     }
 
     @Put("json")
-    public Representation putResource()  {
-    	RoleResponse response = new RoleResponse();
-    	buildResponseDTO(response);
-       	return new JacksonRepresentation<RoleResponse>(response);
+    public Representation putResource(Representation input)  {
+    	logger.debug("Got an update", input);
+    	
+    	try {
+    		RoleResponse data = converter.toObject(input, RoleResponse.class, this);
+			logger.info("Got a new role response {}", data);
+			
+			Role role = data.getRole();
+			
+			getRepository().saveRole(role);
+			getRepository().setRoleUsers(role, data.getUsers());
+			getRepository().setRolePermissions(role, data.getPermissions());
+			
+			getRequest().getAttributes().put("role", role);
+			
+		} catch (IOException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		}
+    	
+    	return getResource();
     }
 
 	public void buildResponseDTO(RoleResponse dto) {
