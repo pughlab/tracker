@@ -55,6 +55,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 	public void resourceTest() throws IOException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);

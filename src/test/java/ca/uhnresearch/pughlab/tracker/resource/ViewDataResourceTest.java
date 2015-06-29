@@ -73,6 +73,7 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 	public void resourceTest() throws IOException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
@@ -112,6 +113,7 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 	public void resourceXmlTest() throws IOException, ParserConfigurationException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);

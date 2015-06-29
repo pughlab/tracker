@@ -51,6 +51,7 @@ public class TrackerResourceTest extends AbstractShiroTest {
 	public void resourceTest() throws IOException {
 
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
@@ -84,6 +85,7 @@ public class TrackerResourceTest extends AbstractShiroTest {
 	public void permissionsTest() throws IOException {
 
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
@@ -104,5 +106,37 @@ public class TrackerResourceTest extends AbstractShiroTest {
 		JsonArray studies = data.get("studies").getAsJsonArray();
 		assertEquals( 1, studies.size() );
 		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
+	}
+
+	/**
+	 * Checks unauthorized resource access to the tracker. 
+	 * @throws IOException
+	 */
+	@Test
+	public void unauthorizedTest() throws IOException {
+
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:write:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:admin:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:download:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:download:OTHER")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Representation result = studiesResource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		JsonArray studies = data.get("studies").getAsJsonArray();
+		assertEquals( 0, studies.size() );
 	}
 }

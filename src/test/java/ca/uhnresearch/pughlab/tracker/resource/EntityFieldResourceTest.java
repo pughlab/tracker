@@ -68,6 +68,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 	public void resourceTest() throws IOException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
@@ -107,6 +108,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 	public void resourcePutTest() throws IOException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
@@ -155,6 +157,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 	public void resourcePutTestNotAvailable() throws IOException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
@@ -208,6 +211,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 	public void resourcePutTestForbidden() throws IOException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);

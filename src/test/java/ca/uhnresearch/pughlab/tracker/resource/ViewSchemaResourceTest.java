@@ -63,6 +63,7 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
 	public void resourceTest() throws IOException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         replay(subjectUnderTest);
@@ -98,6 +99,7 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
 	public void resourceTestWrite() throws IOException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         replay(subjectUnderTest);
@@ -144,6 +146,7 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
 	public void resourceTestForbidden() throws ResourceException {
 
         Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
         replay(subjectUnderTest);
