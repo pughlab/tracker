@@ -41,7 +41,7 @@ public class SocketEventService {
 	public void sendMessage(UpdateEvent event, AtmosphereResource r) {
         try {
         	String messageBody = mapper.writeValueAsString(event);
-        	logger.info("Sending to: {}, {}", r.uuid(), messageBody);
+        	logger.debug("Sending to: {}, {}", r.uuid(), messageBody);
         	// Sends to just this one resource -- correct for a welcome event
         	r.write(messageBody);
 			
@@ -72,7 +72,7 @@ public class SocketEventService {
 			throw new IllegalArgumentException("Can't send to a null scope");
 		}
 		
-		logger.info("Sending message to everyone watching: {}", scope);
+		logger.debug("Sending message to everyone watching: {}", scope);
 		List<String> resourceKeys = watcherListByScope.get(scope);
 		if (resourceKeys != null) {
 			for (String uuid : resourceKeys) {
@@ -91,7 +91,7 @@ public class SocketEventService {
 	public void receivedMessage(UpdateEvent message, AtmosphereResource r) {
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         try {
-			logger.info("{} just sent {}", subject.getPrincipal(), mapper.writeValueAsString(message));
+			logger.debug("{} just sent {}", subject.getPrincipal(), mapper.writeValueAsString(message));
 		} catch (JsonProcessingException e) {
 			logger.error("Can't send: {}", e);
 			e.printStackTrace();
@@ -102,14 +102,14 @@ public class SocketEventService {
         	String resourceKey = r.uuid();
         	String scope = message.getData().getScope();
         	
-        	logger.info("Connecting to scope: {}", scope);
+        	logger.debug("Connecting to scope: {}", scope);
         	scopeByWatcher.put(resourceKey,scope);
         	if (! watcherListByScope.containsKey(scope)) {
         		watcherListByScope.put(scope, new ArrayList<String>());
         	} else {
         		// Before we record this user, tell everyone else someone new has connected
         		
-        		logger.info("Sending to scope watchers");
+        		logger.debug("Sending to scope watchers");
         		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
         		event.getData().setUser(subject.getPrincipal().toString());
         		event.getData().setScope(scope);
@@ -118,7 +118,7 @@ public class SocketEventService {
         		// And now, before we add the new user, we need to tell them about everyone
         		// else. 
         		List<String> resourceKeys = watcherListByScope.get(scope);
-        		logger.info("Existing: {}", resourceKeys);
+        		logger.debug("Existing: {}", resourceKeys);
         		if (resourceKeys != null) {
         			for (String uuid : resourceKeys) {
         				AtmosphereResource other = resources.get(uuid);
@@ -134,7 +134,7 @@ public class SocketEventService {
         	}
         	
         	watcherListByScope.get(scope).add(resourceKey);
-        	logger.info("Now watching: {}: {}", resourceKey, scope);
+        	logger.debug("Now watching: {}: {}", resourceKey, scope);
         }
 	}
 	
@@ -152,7 +152,7 @@ public class SocketEventService {
 			throw new IllegalArgumentException("Can't register a resource without a UUID");
 		}
 		
-		logger.info("Registering AtmosphereResource: {}", uuid);
+		logger.debug("Registering AtmosphereResource: {}", uuid);
 		resources.put(uuid, resource);
 	}
 	
@@ -166,11 +166,11 @@ public class SocketEventService {
 			throw new IllegalArgumentException("Can't register a resource without a UUID");
 		}
 
-		logger.info("Unregistering AtmosphereResource: {}", uuid);
+		logger.debug("Unregistering AtmosphereResource: {}", uuid);
 		
 		String scope = scopeByWatcher.get(uuid);
 		if (scope != null) {
-			logger.info("Found scope being watched: {}", scope);
+			logger.debug("Found scope being watched: {}", scope);
 			
 			List<String> watchers = watcherListByScope.get(scope);
 			if (! watchers.remove(uuid)) {
@@ -182,9 +182,9 @@ public class SocketEventService {
 		
 		resources.remove(uuid);
 		
-		logger.info("After removal: registered resources");
+		logger.debug("After removal: registered resources");
 		for(Entry<String, AtmosphereResource> entry : resources.entrySet()) {
-			logger.info("Found: {} => {}", entry.getKey(), entry.getValue());
+			logger.debug("Found: {} => {}", entry.getKey(), entry.getValue());
 		}
 		
 		// And after we have disconnected, tell everyone else we are gone.

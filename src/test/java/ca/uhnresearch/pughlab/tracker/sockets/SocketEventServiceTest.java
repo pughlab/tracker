@@ -24,7 +24,6 @@ public class SocketEventServiceTest {
 
 	@Before
 	public void initialize() {
-		logger.info("Initializing");
 		service = new SocketEventService();
 	}
 	

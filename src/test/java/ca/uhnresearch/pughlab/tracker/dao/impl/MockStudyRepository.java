@@ -224,7 +224,7 @@ public class MockStudyRepository implements StudyRepository {
 				result.add(v);
 			}
 		}
-		logger.info("Found views: " + result.size());
+		logger.debug("Found views: " + result.size());
 		return result;
 	}
 
