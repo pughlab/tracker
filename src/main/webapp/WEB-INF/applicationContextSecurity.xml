@@ -44,6 +44,7 @@
 	
 	<bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
 		<property name="loginUrl" value="/api/authorization/login" />
+		<property name="successUrl" value="/api/studies" />
 	</bean>
 	
 	<bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
