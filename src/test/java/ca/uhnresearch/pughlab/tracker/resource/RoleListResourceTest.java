@@ -80,5 +80,9 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		JsonObject jsonRole = data.get("roles").getAsJsonArray().get(0).getAsJsonObject();
 		assertEquals( 1234, jsonRole.get("id").getAsInt() );
 		assertEquals( "ROLE_CAT_HERDER", jsonRole.get("name").getAsString() );
+		
+		assertTrue( data.get("counts").isJsonObject() );
+		assertTrue( data.get("counts").getAsJsonObject().get("total").isJsonPrimitive() );
+		assertEquals( 1, data.get("counts").getAsJsonObject().get("total").getAsInt() );
 	}
 }

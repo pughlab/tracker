@@ -8,11 +8,17 @@
 	                    http://www.springframework.org/schema/util
 	                    http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<bean id="apiRouter" class="org.restlet.ext.spring.SpringRouter">
+	<!-- Always extract a case query, as it can be used everywhere -->
+	<bean id="apiRouter" class="ca.uhnresearch.pughlab.tracker.extractor.CaseQueryExtractor">
+		<property name="next" ref="apiRoot"/>
+	</bean>
+
+	<!-- The main API starts here -->
+	<bean id="apiRoot" class="org.restlet.ext.spring.SpringRouter">
 		<constructor-arg ref="router" />
 		<property name="attachments">
 	        <map>
-	            <entry key="/admin" value-ref="adminAuthorizer" />
+	            <entry key="/authorization" value-ref="adminAuthorizer" />
 	            <entry key="/studies">
 	            	<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="studiesResource" />
@@ -42,13 +48,9 @@
 	
 	<bean id="studyExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.StudyExtractor">
 		<property name="repository" ref="studyRepository"/>
-		<property name="next" ref="caseQueryExtractor"/>
-	</bean>
-	
-	<bean id="caseQueryExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.CaseQueryExtractor">
 		<property name="next" ref="studyRouter"/>
 	</bean>
-
+	
 	<bean id="studyRouter" class="org.restlet.ext.spring.SpringRouter">
 		<constructor-arg ref="apiRouter" />
 		<property name="attachments">

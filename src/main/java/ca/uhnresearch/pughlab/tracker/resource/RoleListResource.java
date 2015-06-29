@@ -39,6 +39,7 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     	List<Role> roles = getRepository().getRoles(query);
 
     	dto.setRoles(roles);
+    	dto.getCounts().setTotal(new Long(roles.size()));
 	};
 
 }
