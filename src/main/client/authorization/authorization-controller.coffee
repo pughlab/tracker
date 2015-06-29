@@ -1,7 +1,7 @@
 angular
   .module 'tracker.authorization'
 
-  .controller 'AdminRolesController', Array '$scope', '$http', '$state', ($scope, $http, $state) ->
+  .controller 'AuthorizationRolesController', Array '$scope', '$http', '$state', ($scope, $http, $state) ->
 
     $scope.totalItems = 0
     $scope.pageSize = 10
@@ -14,7 +14,7 @@ angular
 
     $scope.pageChanged = () ->
       queryOptions = {page: $scope.currentPage, pageSize: $scope.pageSize}
-      queryOptions.q = $scope.username if $scope.username?
+      queryOptions.q = $scope.name if $scope.name?
       $http
         .get '/api/authorization/roles', {params: queryOptions}
         .success (response) ->
@@ -45,7 +45,7 @@ angular
     $scope.pageChanged()
 
 
-  .controller 'AdminRoleController', Array '$scope', '$stateParams', '$http', ($scope, $stateParams, $http) ->
+  .controller 'AuthorizationRoleController', Array '$scope', '$stateParams', '$http', ($scope, $stateParams, $http) ->
 
     ## Don't expose $stateParams directly (we could!) but instead, do a server query on role
     ## settings, which means we can validate and get role information according to permissions.
@@ -56,11 +56,12 @@ angular
     $scope.alerts = []
 
     $scope.$watchCollection 'role', (newValue, oldValue) ->
-      if ! angular.equals newValue, originalUser
+      if ! angular.equals newValue, originalRole
         $scope.modified = true
 
     $scope.saveRole = (role) ->
       role = angular.copy(role)
+      console.log "Saving", role
       $http
         .put "/api/authorization/roles/#{encodeURIComponent($stateParams.name)}", role
         .success (response) ->
@@ -75,7 +76,11 @@ angular
     $http
       .get "/api/authorization/roles/#{encodeURIComponent($stateParams.name)}"
       .success (data) ->
-        $scope.role = data.role
+        console.log "Got data", data
+        role = data.role
+        role.users = data.users
+        role.permissions = data.permissions
+        $scope.role = role
         originalRole = angular.copy($scope.role)
         $scope.modified = false
 

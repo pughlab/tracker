@@ -1,80 +1,30 @@
 <ol class="breadcrumb">
   <li><a ui-sref="home">Home</a></li>
-  <li ng-show="enabled.list"><a ui-sref="adminUsers">Users</a></li>
-  <li>{{user.username}}</li>
+  <li><a ui-sref="authorizationRoles">Roles</a></li>
+  <li>{{role.name}}</li>
 </ol>
 
-<alert ng-show="user.force_password_change &amp;&amp; ! enabled.force_password_change" type="danger">
-  Your account has been marked for an immediate change of password. 
-  Please change your password now. 
-</alert>
-
-<form class="form-horizontal" role="form" name="userForm">
+<form class="form-horizontal" role="form" name="roleForm">
   <fieldset>
 
     <div class="form-group">
-      <label class="col-md-2 control-label" for="user-username">Username:</label>  
+      <label class="col-md-2 control-label" for="role-name">Name:</label>  
       <div class="col-md-4">
-        <input id="user-username" type="text" class="form-control" ng-model="user.username" ng-disabled="! enabled.username">
+        <input id="role-name" type="text" class="form-control" ng-model="role.name">
       </div>
     </div>
 
     <div class="form-group">
-      <label class="col-md-2 control-label" for="user-email">Email address:</label>  
+      <label class="col-md-2 control-label" for="role-users">Users:</label>  
       <div class="col-md-4">
-        <input id="user-email" type="text" class="form-control" ng-model="user.email" ng-disabled="! enabled.email">
+        <input id="role-users" type="text" class="form-control" ng-model="role.users">
       </div>
     </div>
 
-    <div class="form-group" ng-show="enabled.password">
-      <label class="col-md-2 control-label" for="user-current-password">Current password:</label>  
+    <div class="form-group">
+      <label class="col-md-2 control-label" for="role-permissions">Permissions:</label>  
       <div class="col-md-4">
-        <input id="user-current-password" type="password" class="form-control" ng-model="user.currentPassword">
-      </div>
-    </div>
-
-    <div class="form-group" ng-show="enabled.password">
-      <label class="col-md-2 control-label" for="user-password">New password:</label>  
-      <div class="col-md-4">
-        <input id="user-password" type="password" class="form-control" ng-model="user.password">
-      </div>
-    </div>
-
-    <div class="form-group" ng-show="enabled.password">
-      <label class="col-md-2 control-label" for="user-verify">Verify new password:</label>  
-      <div class="col-md-4">
-        <input id="user-verify" name="verify" type="password" class="form-control" ng-model="user.verify" data-match="user.password">
-        <span class="error" ng-show="userForm.verify.$error.match">Fields do not match!</span>
-      </div>
-     </div>
-
-    <div class="form-group" ng-show="enabled.locked">
-      <div class="col-md-2"></div>  
-      <div class="col-md-4 checkbox">
-        <label>
-          <input id="user-locked" type="checkbox" ng-model="user.locked">
-          Account locked
-        </label>
-      </div>
-    </div>
-
-    <div class="form-group" ng-show="enabled.expired">
-      <div class="col-md-2"></div>  
-      <div class="col-md-4 checkbox">
-        <label>
-          <input id="user-expired" type="checkbox" ng-model="user.expired">
-          Account expired
-        </label>
-      </div>
-    </div>
-
-    <div class="form-group" ng-show="enabled.force_password_change">
-      <div class="col-md-2"></div>  
-      <div class="col-md-4 checkbox">
-        <label>
-          <input id="user-force-password-change" type="checkbox" ng-model="user.force_password_change">
-          Force password reset on next login
-        </label>
+        <input id="role-permissions" type="text" class="form-control" ng-model="role.permissions">
       </div>
     </div>
 
@@ -87,10 +37,11 @@
     <div class="form-group">
       <div class="col-md-2"></div>  
       <div class="col-md-10">
-      <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="saveUser(user)">Save changes</button>
-      <button class="btn btn-warn" ng-click="reset(user) "ng-disabled="! enabled.reset || (! user.email || modified)">Request password reset</button>
+      <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="saveRole(role)">Save changes</button>
       </div>
     </div>
+    
+    {{role}}
 
   </fieldset>
 </form>

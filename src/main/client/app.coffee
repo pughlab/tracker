@@ -62,12 +62,12 @@ angular
         controller: 'CreateStudyController'
         templateUrl: '/tracker/admin/admin-new-study.html'
         url: '/admin/new/create'
-      .state 'adminRoles',
-        controller: 'AdminRolesController'
+      .state 'authorizationRoles',
+        controller: 'AuthorizationRolesController'
         templateUrl: '/tracker/authorization/authorization-roles.html'
         url: '/authorization/roles'
-      .state 'adminRole',
-        controller: 'AdminRoleController'
+      .state 'authorizationRole',
+        controller: 'AuthorizationRoleController'
         templateUrl: '/tracker/authorization/authorization-role.html'
         url: '/authorization/roles/:name'
       .state 'adminAudit',
