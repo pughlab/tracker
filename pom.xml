@@ -398,7 +398,7 @@
 					<useTestScope>true</useTestScope>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
-					<jettyXml>src/main/etc/jetty.xml</jettyXml>
+					<jettyXml>src/main/etc/jetty.xml,src/main/etc/jetty-webapp.xml</jettyXml>
 					<systemProperties>
 				        <systemProperty>
 				            <name>hsqldb.reconfig_logging</name>
@@ -406,6 +406,18 @@
 				        </systemProperty>
 				    </systemProperties>
 				</configuration>
+				<dependencies>
+				    <dependency>
+						<groupId>commons-dbcp</groupId>
+						<artifactId>commons-dbcp</artifactId>
+						<version>1.4</version>
+				    </dependency>
+					<dependency>
+						<groupId>org.hsqldb</groupId>
+						<artifactId>hsqldb</artifactId>
+						<version>${hsqldb.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 
 

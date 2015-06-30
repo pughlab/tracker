@@ -47,7 +47,7 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "file:src/main/webapp/WEB-INF/applicationContextDatabase.xml" })
+@ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
 public class StudyRepositoryImplTest {
 	
 	@SuppressWarnings("unused")

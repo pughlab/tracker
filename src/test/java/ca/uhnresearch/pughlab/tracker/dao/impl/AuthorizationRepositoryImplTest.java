@@ -21,7 +21,7 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "file:src/main/webapp/WEB-INF/applicationContextDatabase.xml" })
+@ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
 public class AuthorizationRepositoryImplTest {
 
 	@SuppressWarnings("unused")
