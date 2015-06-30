@@ -22,7 +22,7 @@
         <Arg>jdbc/TrackerDB</Arg>
         <Arg>
             <New class="org.apache.commons.dbcp.BasicDataSource">
-                <Set name="driverClassName">org.hsqldbx.jdbc.JDBCDriver</Set>
+                <Set name="driverClassName">org.hsqldb.jdbc.JDBCDriver</Set>
                 <Set name="url">jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</Set>
                 <Set name="username">sa</Set>
                 <Set name="password"></Set>
