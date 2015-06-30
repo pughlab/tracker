@@ -166,11 +166,6 @@
 			<version>1.4</version>
 		</dependency>
 		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>${hsqldb.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-sql</artifactId>
 			<version>${querydsl.version}</version>
@@ -304,6 +299,12 @@
 			<groupId>org.jmockit</groupId>
 			<artifactId>jmockit</artifactId>
 			<version>1.17</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>${hsqldb.version}</version>
 			<scope>test</scope>
 		</dependency>
 				
