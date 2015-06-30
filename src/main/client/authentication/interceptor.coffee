@@ -10,6 +10,10 @@ angular
 
       response: (response) ->
         $rootScope.$emit "event:stopSpinner"
+        
+        if response.status == 200 and response.data?.user? and ! $rootScope.user?
+          $rootScope.user = response.data.user
+        
         response
 
       responseError: (response) ->
