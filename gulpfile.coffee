@@ -12,6 +12,7 @@ gulpIgnore =       require 'gulp-ignore'
 gulpInject =       require 'gulp-inject'
 gulpMocha =        require 'gulp-mocha'
 gulpRename =       require 'gulp-rename'
+gulpReplace =      require 'gulp-replace'
 gulpHtmlmin =      require 'gulp-htmlmin'
 gulpServe =        require 'gulp-serve'
 gulpNodemon =      require 'gulp-nodemon'
@@ -33,8 +34,13 @@ queue =            require 'streamqueue'
 mainBowerFiles =   require 'main-bower-files'
 lazypipe =         require 'lazypipe'
 es =               require 'event-stream'
+exec =             require('child_process').exec
 
 bower =            require './bower'
+
+execute = (command, callback) ->
+  exec command, (error, stdout) ->
+    callback(stdout)
 
 htmlminOpts =
   removeComments: true
@@ -108,11 +114,17 @@ index = () ->
     .pipe(gulpFilter('**/*.js'))
     .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js'))
 
-  gulp.src('./src/main/client/index.html')
-    .pipe(gulpInject(gulp.src('./target/client/tmp/client/statics/vendors/css/bootstrap.css'), {ignorePath: ['target/client/tmp/client'], starttag: '<!-- inject:bootstrap:{{ext}} -->'}))
-    .pipe(gulpInject(es.merge(jsVendorFiles, cssVendorFiles), {ignorePath: ['target/client/tmp/client'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
-    .pipe(gulpInject(es.merge(appFiles(), cssFiles()), {ignorePath: ['target/client/tmp/client', 'src/main/client']}))
-    .pipe(gulp.dest('./target/client/tmp/client/'))
+  execute 'git log -n 1 --format="%h"', (commitId) ->
+    execute 'git diff --shortstat', (shortStat) ->
+      shortStat = shortStat.toString().trim()
+      commitId = commitId.toString().trim()
+      tag = 'Tag: ' + commitId + (if shortStat then (' with: ' + shortStat) else '')
+      gulp.src('./src/main/client/index.html')
+        .pipe(gulpReplace(/<span class="git-commit">[^<]*?<\/span>/m, '<span class="git-commit">' + tag + '</span>'))
+        .pipe(gulpInject(gulp.src('./target/client/tmp/client/statics/vendors/css/bootstrap.css'), {ignorePath: ['target/client/tmp/client'], starttag: '<!-- inject:bootstrap:{{ext}} -->'}))
+        .pipe(gulpInject(es.merge(jsVendorFiles, cssVendorFiles), {ignorePath: ['target/client/tmp/client'], starttag: '<!-- inject:vendor:{{ext}} -->'}))
+        .pipe(gulpInject(es.merge(appFiles(), cssFiles()), {ignorePath: ['target/client/tmp/client', 'src/main/client']}))
+        .pipe(gulp.dest('./target/client/tmp/client/'))
 
 
 gulp.task 'templates', () ->
