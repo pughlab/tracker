@@ -105,20 +105,21 @@ gulp.task 'vendors', () ->
 index = () ->
   bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components', read: false})
     
-  cssVendorFiles = bowerStream
-    .pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
-    .pipe(gulpFilter('**/*.css'))
-    .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/css'))
-
-  jsVendorFiles = bowerStream
-    .pipe(gulpFilter('**/*.js'))
-    .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js'))
-
   execute 'git log -n 1 --format="%h"', (commitId) ->
     execute 'git diff --shortstat', (shortStat) ->
       shortStat = shortStat.toString().trim()
       commitId = commitId.toString().trim()
       tag = 'Tag: ' + commitId + (if shortStat then (' with: ' + shortStat) else '')
+
+      cssVendorFiles = bowerStream
+        .pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
+        .pipe(gulpFilter('**/*.css'))
+        .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/css'))
+
+      jsVendorFiles = bowerStream
+        .pipe(gulpFilter('**/*.js'))
+        .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js'))
+
       gulp.src('./src/main/client/index.html')
         .pipe(gulpReplace(/<span class="git-commit">[^<]*?<\/span>/m, '<span class="git-commit">' + tag + '</span>'))
         .pipe(gulpInject(gulp.src('./target/client/tmp/client/statics/vendors/css/bootstrap.css'), {ignorePath: ['target/client/tmp/client'], starttag: '<!-- inject:bootstrap:{{ext}} -->'}))
