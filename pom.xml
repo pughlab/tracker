@@ -3,7 +3,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ca.uhnresearch.pughlab</groupId>
 	<artifactId>tracker-java-restlet</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	
 	<name>tracker</name>
@@ -710,4 +709,5 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	<version>1.0.0-RC1</version>
 </project>
