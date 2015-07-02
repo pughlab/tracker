@@ -45,6 +45,11 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
 			Role role = data.getRole();
 			
 			getRepository().saveRole(role);
+			
+			// Search for the role again because we might have renamed it
+			// This ensures we have an identifier. See #14
+			role = getRepository().getRole(role.getName());
+			
 			getRepository().setRoleUsers(role, data.getUsers());
 			getRepository().setRolePermissions(role, data.getPermissions());
 			

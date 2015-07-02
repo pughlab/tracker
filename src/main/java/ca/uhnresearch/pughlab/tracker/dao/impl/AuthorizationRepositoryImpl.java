@@ -172,7 +172,11 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	}
 
 	@Override
-	public void setRolePermissions(final Role role, final List<String> permissions) {
+	public void setRolePermissions(final Role role, final List<String> permissions) throws RepositoryException {
+		
+		if (role.getId() == null) {
+			throw new NotFoundException("Can't find role");
+		}
 
 		// First of all, let's remove the current list of permissions.
 		template.delete(rolePermissions, new SqlDeleteCallback() { 
