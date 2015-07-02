@@ -2,6 +2,8 @@ package ca.uhnresearch.pughlab.tracker.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class RoleResponse extends AbstractResponse {
 
 	private Role role;
@@ -13,6 +15,7 @@ public class RoleResponse extends AbstractResponse {
 	/**
 	 * @return the role
 	 */
+	@JsonProperty
 	public Role getRole() {
 		return role;
 	}
@@ -27,6 +30,7 @@ public class RoleResponse extends AbstractResponse {
 	/**
 	 * @return the users
 	 */
+	@JsonProperty
 	public List<String> getUsers() {
 		return users;
 	}
@@ -41,6 +45,7 @@ public class RoleResponse extends AbstractResponse {
 	/**
 	 * @return the permissions
 	 */
+	@JsonProperty
 	public List<String> getPermissions() {
 		return permissions;
 	}

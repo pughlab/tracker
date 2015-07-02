@@ -3,9 +3,11 @@ package ca.uhnresearch.pughlab.tracker.resource;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import org.restlet.Request;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -98,5 +101,56 @@ public class RoleResourceTest extends AbstractShiroTest {
 		assertTrue( data.get("permissions").isJsonArray() );
 		assertEquals( 1, data.get("permissions").getAsJsonArray().size() );
 		assertEquals( "study:*:*", data.get("permissions").getAsJsonArray().get(0).getAsString() );
+	}
+	
+	/**
+	 * Checks that an admin user can access the entire study, including all its 
+	 * many views.
+	 * @throws IOException
+	 */
+	@Test
+	public void resourcePutTest() throws IOException, RepositoryException {
+
+		Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(true);
+        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+		Role role = new Role();
+		role.setName("ROLE_CAT_HERDER");
+		role.setId(1234);
+		resource.getRequest().getAttributes().put("role", role);
+
+		Role renamed = new Role();
+		renamed.setName("X");
+		renamed.setId(1234);
+
+		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
+		mock.saveRole(anyObject(Role.class));
+		expectLastCall();
+		expect(mock.getRole("X")).andStubReturn(renamed);
+		mock.setRoleUsers(anyObject(Role.class), anyObject(ArrayList.class));
+		expectLastCall();
+		mock.setRolePermissions(anyObject(Role.class), anyObject(ArrayList.class));
+		expectLastCall();
+		expect(mock.getRoleUsers(renamed)).andStubReturn(new ArrayList<String>());
+		expect(mock.getRolePermissions(renamed)).andStubReturn(new ArrayList<String>());
+		replay(mock);
+		resource.setRepository(mock);
+		
+		Gson gson = new Gson();
+		JsonObject writeData = gson.fromJson("{\"role\": {\"id\": 1234, \"name\": \"X\"}}", JsonObject.class);		
+		Representation input = new StringRepresentation(writeData.toString(), APPLICATION_JSON);   
+
+		Representation result = resource.putResource(input);
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+
+		assertTrue( data.get("role").isJsonObject() );
+		assertEquals( 1234, data.get("role").getAsJsonObject().get("id").getAsInt() );
+		assertEquals( "X", data.get("role").getAsJsonObject().get("name").getAsString() );
+
 	}
 }
