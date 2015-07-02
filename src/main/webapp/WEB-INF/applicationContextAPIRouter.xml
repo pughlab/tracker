@@ -7,9 +7,14 @@
 	                    http://www.springframework.org/schema/beans/spring-beans.xsd
 	                    http://www.springframework.org/schema/util
 	                    http://www.springframework.org/schema/util/spring-util.xsd">
+	                    
+	<bean id="apiRouter" class="ca.uhnresearch.pughlab.tracker.restlets.CustomSpringSessionAuthenticator">
+		<constructor-arg ref="router" />
+		<property name="next" ref="caseQueryExtractor"/>
+	</bean>
 
 	<!-- Always extract a case query, as it can be used everywhere -->
-	<bean id="apiRouter" class="ca.uhnresearch.pughlab.tracker.extractor.CaseQueryExtractor">
+	<bean id="caseQueryExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.CaseQueryExtractor">
 		<property name="next" ref="apiRoot"/>
 	</bean>
 
@@ -19,17 +24,13 @@
 		<property name="attachments">
 	        <map>
 	            <entry key="/authorization" value-ref="authorizationAuthorizer" />
-	            <entry key="" value-ref="sessionAuthorizer" />
+	            <entry key="" value-ref="baseRouter" />
 	        </map>
 	    </property>
 	</bean>
 	
 	<bean id="authorizationAuthorizer" class="ca.uhnresearch.pughlab.tracker.restlets.AdminAuthorizer">
 		<property name="next" ref="authorizationRouter" />
-	</bean>
-	
-	<bean id="sessionAuthorizer" class="ca.uhnresearch.pughlab.tracker.restlets.SessionAuthorizer">
-		<property name="next" ref="baseRouter" />
 	</bean>
 	
 	<bean id="authorizationRouter" class="org.restlet.ext.spring.SpringRouter">
