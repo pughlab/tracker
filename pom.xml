@@ -11,6 +11,7 @@
 	distributed research projects.
 	</description>
 	<inceptionYear>2014</inceptionYear>
+	<version>2.0.0-RC1</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -709,5 +710,4 @@
 			</snapshots>
 		</repository>
 	</repositories>
-	<version>1.0.0-RC1</version>
 </project>
