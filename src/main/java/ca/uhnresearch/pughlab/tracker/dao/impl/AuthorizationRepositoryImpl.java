@@ -21,6 +21,8 @@ import com.mysema.query.sql.dml.SQLUpdateClause;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 
 public class AuthorizationRepositoryImpl implements AuthorizationRepository {
@@ -42,7 +44,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
      * Returns a list of roles
      */
 	@Override
-	public List<Role> getRoles(CaseQuery query) {
+	public List<Role> getRoles(CaseQuery query) throws RepositoryException {
     	SQLQuery sqlQuery = template.newSqlQuery().from(roles).orderBy(roles.name.asc());
     	
 		if (query.getOffset() != null) {
@@ -60,7 +62,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 * Finds and returns a role by name
 	 */
 	@Override
-	public Role getRole(String name) {
+	public Role getRole(String name) throws RepositoryException {
 		logger.debug("Looking for role by name: {}", name);
     	SQLQuery sqlQuery = template.newSqlQuery().from(roles).where(roles.name.eq(name));
     	Role role = template.queryForObject(sqlQuery, roles);
@@ -79,7 +81,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 * all related users and associated permissions, so not to be done lightly.
 	 */
 	@Override
-	public void deleteRole(final Role role) {
+	public void deleteRole(final Role role) throws RepositoryException {
 		template.delete(rolePermissions, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
 				return sqlDeleteClause.where(rolePermissions.roleId.eq(role.getId())).execute();
@@ -101,7 +103,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 * Saves (and possibly creates) a role
 	 */
 	@Override
-	public void saveRole(final Role role) {
+	public void saveRole(final Role role) throws RepositoryException {
 		if (role.getId() != null) {
 			
 			// We have an identifier, so we're updating the role -- basically this is a rename
@@ -127,7 +129,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 * Returns a list of users associated with a role
 	 */
 	@Override
-	public List<String> getRoleUsers(Role role) {
+	public List<String> getRoleUsers(Role role) throws RepositoryException {
     	SQLQuery sqlQuery = template.newSqlQuery().from(userRoles).where(userRoles.roleId.eq(role.getId()));
     	List<String> userList = template.query(sqlQuery, userRoles.username);
     	logger.debug("Got some users: {}", userList.toString());
@@ -145,7 +147,11 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	}
 
 	@Override
-	public void setRoleUsers(final Role role, final List<String> users) {
+	public void setRoleUsers(final Role role, final List<String> users) throws RepositoryException {
+		
+		if (role.getId() == null) {
+			throw new NotFoundException("Can't find role");
+		}
 		
 		// First of all, let's remove the current list of users.
 		template.delete(userRoles, new SqlDeleteCallback() { 

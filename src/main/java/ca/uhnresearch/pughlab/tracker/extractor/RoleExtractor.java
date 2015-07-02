@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 
 public class RoleExtractor extends Extractor {
@@ -28,7 +29,12 @@ public class RoleExtractor extends Extractor {
 		String name = (String) request.getAttributes().get("roleName");
 		
 		// Now we can extract the study and write it as a new attribute
-		Role role = repository.getRole(name);
+		Role role = null;
+		try {
+			role = repository.getRole(name);
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
 		
 		// If we don't find a value, we can fail at this stage.
 		if (role == null) {

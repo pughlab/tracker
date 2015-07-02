@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,7 +40,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testGetRoles() {
+	public void testGetRoles() throws RepositoryException {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
@@ -55,7 +56,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testGetRolesQuery() {
+	public void testGetRolesQuery() throws RepositoryException {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(2);
 
@@ -70,7 +71,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testGetRoleByName() {
+	public void testGetRoleByName() throws RepositoryException {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
@@ -86,7 +87,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testGetRoleByNameMissing() {
+	public void testGetRoleByNameMissing() throws RepositoryException {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
@@ -101,7 +102,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testGetRoleUsers() {
+	public void testGetRoleUsers() throws RepositoryException {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		List<String> list = authorizationRepository.getRoleUsers(role);
 		Assert.assertNotNull(list);
@@ -115,7 +116,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testGetRolePermissions() {
+	public void testGetRolePermissions() throws RepositoryException {
 		Role role = authorizationRepository.getRole("ROLE_DEMO_TRACK");
 		List<String> list = authorizationRepository.getRolePermissions(role);
 		Assert.assertNotNull(list);
@@ -131,7 +132,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testDeleteRole() {
+	public void testDeleteRole() throws RepositoryException {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		Assert.assertNotNull(role);
 
@@ -147,7 +148,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testRenameRole() {
+	public void testRenameRole() throws RepositoryException {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		Assert.assertNotNull(role);
 
@@ -165,7 +166,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testCreateRole() {
+	public void testCreateRole() throws RepositoryException {
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
 		authorizationRepository.saveRole(role);
@@ -181,7 +182,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testCreateExistingRole() {
+	public void testCreateExistingRole() throws RepositoryException {
 		Role role = new Role();
 		role.setName("ROLE_ADMIN");
 		
@@ -196,7 +197,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testSetRoleUsers() {
+	public void testSetRoleUsers() throws RepositoryException {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		List<String> users = new ArrayList<String>();
 		users.add("morag");
@@ -217,7 +218,7 @@ public class AuthorizationRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testSetRolePermissions() {
+	public void testSetRolePermissions() throws RepositoryException {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		List<String> permissions = new ArrayList<String>();
 		permissions.add("study:X:read");

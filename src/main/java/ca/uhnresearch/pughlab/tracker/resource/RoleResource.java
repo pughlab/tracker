@@ -16,6 +16,7 @@ import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.RoleResponse;
 import ca.uhnresearch.pughlab.tracker.dto.User;
@@ -51,6 +52,8 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
 			
 		} catch (IOException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		} catch (RepositoryException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
     	
     	return getResource();
@@ -67,13 +70,17 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     	Role role = (Role) getRequest().getAttributes().get("role");
     	dto.setRole(role);
     	
-    	// Query the database for users
-    	List<String> users = getRepository().getRoleUsers(role);
-    	dto.setUsers(users);
-    	
-    	// And for permissions
-    	List<String> permissions = getRepository().getRolePermissions(role);
-    	dto.setPermissions(permissions);
+    	try {
+	    	// Query the database for users
+	    	List<String> users = getRepository().getRoleUsers(role);
+	    	dto.setUsers(users);
+	    	
+	    	// And for permissions
+	    	List<String> permissions = getRepository().getRolePermissions(role);
+	    	dto.setPermissions(permissions);
+    	} catch (RepositoryException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		}
 	};
 
 }

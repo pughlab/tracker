@@ -18,6 +18,7 @@ import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 import static junit.framework.Assert.assertEquals;
@@ -51,7 +52,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 	 * @throws IOException
 	 */
 	@Test
-	public void resourceTest() throws IOException {
+	public void resourceTest() throws IOException, RepositoryException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(true);

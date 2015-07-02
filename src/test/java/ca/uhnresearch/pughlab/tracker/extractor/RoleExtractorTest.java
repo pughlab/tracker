@@ -6,7 +6,6 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
 import org.junit.Assert;
-
 import org.apache.shiro.subject.Subject;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +16,7 @@ import org.restlet.data.Method;
 import org.restlet.data.Reference;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
@@ -39,7 +39,7 @@ public class RoleExtractorTest extends AbstractShiroTest {
 	}
 
 	@Test
-	public void testBasicExtraction() {
+	public void testBasicExtraction() throws RepositoryException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         replay(subjectUnderTest);
