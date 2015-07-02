@@ -4,6 +4,14 @@ import java.util.List;
 
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 
+/**
+ * Interface for access to the authorization storage. This deliberately doesn't
+ * represent user objects, as that's authentication. However, roles are managed
+ * within the tracker and this manages role permissions in a way that is 
+ * decoupled from the main tracker storage. 
+ * 
+ * @author stuartw
+ */
 public interface AuthorizationRepository {
 
 	/**
