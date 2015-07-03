@@ -13,7 +13,7 @@ public class DefaultingFilter extends Filter {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private String defaultPath;
+	private String defaultPath = "/index.html";
 	
 	public DefaultingFilter(Context context, Restlet next) {
 		super(context, next);
@@ -27,8 +27,8 @@ public class DefaultingFilter extends Filter {
 			response.setStatus(Status.SUCCESS_OK);
 			String path = request.getResourceRef().getPath();
 			
-			if (! "/index.html".equals(path)) {
-				request.getResourceRef().setPath("/index.html");
+			if (! defaultPath.equals(path)) {
+				request.getResourceRef().setPath(defaultPath);
 				result = super.doHandle(request, response);
 			}
 		}
