@@ -27,8 +27,8 @@ public class DefaultingFilter extends Filter {
 			response.setStatus(Status.SUCCESS_OK);
 			String path = request.getResourceRef().getPath();
 			
-			if (! defaultPath.equals(path)) {
-				request.getResourceRef().setPath(defaultPath);
+			if (! getDefaultPath().equals(path)) {
+				request.getResourceRef().setPath(getDefaultPath());
 				result = super.doHandle(request, response);
 			}
 		}
