@@ -25,20 +25,23 @@ public class CustomSpringSessionAuthenticator extends Authenticator {
 	protected boolean authenticate(Request request, Response response) {
 		
 		Subject currentUser = SecurityUtils.getSubject();
+		
 		if (currentUser == null) {
-			return false;
-		} else {
-			Object principal = currentUser.getPrincipal(); 
-			if (principal != null) {
-				User user = new User(principal.toString());
-				request.getClientInfo().setUser(user);
-				
-				ChallengeResponse challenge = new ChallengeResponse(ChallengeScheme.CUSTOM);
-				challenge.setIdentifier(user.getIdentifier());
-				request.setChallengeResponse(challenge);
-				
-			}
+			throw new IllegalStateException("Invalid subject: SecurityUtils.getSubject returned null");
+		}
+		
+		Object principal = currentUser.getPrincipal(); 
+		if (principal != null) {
+			User user = new User(principal.toString());
+			request.getClientInfo().setUser(user);
+			
+			ChallengeResponse challenge = new ChallengeResponse(ChallengeScheme.CUSTOM);
+			challenge.setIdentifier(user.getIdentifier());
+			request.setChallengeResponse(challenge);
 			return true;
+			
+		} else {
+			return false;
 		}
 	}
 }
