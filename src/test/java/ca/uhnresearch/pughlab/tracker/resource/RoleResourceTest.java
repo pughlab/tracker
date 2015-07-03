@@ -27,10 +27,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
-import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 public class RoleResourceTest extends AbstractShiroTest {
