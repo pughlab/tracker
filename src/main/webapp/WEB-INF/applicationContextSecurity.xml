@@ -49,7 +49,12 @@
 	
 	<bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
 	</bean>
-
+	
+	<bean id="redirectForAuthentication" class="ca.uhnresearch.pughlab.tracker.security.RedirectForAuthenticationFilter">
+		<property name="clientID" value="xxx" />
+		<property name="openIDUrl" value="http://yyy.com" />		
+	</bean>
+	
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
 	    <property name="securityManager" ref="securityManager"/>
 	    
@@ -64,6 +69,7 @@
 	        <value>
 	            /api/authorization/login = sessionAuthentication
 	            /api/authorization/logout = logout
+	            /api/authorization/authorize = redirectForAuthentication
 				/api/** = sessionAccess
 				/events/** = sessionAccess
 				/** = anon
