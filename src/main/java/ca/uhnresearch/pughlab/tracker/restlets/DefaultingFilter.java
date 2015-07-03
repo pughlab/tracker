@@ -24,10 +24,11 @@ public class DefaultingFilter extends Filter {
 		logger.debug("doHandle FILTER: " + request.getResourceRef().getPath());
 		int result = super.doHandle(request, response);
 		if (response.getStatus().equals(Status.CLIENT_ERROR_NOT_FOUND)) {
-			response.setStatus(Status.SUCCESS_OK);
-			String path = request.getResourceRef().getPath();
 			
+			String path = request.getResourceRef().getPath();
+
 			if (! getDefaultPath().equals(path)) {
+				response.setStatus(Status.SUCCESS_OK);
 				request.getResourceRef().setPath(getDefaultPath());
 				result = super.doHandle(request, response);
 			}
