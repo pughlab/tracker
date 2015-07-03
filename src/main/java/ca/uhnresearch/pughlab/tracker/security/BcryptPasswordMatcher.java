@@ -15,6 +15,13 @@ public class BcryptPasswordMatcher implements CredentialsMatcher {
 		String password = new String(userToken.getPassword());
 		char[] credentials = (char[]) info.getCredentials();
 		String hashed = new String(credentials);
+		
+		// We might get hashes from either the fixed or non-fixed blowfish.
+		// This (nasty) hack ensures we still get a match.
+		if (hashed.startsWith("$2y$")) {
+			hashed = "$2a$" + hashed.substring(4);
+		}
+		
 		return BCrypt.checkpw(password, hashed);
 	}
 
