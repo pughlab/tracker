@@ -1,5 +1,8 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -10,8 +13,13 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.util.WebUtils;
+import org.restlet.ext.jackson.JacksonConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * A session authentication filter for Shiro, that combines elements of basic
@@ -30,6 +38,10 @@ import org.slf4j.LoggerFactory;
 public class SessionAuthenticationFilter extends AuthenticatingFilter {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private static ObjectMapper objectMapper = new ObjectMapper();
+
+	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 
 	/**
      * HTTP Authorization header, equal to <code>Authorization</code>
@@ -247,9 +259,22 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
 
 	protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e, ServletRequest request,
 			ServletResponse response) {
-		setFailureAttribute(request, e);
+		
 		// login failed, let request continue back to the login page:
-		return true;
+		try {
+			HttpServletResponse httpResponse = (HttpServletResponse) response;
+			httpResponse.setContentType("application/json");
+			httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			PrintWriter out = httpResponse.getWriter();
+			ObjectNode marked = jsonNodeFactory.objectNode();
+			marked.put("message", e.getMessage());
+			out.print(objectMapper.writeValueAsString(marked));
+			out.flush();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		return false;
 	}
 
 	protected void setFailureAttribute(ServletRequest request, AuthenticationException ae) {
