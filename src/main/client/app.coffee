@@ -49,6 +49,10 @@ angular
         controller: 'PageController'
         templateUrl: '/tracker/authentication/logout.html'
         url: '/logout'
+      .state 'login',
+        controller: 'LoginController'
+        templateUrl: '/tracker/authentication/login.html'
+        url: '/login'
 #      .state 'account',
 #        templateUrl: '/tracker/account/account.html'
 #      .state 'account.password',

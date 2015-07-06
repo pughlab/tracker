@@ -150,6 +150,10 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
             }
         }
         
+        if (logger.isTraceEnabled()) {
+        	logger.trace("Logged in: " + loggedIn);
+        }
+        
         if (!loggedIn) {
             sendChallenge(request, response);
         }
@@ -248,8 +252,7 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
 	protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e, ServletRequest request,
 			ServletResponse response) {
 		setFailureAttribute(request, e);
-		// login failed, let request continue back to the login page:
-		return true;
+		return false;
 	}
 
 	protected void setFailureAttribute(ServletRequest request, AuthenticationException ae) {

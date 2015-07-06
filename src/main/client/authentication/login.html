@@ -1,9 +1,8 @@
-<div class="modal-header">
-  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-  <h4 id="loginModal">Login</h4>
-</div>
-<div class="modal-body">
+<div>
+  <h3>Login</h3>
+
   <div class="alert alert-danger" ng-show="message">{{message}}</div>
+  
   <form class="form-horizontal" style="padding-top: 1em">
     <div class="form-group">
       <label class="control-label col-sm-3" for="inputUsername">Username</label>
@@ -18,8 +17,8 @@
       </div>
     </div> 
   </form>
-</div> 
-<div class="modal-footer">
+
   <button class="btn" ng-click="cancel()">Cancel</button>
   <button class="btn btn-primary" ng-click="ok(username, password)">Login</button>
+
 </div>

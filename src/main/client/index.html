@@ -35,6 +35,12 @@
             <li ng-class="{ active: isActive('/about')}"><a ui-sref="about">About</a></li>
           </ul>
         <ul class="nav navbar-nav navbar-right">
+          <!-- 
+          <p ng-hide="user" class="navbar-btn">
+            <button type="button" class="btn btn-primary btn-sm">Sign in</button>
+          </p>
+          -->
+          <!-- 
           <li class="dropdown" dropdown>
             <a href class="dropdown-toggle" dropdown-toggle>{{user.username || 'Login'}}<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
@@ -45,6 +51,7 @@
                 <li ng-show="user"><a href ng-click="logout()">Logout</a></li>
               </ul>
           </li>
+           -->
         </ul>
         </div><!--/.nav-collapse -->
       </div>
