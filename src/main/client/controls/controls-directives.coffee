@@ -10,12 +10,10 @@ angular
         model: '='
         ngDisabled: '='
       link: (scope, iElement, iAttrs) ->
-        console.log "Initializing selectizeTags"
 
         selectize = undefined
 
         scope.$watch 'options', (options) ->
-          console.log "Received options", options
           select = jQuery(iElement).selectize
             maxItems: null
             valueField: 'text'
@@ -27,7 +25,6 @@ angular
             persist: false
 
           selectize = select[0].selectize
-          console.log "Called selectize", selectize
 
           if scope.ngDisabled
             selectize.disable()
@@ -39,15 +36,12 @@ angular
 
         ## Tags are a collection
         scope.$watchCollection 'model', (value, old) ->
-          console.log "Model update", value, old
           if selectize
             $timeout () ->
               if value && Array.isArray(value)
                 selectize.clearOptions()
                 for tag in value
-                  console.log "Adding option", {text: tag}
                   selectize.addOption({text: tag})
-                console.log "Setting selectize value", value
                 selectize.setValue(value)
                 initialized = true
 
