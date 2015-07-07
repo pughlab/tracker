@@ -56,7 +56,7 @@ compareStrings = (a, b) -> if a < b then -1 else if a > b then 1 else 0
 
 
 gulp.task 'coffee', () ->
-  gulp.src ['./src/main/client/**/*.*coffee']
+  gulp.src ['./src/main/client/**/*.*coffee', './target/extra-resources/**/*.*coffee']
     .pipe gulpCoffee()
     .pipe gulp.dest('./target/client/tmp/client/statics/app/js')
 
