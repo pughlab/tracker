@@ -499,7 +499,6 @@
 					</dependency>
 				</dependencies>
 				<configuration>
-					<settingsKey>settingsKey</settingsKey>
 					<driver>org.hsqldb.jdbc.JDBCDriver</driver>
 					<url>jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</url>
 					<username>sa</username>
