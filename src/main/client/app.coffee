@@ -87,6 +87,10 @@ angular
         }
 
 
+  .config Array '$urlRouterProvider', ($urlRouterProvider) ->
+    $urlRouterProvider.otherwise('/')
+
+
   .config Array '$locationProvider', ($locationProvider) ->
     $locationProvider.html5Mode(true)
     $locationProvider.hashPrefix = "!"
@@ -123,15 +127,12 @@ angular
     scope.$on 'event:logoutConfirmed', () ->
       scope.user = undefined
       $state.go('logout')
-
+      
     scope.$on 'event:loginConfirmed', (event, user) ->
+      console.log 'event:loginConfirmed'
       scope.user = new User(user)
-
-      retry = (req) ->
-        $http(req.config).then (response) ->
-          req.deferred.resolve(response)
-
-      retry(request) for request in scope.requests401
+      scope.requests401 = []
+      $state.go('home')
 
     scope.$on 'event:loginRequest', (evt, username, password) ->
       authenticationService.login(evt.targetScope, username, password)
@@ -144,7 +145,7 @@ angular
     # info available. This allows us to pick up the initial service level user. It should always
     # return a 200 status (i.e., not be restricted by authentication, and return the current user)
     # exactly like the login event system.
-    authenticationService.ping()
+    # authenticationService.ping()
 
   .run () ->
 

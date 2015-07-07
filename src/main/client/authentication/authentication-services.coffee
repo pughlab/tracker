@@ -23,8 +23,8 @@ angular
           .post '/api/authorization/login', payload, config
 
           .success (response, status) ->
-            targetScope.$broadcast 'event:loginApproved', response.user
-            scope.$broadcast 'event:loginConfirmed', response.user
+            console.log 'Got response', targetScope, response, status
+            targetScope.$emit 'event:loginConfirmed', response.user
   
           .error (response, status) ->
             targetScope.$broadcast 'event:loginDenied', response

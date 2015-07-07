@@ -6,6 +6,9 @@ angular
     $scope.clearMessage = () ->
       $scope.message = ""
   
+    $scope.$on 'event:loginDenied', (evt, data) ->
+      $scope.message = data.message
+  
     $scope.ok = (username, password) ->
       $scope.clearMessage()
 #      $modalInstance.close({username: username, password: password})

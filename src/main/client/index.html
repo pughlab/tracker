@@ -40,18 +40,14 @@
             <button type="button" class="btn btn-primary btn-sm">Sign in</button>
           </p>
           -->
-          <!-- 
-          <li class="dropdown" dropdown>
-            <a href class="dropdown-toggle" dropdown-toggle>{{user.username || 'Login'}}<span class="caret"></span></a>
+          <li ng-show="user" class="dropdown" dropdown>
+            <a href class="dropdown-toggle" dropdown-toggle>{{user.username}}<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
-                <li ng-hide="user"><a ui-sref="home">Log in</a></li>
-                <li ng-show="user" class="disabled"><a>Logged in as: {{user.username}}</a></li>
                 <li ng-show="user.administrator"><a ui-sref="authorizationRoles">Manage roles</a></li>
-                <li ng-show="user" class="divider"></li>
-                <li ng-show="user"><a href ng-click="logout()">Logout</a></li>
+                <li ng-show="user.administrator" class="divider"></li>
+                <li><a href ng-click="logout()">Logout</a></li>
               </ul>
           </li>
-           -->
         </ul>
         </div><!--/.nav-collapse -->
       </div>
