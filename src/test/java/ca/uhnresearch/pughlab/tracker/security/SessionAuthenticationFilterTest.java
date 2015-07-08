@@ -53,15 +53,47 @@ public class SessionAuthenticationFilterTest extends AbstractShiroTest {
 	}
 
 	@Test
-	public void testScheme() {
-		Assert.assertEquals("session", filter.getAuthcScheme());
+	public void testGetSetApplicationName() {
+		Assert.assertEquals("application", filter.getApplicationName());
+		filter.setApplicationName("awesome");
+		Assert.assertEquals("awesome", filter.getApplicationName());
+	}
+	
+	@Test
+	public void testGetSetUsernameParam() {
+		Assert.assertEquals("username", filter.getUsernameParam());
+		filter.setUsernameParam("awesome");
+		Assert.assertEquals("awesome", filter.getUsernameParam());
 	}
 
 	@Test
-	public void testApplicationName() {
-		Assert.assertEquals("application", filter.getApplicationName());
+	public void testGetSetPasswordParam() {
+		Assert.assertEquals("password", filter.getPasswordParam());
+		filter.setPasswordParam("awesome");
+		Assert.assertEquals("awesome", filter.getPasswordParam());
 	}
-	
+
+	@Test
+	public void testGetSetAuthcScheme() {
+		Assert.assertEquals("session", filter.getAuthcScheme());
+		filter.setAuthcScheme("awesome");
+		Assert.assertEquals("awesome", filter.getAuthcScheme());
+	}
+
+	@Test
+	public void testGetSetAuthzScheme() {
+		Assert.assertEquals("session", filter.getAuthzScheme());
+		filter.setAuthzScheme("awesome");
+		Assert.assertEquals("awesome", filter.getAuthzScheme());
+	}
+
+	@Test
+	public void testGetSetFailureKeyAttribute() {
+		Assert.assertEquals("shiroLoginFailure", filter.getFailureKeyAttribute());
+		filter.setFailureKeyAttribute("awesome");
+		Assert.assertEquals("awesome", filter.getFailureKeyAttribute());
+	}
+
 	@Test
 	public void testGetUsername() {
 		HttpServletRequest request = createMock(HttpServletRequest.class);
