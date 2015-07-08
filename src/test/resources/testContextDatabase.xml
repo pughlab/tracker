@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/util
+	                    http://www.springframework.org/schema/util/spring-util.xsd">
+	
+	<bean id="dbcpDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="org.hsqldb.jdbc.JDBCDriver" />
+		<property name="url" value="jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+	</bean>
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+         <constructor-arg ref="dbcpDataSource"/>
+    </bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    	<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<bean id="queryDslJdbcTemplate" class="org.springframework.data.jdbc.query.QueryDslJdbcTemplate">
+		<constructor-arg ref="jdbcTemplate"/>
+	</bean>
+
+	<bean id="transactionFilter" class="ca.uhnresearch.pughlab.tracker.filter.TransactionFilter">
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+
+	<bean id="studyRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.StudyRepositoryImpl">
+		<property name="template" ref="queryDslJdbcTemplate"/>
+		<property name="updateEventService" ref="socketUpdateEventService" />
+	</bean>
+	
+	<bean id="authorizationRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.AuthorizationRepositoryImpl">
+		<property name="template" ref="queryDslJdbcTemplate"/>
+	</bean>
+	
+	<bean id="socketUpdateEventService" class="ca.uhnresearch.pughlab.tracker.events.impl.SocketUpdateEventService">
+		<property name="socketEventService" ref="socketEventService" />
+	</bean>
+	
+	<bean id="socketEventService" class="ca.uhnresearch.pughlab.tracker.sockets.SocketEventService">
+	</bean>
+</beans>

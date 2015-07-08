@@ -1,0 +1,33 @@
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/studies/{{study.name}}">{{study.name}}</a></li>
+  <li>{{view.name}}</li>
+</ol>
+
+<div ng-controller="ConnectedUserController">
+
+  <form class="form-inline pull-right" role="form" ng-submit="search(filterText)">
+    <div class="form-group form-group-sm">
+      <label for="search">Search: </label>
+      <input id="search" type="text" class="form-control input-sm" ng-model="filterText" tracker-search-button placeholder="Search text">
+    </div>
+  </form>
+
+  <h3>
+    <div ng-show="permissions.writeAllowed" style="display:inline-block;">
+      <toggle-switch ng-model="editingStatus" class="switch-danger switch-small" knob-label="Editing"><toggle-switch>
+    </div>
+    <small ng-show="currentUsers.length">
+      Also connected:
+      <span ng-repeat="user in currentUsers" class="badge" ng-class="&apos;editorUser-&apos; + $index">{{user}}</span></small>
+  </h3>
+  
+  <div tracker-error error-message="errorMessage"></div>
+  
+  <div tracker-table tracker-study="study" tracker-view="view" tracker-attributes="attributes" tracker-editing-status="editingStatus" ></div>
+
+  <div ng-controller="GridActionController">
+    <button ng-show="permissions.downloadAllowed" class="btn btn-default" ng-click="export()">Export Spreadsheet</button>
+  </div>
+
+</div>

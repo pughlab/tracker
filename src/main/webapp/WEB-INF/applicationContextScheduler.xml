@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/util
+	                    http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	    <property name="triggers">
+	        <list>
+	            <ref bean="cronTrigger"/>
+	        </list>
+	    </property>
+	</bean>
+
+	<!-- Run the job every 5 seconds only on Weekends -->
+    <bean id="cronTrigger"  class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="scheduledJobDetail" />
+        <property name="cronExpression" value="0 * * * * ?" />
+    </bean>
+    
+    <bean id="scheduledJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject" ref="scheduledJob"/>
+	    <property name="targetMethod" value="execute"/>
+	    <property name="concurrent" value="false"/>
+	</bean>
+	
+	<bean id="scheduledJob" class="ca.uhnresearch.pughlab.tracker.scheduling.ScheduledJob">
+	</bean>
+    
+</beans>

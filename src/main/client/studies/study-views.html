@@ -1,0 +1,15 @@
+<div>
+  <ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li>{{study.study.name}}</li>
+  </ol>
+
+  <h4>Current views</h4>
+
+  <ul>
+    <li ng-repeat="view in study.views">
+      <a ui-sref="studyView({studyName: study.study.name, viewName: view.name})">{{view.name}}</a>
+    </li>
+  </ul>
+
+</div>

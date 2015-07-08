@@ -1,0 +1,22 @@
+<div>
+  <ol class="breadcrumb">
+    <li>Home</li>
+  </ol>
+
+  <h4>Current studies</h4>
+
+  <p>
+    Please select one of the following studies. You might find it helpful to bookmark the ones you need 
+    most frequently.
+  </p>
+  
+  <ul>
+    <li ng-repeat="study in studies.studies">
+      <strong><a href="/studies/{{study.name}}">{{study.name}}</a></strong>
+      <span ng-show="study.access.writeAllowed"> <a ui-sref="adminStudy({studyName: study.name})" type="button" class="btn btn-default btn-xs">Edit</a></span>
+    </li>
+  </ul>
+  <div>
+    <button ng-show="permissions.create" class="btn btn-default" ui-sref="adminCreate">Create new study</button>
+  </div>
+</div>

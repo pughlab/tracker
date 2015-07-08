@@ -1,57 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
-<beans>
-
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/util
+	                    http://www.springframework.org/schema/util/spring-util.xsd">
+	                    
 	<bean id="trackerComponent" class="org.restlet.ext.spring.SpringComponent">
 		<property name="defaultTarget" ref="trackerApplication" />
 	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    	<property name="targetObject"><value>#{trackerComponent.getClients()}</value></property>
+    	<property name="targetMethod"><value>add</value></property>
+    	<property name="arguments">
+	        <list>
+	            <value type="org.restlet.data.Protocol">CLAP</value>
+	        </list>
+	    </property>
+    </bean>
 
+	<bean id="trackerComponentChildContext" class="org.restlet.Context"> 
+		<lookup-method name="createChildContext" bean="trackerComponent.context" /> 
+	</bean>
+	
 	<bean id="trackerApplication" class="ca.uhnresearch.pughlab.tracker.application.TrackerApplication">
-		<property name="root" ref="router" />
+		<property name="inboundRoot" ref="router" />
 	</bean>
 
 	<!-- Define the router -->
-	<bean name="router" class="org.restlet.ext.spring.SpringRouter">
+	<bean id="router" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="trackerComponentChildContext" />
 		<property name="attachments">
 	        <map>
-	            <entry key="/studies">
-	            	<bean class="org.restlet.ext.spring.SpringFinder">
-	            		<lookup-method name="create" bean="studiesResource" />
-	            	</bean>
-	            </entry>
+ 	            <entry key="/api" value-ref="apiRouter" />
+ 	            <entry key="" value-ref="staticsRewrite" />
 	        </map>
 	    </property>
-	</bean>
-		
-	<!-- Define the resources -->
-	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
-		<property name="template" ref="queryDslJdbcTemplate"/>
-	</bean>
-	
-	<bean id="dbcpDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		<property name="driverClassName" value="org.hsqldb.jdbc.JDBCDriver" />
-		<property name="url" value="jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true" />
-		<property name="username" value="sa" />
-		<property name="password" value="" />
-	</bean>
-	
-	<bean id="dataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
-         <constructor-arg ref="dbcpDataSource"/>
     </bean>
-	
-	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    	<property name="dataSource" ref="dataSource"/>
+    
+    <bean id="staticsRewrite" class="ca.uhnresearch.pughlab.tracker.restlets.DefaultingFilterFactoryBean">
+		<property name="component" ref="trackerComponent" />
+		<property name="next" ref="staticsDirectory" />
+		<property name="defaultPath" value="/index.html" />
+    </bean>
+    
+	<bean id="staticsDirectory" class="ca.uhnresearch.pughlab.tracker.restlets.DirectoryFactoryBean">
+		<property name="component" ref="trackerComponent" />
+		<property name="resourceRoot" value="clap://thread/client" />
 	</bean>
 	
-	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-		<property name="dataSource" ref="dataSource"/>
-	</bean>
-
-	<bean id="queryDslJdbcTemplate" class="org.springframework.data.jdbc.query.QueryDslJdbcTemplate">
-		<constructor-arg ref="jdbcTemplate"/>
-	</bean>
-
-	<bean id="transactionFilter" class="ca.uhnresearch.pughlab.tracker.filter.TransactionFilter">
-		<property name="transactionManager" ref="txManager"/>
-	</bean>
 </beans>

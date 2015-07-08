@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/util
+	                    http://www.springframework.org/schema/util/spring-util.xsd">
+	                    
+	<bean id="apiRouter" class="ca.uhnresearch.pughlab.tracker.restlets.CustomSpringSessionAuthenticator">
+		<constructor-arg ref="router" />
+		<property name="next" ref="caseQueryExtractor"/>
+	</bean>
+
+	<!-- Always extract a case query, as it can be used everywhere -->
+	<bean id="caseQueryExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.CaseQueryExtractor">
+		<property name="next" ref="apiRoot"/>
+	</bean>
+
+	<!-- The main API starts here -->
+	<bean id="apiRoot" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="router" />
+		<property name="attachments">
+	        <map>
+	            <entry key="/authorization" value-ref="authorizationAuthorizer" />
+	            <entry key="" value-ref="baseRouter" />
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="authorizationAuthorizer" class="ca.uhnresearch.pughlab.tracker.restlets.AdminAuthorizer">
+		<property name="next" ref="authorizationRouter" />
+	</bean>
+	
+	<bean id="authorizationRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="apiRouter" />
+		<property name="attachments">
+	        <map>
+	            <entry key="/roles">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="roleListResource" />
+	            	</bean>
+	            </entry>
+	            <entry key="/roles/{roleName}" value-ref="roleExtractor" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="baseRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="apiRouter" />
+		<property name="attachments">
+	        <map>
+	            <entry key="/studies">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="studiesResource" />
+	            	</bean>
+	            </entry>
+	            <entry key="/studies/{studyName}" value-ref="studyExtractor" />
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="roleExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.RoleExtractor">
+		<property name="repository" ref="authorizationRepository"/>
+		<property name="next" ref="roleRouter"/>
+	</bean>
+	
+	<bean id="roleRouter" class="org.restlet.ext.spring.SpringRouter">
+		<property name="attachments">
+	        <map>
+ 	            <entry key="">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="roleResource" />
+	            	</bean>
+	            </entry>
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="studyExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.StudyExtractor">
+		<property name="repository" ref="studyRepository"/>
+		<property name="next" ref="studyRouter"/>
+	</bean>
+	
+	<bean id="studyRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="apiRouter" />
+		<property name="attachments">
+	        <map>
+ 	            <entry key="/schema">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="studySchemaResource" />
+	            	</bean>
+	            </entry>
+ 	            <entry key="/views">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="studiesViewsResource" />
+	            	</bean>
+	            </entry>
+	            <entry key="/views/{viewName}" value-ref="viewExtractor" />
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="viewExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.ViewExtractor">
+		<property name="repository" ref="studyRepository"/>
+		<property name="next" ref="viewRouter"/>
+	</bean>
+	
+	<bean id="viewRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="studyRouter" />
+		<property name="attachments">
+	        <map>
+	            <entry key="/entities" value-ref="entityFactoryRouter" />
+	        	<entry key="/attributes">
+	        		<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="viewAttributesDataResource" />
+	            	</bean>
+	        	</entry>	        	
+ 	            <entry key="/schema">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="viewSchemaResource" />
+	            	</bean>
+	            </entry>
+ 	            <entry key="">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="viewDataResource" />
+	            	</bean>
+	            </entry>
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="entityFactoryRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="studyRouter" />
+		<property name="attachments">
+	        <map>
+	            <entry key="/{entityId}" value-ref="entityExtractor" />
+ 	            <entry key="">
+	            	<bean class="org.restlet.ext.spring.SpringFinder">
+	            		<lookup-method name="create" bean="entityFactoryResource" />
+	            	</bean>
+	            </entry>
+	        </map>
+	    </property>
+	</bean>
+	
+	<bean id="entityExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.EntityExtractor">
+		<property name="repository" ref="studyRepository"/>
+		<property name="next" ref="entityRouter"/>
+	</bean>
+	
+	<bean id="entityRouter" class="org.restlet.ext.spring.SpringRouter">
+		<constructor-arg ref="viewRouter" />
+		<property name="attachments">
+	        <map>
+ 	            <entry key="">
+					<bean class="org.restlet.ext.spring.SpringFinder">
+		           		<lookup-method name="create" bean="entityResource" />
+		           	</bean>
+	            </entry>
+ 	            <entry key="/{entityField}">
+					<bean class="org.restlet.ext.spring.SpringFinder">
+		           		<lookup-method name="create" bean="entityFieldResource" />
+		           	</bean>
+	            </entry>
+	        </map>
+	    </property>
+	</bean>
+
+	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="studiesViewsResource" class="ca.uhnresearch.pughlab.tracker.resource.StudyResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="studySchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.StudySchemaResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewDataResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+		<property name="excelWriter" ref="excelWriter"/>
+	</bean>
+ 	<bean id="viewSchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewSchemaResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="viewAttributesDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewAttributesResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="entityFactoryResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityFactoryResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="entityResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+ 	<bean id="entityFieldResource" class="ca.uhnresearch.pughlab.tracker.resource.EntityFieldResource" scope="prototype">
+		<property name="repository" ref="studyRepository"/>
+	</bean>
+	
+	<bean id="roleListResource" class="ca.uhnresearch.pughlab.tracker.resource.RoleListResource" scope="prototype">
+		<property name="repository" ref="authorizationRepository"/>
+	</bean>
+	<bean id="roleResource" class="ca.uhnresearch.pughlab.tracker.resource.RoleResource" scope="prototype">
+		<property name="repository" ref="authorizationRepository"/>
+	</bean>
+
+	<bean id="excelWriter" class="ca.uhnresearch.pughlab.tracker.services.impl.ExcelWriterImpl">
+		<property name="documentBuilderFactory" ref="documentBuilderFactory" />
+	</bean>
+	
+	<bean id="documentBuilderFactory" class="javax.xml.parsers.DocumentBuilderFactory" factory-method="newInstance" />
+	
+	
+	
+</beans>

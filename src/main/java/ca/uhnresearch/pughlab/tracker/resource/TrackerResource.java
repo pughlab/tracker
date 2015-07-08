@@ -1,47 +1,73 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
-import java.net.URL;
 import java.util.List;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 
-import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.Studies;
-import ca.uhnresearch.pughlab.tracker.dto.StudyDTO;
-import ca.uhnresearch.pughlab.tracker.dto.StudyListResponseDTO;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.StudyListResponse;
+import ca.uhnresearch.pughlab.tracker.dto.StudyWithAccess;
 
-public class TrackerResource extends ServerResource {
+public class TrackerResource extends StudyRepositoryResource<StudyListResponse> {
 		
-	private StudyRepository repository;
-
-	private final Logger logger = LoggerFactory.getLogger(TrackerResource.class);
-
-	@Required
-    public void setRepository(StudyRepository repository) {
-        this.repository = repository;
-    }
-
     @Get("json")
     public Representation getResource()  {
-    	logger.info("Called getResource");
+    	StudyListResponse response = new StudyListResponse();
+    	buildResponseDTO(response);
+       	return new JacksonRepresentation<StudyListResponse>(response);
+    }
+
+	@Override
+	public void buildResponseDTO(StudyListResponse dto) {
+		super.buildResponseDTO(dto);
+		
+    	Subject currentUser = SecurityUtils.getSubject();
     	
     	// Query the database for studies
-    	List<Studies> studyList = repository.getAllStudies();
-    	
-    	// Now translate into DTOs
-    	URL url = getRequest().getRootRef().toUrl();
-    	StudyListResponseDTO response = new StudyListResponseDTO(url);
-    	for(Studies s : studyList) {
-    		response.getStudies().add(new StudyDTO(s));
+    	List<Study> studyList = getRepository().getAllStudies();
+    	for(Study s : studyList) {
+    		
+    		String studyAdminPermissionString = "study:admin:" + s.getName();
+    		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
+    		Boolean studyReadPermission = studyAdminPermission;
+    		Boolean studyWritePermission = studyAdminPermission;
+    		Boolean studyDownloadPermission = studyAdminPermission;
+    		
+    		if (studyAdminPermission) {
+    			// Do nothing, as all permissions are already true
+    		} else {
+    			String studyReadPermissionString = "study:read:" + s.getName();
+    			studyReadPermission = currentUser.isPermitted(studyReadPermissionString);
+    			
+    			String studyWritePermissionString = "study:write:" + s.getName();
+    			studyWritePermission = currentUser.isPermitted(studyWritePermissionString);
+
+    			String studyDownloadPermissionString = "study:download:" + s.getName();
+    			studyDownloadPermission = currentUser.isPermitted(studyDownloadPermissionString);
+    		}
+
+    		if (studyWritePermission) {
+    			studyReadPermission = studyWritePermission;
+    		}
+    		
+  
+    		// For each study, we also ought to derive the precise nature of the
+    		// allowed permissions, and embed them in a permissions DTO.
+    		
+    		if (studyReadPermission) {
+    			StudyWithAccess study = new StudyWithAccess();
+    			study.setId(s.getId());
+    			study.setName(s.getName());
+    			study.setDescription(s.getDescription());
+    			study.getAccess().setReadAllowed(studyReadPermission);
+    			study.getAccess().setWriteAllowed(studyWritePermission);
+    			study.getAccess().setDownloadAllowed(studyDownloadPermission);
+    			dto.getStudies().add(study);
+    		}
     	}
-    	
-    	// And render back
-       	return new JacksonRepresentation<StudyListResponseDTO>(response);
-    }
+	}
 }

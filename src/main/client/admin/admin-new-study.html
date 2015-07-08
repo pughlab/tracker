@@ -1,0 +1,52 @@
+<ol class="breadcrumb">
+  <li><a ui-sref="home">Home</a></li>
+  <li>New study
+    <span ng-show="modified" class="badge alert-danger">modified</span>
+  </li>
+</ol>
+
+<div class="row">
+  <div class="col-md-8">
+    <p class="text-muted">
+      Use this to create a new study. You can also choose initial users, which will be able to administer
+      the new study. 
+    </p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <form class="form-horizontal" role="form" name="studyForm">
+      <fieldset>
+
+        <div class="form-group">
+          <label class="col-md-2 control-label" for="study-type">Description:</label>  
+          <div class="col-md-4">
+            <input id="study-description" name="description" type="text" class="form-control input-md" placeholder="Description" ng-model="study.description"></input>
+          </div>
+
+          <label class="col-md-2 control-label" for="study-name">Key:</label>  
+          <div class="col-md-4">
+            <input id="study-name" name="name" type="text" class="form-control input-md" placeholder="Key" ng-model="study.name" required>
+            <span class="error" ng-show="studyForm.name.$error.required">This field is required</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-md-12">
+            <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-md-2 control-label"></div>  
+          <div class="col-md-10">
+
+              <button class="btn btn-danger" ng-disabled="! studyForm.$valid" ng-click="create(study)">Create new study</button>
+
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>

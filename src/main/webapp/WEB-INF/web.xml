@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app id="restlet-tracker" version="2.4"
-	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app version="3.0" 
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:j2ee="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+                             http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 	<display-name>Restlet Tracker</display-name>
 
 	<listener>
@@ -14,27 +17,104 @@
 	</context-param>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>WEB-INF/applicationContext.xml</param-value>
+		<param-value>
+			WEB-INF/applicationContext.xml
+			WEB-INF/applicationContextDatabase.xml
+			WEB-INF/applicationContextAPIRouter.xml
+			WEB-INF/applicationContextScheduler.xml
+			WEB-INF/applicationContextSecurity.xml
+		</param-value>
 	</context-param>
 	
 	<filter>
+	    <filter-name>shiroFilter</filter-name>
+	    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <async-supported>true</async-supported>
+	    <init-param>
+	        <param-name>targetFilterLifecycle</param-name>
+	        <param-value>true</param-value>
+	    </init-param>
+	</filter>
+	
+	<filter-mapping>
+	    <filter-name>shiroFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	    <dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+	
+ 	<filter>
 		<filter-name>transactionFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <async-supported>true</async-supported>
 	</filter>
 	<filter-mapping>
 		<filter-name>transactionFilter</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/api/*</url-pattern>
 	</filter-mapping>
-
+	
 	<servlet>
+        <description>AtmosphereServlet</description>
+        <servlet-name>atmosphereServlet</servlet-name>
+        <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
+        <!-- limit classpath scanning to speed up starting, not mandatory -->
+        <init-param>
+  			<param-name>org.atmosphere.cpr.objectFactory</param-name>
+  			<param-value>org.atmosphere.spring.SpringWebObjectFactory</param-value>
+		</init-param>
+        <init-param>
+            <param-name>org.atmosphere.cpr.packages</param-name>
+            <param-value>ca.uhnresearch.pughlab.tracker.sockets</param-value>
+        </init-param>
+        <init-param>
+            <param-name>org.atmosphere.interceptor.HeartbeatInterceptor.clientHeartbeatFrequencyInSeconds</param-name>
+            <param-value>10</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+        <async-supported>true</async-supported>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>atmosphereServlet</servlet-name>
+		<url-pattern>/events/*</url-pattern>
+    </servlet-mapping>
+    
+ 	<servlet>
 		<servlet-name>tracker</servlet-name>
-		<servlet-class>org.restlet.ext.spring.SpringServerServlet</servlet-class>
+		<servlet-class>ca.uhnresearch.pughlab.tracker.restlets.CustomSpringServerServlet</servlet-class>
+		<init-param>
+            <param-name>org.restlet.application</param-name>
+            <param-value>trackerApplication</param-value>
+        </init-param>
+        <init-param>
+  			<param-name>org.restlet.clients</param-name>
+  			<param-value>HTTP HTTPS FILE CLAP</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
 	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>tracker</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
-
+	
+	<session-config>
+		<session-timeout>15</session-timeout>
+      	<cookie-config>
+         	<http-only>false</http-only>
+         	<max-age>30000</max-age>
+      	</cookie-config>
+		<tracking-mode>COOKIE</tracking-mode>
+   	</session-config>
+   	
+   	<resource-ref>
+	  <description>Primary database</description>
+	  <res-ref-name>jdbc/TrackerDB</res-ref-name>
+	  <res-type>javax.sql.DataSource</res-type>
+	  <res-auth>CONTAINER</res-auth>
+	</resource-ref>
+   	
 </web-app>

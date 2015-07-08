@@ -31,35 +31,35 @@ public class TransactionFilter implements Filter {
 	}
 
 	public void destroy() {
-		logger.info("Destroying TransactionFilter");
+		logger.trace("Destroying TransactionFilter");
 	}
 
 	public void doFilter(final ServletRequest request, final ServletResponse response,
 						 final FilterChain filterChain) 
 		throws IOException, ServletException {
-		logger.info("Called doFilter: {}", request.toString());
+		logger.trace("Called doFilter: {}", request.toString());
 		
 		TransactionCallbackWithoutResult cb = new TransactionCallbackWithoutResult(){
 			
 		    public void doInTransactionWithoutResult(TransactionStatus ts){
-				logger.info("Called doInTransactionWithoutResult: {}", request.toString());
+				logger.trace("Called doInTransactionWithoutResult: {}", request.toString());
 		    	try {
 		    		filterChain.doFilter(request, response);
 		    	} catch (Exception e) {
 		    		logger.error("Transaction rollback due to exception: {}", e.getMessage());
 		    		ts.setRollbackOnly();
 		    	}
-				logger.info("Done doInTransactionWithoutResult", request.toString());
+				logger.trace("Done doInTransactionWithoutResult", request.toString());
 		    }
 		};
 		
-		logger.info("Executing TransactionTemplate");
+		logger.trace("Executing TransactionTemplate");
 		new TransactionTemplate(transactionManager).execute(cb);
-		logger.info("Completed doFilter");
+		logger.trace("Completed doFilter");
 	}
 
 	public void init(FilterConfig config) throws ServletException {
-		logger.info("Initialising TransactionFilter");
+		logger.trace("Initialising TransactionFilter");
 	}
 
 }
