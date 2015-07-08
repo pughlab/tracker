@@ -153,17 +153,13 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
     	
         if (isLoginRequest(request, response)) {
             if (isLoginSubmission(request, response)) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Login submission detected.  Attempting to execute login.");
-                }
+                logger.trace("Login submission detected.  Attempting to execute login.");
                 
                 loggedIn = executeLogin(request, response);
             }
         }
         
-        if (logger.isTraceEnabled()) {
-        	logger.trace("Logged in: " + loggedIn);
-        }
+    	logger.trace("Logged in: " + loggedIn);
         
         if (!loggedIn) {
             sendChallenge(request, response);
@@ -184,9 +180,7 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
      * @return false - this sends the challenge to be sent back
      */
     protected boolean sendChallenge(ServletRequest request, ServletResponse response) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Authentication required: sending 401 Authentication challenge response.");
-        }
+        logger.debug("Authentication required: sending 401 Authentication challenge response.");
         HttpServletResponse httpResponse = WebUtils.toHttp(response);
         httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         String authcHeader = getAuthcScheme() + " realm=\"" + getApplicationName() + "\"";
@@ -236,9 +230,7 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
             this.appliedPaths.remove(previous);
         }
         super.setLoginUrl(loginUrl);
-        if (logger.isTraceEnabled()) {
-        	logger.trace("Adding login url to applied paths.");
-        }
+    	logger.trace("Adding login url to applied paths.");
         this.appliedPaths.put(getLoginUrl(), null);
     }
 	
@@ -251,9 +243,7 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
 	
 	protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response)
 			throws Exception {
-		if (logger.isTraceEnabled()) {
-        	logger.trace("onLoginSuccess: issuing success redirect.");
-        }
+    	logger.trace("onLoginSuccess: issuing success redirect.");
         issueSuccessRedirect(request, response);
 		// we handled the success redirect directly, prevent the chain from
 		// continuing:
