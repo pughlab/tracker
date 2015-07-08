@@ -1,2 +1,2 @@
 angular
-  .module 'tracker.authentication', ['ui.bootstrap']
+  .module 'tracker.authentication', []

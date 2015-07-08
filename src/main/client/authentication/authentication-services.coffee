@@ -7,12 +7,6 @@ angular
       headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}
 
     result =
-      ping: () ->
-        console.log 'Initializing authentication'
-        ## $http.get('/api/studies', {}, config).success (response) ->
-        ##   if response.user
-        ##    scope.$broadcast 'event:loginConfirmed', response.user
-
       login: (targetScope, username, password) ->
 
         payload = jQuery.param

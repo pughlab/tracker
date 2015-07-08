@@ -11,13 +11,11 @@ angular
   
     $scope.ok = (username, password) ->
       $scope.clearMessage()
-#      $modalInstance.close({username: username, password: password})
       console.log "Starting login process", {username: username, password: password}
       authenticationService.login $scope, username, password
 
     $scope.cancel = () ->
       $scope.clearMessage()
-#      $modalInstance.dismiss('cancel')
       $scope.$emit "event:loginCancelled"
 
 
@@ -28,20 +26,8 @@ angular
     $scope.message = ""
 
     $scope.$on 'event:loginRequired', () ->
-    
       $state.go 'login'
 
-#      modal = $modal.open
-#        templateUrl: '/tracker/authentication/login.html'
-#        controller: 'LoginController'
-#        scope: $scope
-
-#      modal.result.then (selected) ->
-#        $scope.shown = false
-#        $scope.$emit "event:loginRequest", selected.username, selected.password
-
-#      modal.opened.then () ->
-#        $scope.shown = true
 
     $scope.$on 'event:loginDenied', (evt, data) ->
       $scope.message = data.message
