@@ -7,76 +7,82 @@
 	                    http://www.springframework.org/schema/beans/spring-beans.xsd
 	                    http://www.springframework.org/schema/util
 	                    http://www.springframework.org/schema/util/spring-util.xsd">
-	                    
-	<bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager">
-	</bean>
 	
-	<bean id="passwordMatcher" class="ca.uhnresearch.pughlab.tracker.security.BcryptPasswordMatcher">
-	</bean>
-	
-	<bean id="authenticationRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
-		<property name="dataSource" ref="dataSource" />
-		<property name="credentialsMatcher" ref="passwordMatcher" />
-		<property name="permissionsLookupEnabled" value="true" />
-		<property name="authenticationQuery">
-			<value>
-				SELECT HASH FROM USERS WHERE USERNAME = ?
-			</value>
-		</property>
-		<property name="userRolesQuery">
-			<value>
-				SELECT R.NAME FROM USER_ROLES UR JOIN ROLES R ON UR.ROLE_ID = R.ID WHERE UR.USERNAME = ?
-			</value>
-		</property>
-		<property name="permissionsQuery">
-			<value>
-				SELECT RP.PERMISSION FROM ROLE_PERMISSIONS RP JOIN ROLES R ON RP.ROLE_ID = R.ID WHERE R.NAME = ?
-			</value>
-		</property>
-	</bean>
-	
-	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-		<property name="cacheManager" ref="cacheManager" />
-		<property name="realm" ref="authenticationRealm" />
-	</bean>
-	
-	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
-	
-	<bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
-		<property name="loginUrl" value="/api/authorization/login" />
-		<property name="successUrl" value="/api/studies" />
-	</bean>
-	
-	<bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
-	</bean>
-	
-	<bean id="redirectForAuthentication" class="ca.uhnresearch.pughlab.tracker.security.RedirectForAuthenticationFilter">
-		<property name="clientID" value="xxx" />
-		<property name="openIDUrl" value="http://yyy.com" />		
-	</bean>
-	
-	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-	    <property name="securityManager" ref="securityManager"/>
-	    
-	    <property name="filters">
-	        <util:map>
-	            <entry key="sessionAuthentication" value-ref="sessionAuthenticationFilter" />
-	            <entry key="sessionAccess" value-ref="sessionAccessFilter" />
-	        </util:map>
-	    </property>
-	    
-	    <property name="filterChainDefinitions">
-	        <value>
-	            /api/authorization/login = sessionAuthentication
-	            /api/authorization/logout = logout
-	            /api/authorization/authorize = redirectForAuthentication
-				/api/** = sessionAccess
-				/events/** = sessionAccess
-				/** = anon
-	        </value>
-	    </property>
-	    
-	    
-	</bean>
-	
+    <!--The default profile sets up an authenticationRealm that uses a local database of usernames
+        and passwords. The datasource is also set to the the usual datasource. 
+    -->
+    <beans profile="default">              
+    	<bean id="passwordMatcher" class="ca.uhnresearch.pughlab.tracker.security.BcryptPasswordMatcher">
+    	</bean>
+    	
+    	<bean id="authenticationRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
+    		<property name="dataSource" ref="dataSource" />
+    		<property name="credentialsMatcher" ref="passwordMatcher" />
+    		<property name="permissionsLookupEnabled" value="true" />
+    		<property name="authenticationQuery">
+    			<value>
+    				SELECT HASH FROM USERS WHERE USERNAME = ?
+    			</value>
+    		</property>
+    		<property name="userRolesQuery">
+    			<value>
+    				SELECT R.NAME FROM USER_ROLES UR JOIN ROLES R ON UR.ROLE_ID = R.ID WHERE UR.USERNAME = ?
+    			</value>
+    		</property>
+    		<property name="permissionsQuery">
+    			<value>
+    				SELECT RP.PERMISSION FROM ROLE_PERMISSIONS RP JOIN ROLES R ON RP.ROLE_ID = R.ID WHERE R.NAME = ?
+    			</value>
+    		</property>
+    	</bean>
+    </beans>
+    
+    <beans profile="default">
+        <bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager">
+        </bean>
+        
+        <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+            <property name="cacheManager" ref="cacheManager" />
+            <property name="realm" ref="authenticationRealm" />
+        </bean>
+        
+        <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+        
+        <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
+            <property name="loginUrl" value="/api/authorization/login" />
+            <property name="successUrl" value="/api/studies" />
+        </bean>
+        
+        <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
+        </bean>
+        
+        <bean id="redirectForAuthentication" class="ca.uhnresearch.pughlab.tracker.security.RedirectForAuthenticationFilter">
+            <property name="clientID" value="xxx" />
+            <property name="openIDUrl" value="http://yyy.com" />        
+        </bean>
+        
+        <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+            <property name="securityManager" ref="securityManager"/>
+            
+            <property name="filters">
+                <util:map>
+                    <entry key="sessionAuthentication" value-ref="sessionAuthenticationFilter" />
+                    <entry key="sessionAccess" value-ref="sessionAccessFilter" />
+                </util:map>
+            </property>
+            
+            <property name="filterChainDefinitions">
+                <value>
+                    /api/authorization/login = sessionAuthentication
+                    /api/authorization/logout = logout
+                    /api/authorization/authorize = redirectForAuthentication
+                    /api/** = sessionAccess
+                    /events/** = sessionAccess
+                    /** = anon
+                </value>
+            </property>
+            
+        </bean>
+    </beans>
+    	
 </beans>

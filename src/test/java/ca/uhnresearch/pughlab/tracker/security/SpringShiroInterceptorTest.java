@@ -24,6 +24,8 @@ import org.atmosphere.cpr.AtmosphereResource.TRANSPORT;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
@@ -108,6 +110,26 @@ public class SpringShiroInterceptorTest extends AbstractShiroTest {
 		expect(r.getResponse()).andStubReturn(res);
 		expect(r.getRequest(false)).andStubReturn(req);
 		expect(r.transport()).andStubReturn(TRANSPORT.LONG_POLLING);
+		replay(r);
+		
+		Action result = interceptor.inspect(r);
+		Assert.assertEquals(Action.CONTINUE.type(), result.type());
+	}
+
+	@Test
+	public void testInspectWebWithoutSecurityPollingWebsocket() {
+		
+		Subject subjectUnderTest = new Subject.Builder(getSecurityManager()).buildSubject();
+		setSubject(subjectUnderTest);
+		
+		AtmosphereRequest req = AtmosphereRequest.wrap(new MockHttpServletRequest());
+		AtmosphereResponse res = AtmosphereResponse.wrap(new MockHttpServletResponse());
+		
+		AtmosphereResourceImpl r = createMock(AtmosphereResourceImpl.class);
+		expect(r.getRequest()).andStubReturn(req);
+		expect(r.getResponse()).andStubReturn(res);
+		expect(r.getRequest(false)).andStubReturn(req);
+		expect(r.transport()).andStubReturn(TRANSPORT.WEBSOCKET);
 		replay(r);
 		
 		Action result = interceptor.inspect(r);

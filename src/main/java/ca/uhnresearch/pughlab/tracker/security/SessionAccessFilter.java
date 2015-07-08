@@ -35,9 +35,7 @@ public class SessionAccessFilter extends UserFilter {
      * This default implementation simply returns a 401 rather than a URL.
      */
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Authentication required: sending 401 Authentication challenge response.");
-        }
+        logger.debug("Authentication required: sending 401 Authentication challenge response.");
         HttpServletResponse httpResponse = WebUtils.toHttp(response);
         httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         String authcHeader = getAuthcScheme() + " realm=\"" + getApplicationName() + "\"";
