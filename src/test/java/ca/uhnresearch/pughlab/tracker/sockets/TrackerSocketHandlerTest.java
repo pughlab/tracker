@@ -10,7 +10,6 @@ import org.junit.Rule;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.verify;
 import static org.easymock.EasyMock.capture;
@@ -25,11 +24,9 @@ import org.atmosphere.cpr.FrameworkConfig;
 import org.easymock.Capture;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.restlet.data.ChallengeResponse;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
-import ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.fasterxml.jackson.databind.JsonMappingException;

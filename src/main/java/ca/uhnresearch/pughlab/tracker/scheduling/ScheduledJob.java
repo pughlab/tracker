@@ -37,7 +37,7 @@ public class ScheduledJob  {
 		Reader reader = new InputStreamReader(in);
 		
 		try {
-			Object obj = engine.eval(reader, context);
+			engine.eval(reader, context);
 			
 		} catch (ScriptException e) {
 			e.printStackTrace();

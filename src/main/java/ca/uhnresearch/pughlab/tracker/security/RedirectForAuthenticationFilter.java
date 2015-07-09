@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class RedirectForAuthenticationFilter extends AdviceFilter {
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(RedirectForAuthenticationFilter.class);
 	
 	private String openIDUrl;

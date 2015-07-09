@@ -1,7 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import static org.junit.Assert.*;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;

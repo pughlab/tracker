@@ -10,11 +10,12 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-
+    
 	<context-param>
 		<param-name>org.restlet.component</param-name>
 		<param-value>trackerComponent</param-value>
 	</context-param>
+    
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
