@@ -1,27 +1,29 @@
 angular
   .module 'tracker.authentication'
 
-  .factory 'authenticationService', Array '$rootScope', '$http', (scope, $http) ->
+  .factory 'authenticationService', Array '$rootScope', '$http', '$window', (scope, $http, $window) ->
 
     config =
-      headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'
+        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT'
+      }
 
     result =
       login: (targetScope, username, password) ->
+      
+        $window.location.href = '/api/authorization/login?client_name=google';
 
-        payload = jQuery.param
-          username: username
-          password: password
-
-        $http
-          .post '/api/authorization/login', payload, config
-
-          .success (response, status) ->
-            console.log 'Got response', targetScope, response, status
-            targetScope.$emit 'event:loginConfirmed', response.user
-  
-          .error (response, status) ->
-            targetScope.$broadcast 'event:loginDenied', response
+#        $http
+#          .get '/api/authorization/login', config
+#
+#          .success (response, status) ->
+#            console.log 'Got response', targetScope, response, status
+#            targetScope.$emit 'event:loginConfirmed', response.user
+#  
+#          .error (response, status) ->
+#            targetScope.$broadcast 'event:loginDenied', response
 
       logout: () ->
         $http

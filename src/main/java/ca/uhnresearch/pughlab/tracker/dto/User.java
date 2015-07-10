@@ -1,7 +1,10 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
+import java.util.List;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.pac4j.core.profile.CommonProfile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -20,7 +23,18 @@ public class User {
 	}
 	
 	public User(Subject subject) {
-		setUsername(subject.getPrincipal().toString());
+		
+		// TODO factor this better -- the derivation of a username/identity shouldn't involve 
+		// conditionals
+		@SuppressWarnings("unchecked")
+		List<Object> principals = SecurityUtils.getSubject().getPrincipals().asList();
+		
+		if (principals.size() == 2 && principals.get(1) instanceof CommonProfile) {
+			CommonProfile profile = (CommonProfile) principals.get(1);
+			setUsername(profile.getEmail());
+		} else {
+			setUsername(subject.getPrincipal().toString());
+		}
 		if (subject.hasRole("ROLE_ADMIN")) {
 			setAdministrator(true);
 		}

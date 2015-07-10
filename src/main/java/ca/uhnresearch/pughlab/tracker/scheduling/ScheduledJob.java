@@ -51,6 +51,6 @@ public class ScheduledJob  {
 	}
 	
     protected void execute() throws JobExecutionException {
-        logger.debug("Scheduled ping");
+        // logger.debug("Scheduled ping");
     }
 }
