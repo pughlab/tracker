@@ -10,7 +10,12 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-
+    
+    <context-param>
+        <param-name>spring.profiles.active</param-name>
+        <param-value>default,oidc</param-value>
+    </context-param>
+    
 	<context-param>
 		<param-name>org.restlet.component</param-name>
 		<param-value>trackerComponent</param-value>

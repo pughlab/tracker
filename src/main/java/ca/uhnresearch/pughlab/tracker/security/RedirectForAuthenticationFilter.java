@@ -1,16 +1,16 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import java.net.URISyntaxException;
-import java.util.UUID;
+import io.buji.pac4j.ShiroWebContext;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.servlet.AdviceFilter;
 import org.apache.shiro.web.util.WebUtils;
+import org.pac4j.core.client.Clients;
+import org.pac4j.oidc.client.OidcClient;
 import org.restlet.data.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,13 +19,11 @@ public class RedirectForAuthenticationFilter extends AdviceFilter {
 	
 	private static final Logger logger = LoggerFactory.getLogger(RedirectForAuthenticationFilter.class);
 	
-	private String openIDUrl;
-	private String clientID;
+	private Clients clients;
 	
 	@Override
     protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
-        String redirectUrl = getRedirectUrl();
-        issueRedirect(request, response, redirectUrl);
+        issueRedirect(request, response, getSeeOtherUrl(request, response));
         return false;
     }
 	
@@ -39,53 +37,49 @@ public class RedirectForAuthenticationFilter extends AdviceFilter {
      * @throws Exception if there is any error.
      */
     protected void issueRedirect(ServletRequest request, ServletResponse response, String redirectUrl) throws Exception {
+    	
+    	HttpServletRequest httpRequest = (HttpServletRequest) request;
+    	HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+    	String acrHeaders = httpRequest.getHeader("Access-Control-Request-Headers");
+    	String acrMethod = httpRequest.getHeader("Access-Control-Request-Method");
+
+    	httpResponse.setHeader("Access-Control-Allow-Headers", acrHeaders);
+    	httpResponse.setHeader("Access-Control-Allow-Methods", acrMethod);
+    	
+    	httpResponse.setHeader("Access-Control-Allow-Origin", "*");
+    	
         WebUtils.issueRedirect(request, response, redirectUrl);
     }
 
-    public String getRedirectUrl() throws URISyntaxException {
-		
-		String nonce = UUID.randomUUID().toString();
-
-		Subject subject = SecurityUtils.getSubject();
-		Session session = subject.getSession(true);
-		session.setAttribute("nonce", nonce);
-				
-		// Restlet References are a decent URI builder
-		Reference seeOther = new Reference();
-		seeOther.setBaseRef(getOpenIDUrl());
-		seeOther.setRelativePart("authorize");
-		seeOther.addQueryParameter("response_type", "code");
-		seeOther.addQueryParameter("nonce", nonce);
-		seeOther.addQueryParameter("client_id", getClientID());
-		
-		return seeOther.getTargetRef().toString();
+    public String getSeeOtherUrl(ServletRequest request, ServletResponse response) throws Exception {
+    	
+    	HttpServletRequest httpRequest = (HttpServletRequest) request;
+    	HttpServletResponse httpResponse = (HttpServletResponse) response;
+    	String clientNames[] = request.getParameterValues("client_name");
+    	
+    	if (clientNames.length != 1) {
+    		throw new RuntimeException("Can't find client_name query parameter for login request redirection");
+    	}
+    	
+    	ShiroWebContext context = new ShiroWebContext(httpRequest, httpResponse);
+    	
+    	OidcClient client = (OidcClient) clients.findClient(clientNames[0]);
+    	
+    	return client.getRedirectAction(context, false, false).getLocation();
+	}
+    
+	/**
+	 * @return the clients
+	 */
+	public Clients getClients() {
+		return clients;
 	}
 
 	/**
-	 * @return the openIDUrl
+	 * @param clients the clients to set
 	 */
-	public String getOpenIDUrl() {
-		return openIDUrl;
-	}
-
-	/**
-	 * @param openIDUrl the openIDUrl to set
-	 */
-	public void setOpenIDUrl(String openIDUrl) {
-		this.openIDUrl = openIDUrl;
-	}
-
-	/**
-	 * @return the clientID
-	 */
-	public String getClientID() {
-		return clientID;
-	}
-
-	/**
-	 * @param clientID the clientID to set
-	 */
-	public void setClientID(String clientID) {
-		this.clientID = clientID;
+	public void setClients(Clients clients) {
+		this.clients = clients;
 	}
 }
