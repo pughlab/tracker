@@ -11,7 +11,6 @@ import org.apache.shiro.web.servlet.AdviceFilter;
 import org.apache.shiro.web.util.WebUtils;
 import org.pac4j.core.client.Clients;
 import org.pac4j.oidc.client.OidcClient;
-import org.restlet.data.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
