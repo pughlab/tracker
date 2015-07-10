@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans
-	xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-	                    http://www.springframework.org/schema/beans/spring-beans.xsd
-	                    http://www.springframework.org/schema/util
-	                    http://www.springframework.org/schema/util/spring-util.xsd">
-<<<<<<< HEAD
-	
-=======
-	                    
->>>>>>> feature/openid-connect
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/util
+                        http://www.springframework.org/schema/util/spring-util.xsd">
+                        
     <bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager">
     </bean>
     
@@ -20,49 +16,6 @@
         <property name="realm" ref="authenticationRealm" />
     </bean>
     
-<<<<<<< HEAD
-    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
-    
-    <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
-        <property name="loginUrl" value="/api/authorization/login" />
-        <property name="successUrl" value="/api/studies" />
-    </bean>
-    
-    <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
-    </bean>
-    
-    <bean id="redirectForAuthentication" class="ca.uhnresearch.pughlab.tracker.security.RedirectForAuthenticationFilter">
-        <property name="clientID" value="xxx" />
-        <property name="openIDUrl" value="http://yyy.com" />        
-    </bean>
-    
-    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <property name="securityManager" ref="securityManager"/>
-        
-        <property name="filters">
-            <util:map>
-                <entry key="sessionAuthentication" value-ref="sessionAuthenticationFilter" />
-                <entry key="sessionAccess" value-ref="sessionAccessFilter" />
-            </util:map>
-        </property>
-        
-        <property name="filterChainDefinitions">
-            <value>
-                /api/authorization/login = sessionAuthentication
-                /api/authorization/logout = logout
-                /api/authorization/authorize = redirectForAuthentication
-                /api/** = sessionAccess
-                /events/** = sessionAccess
-                /** = anon
-            </value>
-        </property>
-        
-    </bean>
-    
-    <beans profile="default">
-        <bean id="passwordMatcher" class="ca.uhnresearch.pughlab.tracker.security.BcryptPasswordMatcher">
-        </bean>
-        
     <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
     </bean>
     
@@ -97,13 +50,6 @@
                     SELECT RP.PERMISSION FROM ROLE_PERMISSIONS RP JOIN ROLES R ON RP.ROLE_ID = R.ID WHERE R.NAME = ?
                 </value>
             </property>
-        </bean>
-    </beans>
-    
-    <beans profile="oidc">
-        <bean id="authenticationRealm" class="org.apache.shiro.realm.ldap.JndiLdapRealm">
-            <property name="userDnTemplate" value="uid={0},ou=users,dc=mycompany,dc=com" />
-            <property name="url" value="dap://ldapHost:389" />
         </bean>
         
         <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
