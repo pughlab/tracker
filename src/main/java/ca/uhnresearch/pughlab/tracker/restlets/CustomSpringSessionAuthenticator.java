@@ -30,7 +30,7 @@ public class CustomSpringSessionAuthenticator extends Authenticator {
 			throw new IllegalStateException("Invalid subject: SecurityUtils.getSubject returned null");
 		}
 		
-		Object principal = currentUser.getPrincipal(); 
+		Object principal = currentUser.getPrincipals().getPrimaryPrincipal(); 
 		if (principal != null) {
 			User user = new User(principal.toString());
 			request.getClientInfo().setUser(user);

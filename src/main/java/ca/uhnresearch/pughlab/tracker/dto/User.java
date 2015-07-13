@@ -29,12 +29,15 @@ public class User {
 		@SuppressWarnings("unchecked")
 		List<Object> principals = SecurityUtils.getSubject().getPrincipals().asList();
 		
-		if (principals.size() == 2 && principals.get(1) instanceof CommonProfile) {
-			CommonProfile profile = (CommonProfile) principals.get(1);
-			setUsername(profile.getEmail());
-		} else {
-			setUsername(subject.getPrincipal().toString());
+		if  (principals.size() >= 1) {
+			if (principals.size() >= 2 && principals.get(1) instanceof CommonProfile) {
+				CommonProfile profile = (CommonProfile) principals.get(1);
+				setUsername(profile.getEmail());
+			} else {
+				setUsername(principals.get(0).toString());
+			}
 		}
+		
 		if (subject.hasRole("ROLE_ADMIN")) {
 			setAdministrator(true);
 		}

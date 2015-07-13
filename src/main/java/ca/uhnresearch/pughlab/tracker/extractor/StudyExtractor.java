@@ -40,7 +40,7 @@ public class StudyExtractor extends Extractor {
 		
 		// Permissions checking might also be a sensible idea
     	Subject currentUser = SecurityUtils.getSubject();
-    	logger.debug("Authenticated as: {}", currentUser.getPrincipal().toString());
+    	logger.debug("Authenticated as: {}", currentUser.getPrincipals().getPrimaryPrincipal().toString());
 
     	// Explicitly block access when there's not at least study read access
     	String permission = "study:read:" + s.getName();

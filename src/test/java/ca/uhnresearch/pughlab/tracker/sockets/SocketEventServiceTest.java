@@ -2,6 +2,7 @@ package ca.uhnresearch.pughlab.tracker.sockets;
 
 import static org.easymock.EasyMock.*;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.atmosphere.cpr.AtmosphereRequest;
 import org.atmosphere.cpr.AtmosphereResource;
@@ -44,7 +45,7 @@ public class SocketEventServiceTest {
 	
 	private Subject createMockedSubject(String name) {
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "mock"));
         replay(subjectUnderTest);
         return subjectUnderTest;
 	}

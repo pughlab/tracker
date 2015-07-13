@@ -57,7 +57,7 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     	// Write the value, handling exceptions we might get, and converting them to
     	// appropriate server responses.
     	try {
-			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, currentUser.getPrincipal().toString(), data.get("value"));
+			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, currentUser.getPrincipals().getPrimaryPrincipal().toString(), data.get("value"));
 		} catch (InvalidValueException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} catch (NotFoundException e) {

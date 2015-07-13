@@ -8,6 +8,7 @@ import static org.easymock.EasyMock.verify;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.capture;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.easymock.Capture;
 import org.junit.Assert;
@@ -60,8 +61,7 @@ public class CustomSpringSessionAuthenticatorTest extends AbstractShiroTest {
 
 	@Test
 	public void testAuthenticateWithoutPrincipal() {
-		String principal = null;
-		expect(subjectUnderTest.getPrincipal()).andStubReturn(principal);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection());
 		replay(subjectUnderTest);
 		
 		Assert.assertFalse( authenticator.authenticate(request, response) );
@@ -72,7 +72,7 @@ public class CustomSpringSessionAuthenticatorTest extends AbstractShiroTest {
 	@Test
 	public void testAuthenticateWithPrincipal() {
 		String principal = "admin";
-		expect(subjectUnderTest.getPrincipal()).andStubReturn(principal);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection(principal, "mock"));
 		replay(subjectUnderTest);
 		
 		ClientInfo clientInfo = new ClientInfo();

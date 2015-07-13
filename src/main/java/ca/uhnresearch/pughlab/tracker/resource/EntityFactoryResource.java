@@ -54,7 +54,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     		EntityResponse caseData = converter.toObject(input, EntityResponse.class, this);
 			logger.debug("Got new case data {}", caseData);
 			
-			Cases newCase = getRepository().newStudyCase(study, view, currentUser.getPrincipal().toString());
+			Cases newCase = getRepository().newStudyCase(study, view, currentUser.getPrincipals().getPrimaryPrincipal().toString());
 			if (newCase == null) {
 				throw new RuntimeException("Error creating new case");
 			}
@@ -65,7 +65,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			Iterator<Map.Entry<String,JsonNode>> fieldIterator = attributes.fields();
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
-				getRepository().setCaseAttributeValue(study, view, newCase, field.getKey(), currentUser.getPrincipal().toString(), field.getValue());
+				getRepository().setCaseAttributeValue(study, view, newCase, field.getKey(), currentUser.getPrincipals().getPrimaryPrincipal().toString(), field.getValue());
 			}
 			
 			getRequest().getAttributes().put("entity", newCase);
