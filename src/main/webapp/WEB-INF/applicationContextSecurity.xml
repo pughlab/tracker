@@ -16,47 +16,20 @@
         <property name="realm" ref="authenticationRealm" />
     </bean>
     
-    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
-    
-    <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
-        <property name="loginUrl" value="/api/authorization/login" />
-        <property name="successUrl" value="/api/studies" />
-    </bean>
-    
     <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
     </bean>
     
-    <bean id="redirectForAuthentication" class="ca.uhnresearch.pughlab.tracker.security.RedirectForAuthenticationFilter">
-        <property name="clientID" value="xxx" />
-        <property name="openIDUrl" value="http://yyy.com" />        
-    </bean>
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
     
-    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <property name="securityManager" ref="securityManager"/>
-        
-        <property name="filters">
-            <util:map>
-                <entry key="sessionAuthentication" value-ref="sessionAuthenticationFilter" />
-                <entry key="sessionAccess" value-ref="sessionAccessFilter" />
-            </util:map>
-        </property>
-        
-        <property name="filterChainDefinitions">
-            <value>
-                /api/authorization/login = sessionAuthentication
-                /api/authorization/logout = logout
-                /api/authorization/authorize = redirectForAuthentication
-                /api/** = sessionAccess
-                /events/** = sessionAccess
-                /** = anon
-            </value>
-        </property>
-        
-    </bean>
     
-    <beans profile="default">
+    <beans profile="form_authentication">
         <bean id="passwordMatcher" class="ca.uhnresearch.pughlab.tracker.security.BcryptPasswordMatcher">
         </bean>
+        
+        <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
+            <property name="loginUrl" value="/api/authorization/login" />
+            <property name="successUrl" value="/api/studies" />
+        </bean>    
         
         <bean id="authenticationRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
             <property name="dataSource" ref="dataSource" />
@@ -78,12 +51,26 @@
                 </value>
             </property>
         </bean>
-    </beans>
-    
-    <beans profile="oidc">
-        <bean id="authenticationRealm" class="org.apache.shiro.realm.ldap.JndiLdapRealm">
-            <property name="userDnTemplate" value="uid={0},ou=users,dc=mycompany,dc=com" />
-            <property name="url" value="dap://ldapHost:389" />
+        
+        <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+            <property name="securityManager" ref="securityManager"/>
+            
+            <property name="filters">
+                <util:map>
+                    <entry key="sessionAuthentication" value-ref="sessionAuthenticationFilter" />
+                    <entry key="sessionAccess" value-ref="sessionAccessFilter" />
+                </util:map>
+            </property>
+            
+            <property name="filterChainDefinitions">
+                <value>
+                    /api/authorization/login = sessionAuthentication
+                    /api/authorization/logout = logout
+                    /api/** = sessionAccess
+                    /events/** = sessionAccess
+                    /** = anon
+                </value>
+            </property>
         </bean>
     </beans>
 
