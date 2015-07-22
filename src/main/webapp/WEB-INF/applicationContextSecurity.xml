@@ -103,17 +103,19 @@
         
         <bean id="clientFilter" class="io.buji.pac4j.ClientFilter">
             <property name="clients" ref="authenticationClients" />
+            <property name="failureUrl" value="/error" />
         </bean>
     
         <bean id="redirectForAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.RedirectForAuthenticationFilter">
             <property name="clients" ref="authenticationClients" />
         </bean>
     
-        <bean id="oidcClient" class="org.pac4j.oidc.client.OidcClient">
+        <bean id="oidcClient" class="ca.uhnresearch.pughlab.tracker.security.AbsolutifyingOidcClient">
             <property name="discoveryURI" value="https://accounts.google.com/.well-known/openid-configuration" />
             <property name="clientID" value="571844128250-bfcuv0pmp3bpn6bphh1pgjink6v0kqhn.apps.googleusercontent.com" />
             <property name="secret" value="MLw6QNfOtS3J2IN17AYIx-Jc" />
             <property name="name" value="google" />
+            <property name="enableContextualRedirects" value="true" />
         </bean>
         
         <bean id="authenticationClients" class="org.pac4j.core.client.Clients">

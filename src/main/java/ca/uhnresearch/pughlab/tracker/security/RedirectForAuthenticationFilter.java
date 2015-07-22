@@ -1,5 +1,15 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+
 import io.buji.pac4j.ShiroWebContext;
 
 import javax.servlet.ServletRequest;
@@ -7,9 +17,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.NameValuePair;
 import org.apache.shiro.web.servlet.AdviceFilter;
 import org.apache.shiro.web.util.WebUtils;
+import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
+import org.pac4j.core.client.Client;
 import org.pac4j.oidc.client.OidcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +80,39 @@ public class RedirectForAuthenticationFilter extends AdviceFilter {
     	
     	ShiroWebContext context = new ShiroWebContext(httpRequest, httpResponse);
     	
-    	OidcClient client = (OidcClient) clients.findClient(clientNames[0]);
+    	@SuppressWarnings("rawtypes")
+		BaseClient client = (BaseClient) clients.findClient(clientNames[0]);
     	
-    	return client.getRedirectAction(context, false, false).getLocation();
+    	String location = client.getRedirectAction(context, false, false).getLocation();
+    	logger.debug("Redirecting to: " + location);
+    	
+    	return location;
+    			
 	}
+    
+    protected URI fixRelativeCallback(HttpServletRequest httpRequest, URI location) throws URISyntaxException {
+    	
+    	List<NameValuePair> parameters = URLEncodedUtils.parse(location, "UTF-8");
+    	for (ListIterator<NameValuePair> i = parameters.listIterator(); i.hasNext(); ) {
+    		NameValuePair param = i.next();
+    		if ("redirect_uri".equals(param.getName())) {
+    			String value = param.getValue();
+    			URIBuilder redirect = new URIBuilder(value);
+    			if (redirect.getScheme() == null) {
+    				redirect.setScheme(httpRequest.getScheme());
+    				redirect.setHost(httpRequest.getServerName());
+    				redirect.setPort(httpRequest.getLocalPort());
+    				redirect.setPath(httpRequest.getContextPath() + redirect.getPath());
+    				i.set(new BasicNameValuePair("redirect_uri", redirect.build().toString()));
+    			}
+    		}
+    	}
+    	
+    	URIBuilder builder = new URIBuilder(location);
+    	builder.removeQuery();
+    	builder.addParameters(parameters);
+    	return builder.build();
+    }
     
 	/**
 	 * @return the clients

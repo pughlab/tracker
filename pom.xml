@@ -170,6 +170,11 @@
 			<artifactId>querydsl-sql</artifactId>
 			<version>${querydsl.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5</version>
+        </dependency>
 		
 		<!-- Jackson -->
 		<dependency>
@@ -219,8 +224,18 @@
         <!-- OIDC -->
         <dependency>
             <groupId>io.buji</groupId>
-            <artifactId>buji-pac4j</artifactId>
-            <version>1.2.3</version>
+            <artifactId>buji-pac4j-core</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.buji</groupId>
+            <artifactId>buji-pac4j-servlet</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-core</artifactId>
+            <version>1.7.1</version>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
@@ -228,15 +243,15 @@
             <version>1.7.1</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.pac4j</groupId>
-                    <artifactId>pac4j-core</artifactId>
+                    <groupId>com.nimbusds</groupId>
+                    <artifactId>oauth2-oidc-sdk</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-core</artifactId>
-            <version>1.7.1</version>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>3.4.1</version>
         </dependency>
 		
 		<!-- Quartz framework -->
@@ -797,16 +812,17 @@
 			<name>Public online Restlet repository</name>
 			<url>http://maven.restlet.com</url>
 		</repository>
-		<repository>
-			<id>sonatype-nexus-snapshots</id>
-			<name>Sonatype Nexus Snapshots</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
+<!--             <repository>
+            <id>oss.sonatype.org</id>
+            <name>OSS Sonatype Release Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+ --><!--         <repository>
+            <id>oss.sonatype.org.snapshots</id>
+            <name>OSS Sonatype Snapshot Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots/>
+        </repository>
+ -->            
 	</repositories>
 </project>

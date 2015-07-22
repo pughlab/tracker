@@ -93,7 +93,7 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
     private String discoveryURI;
 
     /* Decoder for the JWT ID Token */
-    private DefaultJWTDecoder jwtDecoder;
+    private RotatingJWTDecoder jwtDecoder;
 
     /* OIDC metadata */
     private OIDCProviderMetadata oidcProvider;
@@ -172,7 +172,7 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         ClientAuthenticationMethod method = getClientAuthenticationMethod();
         this.clientAuthentication = getClientAuthentication(method);
         // Init JWT decoder
-        this.jwtDecoder = new DefaultJWTDecoder();
+        this.jwtDecoder = new RotatingJWTDecoder();
         initJwtDecoder(this.jwtDecoder, jwkSet);
 
     }
@@ -301,7 +301,29 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
             }
 
             // Check ID Token
-            ReadOnlyJWTClaimsSet claimsSet = this.jwtDecoder.decodeJWT(tokenSuccessResponse.getIDToken());
+            ReadOnlyJWTClaimsSet claimsSet;
+            try {
+            	claimsSet = this.jwtDecoder.decodeJWT(tokenSuccessResponse.getIDToken());
+            } catch (MissingKeyException e) {
+            	
+            	// Retrieve updated keys
+                JWKSet jwkSet;
+                // Download OIDC metadata and Json Web Key Set
+                try {
+                    DefaultResourceRetriever resourceRetriever = new DefaultResourceRetriever();
+                    this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
+                            new URL(this.discoveryURI)).getContent());
+                    jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
+                            .getContent());
+                } catch (Exception e2) {
+                    throw new TechnicalException(e2);
+                }
+                initJwtDecoder(this.jwtDecoder, jwkSet);
+
+            	// Try to validate again -- a second failure here is going to be bad
+            	claimsSet = this.jwtDecoder.decodeJWT(tokenSuccessResponse.getIDToken());
+            };
+            
             if (useNonce()) {
                 String nonce = claimsSet.getStringClaim("nonce");
                 if (nonce == null || !nonce.equals(credentials.getContext().getSessionAttribute(NONCE_ATTRIBUTE))) {
@@ -351,13 +373,13 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
      * @param jwtDecoder
      * @param jwkSet
      */
-    private void initJwtDecoder(final DefaultJWTDecoder jwtDecoder, final JWKSet jwkSet) {
+    private void initJwtDecoder(final RotatingJWTDecoder jwtDecoder, final JWKSet jwkSet) {
         try {
             for (JWK key : jwkSet.getKeys()) {
                 if (key.getKeyUse() == KeyUse.SIGNATURE) {
-                    jwtDecoder.addJWSVerifier(getVerifier(key));
+                    jwtDecoder.addJWSVerifier(getVerifier(key), key.getKeyID());
                 } else if (key.getKeyUse() == KeyUse.ENCRYPTION) {
-                    jwtDecoder.addJWEDecrypter(getDecrypter(key));
+                    jwtDecoder.addJWEDecrypter(getDecrypter(key), key.getKeyID());
                 }
             }
         } catch (Exception e) {
