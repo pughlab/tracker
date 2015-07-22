@@ -7,6 +7,10 @@ DROP TABLE IF EXISTS role_permissions;
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS roles;
 
+ALTER TABLE case_attribute_strings DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN active;
+ALTER TABLE case_attribute_booleans DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN active;
+ALTER TABLE case_attribute_dates DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN active;
+
 CREATE TABLE roles (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(64) NOT NULL, 
