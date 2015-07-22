@@ -18,6 +18,7 @@ import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
 
 public class SocketEventServiceTest {
 	
+	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private SocketEventService service;
