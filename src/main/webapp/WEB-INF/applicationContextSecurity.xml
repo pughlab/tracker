@@ -21,16 +21,10 @@
     
     <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
     
-    
-    <beans profile="form_authentication">
+    <beans profile="database_realm">
         <bean id="passwordMatcher" class="ca.uhnresearch.pughlab.tracker.security.BcryptPasswordMatcher">
         </bean>
-        
-        <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
-            <property name="loginUrl" value="/api/authorization/login" />
-            <property name="successUrl" value="/api/studies" />
-        </bean>    
-        
+
         <bean id="authenticationRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
             <property name="dataSource" ref="dataSource" />
             <property name="credentialsMatcher" ref="passwordMatcher" />
@@ -51,6 +45,20 @@
                 </value>
             </property>
         </bean>
+    </beans>
+    
+    <beans profile="ldap_realm">
+        <bean id="authenticationRealm" class="org.apache.shiro.realm.ldap.JndiLdapRealm">
+            <property name="userDnTemplate" value="uid={0},ou=users,dc=ads,dc=uhnresearch,dc=ca" />
+            <property name="contextFactory.url" value="ldap://192.168.198.100:389" />
+        </bean>
+    </beans>
+    
+    <beans profile="form_authentication">
+        <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
+            <property name="loginUrl" value="/api/authorization/login" />
+            <property name="successUrl" value="/api/studies" />
+        </bean>    
         
         <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
             <property name="securityManager" ref="securityManager"/>
