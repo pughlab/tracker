@@ -21,6 +21,7 @@
     
     <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
     
+    <!-- Profile for authenticating and authorizing from a database -->
     <beans profile="database_realm">
     
         <util:list id="securityRealms" value-type="org.apache.shiro.realm.Realm">
@@ -52,6 +53,7 @@
         </bean>
     </beans>
     
+    <!-- Profile for authenticating from LDAP and authorizing from a database -->
     <beans profile="ldap_realm">
     
         <util:list id="securityRealms" value-type="org.apache.shiro.realm.Realm">
@@ -105,6 +107,7 @@
         
     </beans>
     
+    <!-- Profile for handling authentication data as a username/password form -->
     <beans profile="form_authentication">
         <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
             <property name="loginUrl" value="/api/authorization/login" />
