@@ -3,6 +3,7 @@ package ca.uhnresearch.pughlab.tracker.resource;
 import java.io.IOException;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.restlet.data.Status;
 import org.restlet.ext.jackson.JacksonConverter;
@@ -56,8 +57,12 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     	// Write the value, handling exceptions we might get, and converting them to
     	// appropriate server responses.
+    	
+		PrincipalCollection principals = currentUser.getPrincipals();
+		String user = principals.getPrimaryPrincipal().toString();
+    	
     	try {
-			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, currentUser.getPrincipal().toString(), data.get("value"));
+			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, user, data.get("value"));
 		} catch (InvalidValueException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} catch (NotFoundException e) {
