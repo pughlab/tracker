@@ -24,6 +24,7 @@
 		<shiro.version>1.2.3</shiro.version>
 		<quartz.version>2.2.1</quartz.version>
 		<jackson.version>2.4.4</jackson.version>
+        <apache-ldap-api.version>1.0.0-M31</apache-ldap-api.version>
 	</properties>
 	
 	<licenses>
@@ -215,6 +216,28 @@
 			<artifactId>jbcrypt</artifactId>
 			<version>0.3m</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.directory.api</groupId>
+            <artifactId>api-ldap-client-api</artifactId>
+            <version>${apache-ldap-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.api</groupId>
+            <artifactId>api-ldap-codec-standalone</artifactId>
+            <version>${apache-ldap-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.api</groupId>
+            <artifactId>api-ldap-extras-aci</artifactId>
+            <version>${apache-ldap-api.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.api</groupId>
+            <artifactId>api-ldap-model</artifactId>
+            <version>${apache-ldap-api.version}</version>
+        </dependency>
+
 		
 		<!-- Quartz framework -->
 		<dependency>
