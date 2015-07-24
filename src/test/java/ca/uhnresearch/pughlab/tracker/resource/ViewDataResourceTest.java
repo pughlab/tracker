@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;
@@ -74,7 +75,7 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
@@ -114,7 +115,7 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);

@@ -4,6 +4,7 @@ import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,7 +51,7 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		
@@ -83,7 +84,7 @@ public class ViewExtractorTest extends AbstractShiroTest {
         expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("view:write:DEMO-complete")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("view:download:DEMO-complete")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		
@@ -110,7 +111,7 @@ public class ViewExtractorTest extends AbstractShiroTest {
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		
@@ -139,7 +140,7 @@ public class ViewExtractorTest extends AbstractShiroTest {
         expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("view:write:DEMO-complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("view:download:DEMO-complete")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		

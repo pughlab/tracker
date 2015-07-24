@@ -6,6 +6,7 @@ import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,7 +47,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		
@@ -68,7 +69,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		
@@ -87,7 +88,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 	public void testMissing() throws ResourceException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		

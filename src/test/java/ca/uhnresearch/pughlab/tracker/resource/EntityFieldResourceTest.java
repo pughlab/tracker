@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;
@@ -69,7 +70,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
@@ -109,7 +110,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(true);
@@ -158,7 +159,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(true);
@@ -212,7 +213,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(false);
