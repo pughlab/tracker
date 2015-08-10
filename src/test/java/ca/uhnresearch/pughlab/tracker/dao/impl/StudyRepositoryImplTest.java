@@ -1186,6 +1186,42 @@ public class StudyRepositoryImplTest {
 	}
 	
 	/**
+	 * Simple test of writing the exact same attributes back into the study. After
+	 * we do this, a second call should retrieve the exact same data.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetStudyViewsUpdateKey() throws RepositoryException {
+		Study study = studyRepository.getStudy("DEMO");
+		List<View> list = studyRepository.getStudyViews(study);
+		assertNotNull(list);
+		assertEquals(3, list.size());
+		
+		View oldView = list.remove(2);
+		View newView = new View();
+		newView.setId(oldView.getId());
+		newView.setStudyId(oldView.getStudyId());
+		newView.setOptions(oldView.getOptions());
+		newView.setName("testView");
+		newView.setDescription("Test View");
+		list.add(newView);
+		assertEquals(3, list.size());
+		
+		studyRepository.setStudyViews(study, list);
+
+		List<View> listAgain = studyRepository.getStudyViews(study);
+		
+		assertEquals(listAgain.size(), list.size());
+		int size = list.size();
+		for(int i = 0; i < size; i++) {
+			View oldViewRead = list.get(i);
+			View newViewREad = listAgain.get(i);
+			assertTrue(EqualsBuilder.reflectionEquals(oldViewRead, newViewREad));
+		}
+	}
+	
+	/**
 	 * Simple test of deleting a view.
 	 */
 	@Test

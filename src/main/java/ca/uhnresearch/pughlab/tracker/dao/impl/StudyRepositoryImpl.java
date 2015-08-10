@@ -156,7 +156,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			View newView = newViews.get(v.getId());
 			if (newView != null) {
 				// We have both old and new -- this is an update!
-				updateView(v);
+				updateView(newView);
 			} else {
 				// Old but no new, delete the view, remembering to
 				// delete from all attributes too.
