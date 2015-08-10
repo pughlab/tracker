@@ -35,6 +35,33 @@ public class AuthorizationRepositoryImplTest {
 	public ExpectedException thrown = ExpectedException.none();
 
 	/**
+	 * Checks that the number of roles is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetRoleCount() {
+		CaseQuery query = new CaseQuery();
+
+		Long count = authorizationRepository.getRoleCount(query);
+		Assert.assertEquals(4, count.longValue());
+	}
+
+	/**
+	 * Checks that the number of roles is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetRoleCountWithPattern() {
+		CaseQuery query = new CaseQuery();
+		query.setPattern("DEMO");
+
+		Long count = authorizationRepository.getRoleCount(query);
+		Assert.assertEquals(3, count.longValue());
+	}
+
+	/**
 	 * Checks that a list of roles is returned correctly.
 	 */
 	@Test
@@ -63,6 +90,21 @@ public class AuthorizationRepositoryImplTest {
 		List<Role> list = authorizationRepository.getRoles(query);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(2, list.size());
+	}
+
+	/**
+	 * Checks that a list of roles is returned correctly with a case query and offset.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetRolesQueryPattern() throws RepositoryException {
+		CaseQuery query = new CaseQuery();
+		query.setPattern("DEMO");
+
+		List<Role> list = authorizationRepository.getRoles(query);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(3, list.size());
 	}
 
 	/**

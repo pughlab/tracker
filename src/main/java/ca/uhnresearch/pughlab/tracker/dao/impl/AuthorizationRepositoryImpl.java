@@ -40,6 +40,16 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
         return template;
     }
 
+
+	@Override
+	public Long getRoleCount(CaseQuery query) {
+		SQLQuery sqlQuery = template.newSqlQuery().from(roles);
+		if (query.getPattern() != null) {
+			sqlQuery = sqlQuery.where(roles.name.like("%" + query.getPattern() + "%"));
+		}
+		return template.count(sqlQuery);
+	}
+	
     /**
      * Returns a list of roles
      */
@@ -47,6 +57,9 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	public List<Role> getRoles(CaseQuery query) throws RepositoryException {
     	SQLQuery sqlQuery = template.newSqlQuery().from(roles).orderBy(roles.name.asc());
     	
+		if (query.getPattern() != null) {
+			sqlQuery = sqlQuery.where(roles.name.like("%" + query.getPattern() + "%"));
+		}
 		if (query.getOffset() != null) {
 			sqlQuery = sqlQuery.offset(query.getOffset());
 		}

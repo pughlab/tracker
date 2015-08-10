@@ -15,6 +15,12 @@ import ca.uhnresearch.pughlab.tracker.dto.Role;
 public interface AuthorizationRepository {
 
 	/**
+	 * Retrieves the number of matching roles in the repository
+	 * @return number of roles
+	 */
+	Long getRoleCount(CaseQuery query);
+
+	/**
 	 * Retrieves all the roles from the repository
 	 */
 	List<Role> getRoles(CaseQuery query) throws RepositoryException;

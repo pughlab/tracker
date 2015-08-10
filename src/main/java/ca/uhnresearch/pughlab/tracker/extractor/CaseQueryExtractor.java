@@ -19,11 +19,15 @@ public class CaseQueryExtractor extends Extractor {
 		
 		extractFromQuery("offset", "offset", true);
 		extractFromQuery("limit", "limit", true);
+		extractFromQuery("q", "q", true);
 		super.beforeHandle(request, response);
 		
 		CaseQuery query = new CaseQuery();
 		
 		Map<String, Object> attributes = request.getAttributes();
+		if (attributes.containsKey("q")) {
+			query.setPattern((String) attributes.get("q"));
+		}
 		if (attributes.containsKey("offset")) {
 			query.setOffset(new Integer((String) attributes.get("offset")));
 		}

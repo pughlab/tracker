@@ -36,6 +36,9 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     	
     	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
     	
+    	Long roleCount = getRepository().getRoleCount(query);
+    	dto.getCounts().setTotal(roleCount);
+    	
     	// Query the database for views
     	List<Role> roles;
 		try {
@@ -45,7 +48,5 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 		}
 
     	dto.setRoles(roles);
-    	dto.getCounts().setTotal(new Long(roles.size()));
 	};
-
 }
