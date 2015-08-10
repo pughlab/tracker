@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.directory.api.ldap.codec.api.LdapApiService;
 import org.apache.directory.api.ldap.codec.standalone.StandaloneLdapApiService;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;

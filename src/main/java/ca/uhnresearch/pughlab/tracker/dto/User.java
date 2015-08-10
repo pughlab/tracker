@@ -33,6 +33,7 @@ public class User {
 		PrincipalCollection principals = subject.getPrincipals();
 		
 		// First get a string for the username
+		@SuppressWarnings("unchecked")
 		Iterator<Object> iterator = principals.iterator();
 		while(iterator.hasNext()) {
 		    Object p = iterator.next();

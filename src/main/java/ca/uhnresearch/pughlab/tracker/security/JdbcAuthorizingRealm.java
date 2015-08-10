@@ -1,7 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import java.util.Collection;
-
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
 import org.apache.shiro.subject.PrincipalCollection;
