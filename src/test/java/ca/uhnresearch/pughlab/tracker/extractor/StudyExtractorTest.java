@@ -47,7 +47,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "mock"));
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		
@@ -69,7 +69,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "mock"));
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		
@@ -88,7 +88,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 	public void testMissing() throws ResourceException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "mock"));
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 		

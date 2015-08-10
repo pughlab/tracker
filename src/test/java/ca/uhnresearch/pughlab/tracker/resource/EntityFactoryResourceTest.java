@@ -65,7 +65,7 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "mock"));
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         
@@ -92,7 +92,7 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "mock"));
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         
@@ -119,7 +119,7 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "mock"));
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         

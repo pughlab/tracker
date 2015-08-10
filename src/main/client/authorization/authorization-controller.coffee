@@ -13,7 +13,10 @@ angular
     $scope.alerts = []
 
     $scope.pageChanged = () ->
-      queryOptions = {page: $scope.currentPage, pageSize: $scope.pageSize}
+      queryOptions = {}
+      if $scope.pageSize != 'all'
+        queryOptions.offset = $scope.pageSize * ($scope.currentPage - 1)
+        queryOptions.limit = $scope.pageSize
       queryOptions.q = $scope.name if $scope.name?
       $http
         .get '/api/authorization/roles', {params: queryOptions}

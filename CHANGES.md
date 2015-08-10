@@ -1,9 +1,15 @@
 ## Revision history
 
 
+### Version 2.0.0-RC3 - July 22nd 2015
+
+ * Refactored the authentication configuration to prepare for LDAP
+ * Added testing of authentication systems
+
+
 ### Version 2.0.0-RC2 - July 8th 2015
 
- * Replaced pup-up login with simple login page
+ * Replaced pop-up login with simple login page
  * Fixed a bad generic settingsKey - 839b840
 
 

@@ -25,23 +25,23 @@
             <span class="icon-bar"></span>
           </a>
           <a class="navbar-brand" href="/">
-            <img src="/statics/uhn_logo_small.png" style="max-width: 50%; margin-top: -5px; margin-right: 0.5em;"> Tracker 
+            <img src="/statics/uhn_logo_small.png" style="max-width: 50%; margin-top: -5px; margin-right: 0.5em;"> Tracker
           </a>
         </div>
         <div collapse="navCollapsed" class="navbar-collapse collapse" ng-controller="HeaderController">
           <ul class="nav navbar-nav">
-            <li><a><span class="label label-danger">Alpha</span></a></li>
+            <li><a><span class="label label-info">Beta</span></a></li>
             <li ng-class="{ active: isActive('/')}"><a ui-sref="home">Home</a></li>
             <li ng-class="{ active: isActive('/about')}"><a ui-sref="about">About</a></li>
           </ul>
         <ul class="nav navbar-nav navbar-right">
-          <!-- 
+          <!--
           <p ng-hide="user" class="navbar-btn">
             <button type="button" class="btn btn-primary btn-sm">Sign in</button>
           </p>
           -->
           <li ng-show="user" class="dropdown" dropdown>
-            <a href class="dropdown-toggle" dropdown-toggle>{{user.username}}<span class="caret"></span></a>
+            <a href class="dropdown-toggle" dropdown-toggle>{{user.displayName || user.username}}<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
                 <li ng-show="user.administrator"><a ui-sref="authorizationRoles">Manage roles</a></li>
                 <li ng-show="user.administrator" class="divider"></li>
