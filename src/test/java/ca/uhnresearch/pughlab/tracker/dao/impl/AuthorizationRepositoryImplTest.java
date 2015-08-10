@@ -106,7 +106,7 @@ public class AuthorizationRepositoryImplTest {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		List<String> list = authorizationRepository.getRoleUsers(role);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(1, list.size());
+		Assert.assertEquals(2, list.size());
 		Assert.assertEquals("admin", list.get(0));
 	}
 

@@ -5,6 +5,7 @@ import static org.easymock.EasyMock.*;
 
 import java.io.IOException;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class TrackerResourceTest extends AbstractShiroTest {
 
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
@@ -86,9 +87,11 @@ public class TrackerResourceTest extends AbstractShiroTest {
 
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("study:download:DEMO")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:write:OTHER")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:admin:OTHER")).andStubReturn(false);
@@ -105,6 +108,10 @@ public class TrackerResourceTest extends AbstractShiroTest {
 		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
 		JsonArray studies = data.get("studies").getAsJsonArray();
 		assertEquals( 1, studies.size() );
+		assertEquals(false, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("adminAllowed").getAsBoolean());
+		assertEquals(true, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("readAllowed").getAsBoolean());
+		assertEquals(false, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("writeAllowed").getAsBoolean());
+		assertEquals(true, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("downloadAllowed").getAsBoolean());
 		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
 	}
 
@@ -117,7 +124,7 @@ public class TrackerResourceTest extends AbstractShiroTest {
 
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.getPrincipal()).andStubReturn("stuart");
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(false);

@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -40,7 +41,9 @@ public class StudyExtractor extends Extractor {
 		
 		// Permissions checking might also be a sensible idea
     	Subject currentUser = SecurityUtils.getSubject();
-    	logger.debug("Authenticated as: {}", currentUser.getPrincipal().toString());
+		PrincipalCollection principals = currentUser.getPrincipals();
+		String user = principals.getPrimaryPrincipal().toString();
+    	logger.debug("Authenticated as: {}", user);
 
     	// Explicitly block access when there's not at least study read access
     	String permission = "study:read:" + s.getName();

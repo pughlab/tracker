@@ -41,7 +41,7 @@
           </p>
           -->
           <li ng-show="user" class="dropdown" dropdown>
-            <a href class="dropdown-toggle" dropdown-toggle>{{user.username}}<span class="caret"></span></a>
+            <a href class="dropdown-toggle" dropdown-toggle>{{user.displayName || user.username}}<span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
                 <li ng-show="user.administrator"><a ui-sref="authorizationRoles">Manage roles</a></li>
                 <li ng-show="user.administrator" class="divider"></li>

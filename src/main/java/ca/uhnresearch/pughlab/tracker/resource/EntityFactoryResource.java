@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.restlet.data.Status;
 import org.restlet.ext.jackson.JacksonConverter;
@@ -54,7 +55,9 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     		EntityResponse caseData = converter.toObject(input, EntityResponse.class, this);
 			logger.debug("Got new case data {}", caseData);
 			
-			Cases newCase = getRepository().newStudyCase(study, view, currentUser.getPrincipal().toString());
+			PrincipalCollection principals = currentUser.getPrincipals();
+			String user = principals.getPrimaryPrincipal().toString();
+			Cases newCase = getRepository().newStudyCase(study, view, user);
 			if (newCase == null) {
 				throw new RuntimeException("Error creating new case");
 			}
@@ -65,7 +68,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			Iterator<Map.Entry<String,JsonNode>> fieldIterator = attributes.fields();
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
-				getRepository().setCaseAttributeValue(study, view, newCase, field.getKey(), currentUser.getPrincipal().toString(), field.getValue());
+				getRepository().setCaseAttributeValue(study, view, newCase, field.getKey(), user, field.getValue());
 			}
 			
 			getRequest().getAttributes().put("entity", newCase);
