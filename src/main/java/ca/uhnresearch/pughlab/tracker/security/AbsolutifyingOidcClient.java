@@ -145,6 +145,8 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         // default values
         this.authParams.put("scope", "openid profile email");
         this.authParams.put("response_type", "code");
+        this.authParams.put("prompt", "login");
+        this.authParams.put("display", "page");
         this.authParams.put("redirect_uri", getCallbackUrl());
         // add custom values
         this.authParams.putAll(this.customParams);
@@ -248,6 +250,9 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         AuthenticationSuccessResponse successResponse = (AuthenticationSuccessResponse) response;
 
         // state value must be equal
+        logger.debug("Authentication response successful, get authorization code");
+        logger.debug("Context state: {}", context.getSessionAttribute(STATE_ATTRIBUTE));
+        logger.debug("Response state: {}", successResponse.getState());
         if (!successResponse.getState().equals(context.getSessionAttribute(STATE_ATTRIBUTE))) {
             throw new TechnicalException("State parameter is different from the one sent in authentication request. "
                     + "Session expired or possible threat of cross-site request forgery");
@@ -376,7 +381,7 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
     private void initJwtDecoder(final RotatingJWTDecoder jwtDecoder, final JWKSet jwkSet) {
         try {
             for (JWK key : jwkSet.getKeys()) {
-                if (key.getKeyUse() == KeyUse.SIGNATURE) {
+                if (key.getKeyUse() == null || key.getKeyUse() == KeyUse.SIGNATURE) {
                     jwtDecoder.addJWSVerifier(getVerifier(key), key.getKeyID());
                 } else if (key.getKeyUse() == KeyUse.ENCRYPTION) {
                     jwtDecoder.addJWEDecrypter(getDecrypter(key), key.getKeyID());

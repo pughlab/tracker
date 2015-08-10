@@ -13,7 +13,7 @@ angular
     result =
       login: (targetScope, username, password) ->
       
-        $window.location.href = '/api/authorization/login?client_name=google';
+        $window.location.href = '/api/authorization/login?client_name=uhn';
 
 #        $http
 #          .get '/api/authorization/login', config

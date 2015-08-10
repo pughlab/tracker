@@ -111,10 +111,10 @@
         </bean>
     
         <bean id="oidcClient" class="ca.uhnresearch.pughlab.tracker.security.AbsolutifyingOidcClient">
-            <property name="discoveryURI" value="https://accounts.google.com/.well-known/openid-configuration" />
-            <property name="clientID" value="571844128250-bfcuv0pmp3bpn6bphh1pgjink6v0kqhn.apps.googleusercontent.com" />
-            <property name="secret" value="MLw6QNfOtS3J2IN17AYIx-Jc" />
-            <property name="name" value="google" />
+            <property name="discoveryURI" value="http://localhost:8080/.well-known/openid-configuration" />
+            <property name="clientID" value="78d7d85b-0187-4a17-8a14-b24fc879b275" />
+            <property name="secret" value="AJCXmQHAF77TmVZvKvSkuefNcPmoWFFitnvtzoHtu56hxcZucFI9JqjxerX5y0Pj_Dlur8bI0-HFdztgt9drX0s" />
+            <property name="name" value="uhn" />
             <property name="enableContextualRedirects" value="true" />
         </bean>
         
