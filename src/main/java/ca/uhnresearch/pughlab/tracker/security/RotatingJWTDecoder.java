@@ -4,6 +4,8 @@ import java.text.ParseException;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import net.jcip.annotations.ThreadSafe;
 
 import com.nimbusds.jose.Algorithm;
@@ -39,9 +41,7 @@ public class RotatingJWTDecoder implements JWTDecoder {
 			if (alg != 0) {
 				return alg;
 			} else {
-				String kid1 = kid;
-				String kid2 = o2.kid;
-				return (kid1 == null && kid2 == null) ? 0 : kid1.compareTo(kid2);
+				return ObjectUtils.compare(kid, o2.kid);
 			}
 		}
 
