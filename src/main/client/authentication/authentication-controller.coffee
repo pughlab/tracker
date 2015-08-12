@@ -15,10 +15,14 @@ angular
     $scope.$on 'event:loginDenied', (evt, data) ->
       $scope.message = data.message
 
-    $scope.ok = (username, password) ->
+    $scope.ok = (data) ->
+      data = if $scope.challenge = 'oidc'
+        {redirect: true, client_name: 'uhn'}
+      else
+        {username: username, password: password}
       $scope.clearMessage()
-      console.log "Starting login process", {username: username, password: password}
-      authenticationService.login $scope, username, password
+      console.log "Starting login process", data
+      authenticationService.login $scope, data
 
     $scope.cancel = () ->
       $scope.clearMessage()

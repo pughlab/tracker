@@ -1,23 +1,23 @@
 angular
   .module 'tracker.authentication'
 
-  .factory 'authenticationService', Array '$rootScope', '$http', (scope, $http) ->
+  .factory 'authenticationService', Array '$rootScope', '$http', '$window', (scope, $http, $window) ->
 
     config =
       headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}
 
     result =
-      login: (targetScope, username, password) ->
+      login: (targetScope, data) ->
 
-        payload = jQuery.param
-          username: username
-          password: password
+        if data.redirect
+          delete data.redirect
+          $window.location.href = '/api/authorization/login?' + jQuery.param data
+          return
+
+        payload = jQuery.param data
 
         $http
           .post '/api/authorization/login', payload, config
-
-          .success (response, status) ->
-            $http.get '/api/studies'
 
           .success (response, status) ->
             targetScope.$emit 'event:loginConfirmed', response.user

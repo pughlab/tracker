@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.pac4j.oidc.profile.OidcProfile;
 
 import ca.uhnresearch.pughlab.tracker.security.LdapProfile;
 
@@ -43,6 +44,11 @@ public class User {
 				LdapProfile profile = (LdapProfile) p;
 				setDisplayName(profile.getDisplayName());
 				setEmail(profile.getEmail());
+			} else if (p instanceof OidcProfile) {
+				OidcProfile profile = (OidcProfile) p;
+				setUsername(profile.getAttribute("preferred_username").toString());
+				setDisplayName(profile.getAttribute("name").toString());
+				setEmail(profile.getAttribute("email").toString());
 			}
 		}
 		

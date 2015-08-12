@@ -100,6 +100,7 @@ angular
   .config Array '$httpProvider', ($httpProvider) ->
     $httpProvider.interceptors.push 'httpInterceptor'
     $httpProvider.defaults.withCredentials = true
+    $httpProvider.defaults.useXDomain = true
 
 
   .run Array '$rootScope', '$http', '$timeout', '$state', 'authenticationService', (scope, $http, $timeout, $state, authenticationService) ->

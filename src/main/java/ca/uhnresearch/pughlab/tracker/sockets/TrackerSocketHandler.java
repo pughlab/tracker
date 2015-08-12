@@ -62,7 +62,7 @@ public class TrackerSocketHandler {
         
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         if (subject != null) {
-            logger.debug("Subject: {}", subject.getPrincipal());
+            logger.debug("Subject: {}", subject.getPrincipals().getPrimaryPrincipal());
         	
             // When we are ready, we should actually send a welcome message to the client. This starts off
             // much of the protocol.
