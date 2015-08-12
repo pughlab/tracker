@@ -143,7 +143,7 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
 
         this.authParams = new HashMap<String, String>();
         // default values
-        this.authParams.put("scope", "openid profile email");
+        this.authParams.put("scope", "openid email profile");
         this.authParams.put("response_type", "code");
         this.authParams.put("prompt", "login");
         this.authParams.put("display", "page");

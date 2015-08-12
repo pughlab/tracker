@@ -171,8 +171,8 @@
     
         <bean id="oidcClient" class="ca.uhnresearch.pughlab.tracker.security.AbsolutifyingOidcClient">
             <property name="discoveryURI" value="http://localhost:8080/.well-known/openid-configuration" />
-            <property name="clientID" value="78d7d85b-0187-4a17-8a14-b24fc879b275" />
-            <property name="secret" value="AJCXmQHAF77TmVZvKvSkuefNcPmoWFFitnvtzoHtu56hxcZucFI9JqjxerX5y0Pj_Dlur8bI0-HFdztgt9drX0s" />
+            <property name="clientID" value="2fee4797-f67b-402c-b315-7ab71bc1d93e" />
+            <property name="secret" value="PmJuOB2_kX4o-LakOzwB2yHtptxO6Q7uFedaAktRhrhOK5aM1VIVyGRyoj46F55gHNBgbxzQ3CIv15PGfuBiYw" />
             <property name="name" value="uhn" />
             <property name="enableContextualRedirects" value="true" />
         </bean>
