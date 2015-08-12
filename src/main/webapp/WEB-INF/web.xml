@@ -13,7 +13,7 @@
     
     <context-param>
         <param-name>spring.profiles.default</param-name>
-        <param-value>default,form_authentication,database_realm</param-value>
+        <param-value>default,database_authentication</param-value>
     </context-param>
     
 	<context-param>

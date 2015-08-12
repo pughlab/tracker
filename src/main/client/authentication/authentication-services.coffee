@@ -17,9 +17,11 @@ angular
           .post '/api/authorization/login', payload, config
 
           .success (response, status) ->
-            console.log 'Got response', targetScope, response, status
+            $http.get '/api/studies'
+
+          .success (response, status) ->
             targetScope.$emit 'event:loginConfirmed', response.user
-  
+
           .error (response, status) ->
             targetScope.$broadcast 'event:loginDenied', response
 
