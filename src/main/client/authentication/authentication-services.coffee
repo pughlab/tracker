@@ -1,29 +1,29 @@
 angular
   .module 'tracker.authentication'
 
-  .factory 'authenticationService', Array '$rootScope', '$http', '$window', (scope, $http, $window) ->
+  .factory 'authenticationService', Array '$rootScope', '$http', (scope, $http) ->
 
     config =
-      headers: {
-        'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'
-        'Access-Control-Allow-Origin': '*'
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT'
-      }
+      headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}
 
     result =
       login: (targetScope, username, password) ->
-      
-        $window.location.href = '/api/authorization/login?client_name=uhn';
 
-#        $http
-#          .get '/api/authorization/login', config
-#
-#          .success (response, status) ->
-#            console.log 'Got response', targetScope, response, status
-#            targetScope.$emit 'event:loginConfirmed', response.user
-#  
-#          .error (response, status) ->
-#            targetScope.$broadcast 'event:loginDenied', response
+        payload = jQuery.param
+          username: username
+          password: password
+
+        $http
+          .post '/api/authorization/login', payload, config
+
+          .success (response, status) ->
+            $http.get '/api/studies'
+
+          .success (response, status) ->
+            targetScope.$emit 'event:loginConfirmed', response.user
+
+          .error (response, status) ->
+            targetScope.$broadcast 'event:loginDenied', response
 
       logout: () ->
         $http

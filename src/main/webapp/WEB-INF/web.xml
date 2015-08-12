@@ -12,8 +12,8 @@
 	</listener>
     
     <context-param>
-        <param-name>spring.profiles.active</param-name>
-        <param-value>default,oidc_authentication</param-value>
+        <param-name>spring.profiles.default</param-name>
+        <param-value>default,database_authentication</param-value>
     </context-param>
     
 	<context-param>
