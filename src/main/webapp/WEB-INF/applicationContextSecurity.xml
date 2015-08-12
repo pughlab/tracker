@@ -166,7 +166,7 @@
         </util:list>
     
         <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
-            <property name="authcScheme" value="session" />
+            <property name="authcScheme" value="OIDC" />
         </bean>
     
         <bean id="oidcClient" class="ca.uhnresearch.pughlab.tracker.security.AbsolutifyingOidcClient">
