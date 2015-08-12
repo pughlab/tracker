@@ -16,9 +16,6 @@
         <property name="realms" ref="securityRealms" />
     </bean>
     
-    <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
-    </bean>
-    
     <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
     
     <!-- Profile for authenticating and authorizing from a database -->
@@ -109,10 +106,15 @@
     
     <!-- Profile for handling authentication data as a username/password form -->
     <beans profile="form_authentication">
+        <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
+            <property name="authcScheme" value="session" />
+        </bean>
+    
         <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
             <property name="loginUrl" value="/api/authorization/login" />
             <property name="successUrl" value="/api/studies" />
-        </bean>    
+            <property name="authcScheme" value="session" />
+        </bean>
         
         <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
             <property name="securityManager" ref="securityManager"/>

@@ -19,7 +19,7 @@ angular
   ]
 
 
-  .config Array '$stateProvider', ($stateProvider) -> 
+  .config Array '$stateProvider', ($stateProvider) ->
     $stateProvider
       .state 'home',
         controller: 'StudiesController'
@@ -52,6 +52,7 @@ angular
       .state 'login',
         controller: 'LoginController'
         templateUrl: '/tracker/authentication/login.html'
+        params: { challenge : { value: "default" }}
         url: '/login'
 #      .state 'account',
 #        templateUrl: '/tracker/account/account.html'
@@ -127,30 +128,25 @@ angular
     scope.$on 'event:logoutConfirmed', () ->
       scope.user = undefined
       $state.go('logout')
-      
+
     scope.$on 'event:loginConfirmed', (event, user) ->
       console.log 'event:loginConfirmed'
       scope.user = new User(user)
       scope.requests401 = []
       $state.go('home')
 
-    scope.$on 'event:loginRequest', (evt, username, password) ->
-      authenticationService.login(evt.targetScope, username, password)
+    scope.$on 'event:loginRequest', (evt) ->
+      $state.go 'home'
 
     scope.$on 'event:logoutRequest', (evt) ->
       authenticationService.logout()
       $state.go 'logout'
 
-    # When we start the app, we might be on an unauthenticated route but still have a session
-    # info available. This allows us to pick up the initial service level user. It should always
-    # return a 200 status (i.e., not be restricted by authentication, and return the current user)
-    # exactly like the login event system.
-    # authenticationService.ping()
 
   .run () ->
 
     ## Added code from: http://stackoverflow.com/a/16324762/2140998
-    ## This prevents scrolling in the popover from bubbling. Handily, we can also use it to 
+    ## This prevents scrolling in the popover from bubbling. Handily, we can also use it to
     ## stop the grid page from scrolling at its limits.
     jQuery(document).on 'DOMMouseScroll mousewheel', '.scrollable', (ev) ->
       $this = jQuery(@)
