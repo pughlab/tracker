@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS roles;
 ALTER TABLE case_attribute_strings DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN active;
 ALTER TABLE case_attribute_booleans DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN active;
 ALTER TABLE case_attribute_dates DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN active;
+ALTER TABLE audit_log MODIFY event_user varchar(128) NOT NULL;
 
 CREATE TABLE roles (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -19,7 +20,7 @@ CREATE TABLE roles (
 
 CREATE TABLE user_roles (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(64) NOT NULL, 
+  username VARCHAR(128) NOT NULL, 
   role_id INTEGER NOT NULL REFERENCES roles(id)
 );
 
