@@ -28,7 +28,7 @@ angular
 
         else if status == 401
           deferred = $q.defer()
-          if response.config.url.match(/^\/api\/authorization\b/)
+          if response.config.url.match(/^\/api\/authentication\b/)
             return $q.reject response
           else
             req = {config: response.config, deferred: deferred}

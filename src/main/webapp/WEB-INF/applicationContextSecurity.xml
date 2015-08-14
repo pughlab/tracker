@@ -47,7 +47,7 @@
         </bean>
     
         <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
-            <property name="loginUrl" value="/api/authorization/login" />
+            <property name="loginUrl" value="/api/authentication/login" />
             <property name="successUrl" value="/api/studies" />
             <property name="authcScheme" value="session" />
         </bean>
@@ -77,8 +77,8 @@
             
             <property name="filterChainDefinitions">
                 <value>
-                    /api/authorization/login = sessionAuthentication
-                    /api/authorization/logout = logout
+                    /api/authentication/login = sessionAuthentication
+                    /api/authentication/logout = logout
                     /api/** = sessionAccess
                     /events/** = sessionAccess
                     /** = anon
@@ -101,7 +101,7 @@
         </bean>
     
         <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
-            <property name="loginUrl" value="/api/authorization/login" />
+            <property name="loginUrl" value="/api/authentication/login" />
             <property name="successUrl" value="/api/studies" />
             <property name="authcScheme" value="session" />
         </bean>
@@ -147,8 +147,8 @@
             
             <property name="filterChainDefinitions">
                 <value>
-                    /api/authorization/login = sessionAuthentication
-                    /api/authorization/logout = logout
+                    /api/authentication/login = sessionAuthentication
+                    /api/authentication/logout = logout
                     /api/** = sessionAccess
                     /events/** = sessionAccess
                     /** = anon
@@ -187,7 +187,7 @@
         </bean>
         
         <bean id="authenticationClients" class="org.pac4j.core.client.Clients">
-            <property name="callbackUrl" value="/api/authorization/authorize" />
+            <property name="callbackUrl" value="/api/authentication/authorize" />
             <property name="clientsList">
                 <util:list>
                     <ref bean="oidcClient" />
@@ -213,9 +213,9 @@
             
             <property name="filterChainDefinitions">
                 <value>
-                    /api/authorization/login = redirectForAuthentication
-                    /api/authorization/logout = logout
-                    /api/authorization/authorize = client
+                    /api/authentication/login = redirectForAuthentication
+                    /api/authentication/logout = logout
+                    /api/authentication/authorize = client
                     /api/** = sessionAccess
                     /events/** = sessionAccess
                     /** = anon

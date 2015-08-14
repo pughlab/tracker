@@ -11,13 +11,13 @@ angular
 
         if data.redirect
           delete data.redirect
-          $window.location.href = '/api/authorization/login?' + jQuery.param data
+          $window.location.href = '/api/authentication/login?' + jQuery.param data
           return
 
         payload = jQuery.param data
 
         $http
-          .post '/api/authorization/login', payload, config
+          .post '/api/authentication/login', payload, config
 
           .success (response, status) ->
             targetScope.$emit 'event:loginConfirmed', response.user
@@ -27,6 +27,6 @@ angular
 
       logout: () ->
         $http
-          .post('/api/authorization/logout', {}, config)
+          .post('/api/authentication/logout', {}, config)
           .success (response) ->
             scope.$broadcast 'event:logoutConfirmed'
