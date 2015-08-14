@@ -3,3 +3,4 @@ tracker_test.*
 node
 node_modules
 bower_components
+src/main/etc/config
