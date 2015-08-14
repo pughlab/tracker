@@ -1,29 +1,66 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
+import org.restlet.ext.jackson.JacksonConverter;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.RoleListResponse;
+import ca.uhnresearch.pughlab.tracker.dto.RoleResponse;
 import ca.uhnresearch.pughlab.tracker.dto.User;
 
 public class RoleListResource extends AuthorizationRepositoryResource<RoleListResponse>{
 	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private JacksonConverter converter = new JacksonConverter();
+
     @Get("json")
     public Representation getResource() {
     	RoleListResponse response = new RoleListResponse();
     	buildResponseDTO(response);
        	return new JacksonRepresentation<RoleListResponse>(response);
+    }
+    
+    @Post("json")
+    public void postResource(Representation input)  {
+    	try {
+    		RoleResponse data = converter.toObject(input, RoleResponse.class, this);
+			logger.debug("Got a new role response {}", data);
+
+			Role role = data.getRole();
+			getRepository().saveRole(role);
+			
+			role = getRepository().getRole(role.getName());
+			getRepository().setRoleUsers(role, data.getUsers());
+			getRepository().setRolePermissions(role, data.getPermissions());
+			
+			getRequest().getAttributes().put("role", role);
+
+			Reference target = new Reference(getRequest().getOriginalRef(), "./" + Reference.encode(role.getName()));
+	    	getResponse().redirectSeeOther(target);
+	    	getResponse().setStatus(Status.SUCCESS_CREATED);
+
+    	} catch (IOException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		} catch (RepositoryException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		}
     }
 
 	public void buildResponseDTO(RoleListResponse dto) {

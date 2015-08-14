@@ -33,7 +33,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     	buildResponseDTO(response);
        	return new JacksonRepresentation<RoleResponse>(response);
     }
-
+    
     @Put("json")
     public Representation putResource(Representation input)  {
     	logger.debug("Got an update", input);

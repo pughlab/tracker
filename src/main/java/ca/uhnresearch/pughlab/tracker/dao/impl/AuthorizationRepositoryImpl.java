@@ -179,7 +179,11 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 				for(String s : users) {
 					sqlInsertClause.set(userRoles.roleId, role.getId()).set(userRoles.username, s).addBatch();
 				}
-				return sqlInsertClause.execute();
+				if (sqlInsertClause.isEmpty()) {
+					return 0;
+				} else {
+					return sqlInsertClause.execute();
+				}
 			};
 		});
 	}
@@ -204,7 +208,11 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 				for(String s : permissions) {
 					sqlInsertClause.set(rolePermissions.roleId, role.getId()).set(rolePermissions.permission, s).addBatch();
 				}
-				return sqlInsertClause.execute();
+				if (sqlInsertClause.isEmpty()) {
+					return 0;
+				} else {
+					return sqlInsertClause.execute();
+				}
 			};
 		});
 	}
