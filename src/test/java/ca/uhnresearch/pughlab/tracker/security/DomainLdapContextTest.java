@@ -11,10 +11,12 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.realm.Realm;
 import org.easymock.EasyMock;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,6 +28,15 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.anyObject;
 
 public class DomainLdapContextTest {
+	
+	Realm realm;
+	
+	@Before
+	public void setUp() {
+		realm = createMock(Realm.class);
+		expect(realm.getName()).andStubReturn("mockrealm");
+		replay(realm);
+	}
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -95,10 +106,6 @@ public class DomainLdapContextTest {
 	@Test 
 	public void testQuerySuccess() throws Exception {
 		
-		Realm realm = createMock(Realm.class);
-		expect(realm.getName()).andStubReturn("mockrealm");
-		replay(realm);
-		
 		LdapResult bindResult = createMock(LdapResult.class);
 		expect(bindResult.getResultCode()).andStubReturn(ResultCodeEnum.SUCCESS);
 		replay(bindResult);
@@ -148,10 +155,6 @@ public class DomainLdapContextTest {
 	@Test 
 	public void testQueryFailure() throws Exception {
 
-		Realm realm = createMock(Realm.class);
-		expect(realm.getName()).andStubReturn("mockrealm");
-		replay(realm);
-
 		LdapResult bindResult = createMock(LdapResult.class);
 		expect(bindResult.getResultCode()).andStubReturn(ResultCodeEnum.UNAVAILABLE);
 		expect(bindResult.getDiagnosticMessage()).andReturn("It went wrong");
@@ -187,5 +190,41 @@ public class DomainLdapContextTest {
 		thrown.expectMessage("It went wrong");
 
 		context.query(token, realm);
+	}
+	
+	@Test 
+	public void testCanAuthenticateMatchingDomain() throws Exception {
+		AuthenticationToken token = createMock(AuthenticationToken.class);
+		expect(token.getPrincipal()).andReturn("stuart@example.com");
+		replay(token);
+		
+		DomainLdapContext context = new DomainLdapContext();
+		context.setDomain("example.com");
+		
+		Assert.assertTrue(context.canAuthenticate(token, realm));
+	}
+
+	@Test 
+	public void testCantAuthenticateOtherDomain() throws Exception {
+		AuthenticationToken token = createMock(AuthenticationToken.class);
+		expect(token.getPrincipal()).andReturn("stuart@example.com");
+		replay(token);
+		
+		DomainLdapContext context = new DomainLdapContext();
+		context.setDomain("morungos.com");
+		
+		Assert.assertFalse(context.canAuthenticate(token, realm));
+	}
+
+	@Test 
+	public void testCantAuthenticateWithoutDomain() throws Exception {
+		AuthenticationToken token = createMock(AuthenticationToken.class);
+		expect(token.getPrincipal()).andReturn("stuart");
+		replay(token);
+		
+		DomainLdapContext context = new DomainLdapContext();
+		context.setDomain("morungos.com");
+		
+		Assert.assertTrue(context.canAuthenticate(token, realm));
 	}
 }

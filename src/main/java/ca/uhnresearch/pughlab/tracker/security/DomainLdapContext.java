@@ -175,17 +175,13 @@ public class DomainLdapContext implements LdapContext {
         log.debug("Verifying authentication of user '{}' through LDAP for domain '{}'", principal, domain);
         
         String sPrincipal = (String) principal;
-        String[] parts = sPrincipal.split("@");
+        String[] parts = sPrincipal.split("@", 2);
         
-        if (parts.length == 0) {
-        	return false;
-        } else if (parts.length == 1) {
+        if (parts.length == 1) {
         	return true;
-        } else if (parts.length == 2) {
+        } else {
         	String tokenDomain = parts[1];
         	return domain.equals(tokenDomain);
-        } else {
-        	return false;
         }
 	}
 
