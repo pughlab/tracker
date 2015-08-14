@@ -16,10 +16,10 @@ angular
       $scope.message = data.message
 
     $scope.ok = (data) ->
-      data = if $scope.challenge = 'oidc'
+      data = if $scope.challenge == 'oidc'
         {redirect: true, client_name: 'uhn'}
       else
-        {username: username, password: password}
+        {username: $scope.username, password: $scope.password}
       $scope.clearMessage()
       console.log "Starting login process", data
       authenticationService.login $scope, data
