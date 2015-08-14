@@ -1,6 +1,13 @@
 ## Revision history
 
 
+### Version 2.0.0-RC4 - August 10th 2015
+
+ * Enabled LDAP authentication against multiple Active Directory servers
+ * Fixed enter key in the login page
+ * Improved permissions checking references to user names
+
+
 ### Version 2.0.0-RC3 - July 22nd 2015
 
  * Refactored the authentication configuration to prepare for LDAP
