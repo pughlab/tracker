@@ -3,7 +3,6 @@ angular
     'ui.bootstrap'
     'ui.router'
     'toggle-switch'
-    'tracker.account'
     'tracker.admin'
     'tracker.filters'
     'tracker.header'
@@ -54,15 +53,6 @@ angular
         templateUrl: '/tracker/authentication/login.html'
         params: { challenge : { value: "default" }}
         url: '/login'
-#      .state 'account',
-#        templateUrl: '/tracker/account/account.html'
-#      .state 'account.password',
-#        controller: 'AccountController'
-#        templateUrl: '/tracker/account/password.html'
-#      .state 'account.settings',
-#        controller: 'AccountController'
-#        templateUrl: '/tracker/account/settings.html'
-#        url: '/account/:username'
       .state 'adminCreate',
         controller: 'CreateStudyController'
         templateUrl: '/tracker/admin/admin-new-study.html'
