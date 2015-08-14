@@ -62,7 +62,7 @@ public class DomainLdapContext implements LdapContext {
 	 * @return
 	 * @throws Exception 
 	 */
-	private LdapConnectionPool getConnectionPool() throws Exception {
+	protected LdapConnectionPool getConnectionPool() throws Exception {
 		if (pool != null) {
 			return pool;
 		}
@@ -78,7 +78,8 @@ public class DomainLdapContext implements LdapContext {
 	}
 	
 	private AuthenticationInfo queryInternal(String username, char[] password, Realm realm) throws LdapException, Exception {
-		LdapConnection connection = getConnectionPool().getConnection();
+		LdapConnectionPool pool = getConnectionPool();
+		LdapConnection connection = pool.getConnection();
 		AuthenticationInfo info = null;
 		
 		BindRequest bindRequest=new BindRequestImpl();

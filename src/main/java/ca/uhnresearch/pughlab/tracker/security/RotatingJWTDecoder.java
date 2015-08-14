@@ -116,10 +116,25 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	}
 	
 	
-	private KeySelector getKeySelector(final SignedJWT signedJWT) {
+	protected KeySelector getKeySelector(final SignedJWT signedJWT) {
 		JWSAlgorithm alg = signedJWT.getHeader().getAlgorithm();
 		String kid = signedJWT.getHeader().getKeyID();
 		return new KeySelector(alg, kid);
+	}
+	
+	
+	protected JWSVerifier getJWSVerifier(final SignedJWT signedJWT) {
+		KeySelector selector = getKeySelector(signedJWT);
+		
+		JWSVerifier verifier = jwsVerifiers.get(selector);
+		if (verifier == null) {
+			
+			// If we can'ty find a verifier, that probably means that we need to check for new
+			// keys and try again. 
+			throw new MissingKeyException(selector.getAlgorithm(), selector.getKid());
+		}
+		
+		return verifier;
 	}
 	
 	/**
@@ -137,17 +152,7 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	private ReadOnlyJWTClaimsSet verify(final SignedJWT signedJWT)
 		throws JOSEException, ParseException {
 		
-		KeySelector selector = getKeySelector(signedJWT);
-		
-		JWSVerifier verifier = jwsVerifiers.get(selector);
-		
-		if (verifier == null) {
-			
-			// If we can'ty find a verifier, that probably means that we need to check for new
-			// keys and try again. 
-			throw new MissingKeyException(selector.getAlgorithm(), selector.getKid());
-		}
-			
+		JWSVerifier verifier = getJWSVerifier(signedJWT);
 		
 		boolean verified;
 
