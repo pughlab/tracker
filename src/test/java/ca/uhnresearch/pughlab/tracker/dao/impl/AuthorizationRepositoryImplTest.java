@@ -5,6 +5,15 @@ import junit.framework.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.verify;
+import static org.easymock.EasyMock.eq;
+
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
+import ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
@@ -30,10 +40,18 @@ public class AuthorizationRepositoryImplTest {
 		
 	@Autowired
     private AuthorizationRepositoryImpl authorizationRepository;
+	
+	/**
+	 * Clean up the AuthorizingRealm if we set one in testing.
+	 */
+	@After 
+	public void tearDown() {
+		authorizationRepository.setAuthorizingRealm(null);
+	}
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
-
+	
 	/**
 	 * Checks that the number of roles is returned correctly.
 	 */
@@ -175,6 +193,19 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testDeleteRole() throws RepositoryException {
+		
+		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
+		expect(realm.getName()).andStubReturn("mockRealm");
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuartw@ads.uhnresearch.ca", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("oidcprofile#stuartw", "mockRealm")));
+		expectLastCall();
+		replay(realm);
+		
+		authorizationRepository.setAuthorizingRealm(realm);
+		
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		Assert.assertNotNull(role);
 
@@ -182,6 +213,8 @@ public class AuthorizationRepositoryImplTest {
 		
 		Role search = authorizationRepository.getRole("ROLE_ADMIN");
 		Assert.assertNull(search);
+		
+		verify(realm);
 	}
 	
 	/**
@@ -240,6 +273,25 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSetRoleUsers() throws RepositoryException {
+		
+		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
+		expect(realm.getName()).andStubReturn("mockRealm");
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuartw@ads.uhnresearch.ca", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("oidcprofile#stuartw", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morag", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("mungo", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("misty", "mockRealm")));
+		expectLastCall();
+		replay(realm);
+		
+		authorizationRepository.setAuthorizingRealm(realm);
+
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		List<String> users = new ArrayList<String>();
 		users.add("morag");
@@ -261,6 +313,19 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSetRolePermissions() throws RepositoryException {
+		
+		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
+		expect(realm.getName()).andStubReturn("mockRealm");
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuartw@ads.uhnresearch.ca", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("oidcprofile#stuartw", "mockRealm")));
+		expectLastCall();
+		replay(realm);
+		
+		authorizationRepository.setAuthorizingRealm(realm);
+
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		List<String> permissions = new ArrayList<String>();
 		permissions.add("study:X:read");

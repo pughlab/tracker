@@ -7,6 +7,9 @@ import org.apache.shiro.util.CollectionUtils;
 
 public class JdbcAuthorizingRealm extends JdbcRealm {
 
+	/**
+	 * Indicator that authentication is not supported
+	 */
 	public boolean supports(AuthenticationToken token) { 
 	    return false; 
 	}
@@ -24,4 +27,22 @@ public class JdbcAuthorizingRealm extends JdbcRealm {
         return primary;
     }
 
+	/**
+	 * Exposes clearCachedAuthorizationInfo as a public method so that other parts
+	 * of the system can dynamically clear cached authorization information. 
+	 */
+	@Override
+    public void clearCachedAuthorizationInfo(PrincipalCollection principals) {
+        super.clearCachedAuthorizationInfo(principals);
+    }
+	
+	/**
+	 * Overrides default behaviour so that the cache key is always based on 
+	 * the primary principal, which is what we use to key from authentication
+	 * to authorization. See: https://mail-archives.apache.org/mod_mbox/shiro-user/201305.mbox/%3CCAAtvD4UyoLaeLS0-X+s7HH7YJxPQDXXHUQDFNC=PiiJ31ym8yw@mail.gmail.com%3E
+	 */
+	@Override
+	protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
+		return principals.getPrimaryPrincipal();
+	}
 }

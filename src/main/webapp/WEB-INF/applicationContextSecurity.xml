@@ -32,6 +32,18 @@
             </value>
         </property>
     </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="authorizationRepository" />
+        <property name="targetMethod">
+            <value>setAuthorizingRealm</value>
+        </property>
+        <property name="arguments">
+            <list>
+                <ref bean="authorizationRealm" />
+            </list>
+        </property>
+    </bean>
     
 
     <!-- Profile for authenticating and authorizing from a database -->
