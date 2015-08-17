@@ -60,6 +60,7 @@ import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.util.DefaultResourceRetriever;
+import com.nimbusds.openid.connect.sdk.util.ResourceRetriever;
 
 public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredentials, OidcProfile> {
 	
@@ -104,6 +105,9 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
 
     /* secret object */
     private Secret _secret;
+    
+    /* resource retriever */
+    private ResourceRetriever resourceRetriever = new DefaultResourceRetriever();
 
     @Override
     public Mechanism getMechanism() {
@@ -124,6 +128,14 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
 
     public void addCustomParam(final String key, final String value) {
         this.customParams.put(key, value);
+    }
+    
+    public ResourceRetriever getResourceRetriever() {
+    	return resourceRetriever;
+    }
+    
+    public void setResourceRetriever(ResourceRetriever resourceRetriever) {
+    	this.resourceRetriever = resourceRetriever;
     }
 
     @Override
@@ -152,7 +164,7 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         JWKSet jwkSet;
         // Download OIDC metadata and Json Web Key Set
         try {
-            DefaultResourceRetriever resourceRetriever = new DefaultResourceRetriever();
+            ResourceRetriever resourceRetriever = getResourceRetriever();
             this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
                     new URL(this.discoveryURI)).getContent());
             jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
