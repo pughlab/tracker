@@ -1,14 +1,9 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URI;
-import java.net.URLDecoder;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 
 import io.buji.pac4j.ShiroWebContext;
 
@@ -25,14 +20,11 @@ import org.apache.shiro.web.servlet.AdviceFilter;
 import org.apache.shiro.web.util.WebUtils;
 import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
-import org.pac4j.core.client.Client;
-import org.pac4j.oidc.client.OidcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RedirectForAuthenticationFilter extends AdviceFilter {
 	
-	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(RedirectForAuthenticationFilter.class);
 	
 	private Clients clients;
