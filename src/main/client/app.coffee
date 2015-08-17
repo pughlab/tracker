@@ -12,7 +12,6 @@ angular
     'tracker.authorization'
     'tracker.authentication'
     'tracker.admin'
-    'tracker.account'
     'tracker.error'
     'tracker-templates'
   ]
