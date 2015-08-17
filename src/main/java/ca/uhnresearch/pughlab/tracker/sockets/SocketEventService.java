@@ -91,7 +91,7 @@ public class SocketEventService {
 	public void receivedMessage(UpdateEvent message, AtmosphereResource r) {
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         try {
-			logger.debug("{} just sent {}", subject.getPrincipal(), mapper.writeValueAsString(message));
+			logger.debug("{} just sent {}", subject.getPrincipals().getPrimaryPrincipal(), mapper.writeValueAsString(message));
 		} catch (JsonProcessingException e) {
 			logger.error("Can't send: {}", e);
 			e.printStackTrace();
@@ -111,7 +111,7 @@ public class SocketEventService {
         		
         		logger.debug("Sending to scope watchers");
         		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
-        		event.getData().setUser(subject.getPrincipal().toString());
+        		event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
         		event.getData().setScope(scope);
         		sendMessage(event, scope);
         		
@@ -126,7 +126,7 @@ public class SocketEventService {
 
                 		// Get the other user
                 		Subject otherSubject = (Subject) other.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-                		String otherUser = otherSubject.getPrincipal().toString();
+                		String otherUser = otherSubject.getPrincipals().getPrimaryPrincipal().toString();
                 		event.getData().setUser(otherUser);
                 		sendMessage(event, r);
         			}
@@ -191,7 +191,7 @@ public class SocketEventService {
 		if (scope != null) {
 	        Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
 			UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_DISCONNECTED);
-			event.getData().setUser(subject.getPrincipal().toString());
+			event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
 			event.getData().setScope(scope);
 			sendMessage(event, scope);
 		}

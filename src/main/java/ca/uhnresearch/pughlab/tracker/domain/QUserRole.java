@@ -29,7 +29,7 @@ public class QUserRole extends com.mysema.query.sql.RelationalPathBase<UserRole>
 
     public void addMetadata() {
         addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(username, ColumnMetadata.named("USERNAME").withIndex(2).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(username, ColumnMetadata.named("USERNAME").withIndex(2).ofType(Types.VARCHAR).withSize(128).notNull());
         addMetadata(roleId, ColumnMetadata.named("ROLE_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
     }
 

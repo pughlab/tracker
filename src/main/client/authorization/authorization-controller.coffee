@@ -39,9 +39,9 @@ angular
     $scope.createRole = (name) ->
       $scope.alerts = []
       $http
-        .post '/api/authorization/roles', {name: name}
+        .post '/api/authorization/roles', {role: {name: name}, users: [], permissions: []}
         .success (response) ->
-          $state.go 'adminRole', {name: name}
+          $state.go 'authorizationRole', {name: name}
         .error (response) ->
           $scope.alerts.push {type: 'danger', msg: response}
 
@@ -90,5 +90,3 @@ angular
         $scope.role = role
         originalRole = angular.copy($scope.role)
         $scope.modified = false
-
-

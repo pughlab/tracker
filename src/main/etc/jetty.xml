@@ -18,6 +18,7 @@
 		</Call>
 	</Call>
 	
+    <!-- HSQLDB -->
 	<New id="trackerDatasource" class="org.eclipse.jetty.plus.jndi.Resource">
         <Arg>jdbc/TrackerDB</Arg>
         <Arg>

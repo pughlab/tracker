@@ -6,6 +6,8 @@ import static ca.uhnresearch.pughlab.tracker.domain.QRolePermission.rolePermissi
 
 import java.util.List;
 
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -24,16 +26,23 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
+import ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm;
 
 public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 
 	private final Logger logger = LoggerFactory.getLogger(AuthorizationRepositoryImpl.class);
 
 	private QueryDslJdbcTemplate template;
+	
+	private JdbcAuthorizingRealm authorizationRealm;
 
 	@Required
     public void setTemplate(QueryDslJdbcTemplate template) {
         this.template = template;
+    }
+
+    public void setAuthorizingRealm(JdbcAuthorizingRealm authorizationRealm) {
+        this.authorizationRealm = authorizationRealm;
     }
 
     public QueryDslJdbcTemplate getTemplate() {
@@ -95,6 +104,10 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 */
 	@Override
 	public void deleteRole(final Role role) throws RepositoryException {
+		
+		// Before we delete, clear authorization for existing users
+		clearRoleAuthorizationCache(role);
+		
 		template.delete(rolePermissions, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
 				return sqlDeleteClause.where(rolePermissions.roleId.eq(role.getId())).execute();
@@ -135,7 +148,18 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 				};
 			});
 		}
-		
+	}
+	
+	private void clearRoleAuthorizationCache(final Role role) throws RepositoryException {
+		if (authorizationRealm == null) {
+			return;
+		}
+		List<String> users = getRoleUsers(role);
+		String realmName = authorizationRealm.getName();
+		for(String user: users) {
+			PrincipalCollection principal = new SimplePrincipalCollection(user, realmName);
+			authorizationRealm.clearCachedAuthorizationInfo(principal);
+		}
 	}
 	
 	/**
@@ -166,6 +190,9 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 			throw new NotFoundException("Can't find role");
 		}
 		
+		// Special case: clear before and after in case we remove users
+		clearRoleAuthorizationCache(role);
+
 		// First of all, let's remove the current list of users.
 		template.delete(userRoles, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
@@ -179,9 +206,15 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 				for(String s : users) {
 					sqlInsertClause.set(userRoles.roleId, role.getId()).set(userRoles.username, s).addBatch();
 				}
-				return sqlInsertClause.execute();
+				if (sqlInsertClause.isEmpty()) {
+					return 0;
+				} else {
+					return sqlInsertClause.execute();
+				}
 			};
 		});
+
+		clearRoleAuthorizationCache(role);
 	}
 
 	@Override
@@ -204,8 +237,15 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 				for(String s : permissions) {
 					sqlInsertClause.set(rolePermissions.roleId, role.getId()).set(rolePermissions.permission, s).addBatch();
 				}
-				return sqlInsertClause.execute();
+				if (sqlInsertClause.isEmpty()) {
+					return 0;
+				} else {
+					return sqlInsertClause.execute();
+				}
 			};
 		});
+		
+		// Clear after to handle permissions changes for existing users
+		clearRoleAuthorizationCache(role);
 	}
 }

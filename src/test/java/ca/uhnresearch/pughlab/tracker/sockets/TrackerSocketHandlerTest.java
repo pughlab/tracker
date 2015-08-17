@@ -14,6 +14,7 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.verify;
 import static org.easymock.EasyMock.capture;
 
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
@@ -157,7 +158,7 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 	@Test
 	public void testReady() {
 		
-		Subject subjectUnderTest = new Subject.Builder(getSecurityManager()).buildSubject();
+		Subject subjectUnderTest = new Subject.Builder(getSecurityManager()).principals(new SimplePrincipalCollection("stuart", "mock")).buildSubject();
 		setSubject(subjectUnderTest);
 
 		AtmosphereRequest req = AtmosphereRequest.wrap(new MockHttpServletRequest());

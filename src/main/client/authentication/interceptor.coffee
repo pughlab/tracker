@@ -10,10 +10,10 @@ angular
 
       response: (response) ->
         $rootScope.$emit "event:stopSpinner"
-        
+
         if response.status == 200 and response.data?.user? and ! $rootScope.user?
           $rootScope.user = response.data.user
-        
+
         response
 
       responseError: (response) ->
@@ -28,12 +28,13 @@ angular
 
         else if status == 401
           deferred = $q.defer()
-          if response.config.url.match(/^\/api\/authorization\b/)
+          if response.config.url.match(/^\/api\/authentication\b/)
             return $q.reject response
           else
             req = {config: response.config, deferred: deferred}
+            challenge = response.headers('www-authenticate')
             $rootScope.requests401.push(req)
-            $rootScope.$broadcast 'event:loginRequired'
+            $rootScope.$broadcast 'event:loginRequired', {challenge: challenge}
             deferred.promise
         else
           $q.reject response

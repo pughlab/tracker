@@ -1,6 +1,20 @@
 ## Revision history
 
 
+### Version 2.0.0-RC5 - August 17th 2015
+
+ * Added support for OpenID Connect authentication
+ * Revised login system to adapt to forms or OIDC redirection
+ * Fixed several issues involving role management
+
+
+### Version 2.0.0-RC4 - August 10th 2015
+
+ * Enabled LDAP authentication against multiple Active Directory servers
+ * Fixed enter key in the login page
+ * Improved permissions checking references to user names
+
+
 ### Version 2.0.0-RC3 - July 22nd 2015
 
  * Refactored the authentication configuration to prepare for LDAP

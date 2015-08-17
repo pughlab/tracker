@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+
+<!-- Used by RunJettyRun and by jetty-maven-plugin -->
+<!-- Initializing logging and sets up a server-scoped JNDI reource -->
+
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+
+    <Call class="org.eclipse.jetty.util.log.Log" name="getRootLogger">
+        <Call id="logMgr" class="java.util.logging.LogManager" name="getLogManager">
+            <Call name="readConfiguration">
+                <Arg class="java.io.InputStream">
+                    <New class="java.io.FileInputStream">
+                        <Arg class="java.lang.String">src/main/resources/logging.properties</Arg>
+                    </New>
+                </Arg>
+            </Call>
+        </Call>
+    </Call>
+    
+    <!-- MySQL -->
+    <New id="trackerDatasource" class="org.eclipse.jetty.plus.jndi.Resource">
+        <Arg>jdbc/TrackerDB</Arg>
+        <Arg>
+            <New class="org.apache.commons.dbcp.BasicDataSource">
+                <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
+                <Set name="url">jdbc:mysql://localhost:3306/tracker?sessionVariables=sql_mode=ansi</Set>
+                <Set name="username">tracker</Set>
+                <Set name="password">tracker</Set>
+                <Set name="testOnBorrow">true</Set>
+                <Set name="validationQuery">SELECT 1</Set>
+                <Set name="timeBetweenEvictionRunsMillis">120000</Set>
+                <Set name="minEvictableIdleTimeMillis">120000</Set>
+            </New>
+        </Arg>
+    </New>
+    
+</Configure>

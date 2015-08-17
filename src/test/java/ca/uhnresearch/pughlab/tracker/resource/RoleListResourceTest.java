@@ -68,8 +68,11 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setId(1234);
 		roles.add(role);
 		expect(mock.getRoles(anyObject(CaseQuery.class))).andStubReturn(roles);
+		expect(mock.getRoleCount(anyObject(CaseQuery.class))).andStubReturn(new Long(1));
 		replay(mock);
-		resource.setRepository(mock);
+
+        resource.getRequest().getAttributes().put("query", new CaseQuery());
+        resource.setRepository(mock);
 		
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

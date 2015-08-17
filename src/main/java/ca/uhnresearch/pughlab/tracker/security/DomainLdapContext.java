@@ -62,7 +62,7 @@ public class DomainLdapContext implements LdapContext {
 	 * @return
 	 * @throws Exception 
 	 */
-	private LdapConnectionPool getConnectionPool() throws Exception {
+	protected LdapConnectionPool getConnectionPool() throws Exception {
 		if (pool != null) {
 			return pool;
 		}
@@ -78,7 +78,8 @@ public class DomainLdapContext implements LdapContext {
 	}
 	
 	private AuthenticationInfo queryInternal(String username, char[] password, Realm realm) throws LdapException, Exception {
-		LdapConnection connection = getConnectionPool().getConnection();
+		LdapConnectionPool pool = getConnectionPool();
+		LdapConnection connection = pool.getConnection();
 		AuthenticationInfo info = null;
 		
 		BindRequest bindRequest=new BindRequestImpl();
@@ -174,17 +175,13 @@ public class DomainLdapContext implements LdapContext {
         log.debug("Verifying authentication of user '{}' through LDAP for domain '{}'", principal, domain);
         
         String sPrincipal = (String) principal;
-        String[] parts = sPrincipal.split("@");
+        String[] parts = sPrincipal.split("@", 2);
         
-        if (parts.length == 0) {
-        	return false;
-        } else if (parts.length == 1) {
+        if (parts.length == 1) {
         	return true;
-        } else if (parts.length == 2) {
+        } else {
         	String tokenDomain = parts[1];
         	return domain.equals(tokenDomain);
-        } else {
-        	return false;
         }
 	}
 

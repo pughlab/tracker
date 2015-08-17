@@ -1,6 +1,6 @@
 #!/usr/bin/env perl -w
 
-use strict; 
+use strict;
 use warnings;
 
 use common::sense;
@@ -48,9 +48,13 @@ my $user;
 my $password;
 
 GetOptions(
-  'help|?' => \$help, 
+  'help|?' => \$help,
   'config=s' => \$config,
 ) or die("Error in command line arguments\n");
+
+if (! -e $config) {
+  die("Can't find config file: $config");
+}
 
 my $logger = get_logger();
 $logger->info("Reading config file: $config");
@@ -194,7 +198,7 @@ sub extract {
     }
   }
 
-  ## Now we should analyse the data and map it to the context. 
+  ## Now we should analyse the data and map it to the context.
   for my $header (@headers) {
     my $mapped = $notes->{fieldmap}->{$header};
     if (! $mapped) {
@@ -282,7 +286,7 @@ sub extract {
         } elsif ($value =~ m{^(?:n/a)$}i) {
           $value = undef;
         } elsif (lc($value) eq 'unknown') {
-          $value = undef;          
+          $value = undef;
         } elsif (lc($value) eq 'n/a') {
           $value = {'$notAvailable' => 1};
         } elsif ($value) {
@@ -299,7 +303,7 @@ sub extract {
     }
 
     ## Now we might have accumulated some additional crap to drop in a notes field. If so, we
-    ## can do that. 
+    ## can do that.
 
     my $fixed = $cfg->{$file}->{fixed};
     if (defined($fixed)) {
@@ -312,7 +316,7 @@ sub extract {
   }
 
 
-  ## Now we can process things. First, we should do something sensible to the 
+  ## Now we can process things. First, we should do something sensible to the
   ## headers
 
   push @{$context->{files}}, $file;
@@ -335,10 +339,10 @@ sub merge_data {
   my @all_headers = ();
   my %all_header_types = ();
 
-  ## The challenge is to merge data from different sheets. This is partly due to the need to model 
+  ## The challenge is to merge data from different sheets. This is partly due to the need to model
   ## views as having different things to display. Probably we need view row filters sooner rather
-  ## than later. 
-  ## 
+  ## than later.
+  ##
   ## This mainly comes down to whether to update an existing record or create a new one.
 
   for my $file (@{$context->{files}}) {
@@ -370,7 +374,7 @@ sub merge_data {
       @all_headers = @merged;
     }
 
-    ## Note that we should never merge within a file. Do this by queueing new records and 
+    ## Note that we should never merge within a file. Do this by queueing new records and
     ## adding them at the end.
     my @records_to_add = ();
     foreach my $record (@records) {
@@ -402,6 +406,16 @@ sub merge_data {
 }
 
 
+sub lowercaseify {
+  my ($hash) = @_;
+  my $result = {};
+  while(my ($k, $v) = each %$hash) {
+    $result->{lc($k)} = $v;
+  }
+  return $result;
+}
+
+
 sub write_data {
   my ($context, $cfg) = @_;
 
@@ -422,6 +436,7 @@ sub write_data {
   my $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM studies WHERE name = ?}, {}, $study);
 
   if ($study_ref) {
+    $study_ref = lowercaseify($study_ref);
     $logger->info("Found existing study: ", $study);
   }
 
@@ -429,20 +444,12 @@ sub write_data {
   if (! $study_ref) {
     $dbh->do(qq{INSERT INTO studies (name) VALUES (?)}, {}, $study);
     $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM studies WHERE name = ?}, {}, $study);
+    $study_ref = lowercaseify($study_ref);
     $logger->info("Created new study: ", $study);
   }
 
   ## Right. Now let's create the attributes. But first of all, if we're overwriting, delete everything
   if ($cfg->{overwrite}) {
-    $logger->info("Overwrite selected: deleting study permissions");
-    $dbh->do(qq{DELETE FROM study_role_permissions WHERE study_role_id IN (SELECT id FROM study_roles WHERE study_id = ?)}, {}, $study_ref->{id});
-
-    $logger->info("Overwrite selected: deleting study users");
-    $dbh->do(qq{DELETE FROM study_role_users WHERE study_role_id IN (SELECT id FROM study_roles WHERE study_id = ?)}, {}, $study_ref->{id});
-
-    $logger->info("Overwrite selected: deleting study roles");
-    $dbh->do(qq{DELETE FROM study_roles WHERE study_id = ?}, {}, $study_ref->{id});
-
     $logger->info("Overwrite selected: deleting view attributes");
     $dbh->do(qq{DELETE FROM view_attributes WHERE view_id IN (SELECT id FROM views WHERE study_id = ?)}, {}, $study_ref->{id});
 
@@ -478,6 +485,7 @@ sub write_data {
     my $options = $cfg->{options}->{$attribute};
     $dbh->do(qq{INSERT INTO attributes (study_id, name, label, type, rank, options) VALUES (?, ?, ?, ?, ?, ?)}, {}, $study_ref->{id}, $attribute, $label, $type, $index++, $options);
     my $attribute_record = $dbh->selectrow_hashref(qq{SELECT * FROM attributes WHERE study_id = ? AND name = ?}, {}, $study_ref->{id}, $attribute);
+    $attribute_record = lowercaseify($attribute_record);
     $attribute_ids->{$attribute} = $attribute_record->{id};
   }
 
@@ -490,7 +498,7 @@ sub write_data {
     }
   }
 
-  ## And now let's add the values. 
+  ## And now let's add the values.
   $logger->info("Writing cases");
   my $value_index = 0;
   foreach my $case (@$records) {
@@ -519,7 +527,7 @@ sub write_data {
 
       $logger->trace("Values: ", join(', ', $case_id, $attribute, $value, localtime(), "load", $not_available));
       my $time = localtime();
-      $dbh->do(qq{INSERT INTO $sql (case_id, attribute, value, not_available) VALUES (?, ?, ?, ?)}, {}, 
+      $dbh->do(qq{INSERT INTO $sql (case_id, attribute, value, not_available) VALUES (?, ?, ?, ?)}, {},
         $case_id, $attribute, $value, $time, "load", $not_available);
     }
   }
@@ -528,6 +536,7 @@ sub write_data {
   $logger->info("Writing primary view");
   $dbh->do(qq{INSERT INTO views (study_id, name) VALUES (?, 'primary')}, {}, $study_ref->{id});
   my $view_ref = $dbh->selectrow_hashref(qq{SELECT * FROM views WHERE study_id = ? AND name = 'primary'}, {}, $study_ref->{id});
+  $view_ref = lowercaseify($view_ref);
   my $rank = 1;
   for my $attribute (@$headers) {
     $dbh->do(qq{INSERT INTO view_attributes (view_id, attribute_id, rank) VALUES (?, ?,  ?)}, {}, $view_ref->{id}, $attribute_ids->{$attribute}, $rank++);

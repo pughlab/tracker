@@ -46,7 +46,7 @@ public class QAuditLog extends RelationalPathBase<AuditLog> {
         addMetadata(caseId, ColumnMetadata.named("CASE_ID").withIndex(3).ofType(Types.INTEGER).withSize(10).notNull());
         addMetadata(attribute, ColumnMetadata.named("ATTRIBUTE").withIndex(4).ofType(Types.VARCHAR).withSize(48).notNull());
         addMetadata(eventTime, ColumnMetadata.named("EVENT_TIME").withIndex(5).ofType(Types.TIMESTAMP).withSize(19).notNull());
-        addMetadata(eventUser, ColumnMetadata.named("EVENT_USER").withIndex(6).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(eventUser, ColumnMetadata.named("EVENT_USER").withIndex(6).ofType(Types.VARCHAR).withSize(128).notNull());
         addMetadata(eventType, ColumnMetadata.named("EVENT_TYPE").withIndex(7).ofType(Types.VARCHAR).withSize(12).notNull());
         addMetadata(eventArgs, ColumnMetadata.named("EVENT_ARGS").withIndex(8).ofType(Types.VARCHAR).withSize(2048));
     }
