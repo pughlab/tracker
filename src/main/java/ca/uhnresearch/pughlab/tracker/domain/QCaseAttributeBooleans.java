@@ -8,6 +8,10 @@ import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
+/**
+ * Query mapping for the boolean attributes table. 
+ * @author stuartw
+ */
 public class QCaseAttributeBooleans extends QCaseAttributeBase<CaseAttributeBooleans> {
 
     private static final long serialVersionUID = -1225368846;

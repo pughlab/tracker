@@ -8,6 +8,10 @@ import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
+/**
+ * Query mapping for the date attributes table. 
+ * @author stuartw
+ */
 public class QCaseAttributeDates extends QCaseAttributeBase<CaseAttributeDates> {
 
     private static final long serialVersionUID = 1605860926;

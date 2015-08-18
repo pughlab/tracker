@@ -8,6 +8,10 @@ import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
+/**
+ * Query mapping for the string attributes table. 
+ * @author stuartw
+ */
 public class QCaseAttributeStrings extends QCaseAttributeBase<CaseAttributeStrings> {
 
     private static final long serialVersionUID = -1985998853;
