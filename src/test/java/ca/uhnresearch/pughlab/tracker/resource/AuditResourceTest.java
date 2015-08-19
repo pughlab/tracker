@@ -4,9 +4,12 @@ import static junit.framework.Assert.assertEquals;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.anyObject;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -21,9 +24,12 @@ import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
+import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -34,12 +40,15 @@ public class AuditResourceTest extends AbstractShiroTest{
 
 	private AuditResource resource;
 	private StudyRepository repository = new MockStudyRepository();
+	private AuditLogRepository auditLogRepository;
 
 	@Before
 	public void initialize() {
 		
+		auditLogRepository = createMock(AuditLogRepository.class);
+		
 		resource = new AuditResource();
-		resource.setRepository(repository);
+		resource.setRepository(auditLogRepository);
 		Request request = new Request(Method.GET, "http://localhost:9998/services/studies");
 		Reference rootReference = new Reference("http://localhost:9998/services");
 		request.setRootRef(rootReference);
@@ -58,6 +67,11 @@ public class AuditResourceTest extends AbstractShiroTest{
 	 */
 	@Test
 	public void resourceTest() throws IOException {
+		
+		List<JsonNode> auditRecords = new ArrayList<JsonNode>();
+		
+		expect(auditLogRepository.getAuditData(anyObject(Study.class), anyObject(CaseQuery.class))).andReturn(auditRecords);
+		replay(auditLogRepository);
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
@@ -93,6 +107,8 @@ public class AuditResourceTest extends AbstractShiroTest{
 	 */
 	@Test
 	public void resourceTestForbidden() throws ResourceException {
+		
+		replay(auditLogRepository);
 
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);

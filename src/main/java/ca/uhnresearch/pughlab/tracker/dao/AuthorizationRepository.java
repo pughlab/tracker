@@ -2,7 +2,11 @@ package ca.uhnresearch.pughlab.tracker.dao;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
+import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 
 /**
  * Interface for access to the authorization storage. This deliberately doesn't

@@ -1,17 +1,14 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -34,6 +31,8 @@ import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
 
+import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
+import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
@@ -41,14 +40,13 @@ import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLog;
+import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
-import static ca.uhnresearch.pughlab.tracker.domain.QAuditLog.auditLog;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBooleans.caseAttributeBooleans;
 import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeDates.caseAttributeDates;
@@ -66,12 +64,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private final Logger logger = LoggerFactory.getLogger(StudyRepositoryImpl.class);
 	
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
-	
-	private static ObjectMapper objectMapper = new ObjectMapper();
-	
+		
 	private UpdateEventService manager;
 
 	private QueryDslJdbcTemplate template;
+	
+	private AuditLogRepository auditLogRepository;
 
 	@Required
     public void setTemplate(QueryDslJdbcTemplate template) {
@@ -579,8 +577,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 		marked.put("$notAvailable", Boolean.TRUE);
 		return marked;
 	}
-
-
+	
+	
 	@Override
 	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
 		
@@ -636,14 +634,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
     	// So here we know what type of attribute we have, and can therefore build a query to
     	// write into the correct table. 
-    	    	
-    	template.insert(auditLog, new SqlInsertCallback() {
-    		public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-    			return sqlInsertClause.columns(auditLog.studyId, auditLog.caseId, auditLog.attribute, auditLog.eventType, auditLog.eventUser, auditLog.eventTime, auditLog.eventArgs)
-    				.values(study.getId(), caseValue.getId(), attribute, "set_value", userName, new Timestamp((new java.util.Date()).getTime()), auditLogValues.toString())
-    				.execute();
-    		};
-    	});
+		
+		AuditLogRecord record = new AuditLogRecord();
+		record.setStudyId(study.getId());
+		record.setCaseId(caseValue.getId());
+		record.setAttribute(attribute);
+		record.setEventType("set_value");
+		record.setEventUser(userName);
+		record.setEventArgs(auditLogValues.toString());
+		auditLogRepository.writeAuditLogRecord(record);
     	
     	// And next, we ought to either (a) insert, or (b) update, existing values. There are lots of nasty combinations of
     	// conditions here, because we have several tables and we may need to either insert or update, and of course, to 
@@ -792,44 +791,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 		});
 	}
 
-	@Override
-	public List<JsonNode> getAuditData(Study study, CaseQuery query) {
-		
-		
-		SQLQuery sq = template.newSqlQuery().from(auditLog).where(auditLog.studyId.eq(study.getId())).orderBy(auditLog.eventTime.desc());
-		
-		if (query.getOffset() != null) {
-			sq = sq.offset(query.getOffset());
-		}
-		if (query.getLimit() != null) {
-			sq = sq.limit(query.getLimit());
-		}
-	
-    	List<AuditLog> data = template.query(sq, auditLog);
-    	List<JsonNode> result = new ArrayList<JsonNode>();
-    	
-    	for(AuditLog audit : data) {
-    		ObjectNode obj = jsonNodeFactory.objectNode();
-    		obj.put("caseId", audit.getCaseId());
-    		obj.put("attribute", audit.getAttribute());
-    		obj.put("eventTime", audit.getEventTime().toString());
-    		obj.put("eventType", audit.getEventType());
-    		obj.put("eventUser", audit.getEventUser());
-			JsonNode argsNode = null;
-			logger.debug("Got data: {}", audit.getEventArgs().toString());
-			try {
-				argsNode = objectMapper.readTree(audit.getEventArgs());
-			} catch (Exception e) {
-				logger.error("Invalid JSON arguments: {}, {}", e.getMessage(), audit.getEventArgs());
-			}
-			
-			obj.replace("eventArgs", argsNode);
-    		result.add(obj);
-    	}
-
-		return result;
-	}
-	
 	/**
 	 * Getter for an update event manager. 
 	 */
@@ -883,6 +844,11 @@ public class StudyRepositoryImpl implements StudyRepository {
     	}
     	
 		return newCase;
+	}
+
+	@Override
+	public void setAuditLogRepository(AuditLogRepository repository) {
+		auditLogRepository = repository;
 	}
 }
 

@@ -5,7 +5,7 @@ import static com.mysema.query.types.PathMetadataFactory.forVariable;
 import java.sql.Timestamp;
 import java.sql.Types;
 
-import ca.uhnresearch.pughlab.tracker.dto.AuditLog;
+import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 
 import com.mysema.query.sql.ColumnMetadata;
 import com.mysema.query.sql.RelationalPathBase;
@@ -13,7 +13,7 @@ import com.mysema.query.types.path.DateTimePath;
 import com.mysema.query.types.path.NumberPath;
 import com.mysema.query.types.path.StringPath;
 
-public class QAuditLog extends RelationalPathBase<AuditLog> {
+public class QAuditLog extends RelationalPathBase<AuditLogRecord> {
 
 	private static final long serialVersionUID = -3383936919070183550L;
 
@@ -36,7 +36,7 @@ public class QAuditLog extends RelationalPathBase<AuditLog> {
     public final StringPath eventArgs = createString("eventArgs");
 
     public QAuditLog(String variable) {
-        super(AuditLog.class, forVariable(variable), "null", "audit_log");
+        super(AuditLogRecord.class, forVariable(variable), "null", "audit_log");
         addMetadata();
     }
     
