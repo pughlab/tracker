@@ -1,33 +1,17 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.CollectionUtils;
 
-import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
-
 public class JdbcAuthorizingRealm extends JdbcRealm {
 	
-	private AuthorizationRepository authorizationRepository;
-
 	/**
 	 * Indicator that authentication is not supported
 	 */
 	public boolean supports(AuthenticationToken token) { 
 	    return false; 
-	}
-	
-	@Override
-	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-		AuthorizationInfo result = super.doGetAuthorizationInfo(principals);
-		String primary = principals.getPrimaryPrincipal().toString();
-		AuditLogRecord record = new AuditLogRecord();
-		record.setEventType("login");
-		record.setEventUser(primary);
-		return result;
 	}
 	
 	/**
@@ -60,19 +44,5 @@ public class JdbcAuthorizingRealm extends JdbcRealm {
 	@Override
 	protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
 		return principals.getPrimaryPrincipal();
-	}
-
-	/**
-	 * @return the authorizationRepository
-	 */
-	public AuthorizationRepository getAuthorizationRepository() {
-		return authorizationRepository;
-	}
-
-	/**
-	 * @param authorizationRepository the authorizationRepository to set
-	 */
-	public void setAuthorizationRepository(AuthorizationRepository authorizationRepository) {
-		this.authorizationRepository = authorizationRepository;
 	}
 }
