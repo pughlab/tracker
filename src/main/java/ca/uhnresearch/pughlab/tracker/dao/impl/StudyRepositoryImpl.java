@@ -32,7 +32,6 @@ import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
-import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;

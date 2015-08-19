@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
-import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;

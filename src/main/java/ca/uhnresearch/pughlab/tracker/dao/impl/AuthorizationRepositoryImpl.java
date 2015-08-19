@@ -1,12 +1,9 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import static ca.uhnresearch.pughlab.tracker.domain.QAuditLog.auditLog;
 import static ca.uhnresearch.pughlab.tracker.domain.QRole.roles;
 import static ca.uhnresearch.pughlab.tracker.domain.QUserRole.userRoles;
 import static ca.uhnresearch.pughlab.tracker.domain.QRolePermission.rolePermissions;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.shiro.subject.PrincipalCollection;
@@ -19,10 +16,6 @@ import org.springframework.data.jdbc.query.SqlDeleteCallback;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
@@ -32,9 +25,7 @@ import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
-import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm;
 
 public class AuthorizationRepositoryImpl implements AuthorizationRepository {
