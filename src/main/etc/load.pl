@@ -425,15 +425,19 @@ sub write_data {
   my $database = $cfg->{database};
   my $username = $cfg->{username};
   my $password = $cfg->{password};
+  my $commands = $cfg->{commands} // [];
 
   $logger->info("Connecting to the database");
-  my $dbh = DBI->connect($database, $username, $password);
+  my $dbh = DBI->connect($database, $username, $password, {RaiseError => 1});
   $dbh->begin_work();
+  for my $command (@$commands) {
+    $dbh->do($command);
+  }
 
   # $dbh->sqlite_trace(sub {my ($statement) = @_; $logger->info("SQL: ", $statement); });
 
   ## First find the study
-  my $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM studies WHERE name = ?}, {}, $study);
+  my $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "studies" WHERE "name" = ?}, {}, $study);
 
   if ($study_ref) {
     $study_ref = lowercaseify($study_ref);
@@ -506,7 +510,7 @@ sub write_data {
 
     $dbh->do(qq{INSERT INTO cases (study_id) VALUES (?)}, {}, $study_ref->{id});
     my $case_id = $dbh->last_insert_id(undef, undef, undef, undef);
-
+    
     for my $attribute (@$headers) {
       my $type = lc($header_types->{$attribute});
       if (! $type) {
@@ -527,8 +531,14 @@ sub write_data {
 
       $logger->trace("Values: ", join(', ', $case_id, $attribute, $value, localtime(), "load", $not_available));
       my $time = localtime();
-      $dbh->do(qq{INSERT INTO $sql (case_id, attribute, value, not_available) VALUES (?, ?, ?, ?)}, {},
-        $case_id, $attribute, $value, $time, "load", $not_available);
+      eval {
+        $dbh->do(qq{INSERT INTO $sql (case_id, attribute, value, not_available) VALUES (?, ?, ?, ?)}, {},
+          $case_id, $attribute, $value, $not_available);
+      };
+      my $error = $@;
+      if ($error) {
+        die("Error writing $case_id, $attribute, $value: $error");
+      }
     }
   }
 
