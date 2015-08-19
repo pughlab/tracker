@@ -13,6 +13,8 @@ public class Attributes {
 
 	public static final String ATTRIBUTE_TYPE_OPTION = "option";
 
+	public static final String ATTRIBUTE_TYPE_NUMBER = "number";
+
 	private String description;
 
     private Integer id;
