@@ -263,6 +263,8 @@ sub extract {
           my $parsed_value = DateTime::Format::Excel->parse_datetime($value)->iso8601();
           $logger->trace("Parsed Excel date ", $value, ' to ', $parsed_value);
           $value = $parsed_value;
+        } elsif ($value eq '') {
+          $value = undef;
         } elsif (lc($value) eq 'unknown') {
           $value = undef;
         } elsif (lc($value) eq 'n/a' || $value =~ m{^-+$}) {
