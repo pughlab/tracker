@@ -35,7 +35,7 @@ angular
 
     ## Creating a new study ought to be a simple POST to the main studies resource...
     ## Yes, I said "ought"  -- it isn't quite that simple as we really need to make the
-    ## role representation consistent. 
+    ## role representation consistent.
 
     $scope.closeAlert = (index) ->
       $scope.alerts.splice(index, 1)
@@ -52,12 +52,12 @@ angular
 
   ## Some refactoring of the editing here, mainly to make the UI better. Basically, each controller
   ## should notify when something has changed as an event, and should handle appropriate events to
-  ## reset. 
+  ## reset.
   .controller 'RoleEditorController', Array '$scope', ($scope) ->
 
     $scope.selectedRole = undefined
     originalSelectedRole = undefined
-   
+
     $scope.selectRole = (role) ->
       $scope.selectedRole = role
       originalSelectedRole = angular.copy($scope.selectedRole)
@@ -86,12 +86,12 @@ angular
 
   ## Some refactoring of the editing here, mainly to make the UI better. Basically, each controller
   ## should notify when something has changed as an event, and should handle appropriate events to
-  ## reset. 
+  ## reset.
   .controller 'ViewEditorController', Array '$scope', '$state', ($scope, $state) ->
 
     $scope.selectedView = undefined
     originalSelectedView = undefined
-   
+
     $scope.selectView = (view) ->
       $scope.selectedView = view
       originalSelectedView = angular.copy($scope.selectedView)
@@ -122,7 +122,7 @@ angular
 
 
   .controller 'AttributeEditorController', Array '$scope', ($scope) ->
-    
+
     $scope.selectedAttribute = undefined
     originalSelectedAttribute = undefined
 
@@ -165,6 +165,7 @@ angular
       {id: 'boolean', text: "Boolean"}
       {id: 'date', text: "Date"}
       {id: 'option', text: "Option"}
+      {id: 'number', text: "Number"}
     ]
 
     $scope.attributeTags = [
