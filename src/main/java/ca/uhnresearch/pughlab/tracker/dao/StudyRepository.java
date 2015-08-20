@@ -114,12 +114,10 @@ public interface StudyRepository {
 	 */
 	void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
 
-	/**
-	 * Retrieves the audit log data. This is formatted as a set of JSON nodes, as there is 
-	 * some reformatting of identifiers to match the tagging within the repository itself. 
-	 * @return list of JSON nodes
-	 */
-	List<JsonNode> getAuditData(Study study, CaseQuery query);
-	
 	void setUpdateEventService(UpdateEventService manager);
+	
+	/**
+	 * Setter for the reference to the authorization repository, which we use for the audit logging
+	 */
+	void setAuditLogRepository(AuditLogRepository repository);
 }

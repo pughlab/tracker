@@ -16,7 +16,7 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 
-public class AuditResource extends StudyRepositoryResource<AuditLogResponse> {
+public class AuditResource extends AuditLogRepositoryResource<AuditLogResponse> {
 
     @Get("json")
     public Representation getResource()  {

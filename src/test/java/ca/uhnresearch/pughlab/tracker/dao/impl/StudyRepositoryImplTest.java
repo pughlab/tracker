@@ -39,7 +39,7 @@ import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.domain.QAuditLog;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLog;
+import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
@@ -56,6 +56,9 @@ public class StudyRepositoryImplTest {
 	@Autowired
     private StudyRepositoryImpl studyRepository;
 	
+	@Autowired
+    private AuditLogRepositoryImpl auditLogRepository;
+
 	private JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 	
 	private static ObjectMapper objectMapper = new ObjectMapper();
@@ -429,7 +432,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		
 		assertNotNull(auditEntries);
 		assertEquals(0, auditEntries.size());
@@ -444,7 +447,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(null);
 		query.setLimit(null);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		
 		assertNotNull(auditEntries);
 		assertEquals(0, auditEntries.size());
@@ -460,8 +463,8 @@ public class StudyRepositoryImplTest {
 		query.setOffset(null);
 		query.setLimit(null);
 		
-		List<AuditLog> data = new ArrayList<AuditLog>();
-		AuditLog entry = new AuditLog();
+		List<AuditLogRecord> data = new ArrayList<AuditLogRecord>();
+		AuditLogRecord entry = new AuditLogRecord();
 		entry.setEventTime(Timestamp.from(Instant.now()));
 		entry.setEventArgs("{");
 		data.add(entry);
@@ -476,7 +479,7 @@ public class StudyRepositoryImplTest {
 		List<JsonNode> auditEntries = null;
 
 		try {
-			auditEntries = studyRepository.getAuditData(study, query);
+			auditEntries = auditLogRepository.getAuditData(study, query);
 		} finally {
 			studyRepository.setTemplate(originalTemplate);
 		}
@@ -494,8 +497,8 @@ public class StudyRepositoryImplTest {
 		query.setOffset(null);
 		query.setLimit(null);
 		
-		List<AuditLog> data = new ArrayList<AuditLog>();
-		AuditLog entry = new AuditLog();
+		List<AuditLogRecord> data = new ArrayList<AuditLogRecord>();
+		AuditLogRecord entry = new AuditLogRecord();
 		entry.setEventTime(Timestamp.from(Instant.now()));
 		entry.setEventArgs("{\"old\":null,\"value\":100}");
 		data.add(entry);
@@ -510,7 +513,7 @@ public class StudyRepositoryImplTest {
 		List<JsonNode> auditEntries = null;
 
 		try {
-			auditEntries = studyRepository.getAuditData(study, query);
+			auditEntries = auditLogRepository.getAuditData(study, query);
 		} finally {
 			studyRepository.setTemplate(originalTemplate);
 		}
@@ -536,7 +539,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -575,7 +578,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -614,7 +617,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -654,7 +657,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -693,7 +696,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -732,7 +735,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -772,7 +775,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -913,7 +916,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(2, auditEntries.size());
 		
@@ -955,7 +958,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -995,7 +998,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		
@@ -1035,7 +1038,7 @@ public class StudyRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(5);
-		List<JsonNode> auditEntries = studyRepository.getAuditData(study, query);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		assertNotNull(auditEntries);
 		assertEquals(1, auditEntries.size());
 		

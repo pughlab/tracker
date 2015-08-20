@@ -8,7 +8,7 @@ import javax.annotation.Generated;
  * AuditLog is a Querydsl bean type
  */
 @Generated("com.mysema.query.codegen.BeanSerializer")
-public class AuditLog {
+public class AuditLogRecord {
 	
     private Integer id;
 

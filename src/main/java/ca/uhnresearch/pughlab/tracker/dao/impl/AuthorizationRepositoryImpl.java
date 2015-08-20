@@ -248,4 +248,5 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		// Clear after to handle permissions changes for existing users
 		clearRoleAuthorizationCache(role);
 	}
+
 }

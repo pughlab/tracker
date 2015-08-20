@@ -11,9 +11,10 @@
     <bean id="cacheManager" class="org.apache.shiro.cache.MemoryConstrainedCacheManager">
     </bean>
     
-    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+    <bean id="securityManager" class="ca.uhnresearch.pughlab.tracker.security.AuditedSecurityManager">
         <property name="cacheManager" ref="cacheManager" />
         <property name="realms" ref="securityRealms" />
+        <property name="auditLogRepository" ref="auditLogRepository" />
     </bean>
     
     <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>

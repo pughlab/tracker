@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
@@ -445,15 +446,6 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	/**
-	 * Mocked implementation of getAuditData, which doesn't really return anything useful. 
-	 */
-	@Override
-	public List<JsonNode> getAuditData(Study study, CaseQuery query) {
-		
-		return new ArrayList<JsonNode>();
-	}
-
-	/**
 	 * Mocked setter for an update event manager
 	 */
 	public void setUpdateEventService(UpdateEventService manager) {
@@ -466,5 +458,10 @@ public class MockStudyRepository implements StudyRepository {
 		newCase.setId(nextCaseId++);
 		cases.add(newCase);
 		return newCase;
+	}
+
+	@Override
+	public void setAuditLogRepository(AuditLogRepository repository) {
+		// Auto-generated method stub
 	}
 }
