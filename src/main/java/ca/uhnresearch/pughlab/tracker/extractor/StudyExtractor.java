@@ -46,7 +46,7 @@ public class StudyExtractor extends Extractor {
     	logger.debug("Authenticated as: {}", user);
 
     	// Explicitly block access when there's not at least study read access
-    	String permission = "study:read:" + s.getName();
+    	String permission = s.getName() + ":read";
     	logger.debug("Checking permission for: {}", permission);
     	if (! currentUser.isPermitted(permission)) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);

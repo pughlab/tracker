@@ -50,7 +50,7 @@ public class ViewExtractorTest extends AbstractShiroTest {
 	public void testBasicExtraction() {
 		
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -80,10 +80,10 @@ public class ViewExtractorTest extends AbstractShiroTest {
 	public void testBasicRefusal() throws ResourceException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("view:write:DEMO-complete")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("view:download:DEMO-complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:download:complete")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -109,8 +109,8 @@ public class ViewExtractorTest extends AbstractShiroTest {
 	public void testMissing() throws ResourceException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -136,10 +136,10 @@ public class ViewExtractorTest extends AbstractShiroTest {
 	public void testNonAdminAcceptance() throws ResourceException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("view:write:DEMO-complete")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("view:download:DEMO-complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:download:complete")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);

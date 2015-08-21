@@ -53,7 +53,7 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");
 
-    	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
+    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
@@ -96,7 +96,7 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	Subject currentUser = SecurityUtils.getSubject();
 
     	// Only administrators can get the schema
-    	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
+    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}

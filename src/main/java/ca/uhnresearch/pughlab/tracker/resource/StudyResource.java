@@ -31,7 +31,7 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
     	dto.setStudy(study);
     	
     	Subject currentUser = SecurityUtils.getSubject();
-    	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
+    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
 
     	// Query the database for views
     	List<View> viewList = getRepository().getStudyViews(study);
@@ -40,7 +40,7 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
     	for(View v : viewList) {
     		
     		// Add the view if we have a read permission
-    		String permission = "view:read:" + study.getName() + "-" + v.getName();
+    		String permission = study.getName() + ":read:" + v.getName();
     		if (adminUser || currentUser.isPermitted(permission)) {
     			dto.getViews().add(v);
     		}

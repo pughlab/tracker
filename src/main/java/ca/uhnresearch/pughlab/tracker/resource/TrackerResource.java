@@ -31,7 +31,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     	List<Study> studyList = getRepository().getAllStudies();
     	for(Study s : studyList) {
     		
-    		String studyAdminPermissionString = "study:admin:" + s.getName();
+    		String studyAdminPermissionString = s.getName() + ":admin";
     		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
     		Boolean studyReadPermission = studyAdminPermission;
     		Boolean studyWritePermission = studyAdminPermission;
@@ -40,13 +40,13 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     		if (studyAdminPermission) {
     			// Do nothing, as all permissions are already true
     		} else {
-    			String studyReadPermissionString = "study:read:" + s.getName();
+    			String studyReadPermissionString = s.getName() + ":read";
     			studyReadPermission = currentUser.isPermitted(studyReadPermissionString);
     			
-    			String studyWritePermissionString = "study:write:" + s.getName();
+    			String studyWritePermissionString = s.getName() + ":write";
     			studyWritePermission = currentUser.isPermitted(studyWritePermissionString);
 
-    			String studyDownloadPermissionString = "study:download:" + s.getName();
+    			String studyDownloadPermissionString = s.getName() + ":download";
     			studyDownloadPermission = currentUser.isPermitted(studyDownloadPermissionString);
     		}
 

@@ -76,7 +76,7 @@ public class RoleResourceTest extends AbstractShiroTest {
 		users.add("user1");
 		users.add("user2");
 		List<String> permissions = new ArrayList<String>();
-		permissions.add("study:*:*");
+		permissions.add("*:*");
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
 		expect(mock.getRoleUsers(role)).andStubReturn(users);
 		expect(mock.getRolePermissions(role)).andStubReturn(permissions);
@@ -99,7 +99,7 @@ public class RoleResourceTest extends AbstractShiroTest {
 		
 		assertTrue( data.get("permissions").isJsonArray() );
 		assertEquals( 1, data.get("permissions").getAsJsonArray().size() );
-		assertEquals( "study:*:*", data.get("permissions").getAsJsonArray().get(0).getAsString() );
+		assertEquals( "*:*", data.get("permissions").getAsJsonArray().get(0).getAsString() );
 	}
 	
 	/**

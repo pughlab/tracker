@@ -55,7 +55,7 @@ public class StudyResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -88,10 +88,10 @@ public class StudyResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("view:read:DEMO-complete")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("view:read:DEMO-track")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("view:read:DEMO-secondary")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read:track")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:read:secondary")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);

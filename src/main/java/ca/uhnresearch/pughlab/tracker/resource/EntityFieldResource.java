@@ -42,7 +42,7 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
     	String attribute = (String) getRequest().getAttributes().get("entityField");
     	
-    	boolean writeUser = currentUser.isPermitted("study:write:" + study.getName());
+    	boolean writeUser = currentUser.isPermitted(study.getName() + ":write");
     	if (! writeUser) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}

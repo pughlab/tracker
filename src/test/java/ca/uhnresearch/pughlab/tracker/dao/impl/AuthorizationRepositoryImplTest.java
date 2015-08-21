@@ -181,9 +181,9 @@ public class AuthorizationRepositoryImplTest {
 		List<String> list = authorizationRepository.getRolePermissions(role);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(3, list.size());		
-		Assert.assertEquals("study:read:DEMO", list.get(0));
-		Assert.assertEquals("view:read:DEMO-track", list.get(1));
-		Assert.assertEquals("view:write:DEMO-track", list.get(2));
+		Assert.assertEquals("DEMO:read", list.get(0));
+		Assert.assertEquals("DEMO:read:track", list.get(1));
+		Assert.assertEquals("DEMO:write:track", list.get(2));
 	}
 
 	/**
@@ -328,13 +328,13 @@ public class AuthorizationRepositoryImplTest {
 
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		List<String> permissions = new ArrayList<String>();
-		permissions.add("study:X:read");
-		permissions.add("study:X:write");
+		permissions.add("X:read");
+		permissions.add("X:write");
 		authorizationRepository.setRolePermissions(role, permissions);
 		
 		List<String> list = authorizationRepository.getRolePermissions(role);
 		Assert.assertEquals(2, list.size());
-		Assert.assertEquals("study:X:read", list.get(0));
-		Assert.assertEquals("study:X:write", list.get(1));
+		Assert.assertEquals("X:read", list.get(0));
+		Assert.assertEquals("X:write", list.get(1));
 	}
 }

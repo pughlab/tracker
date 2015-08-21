@@ -1,8 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

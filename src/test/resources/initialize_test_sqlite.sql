@@ -47,7 +47,7 @@ INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VAL
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (15, 15, 1, 'requestDate', 'Date Request Processed', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (16, 16, 1, 'LMPComments', 'LMP Comments', 'string');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (17, 17, 1, 'blockLocation', 'Current Block Location', 'string');
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (18, 18, 1, 'CSPDate', 'Date Specimen Received by CSP', 'date');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (18, 18, 1, 'numberCores', 'Number of cores', 'number');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (19, 19, 1, 'specimenBiobankDate', 'Date Specimen went to Biobank', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (20, 20, 1, 'specimenType', 'Specimen Type Collected by CSP (block/slides)', 'string');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (21, 21, 1, 'diagnosticsDate', 'Date of transfer to Molecular Diagnostics', 'date');
@@ -436,9 +436,9 @@ CREATE TABLE "ROLE_PERMISSIONS" (
 );
 
 INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (1, 1, '*');
-INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (2, 3, 'study:*:DEMO');
-INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (3, 2, 'study:read:DEMO');
-INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (4, 2, 'view:read:DEMO-track');
-INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (5, 2, 'view:write:DEMO-track');
-INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (6, 4, 'study:read:DEMO');
-INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (7, 4, 'view:read:DEMO-track');
+INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (2, 3, 'DEMO:*');
+INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (3, 2, 'DEMO:read');
+INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (4, 2, 'DEMO:read:track');
+INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (5, 2, 'DEMO:write:track');
+INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (6, 4, 'DEMO:read');
+INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (7, 4, 'DEMO:read:track');

@@ -36,7 +36,7 @@ public class ViewExtractor extends Extractor {
 	 */
 	private void checkPermissions(Request request, Study study, View view, Subject currentUser) throws ResourceException {
 		
-		String studyAdminPermissionString = "study:admin:" + study.getName();
+		String studyAdminPermissionString = study.getName() + ":admin";
 		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
 		Boolean viewReadPermission = studyAdminPermission;
 		Boolean viewWritePermission = studyAdminPermission;
@@ -45,13 +45,13 @@ public class ViewExtractor extends Extractor {
 		if (studyAdminPermission) {
 			// Do nothing, as all permissions are already true
 		} else {
-			String viewReadPermissionString = "view:read:" + study.getName() + "-" + view.getName();
+			String viewReadPermissionString = study.getName() + ":read:" + view.getName();
 			viewReadPermission = currentUser.isPermitted(viewReadPermissionString);
 			
-			String viewWritePermissionString = "view:write:" + study.getName() + "-" + view.getName();
+			String viewWritePermissionString = study.getName() + ":write:" + view.getName();
 			viewWritePermission = currentUser.isPermitted(viewWritePermissionString);
 
-			String viewDownloadPermissionString = "view:download:" + study.getName() + "-" + view.getName();
+			String viewDownloadPermissionString = study.getName() + ":download:" + view.getName();
 			viewDownloadPermission = currentUser.isPermitted(viewDownloadPermissionString);
 		}
 		
