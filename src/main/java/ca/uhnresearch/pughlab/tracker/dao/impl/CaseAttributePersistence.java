@@ -24,6 +24,7 @@ import ca.uhnresearch.pughlab.tracker.dao.SpecialValues;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBase;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBooleans;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeDates;
+import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeNumbers;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.domain.WritableValue;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
@@ -43,6 +44,7 @@ public class CaseAttributePersistence {
 		types.put(String.class, QCaseAttributeStrings.caseAttributes);
 		types.put(java.sql.Date.class, QCaseAttributeDates.caseAttributes);
 		types.put(Boolean.class, QCaseAttributeBooleans.caseAttributes);
+		types.put(Double.class, QCaseAttributeNumbers.caseAttributes);
 	}
 	
 	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, ListSubQuery<Integer> caseQuery) {
@@ -71,6 +73,7 @@ public class CaseAttributePersistence {
 		final QCaseAttributeBase<?> atts = getCaseAttribute(cls);
 		
 		long updateCount = template.update(atts, new SqlUpdateCallback() { 
+			@SuppressWarnings("unchecked")
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				SQLUpdateClause sqlUpdate = sqlUpdateClause.where(atts.caseId.eq(caseValue.getId()).and(atts.attribute.eq(attribute)));
 				sqlUpdate = sqlUpdate.set(atts.notAvailable, notAvailable);

@@ -19,7 +19,7 @@ public class QCaseAttributeNumbers extends QCaseAttributeBase<Double> {
 
     private static final long serialVersionUID = -1985998853;
 
-    public static final QCaseAttributeStrings caseAttributes = new QCaseAttributeStrings("case_attribute_numbers");
+    public static final QCaseAttributeNumbers caseAttributes = new QCaseAttributeNumbers("case_attribute_numbers");
 
     public QCaseAttributeNumbers(String variable) {
         super(forVariable(variable), "null", "case_attribute_numbers");

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import ca.uhnresearch.pughlab.tracker.domain.BooleanValueValidator;
 import ca.uhnresearch.pughlab.tracker.domain.DateValueValidator;
+import ca.uhnresearch.pughlab.tracker.domain.NumberValueValidator;
 import ca.uhnresearch.pughlab.tracker.domain.OptionValueValidator;
 import ca.uhnresearch.pughlab.tracker.domain.StringValueValidator;
 import ca.uhnresearch.pughlab.tracker.domain.ValueValidator;
@@ -27,6 +28,7 @@ public class AttributeMapper extends AbstractMapper<Attributes> {
 		validators.put(Attributes.ATTRIBUTE_TYPE_BOOLEAN, new BooleanValueValidator());
 		validators.put(Attributes.ATTRIBUTE_TYPE_OPTION, new OptionValueValidator());
 		validators.put(Attributes.ATTRIBUTE_TYPE_DATE, new DateValueValidator());
+		validators.put(Attributes.ATTRIBUTE_TYPE_NUMBER, new NumberValueValidator());
 	}
 	
 	public static ValueValidator getAttributeValidator(String type) {
