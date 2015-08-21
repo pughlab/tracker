@@ -544,6 +544,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 			return jsonNodeFactory.booleanNode((Boolean) value);
 		} else if (value instanceof java.sql.Date) {
 			return jsonNodeFactory.textNode((String) value.toString());
+		} else if (value instanceof Number) {
+			return jsonNodeFactory.numberNode(((Number) value).doubleValue());
 		} else {
 			throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
 		}
