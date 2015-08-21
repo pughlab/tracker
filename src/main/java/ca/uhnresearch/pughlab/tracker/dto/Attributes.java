@@ -1,5 +1,8 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,7 +17,7 @@ public class Attributes {
 	public static final String ATTRIBUTE_TYPE_OPTION = "option";
 
 	public static final String ATTRIBUTE_TYPE_NUMBER = "number";
-
+	
 	private String description;
 
     private Integer id;

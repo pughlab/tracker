@@ -1,12 +1,14 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
-public abstract class CaseAttributeBase {
+public class CaseAttribute {
 
     private String attribute;
 
     private Integer caseId;
 
     private Integer id;
+
+    private Object value;
 
     private Boolean notAvailable = false;
 
@@ -34,6 +36,14 @@ public abstract class CaseAttributeBase {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     public Boolean getNotAvailable() {

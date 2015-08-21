@@ -530,7 +530,7 @@ public class StudyRepositoryImplTest {
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", null);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", jsonNodeFactory.nullNode());
 		} catch (RepositoryException e) {
 			fail();
 		}
@@ -687,7 +687,7 @@ public class StudyRepositoryImplTest {
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "patientId", "stuart", null);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "patientId", "stuart", jsonNodeFactory.nullNode());
 		} catch (RepositoryException e) {
 			fail();
 		}
@@ -989,7 +989,7 @@ public class StudyRepositoryImplTest {
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", null);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", jsonNodeFactory.nullNode());
 		} catch (RepositoryException e) {
 			fail();
 		}
