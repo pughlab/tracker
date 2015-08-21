@@ -3,6 +3,7 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import static ca.uhnresearch.pughlab.tracker.domain.QRole.roles;
 import static ca.uhnresearch.pughlab.tracker.domain.QUserRole.userRoles;
 import static ca.uhnresearch.pughlab.tracker.domain.QRolePermission.rolePermissions;
+import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
 
 import java.util.List;
 
@@ -64,7 +65,11 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
      */
 	@Override
 	public List<Role> getRoles(CaseQuery query) throws RepositoryException {
-    	SQLQuery sqlQuery = template.newSqlQuery().from(roles).orderBy(roles.name.asc());
+    	SQLQuery sqlQuery = template.newSqlQuery()
+    							.from(roles)
+    							.leftJoin(studies)
+    							.on(roles.studyId.eq(studies.id))
+    							.orderBy(roles.name.asc());
     	
 		if (query.getPattern() != null) {
 			sqlQuery = sqlQuery.where(roles.name.like("%" + query.getPattern() + "%"));
@@ -76,7 +81,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 			sqlQuery = sqlQuery.limit(query.getLimit());
 		}
 
-    	List<Role> roleList = template.query(sqlQuery, roles);
+    	List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
 		return roleList;
 	}
 	

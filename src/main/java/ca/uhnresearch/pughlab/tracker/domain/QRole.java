@@ -18,6 +18,8 @@ public class QRole extends com.mysema.query.sql.RelationalPathBase<Role> {
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
+    public final NumberPath<Integer> studyId = createNumber("studyId", Integer.class);
+
     public final StringPath name = createString("name");
 
     public final com.mysema.query.sql.PrimaryKey<Role> primary = createPrimaryKey(id);
@@ -29,7 +31,7 @@ public class QRole extends com.mysema.query.sql.RelationalPathBase<Role> {
 
     public void addMetadata() {
         addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(studyId, ColumnMetadata.named("STUDY_ID").withIndex(1).ofType(Types.INTEGER).withSize(10));
         addMetadata(name, ColumnMetadata.named("NAME").withIndex(2).ofType(Types.VARCHAR).withSize(24).notNull());
     }
-
 }

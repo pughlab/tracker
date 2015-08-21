@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Role {
 
     private Integer id;
+    
+    private String studyName;
 
 	private String name;
 
@@ -42,6 +44,21 @@ public class Role {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	/**
+	 * @return the studyName
+	 */
+	@JsonProperty
+	public String getStudyName() {
+		return studyName;
+	}
+
+	/**
+	 * @param studyName the studyName to set
+	 */
+	public void setStudyName(String studyName) {
+		this.studyName = studyName;
 	}
 
 }

@@ -96,6 +96,26 @@ public class AuthorizationRepositoryImplTest {
 	}
 
 	/**
+	 * Checks that the required roles co.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetRoleStudyNames() throws RepositoryException {
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(10);
+
+		List<Role> list = authorizationRepository.getRoles(query);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(4, list.size());
+		Assert.assertNull(list.get(0).getStudyName());
+		Assert.assertEquals("DEMO", list.get(1).getStudyName());
+		Assert.assertEquals("DEMO", list.get(2).getStudyName());
+		Assert.assertEquals("DEMO", list.get(3).getStudyName());
+	}
+
+	/**
 	 * Checks that a list of roles is returned correctly with a case query and offset.
 	 */
 	@Test
