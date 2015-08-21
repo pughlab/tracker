@@ -50,7 +50,7 @@ TrackerHandsontableColumnSorting = () ->
       delete instance.sortOrder
       return
     else if instance.sortColumn == col && typeof order == 'undefined'
-      instance.sortOrder = 
+      instance.sortOrder =
         switch instance.sortOrder
           when undefined then true
           when true then false
@@ -88,7 +88,7 @@ TrackerHandsontableColumnSorting = () ->
 
     if typeof instance.sortOrder != 'undefined'
       sortingState.sortOrder = instance.sortOrder
-  
+
     if sortingState.hasOwnProperty('sortColumn') || sortingState.hasOwnProperty('sortOrder')
       Handsontable.hooks.run(instance, 'persistentStateSave', 'columnSorting', sortingState)
 
@@ -103,7 +103,7 @@ TrackerHandsontableColumnSorting = () ->
 
   ## We should also be able to "unsort", i.e., revert back to a default ordering provided
   ## by the basic identifiers. Actually, we should probably also be using identifiers to
-  ## make the sort actually stable, but enough of that for now. 
+  ## make the sort actually stable, but enough of that for now.
 
   bindColumnSortingAfterClick = () ->
     instance = this
@@ -156,6 +156,12 @@ TrackerHandsontableColumnSorting = () ->
     value
 
 
+  compareNumbers = (a, b, sortOrder) ->
+    return 0 if Math.abs(a - b) < Number.EPSILON
+    return 1 if a > b
+    return -1
+
+
   compareDates = (aDate, bDate, sortOrder) ->
 
     return 0 if aDate == bDate
@@ -173,7 +179,7 @@ TrackerHandsontableColumnSorting = () ->
       0
 
 
-  defaultSort = (sortOrder)  -> 
+  defaultSort = (sortOrder)  ->
     return (a, b) ->
       value = compareStrings a[1], b[1], sortOrder
       value = compareIdentifiers a[2], b[2] if value == 0
@@ -187,11 +193,18 @@ TrackerHandsontableColumnSorting = () ->
       value
 
 
+  numberSort = (sortOrder) ->
+    return (a, b) ->
+      value = compareNumbers a[1], b[1], sortOrder
+      value = compareIdentifiers a[2], b[2] if value == 0
+      value
+
+
   @sort = ()  ->
     instance = this
 
     ## Undefined should be a natural, i.e., an identifier based order,
-    ## which reflects when objects were added. 
+    ## which reflects when objects were added.
 
     @sortIndex.splice(0, @sortIndex.length)
 
@@ -206,6 +219,7 @@ TrackerHandsontableColumnSorting = () ->
     sortFunction = defaultSort
     switch colMeta.type
       when 'date' then sortFunction = dateSort
+      when 'number' then sortFunction = numberSort
 
     @sortIndex.sort(sortFunction(instance.sortOrder))
 

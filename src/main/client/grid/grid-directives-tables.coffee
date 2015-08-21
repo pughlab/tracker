@@ -55,9 +55,9 @@ angular
             ""
           else if current.hasOwnProperty('$notAvailable')
             "N/A"
-          else if current == false 
-            "No" 
-          else 
+          else if current == false
+            "No"
+          else
             "Yes"
 
 
@@ -77,14 +77,14 @@ angular
             ""
           else if current.hasOwnProperty('$notAvailable')
             "N/A"
-          else 
+          else
             current
 
 
     result =
       restrict: "A"
       replace: true
-      scope: 
+      scope:
         trackerStudy: '='
         trackerView: '='
         trackerAttributes: '='
@@ -106,10 +106,10 @@ angular
           $http
             .get getStudyUrl(scope.trackerStudy, scope.trackerView) + "/entities/#{entityIdentifier}", {}
             .success (response) ->
-              
+
               ## We don't have a row index, but we need to find the last (but one) row
               ## and insert after it. We'll also have to manage inserting all that data
-              ## nicely. We'll also want to do a highlight trick on the row. 
+              ## nicely. We'll also want to do a highlight trick on the row.
 
               record = response.entity
 
@@ -130,7 +130,7 @@ angular
                 changes.push [newRow, i, renderedValue]
 
               ## We can't really use populateFromArray, as it doesn't actually work when the
-              ## grid is marked readOnly. So build a change set and use that instead. 
+              ## grid is marked readOnly. So build a change set and use that instead.
               handsonTable.setDataAtCell changes, 'socketEvent'
 
               ## We also need to make sure that this row has the identifier set, which might
@@ -158,8 +158,8 @@ angular
               holder[fieldName] = value
               renderedValue = colData.prop(holder)
 
-              ## We should actually set to the converted value, not the internal value. 
-              ## Because that seems to be what's needed to make it all work. 
+              ## We should actually set to the converted value, not the internal value.
+              ## Because that seems to be what's needed to make it all work.
 
               handsonTable.setDataAtCell(rowIndex, columnIndex, renderedValue, 'socketEvent');
 
@@ -190,8 +190,8 @@ angular
           iElement.removeClass("tracker-table-hidden")
 
         ## Basic search function. When we get a result, we can choose how to handle it, either
-        ## as a selection or as a display. We should somehow make it easy to scroll right to 
-        ## a highlighted selected cell. 
+        ## as a selection or as a display. We should somehow make it easy to scroll right to
+        ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
           result = handsonTable.search.query query
@@ -203,7 +203,7 @@ angular
 
         scope.$on 'socket:welcome', (evt, data) ->
           userControllerScope = evt.targetScope
-          if scope.trackerStudy 
+          if scope.trackerStudy
             userControllerScope.$emit 'socket:join', { "scope": scope.trackerStudy.name, "time" : (new Date()).valueOf() }
 
 
@@ -218,14 +218,14 @@ angular
 
             ## Here we are notified of a property change, and should locate the cell,
             ## highlight it in some way, and arrange for a request for a more up-to-date
-            ## value. Note that the value is never transmitted over the socket. 
+            ## value. Note that the value is never transmitted over the socket.
 
             scope.$on 'socket:field', (evt, original) ->
               console.log "Got socket:field", evt, original
 
               ## If we get a cell editing event, we need to identify the cell element, and then update
-              ## the right stuff. We might need to do something similar for a row, too. 
-              
+              ## the right stuff. We might need to do something similar for a row, too.
+
               if handsonTable != undefined and original.data.userNumber != -1
                 handleEditCell original.data.parameters.case, original.data.parameters.field, original.data.editingClasses
 
@@ -280,11 +280,11 @@ angular
                 $http
                   .put "#{baseUrl}/entities/#{encodeURIComponent(caseIdentifier)}/#{encodeURIComponent(fieldName)}", payload
                   .success (response) ->
-                  
+
                     console.log "Got PUT response", response
 
-                    ## We should also get back an updated set of notes, and we need to make sure that general tags and 
-                    ## field-specific notes are mirrored locally. 
+                    ## We should also get back an updated set of notes, and we need to make sure that general tags and
+                    ## field-specific notes are mirrored locally.
 
                     ## caseRecord['$notes'] = response.records[0]['$notes']
 
@@ -299,6 +299,9 @@ angular
               result.validator = validator
               result.renderer = Handsontable.TrackerStringRenderer
               switch attribute.type
+                when 'number'
+                  result.type = 'numeric'
+                  result.correctFormat = true
                 when 'date'
                   result.type = 'date'
                   result.dateFormat = 'YYYY-MM-DD'
@@ -324,8 +327,8 @@ angular
 
             ## Distressingly, we have to turn off column sorting because there is essentially
             ## zero modularity, and we need a better handling of column sorting than the standard
-            ## plugin applies. This leaves hooks, and even code, embedded, but we can't really 
-            ## worry about that here. 
+            ## plugin applies. This leaves hooks, and even code, embedded, but we can't really
+            ## worry about that here.
 
             baseColWidth = 100
             getColWidth = (attribute) ->
@@ -347,7 +350,7 @@ angular
                 otherAttributes.push attribute
 
             orderedAttributes = pinnedAttributes.concat(otherAttributes)
-            
+
             handsonTable = new Handsontable(iElement[0], {
               minSpareRows: 1
               colWidths: (getColWidth(a) for a in orderedAttributes)
@@ -375,9 +378,9 @@ angular
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
               {"$value": value, "$source": source}
 
-            ## If we have a "status" attribute, we should add a context handler, with options 
+            ## If we have a "status" attribute, we should add a context handler, with options
             ## for the different values, all of which modify the record value with that particular
-            ## value. We need to poke around in the data for that. 
+            ## value. We need to poke around in the data for that.
 
             addStatusContext = undefined
             for attribute in attributes
@@ -413,7 +416,7 @@ angular
 
             # Can actually cancel the change by returning false, or true to accept it
             # Of course, this doesn't use a callback, so it's somewhat less helpful for
-            # asynchronous validation. 
+            # asynchronous validation.
 
             $http
               .get getStudyUrl(scope.trackerStudy, scope.trackerView)
@@ -421,7 +424,7 @@ angular
                 handsonTable.loadData(response.records)
 
                 ## We should really keep a track of the row information here, i.e., the association
-                ## between identifier and row number. We can then use this to locate cells. 
+                ## between identifier and row number. We can then use this to locate cells.
                 ##
                 ## Note, however, that these are virtual rows not real rows, and they can be translated
                 ## to a different offset by the sorting system. Although that requires some access to that
@@ -429,7 +432,7 @@ angular
 
                 entityRowTable = {}
                 attributeColumnTable = {}
-                for entity, i in response.records        
+                for entity, i in response.records
                   entityRowTable[entity.id] = i
                 for attribute, i in response.attributes
                   attributeColumnTable[attribute.name] = i
@@ -473,10 +476,10 @@ angular
 
         scope.$on '$destroy', (evt) ->
           handsonTable.unlisten()
-          handsonTable.destroy()          
+          handsonTable.destroy()
           handsonTable = undefined
-          jQuery(window).off 'resize', resizeWrapper       
-          
+          jQuery(window).off 'resize', resizeWrapper
+
           entityRowTable = undefined
           attributeColumnTable = undefined
           userControllerScope = false

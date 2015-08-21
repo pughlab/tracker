@@ -97,6 +97,8 @@ public class ExcelWriterImpl implements ExcelWriter {
 					writeBooleanCell(doc, rowElement, value.asBoolean());
 				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
 					writeDateCell(doc, rowElement, value.asText());
+				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_NUMBER)) {
+					writeNumberCell(doc, rowElement, value.numberValue());
 				} else {
 					throw new RuntimeException("Invalid type: " + column.getType());
 				}
@@ -124,6 +126,17 @@ public class ExcelWriterImpl implements ExcelWriter {
 		Element body = doc.createElement("ss:Data");
 		body.setAttribute("ss:Type", "String");
 		body.appendChild(doc.createTextNode(data ? "Yes" : "No"));
+		
+		cell.appendChild(body);
+	}
+	
+	private void writeNumberCell(Document doc, Element parent, Number data) {
+		Element cell = doc.createElement("ss:Cell");
+		parent.appendChild(cell);
+		
+		Element body = doc.createElement("ss:Data");
+		body.setAttribute("ss:Type", "Number");
+		body.appendChild(doc.createTextNode(data.toString()));
 		
 		cell.appendChild(body);
 	}
