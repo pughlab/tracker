@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.RoleResponse;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.User;
 
 public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> {
@@ -26,7 +27,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private JacksonConverter converter = new JacksonConverter();
-
+	
     @Get("json")
     public Representation getResource()  {
     	RoleResponse response = new RoleResponse();
@@ -64,8 +65,38 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     	return getResource();
     }
 
+    /**
+     * Checks permissions for the role list. The study might be null, if we're attempting a
+     * non-study specific role list. 
+     * @param currentUser
+     * @param study
+     * @return
+     */
+    private boolean isPermitted(Subject currentUser, Study study) {
+    	if (currentUser.isPermitted("admin")) {
+    		return true;
+    	}
+    	
+    	if (study == null) {
+    		return false;
+    	}
+    	
+    	String studyName = study.getName();
+    	if (currentUser.isPermitted(studyName + ":admin")) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
+
 	public void buildResponseDTO(RoleResponse dto) {
     	Subject currentUser = SecurityUtils.getSubject();
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	
+    	if (! isPermitted(currentUser, study)) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
+    	
     	User user = new User(currentUser);
     	URL url = getRequest().getRootRef().toUrl();
 
