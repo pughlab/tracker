@@ -1,6 +1,6 @@
 angular
   .module 'tracker.controls'
-  
+
   .directive 'selectizeTags', Array '$timeout', ($timeout) ->
     result =
       restrict: "A"
@@ -52,6 +52,3 @@ angular
                 selectize.disable()
               else
                 selectize.enable()
-
-
-  

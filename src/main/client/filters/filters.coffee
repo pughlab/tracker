@@ -20,5 +20,5 @@ angular
       if input
         for element in input
           element[property]
-      else 
+      else
         input

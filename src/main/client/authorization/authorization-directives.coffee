@@ -66,6 +66,3 @@ angular
                 selectize.disable()
               else
                 selectize.enable()
-
-
-  

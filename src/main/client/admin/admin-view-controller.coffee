@@ -12,12 +12,12 @@ angular
     $scope.originalSelectedAttribute = undefined
     $scope.filterEnabled = false
 
-    $scope.attributeSortableOptions = 
+    $scope.attributeSortableOptions =
       connectWith: "#viewSortable"
       update: (e, ui) -> null
       remove: (e, ui) -> null
 
-    $scope.viewSortableOptions = 
+    $scope.viewSortableOptions =
       connectWith: "#attributeSortable"
       update: (e, ui) ->
         $scope.$evalAsync () ->
@@ -28,7 +28,7 @@ angular
     $scope.selectAttribute = (attribute) ->
       $scope.selectedAttribute = attribute
       $scope.originalSelectedAttribute = angular.copy($scope.selectedAttribute)
-   
+
     $scope.reset = () ->
       $scope.modified = false
       $scope.initializedAttribute = false
@@ -84,4 +84,3 @@ angular
         $scope.originalView = angular.copy($scope.view)
       .error (response) ->
         console.log "Error", response
-

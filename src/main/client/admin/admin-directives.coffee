@@ -80,7 +80,7 @@ angular
 
 
   .directive 'selectizeList', Array '$timeout', ($timeout) ->
-    result = 
+    result =
       restrict: "A"
       replace: false
       scope:
@@ -251,5 +251,3 @@ angular
             $timeout () ->
               selectize.setValue selectedValue, true
               selectize.on 'change', handleChange
-
-

@@ -6,7 +6,7 @@ clonableARROW.className = 'htAutocompleteArrow'
 
 ## workaround for https://github.com/handsontable/handsontable/issues/1946
 ##this is faster than innerHTML. See: https://github.com/handsontable/handsontable/wiki/JavaScript-&-DOM-performance-tips
-clonableARROW.appendChild(document.createTextNode(String.fromCharCode(9660))); 
+clonableARROW.appendChild(document.createTextNode(String.fromCharCode(9660)));
 
 wrapTdContentWithWrapper = (TD, WRAPPER) ->
   WRAPPER.innerHTML = TD.innerHTML

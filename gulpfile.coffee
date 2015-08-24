@@ -104,7 +104,7 @@ gulp.task 'vendors', () ->
 
 index = () ->
   bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components', read: false})
-    
+
   execute 'git log -n 1 --format="%h"', (commitId) ->
     execute 'git diff --shortstat', (shortStat) ->
       shortStat = shortStat.toString().trim()
@@ -131,7 +131,7 @@ index = () ->
 gulp.task 'templates', () ->
   templateFiles({min: true}).pipe(buildTemplates())
 
-  
+
 gulp.task 'assets', () ->
   gulp.src './src/main/client/assets/statics/**'
     .pipe gulp.dest './target/client/tmp/client/statics'

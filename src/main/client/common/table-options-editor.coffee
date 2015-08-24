@@ -1,5 +1,5 @@
 ## =====================================================================================
-## Date editor -- one is built in, and I really like that, but it could have used a 
+## Date editor -- one is built in, and I really like that, but it could have used a
 ## little better factoring to allow options to be set better.
 
 TrackerDateEditor = Handsontable.editors.DateEditor.prototype.extend()
@@ -58,7 +58,7 @@ TrackerDateEditor.prototype.createDatePickerOptions = () ->
 
 
 ## Monkeypatching. If we don't have an original date, we don't inform the picker
-## and we need to. 
+## and we need to.
 TrackerDateEditor.prototype.showDatepicker = (event) ->
   value = @originalValue
   if !value
@@ -69,7 +69,7 @@ TrackerDateEditor.prototype.showDatepicker = (event) ->
   Handsontable.editors.DateEditor.prototype.showDatepicker.call(@, event)
 
 
-## And factored out so we can extend Pikaday -- at least this instance -- if needed. 
+## And factored out so we can extend Pikaday -- at least this instance -- if needed.
 
 hasEventListeners = !!window.addEventListener
 
@@ -82,7 +82,7 @@ addEvent = (el, e, callback, capture) ->
 removeEvent = (el, e, callback, capture) ->
   if hasEventListeners
     el.removeEventListener(e, callback, !!capture)
-  else 
+  else
     el.detachEvent('on' + e, callback)
 
 isDate = (obj) ->
@@ -175,7 +175,7 @@ TrackerDateEditor.prototype.createDatePicker = (options) ->
     body = Pikaday.prototype.render.call(@, year, month)
     classClear = if ! @_d and ! @_na then "is-selected" else ""
     classNA = if @_na then "is-selected" else ""
-    body + 
+    body +
       "<div class='tracker-pika-button-container'>" +
       "<div class='tracker-pika-button #{classClear}'><button class='pika-button tracker-button tracker-clear-button' type='button'>Clear</button></div>" +
       "<div class='tracker-pika-button #{classNA}'><button class='pika-button tracker-button tracker-na-button' type='button'>N/A</button></div>" +
@@ -189,4 +189,3 @@ TrackerDateEditor.prototype.createDatePicker = (options) ->
 
 Handsontable.editors.TrackerDateEditor = TrackerDateEditor
 Handsontable.editors.registerEditor('trackerDate', TrackerDateEditor)
-

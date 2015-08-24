@@ -1,7 +1,7 @@
 angular
   .module 'tracker.grid'
 
-  ## Controller to create a new record. This handles the dialog box that's used to 
+  ## Controller to create a new record. This handles the dialog box that's used to
   ## create a new record.
   .controller 'GridTableController', Array '$scope', '$http', '$stateParams', ($scope, $http, $stateParams) ->
 

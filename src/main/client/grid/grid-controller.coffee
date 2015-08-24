@@ -30,7 +30,7 @@ angular
         $scope.currentUsers = (user for user in $scope.currentUsers when user != event.data.user)
 
     ## If we get a disconnect, we forget all users. We probably should also generate an alert to let people
-    ## know that we are currently locked. 
+    ## know that we are currently locked.
     socket.on 'disconnect', (e) ->
       $scope.$evalAsync () ->
         $scope.currentUsers = []
@@ -58,4 +58,3 @@ angular
 
     $scope.search = (q) ->
       $scope.$broadcast 'table:search', q
-

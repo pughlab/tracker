@@ -512,7 +512,7 @@ sub write_data {
 
     $dbh->do(qq{INSERT INTO cases (study_id) VALUES (?)}, {}, $study_ref->{id});
     my $case_id = $dbh->last_insert_id(undef, undef, undef, undef);
-    
+
     for my $attribute (@$headers) {
       my $type = lc($header_types->{$attribute});
       if (! $type) {
