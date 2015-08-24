@@ -258,7 +258,7 @@ public class AuthorizationRepositoryImplTest {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		List<String> list = authorizationRepository.getRoleUsers(role);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());
+		Assert.assertEquals(4, list.size());
 		Assert.assertEquals("morungos@gmail.com", list.get(0));
 	}
 
@@ -293,6 +293,8 @@ public class AuthorizationRepositoryImplTest {
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuartw@ads.uhnresearch.ca", "mockRealm")));
 		expectLastCall();
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("oidcprofile#stuartw", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("admin", "mockRealm")));
 		expectLastCall();
 		replay(realm);
 		
@@ -370,6 +372,8 @@ public class AuthorizationRepositoryImplTest {
 		expect(realm.getName()).andStubReturn("mockRealm");
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
 		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("admin", "mockRealm")));
+		expectLastCall();
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuartw@ads.uhnresearch.ca", "mockRealm")));
 		expectLastCall();
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("oidcprofile#stuartw", "mockRealm")));
@@ -409,6 +413,8 @@ public class AuthorizationRepositoryImplTest {
 		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
 		expect(realm.getName()).andStubReturn("mockRealm");
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
+		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("admin", "mockRealm")));
 		expectLastCall();
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuartw@ads.uhnresearch.ca", "mockRealm")));
 		expectLastCall();
