@@ -22,6 +22,7 @@ import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.RoleListResponse;
 import ca.uhnresearch.pughlab.tracker.dto.RoleResponse;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.User;
 
 public class RoleListResource extends AuthorizationRepositoryResource<RoleListResponse>{
@@ -62,6 +63,30 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
     }
+    
+    /**
+     * Checks permissions for the role list. The study might be null, if we're attempting a
+     * non-study specific role list. 
+     * @param currentUser
+     * @param study
+     * @return
+     */
+    private boolean isPermitted(Subject currentUser, Study study) {
+    	if (currentUser.isPermitted("admin")) {
+    		return true;
+    	}
+    	
+    	if (study == null) {
+    		return false;
+    	}
+    	
+    	String studyName = study.getName();
+    	if (currentUser.isPermitted(studyName + ":admin")) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
 
 	public void buildResponseDTO(RoleListResponse dto) {
     	Subject currentUser = SecurityUtils.getSubject();
@@ -71,6 +96,12 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     	dto.setUser(user);
     	dto.setServiceUrl(url);
     	
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	
+    	if (! isPermitted(currentUser, study)) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
+    	
     	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
     	
     	Long roleCount = getRepository().getRoleCount(query);
@@ -79,7 +110,11 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     	// Query the database for views
     	List<Role> roles;
 		try {
-			roles = getRepository().getRoles(query);
+			if (study == null) {
+				roles = getRepository().getRoles(query);
+			} else {
+				roles = getRepository().getStudyRoles(study, query);
+			}
 		} catch (RepositoryException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
