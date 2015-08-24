@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -62,7 +63,7 @@ public class AuthorizationRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 
 		Long count = authorizationRepository.getRoleCount(query);
-		Assert.assertEquals(4, count.longValue());
+		Assert.assertEquals(6, count.longValue());
 	}
 
 	/**
@@ -92,7 +93,7 @@ public class AuthorizationRepositoryImplTest {
 
 		List<Role> list = authorizationRepository.getRoles(query);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(4, list.size());
+		Assert.assertEquals(6, list.size());
 	}
 
 	/**
@@ -108,11 +109,40 @@ public class AuthorizationRepositoryImplTest {
 
 		List<Role> list = authorizationRepository.getRoles(query);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(4, list.size());
+		Assert.assertEquals(6, list.size());
 		Assert.assertNull(list.get(0).getStudyName());
-		Assert.assertEquals("DEMO", list.get(1).getStudyName());
+		Assert.assertEquals(null, list.get(1).getStudyName());
 		Assert.assertEquals("DEMO", list.get(2).getStudyName());
 		Assert.assertEquals("DEMO", list.get(3).getStudyName());
+		Assert.assertEquals(null, list.get(4).getStudyName());
+		Assert.assertEquals("SECOND", list.get(5).getStudyName());
+	}
+
+	/**
+	 * Checks that a list of roles is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetStudyRoles() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(1);
+		replay(study);
+		
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(10);
+
+		List<Role> list = authorizationRepository.getStudyRoles(study, query);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(2, list.size());
+
+		Assert.assertEquals("ROLE_DEMO_READ", list.get(0).getName());
+		Assert.assertEquals("ROLE_DEMO_TRACK", list.get(1).getName());
+
+		Assert.assertEquals("DEMO", list.get(0).getStudyName());
+		Assert.assertEquals("DEMO", list.get(1).getStudyName());
 	}
 
 	/**
@@ -127,7 +157,7 @@ public class AuthorizationRepositoryImplTest {
 
 		List<Role> list = authorizationRepository.getRoles(query);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(2, list.size());
+		Assert.assertEquals(4, list.size());
 	}
 
 	/**
@@ -159,6 +189,48 @@ public class AuthorizationRepositoryImplTest {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
 		Assert.assertNotNull(role);
 		Assert.assertEquals("ROLE_ADMIN", role.getName());
+	}
+
+	/**
+	 * Checks that a study role is found by name correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetStudyRoleByNameForNonStudyRole() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(1);
+		replay(study);
+
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(10);
+
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
+		Assert.assertNull(role);
+	}
+
+	/**
+	 * Checks that a study role is found by name correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetStudyRoleByNameForStudyRole() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(1);
+		replay(study);
+
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(10);
+
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_DEMO_TRACK");
+		Assert.assertNotNull(role);
+		Assert.assertEquals("ROLE_DEMO_TRACK", role.getName());
+		Assert.assertEquals("DEMO", role.getStudyName());
 	}
 
 	/**

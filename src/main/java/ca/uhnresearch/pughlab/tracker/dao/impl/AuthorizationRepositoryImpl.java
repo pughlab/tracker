@@ -27,6 +27,7 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm;
 
 public class AuthorizationRepositoryImpl implements AuthorizationRepository {
@@ -60,17 +61,18 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		return template.count(sqlQuery);
 	}
 	
-    /**
-     * Returns a list of roles
-     */
-	@Override
-	public List<Role> getRoles(CaseQuery query) throws RepositoryException {
+	private SQLQuery buildRolesQuery(Study study, CaseQuery query) throws RepositoryException {
     	SQLQuery sqlQuery = template.newSqlQuery()
-    							.from(roles)
-    							.leftJoin(studies)
-    							.on(roles.studyId.eq(studies.id))
-    							.orderBy(roles.name.asc());
+				.from(roles)
+				.leftJoin(studies)
+				.on(roles.studyId.eq(studies.id));
     	
+    	if (study != null) {
+    		sqlQuery = sqlQuery.where(roles.studyId.eq(study.getId()));
+    	}
+    	
+    	sqlQuery = sqlQuery.orderBy(roles.name.asc());
+
 		if (query.getPattern() != null) {
 			sqlQuery = sqlQuery.where(roles.name.like("%" + query.getPattern() + "%"));
 		}
@@ -81,6 +83,25 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 			sqlQuery = sqlQuery.limit(query.getLimit());
 		}
 
+		return sqlQuery;
+	}
+	
+    /**
+     * Returns a list of roles
+     */
+	@Override
+	public List<Role> getRoles(CaseQuery query) throws RepositoryException {
+    	SQLQuery sqlQuery = buildRolesQuery(null, query);
+    	List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
+		return roleList;
+	}
+	
+    /**
+     * Returns a list of roles for a given study
+     */
+	@Override
+	public List<Role> getStudyRoles(Study study, CaseQuery query) throws RepositoryException {
+    	SQLQuery sqlQuery = buildRolesQuery(study, query);
     	List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
 		return roleList;
 	}
@@ -91,18 +112,30 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	@Override
 	public Role getRole(String name) throws RepositoryException {
 		logger.debug("Looking for role by name: {}", name);
-    	SQLQuery sqlQuery = template.newSqlQuery().from(roles).where(roles.name.eq(name));
-    	Role role = template.queryForObject(sqlQuery, roles);
-    	
-    	if (role != null) {
-    		logger.debug("Got a role: {}", role.toString());
-    	} else {
-    		logger.debug("No role found");
-    	}
-    	
+    	SQLQuery sqlQuery = template.newSqlQuery()
+    			.from(roles)
+    			.leftJoin(studies)
+    			.on(roles.studyId.eq(studies.id))
+    			.where(roles.name.eq(name));
+    	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
     	return role;
 	}
 	
+	/**
+	 * Finds and returns a role by name for a given study
+	 */
+	@Override
+	public Role getStudyRole(Study study, String name) throws RepositoryException {
+		logger.debug("Looking for role by name: {}", name);
+    	SQLQuery sqlQuery = template.newSqlQuery()
+    			.from(roles)
+    			.join(studies)
+    			.on(roles.studyId.eq(studies.id))
+    			.where(roles.name.eq(name).and(roles.studyId.eq(study.getId())));
+    	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
+    	return role;
+	}
+
 	/**
 	 * Deletes a role. Also deletes all the associations between the given role and 
 	 * all related users and associated permissions, so not to be done lightly.

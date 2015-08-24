@@ -3,6 +3,7 @@ package ca.uhnresearch.pughlab.tracker.dao;
 import java.util.List;
 
 import ca.uhnresearch.pughlab.tracker.dto.Role;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 
 /**
  * Interface for access to the authorization storage. This deliberately doesn't
@@ -26,10 +27,20 @@ public interface AuthorizationRepository {
 	List<Role> getRoles(CaseQuery query) throws RepositoryException;
 	
 	/**
+	 * Retrieves all the roles from the repository for a given study
+	 */
+	List<Role> getStudyRoles(Study study, CaseQuery query) throws RepositoryException;
+	
+	/**
 	 * Retrieves a role by name
 	 */
 	Role getRole(String name) throws RepositoryException;
 	
+	/**
+	 * Retrieves a role by name
+	 */
+	Role getStudyRole(Study study, String name) throws RepositoryException;
+
 	/**
 	 * Deletes a role
 	 */
