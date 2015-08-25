@@ -321,7 +321,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			Attributes newAttribute = newAttributes.get(a.getId());
 			if (newAttribute != null) {
 				// We have both old and new -- this is an update!
-				updateAttribute(a);
+				updateAttribute(newAttribute);
 			} else {
 				// Old but no new, delete the attribute, remembering to
 				// delete from all views too.
