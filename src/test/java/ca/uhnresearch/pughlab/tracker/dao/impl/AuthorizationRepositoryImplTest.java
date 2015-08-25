@@ -194,6 +194,23 @@ public class AuthorizationRepositoryImplTest {
 	}
 
 	/**
+	 * Checks that a role is found by name correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetRoleById() throws RepositoryException {
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(10);
+
+		Role role = authorizationRepository.getRoleById(3);
+		Assert.assertNotNull(role);
+		Assert.assertEquals("ROLE_DEMO_TRACK", role.getName());
+		Assert.assertEquals("DEMO", role.getStudyName());
+	}
+
+	/**
 	 * Checks that a study role is found by name correctly.
 	 */
 	@Test
@@ -230,6 +247,48 @@ public class AuthorizationRepositoryImplTest {
 		query.setLimit(10);
 
 		Role role = authorizationRepository.getStudyRole(study, "ROLE_DEMO_TRACK");
+		Assert.assertNotNull(role);
+		Assert.assertEquals("ROLE_DEMO_TRACK", role.getName());
+		Assert.assertEquals("DEMO", role.getStudyName());
+	}
+
+	/**
+	 * Checks that a study role is found by name correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetStudyRoleByIdForNonStudyRole() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(1);
+		replay(study);
+
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(10);
+
+		Role role = authorizationRepository.getStudyRoleById(study, 1);
+		Assert.assertNull(role);
+	}
+
+	/**
+	 * Checks that a study role is found by name correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetStudyRoleByIdForStudyRole() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(1);
+		replay(study);
+
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(10);
+
+		Role role = authorizationRepository.getStudyRoleById(study, 3);
 		Assert.assertNotNull(role);
 		Assert.assertEquals("ROLE_DEMO_TRACK", role.getName());
 		Assert.assertEquals("DEMO", role.getStudyName());

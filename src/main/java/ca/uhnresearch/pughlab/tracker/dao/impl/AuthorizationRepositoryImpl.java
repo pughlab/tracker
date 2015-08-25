@@ -115,6 +115,16 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		return roleList;
 	}
 	
+	private Role getRoleFromQuery(SQLQuery sqlQuery) throws RepositoryException {
+    	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
+    	if (role != null) {
+    		role.setUsers(getRoleUsers(role));
+    		role.setPermissions(getRolePermissions(role));
+    	}
+    	return role;
+	}
+	
+	
 	/**
 	 * Finds and returns a role by name
 	 */
@@ -126,20 +136,30 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
     			.leftJoin(studies)
     			.on(roles.studyId.eq(studies.id))
     			.where(roles.name.eq(name));
-    	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
-    	if (role != null) {
-    		role.setUsers(getRoleUsers(role));
-    		role.setPermissions(getRolePermissions(role));
-    	}
-    	return role;
+    	return getRoleFromQuery(sqlQuery);
 	}
 	
+	
+	/**
+	 * Finds and returns a role by internal identifier
+	 */
+	@Override
+	public Role getRoleById(Integer id) throws RepositoryException {
+		logger.debug("Looking for role by id: {}", id);
+		SQLQuery sqlQuery = template.newSqlQuery()
+    			.from(roles)
+    			.leftJoin(studies)
+    			.on(roles.studyId.eq(studies.id))
+    			.where(roles.id.eq(id));
+    	return getRoleFromQuery(sqlQuery);
+	}
+
 	/**
 	 * Finds and returns a role by name for a given study
 	 */
 	@Override
 	public Role getStudyRole(Study study, String name) throws RepositoryException {
-		logger.debug("Looking for role by name: {}", name);
+		logger.debug("Looking for study role by name: {}", name);
     	SQLQuery sqlQuery = template.newSqlQuery()
     			.from(roles)
     			.join(studies)
@@ -153,6 +173,24 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
     	return role;
 	}
 
+
+	@Override
+	public Role getStudyRoleById(Study study, Integer id) throws RepositoryException {
+		logger.debug("Looking for study role by id: {}", id);
+    	SQLQuery sqlQuery = template.newSqlQuery()
+    			.from(roles)
+    			.join(studies)
+    			.on(roles.studyId.eq(studies.id))
+    			.where(roles.id.eq(id).and(roles.studyId.eq(study.getId())));
+    	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
+    	if (role != null) {
+    		role.setUsers(getRoleUsers(role));
+    		role.setPermissions(getRolePermissions(role));
+    	}
+    	return role;
+	}
+
+	
 	/**
 	 * Deletes a role. Also deletes all the associations between the given role and 
 	 * all related users and associated permissions, so not to be done lightly.

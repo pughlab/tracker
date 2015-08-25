@@ -37,9 +37,19 @@ public interface AuthorizationRepository {
 	Role getRole(String name) throws RepositoryException;
 	
 	/**
+	 * Retrieves a role by internal identifier
+	 */
+	Role getRoleById(Integer id) throws RepositoryException;
+	
+	/**
 	 * Retrieves a role by name
 	 */
 	Role getStudyRole(Study study, String name) throws RepositoryException;
+
+	/**
+	 * Retrieves a study role by internal identifier
+	 */
+	Role getStudyRoleById(Study study, Integer id) throws RepositoryException;
 
 	/**
 	 * Deletes a role
