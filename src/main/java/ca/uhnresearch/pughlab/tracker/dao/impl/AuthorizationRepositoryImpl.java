@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
+import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 import static ca.uhnresearch.pughlab.tracker.domain.QRole.roles;
 import static ca.uhnresearch.pughlab.tracker.domain.QUserRole.userRoles;
 import static ca.uhnresearch.pughlab.tracker.domain.QRolePermission.rolePermissions;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import org.springframework.data.jdbc.query.SqlDeleteCallback;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
+import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
 import com.mysema.query.sql.SQLQuery;
@@ -93,6 +95,10 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	public List<Role> getRoles(CaseQuery query) throws RepositoryException {
     	SQLQuery sqlQuery = buildRolesQuery(null, query);
     	List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
+    	for(Role role : roleList) {
+        	role.setUsers(getRoleUsers(role));
+        	role.setPermissions(getRolePermissions(role));
+    	}
 		return roleList;
 	}
 	
@@ -103,6 +109,10 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	public List<Role> getStudyRoles(Study study, CaseQuery query) throws RepositoryException {
     	SQLQuery sqlQuery = buildRolesQuery(study, query);
     	List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
+    	for(Role role : roleList) {
+        	role.setUsers(getRoleUsers(role));
+        	role.setPermissions(getRolePermissions(role));
+    	}
 		return roleList;
 	}
 	
@@ -118,6 +128,10 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
     			.on(roles.studyId.eq(studies.id))
     			.where(roles.name.eq(name));
     	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
+    	if (role != null) {
+    		role.setUsers(getRoleUsers(role));
+    		role.setPermissions(getRolePermissions(role));
+    	}
     	return role;
 	}
 	
@@ -133,6 +147,10 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
     			.on(roles.studyId.eq(studies.id))
     			.where(roles.name.eq(name).and(roles.studyId.eq(study.getId())));
     	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
+    	if (role != null) {
+    		role.setUsers(getRoleUsers(role));
+    		role.setPermissions(getRolePermissions(role));
+    	}
     	return role;
 	}
 
@@ -169,6 +187,8 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	@Override
 	public void saveRole(final Role role) throws RepositoryException {
 		if (role.getId() != null) {
+
+			clearRoleAuthorizationCache(role);
 			
 			// We have an identifier, so we're updating the role -- basically this is a rename
 			template.update(roles, new SqlUpdateCallback() { 
@@ -179,13 +199,19 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 			
 		} else {
 			
-			// The identifier is null, let's create a new role
-			template.insert(roles, new SqlInsertCallback() { 
-				public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-					return sqlInsertClause.populate(role).execute();
+			Integer roleId = template.insertWithKey(roles, new SqlInsertWithKeyCallback<Integer>() { 
+				public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
+					return sqlInsertClause.populate(role).executeWithKey(roles.id);
 				};
 			});
+			
+			role.setId(roleId);
 		}
+		
+		saveRoleUsers(role);
+		saveRolePermissions(role);
+
+		clearRoleAuthorizationCache(role);
 	}
 	
 	private void clearRoleAuthorizationCache(final Role role) throws RepositoryException {
@@ -203,34 +229,26 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	/**
 	 * Returns a list of users associated with a role
 	 */
-	@Override
-	public List<String> getRoleUsers(Role role) throws RepositoryException {
+	private List<String> getRoleUsers(Role role) throws RepositoryException {
     	SQLQuery sqlQuery = template.newSqlQuery().from(userRoles).where(userRoles.roleId.eq(role.getId()));
     	List<String> userList = template.query(sqlQuery, userRoles.username);
     	logger.debug("Got some users: {}", userList.toString());
-
 		return userList;
 	}
 
-	@Override
-	public List<String> getRolePermissions(Role role) {
+	private List<String> getRolePermissions(Role role) {
     	SQLQuery sqlQuery = template.newSqlQuery().from(rolePermissions).where(rolePermissions.roleId.eq(role.getId()));
     	List<String> permissionList = template.query(sqlQuery, rolePermissions.permission);
     	logger.debug("Got some permissions: {}", permissionList.toString());
-
 		return permissionList;
 	}
 
-	@Override
-	public void setRoleUsers(final Role role, final List<String> users) throws RepositoryException {
+	private void saveRoleUsers(final Role role) throws RepositoryException {
 		
 		if (role.getId() == null) {
 			throw new NotFoundException("Can't find role");
 		}
 		
-		// Special case: clear before and after in case we remove users
-		clearRoleAuthorizationCache(role);
-
 		// First of all, let's remove the current list of users.
 		template.delete(userRoles, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
@@ -241,7 +259,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		// Now we can add all the users back in again.
 		template.insert(userRoles, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				for(String s : users) {
+				for(String s : role.getUsers()) {
 					sqlInsertClause.set(userRoles.roleId, role.getId()).set(userRoles.username, s).addBatch();
 				}
 				if (sqlInsertClause.isEmpty()) {
@@ -251,12 +269,9 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 				}
 			};
 		});
-
-		clearRoleAuthorizationCache(role);
 	}
 
-	@Override
-	public void setRolePermissions(final Role role, final List<String> permissions) throws RepositoryException {
+	private void saveRolePermissions(final Role role) throws RepositoryException {
 		
 		if (role.getId() == null) {
 			throw new NotFoundException("Can't find role");
@@ -272,7 +287,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		// Now we can add all the users back in again.
 		template.insert(rolePermissions, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				for(String s : permissions) {
+				for(String s : role.getPermissions()) {
 					sqlInsertClause.set(rolePermissions.roleId, role.getId()).set(rolePermissions.permission, s).addBatch();
 				}
 				if (sqlInsertClause.isEmpty()) {
@@ -282,9 +297,6 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 				}
 			};
 		});
-		
-		// Clear after to handle permissions changes for existing users
-		clearRoleAuthorizationCache(role);
 	}
 
 }

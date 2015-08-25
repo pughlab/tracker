@@ -48,8 +48,6 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 			getRepository().saveRole(role);
 			
 			role = getRepository().getRole(role.getName());
-			getRepository().setRoleUsers(role, data.getUsers());
-			getRepository().setRolePermissions(role, data.getPermissions());
 			
 			getRequest().getAttributes().put("role", role);
 

@@ -12,7 +12,6 @@ import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -79,16 +78,15 @@ public class RoleResourceTest extends AbstractShiroTest {
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
+		role.setUsers(new ArrayList<String>());
+		role.getUsers().add("user1");
+		role.getUsers().add("user2");
+		role.setPermissions(new ArrayList<String>());
+		role.getPermissions().add("*:*");
+
 		resource.getRequest().getAttributes().put("role", role);
 
-		List<String> users = new ArrayList<String>();
-		users.add("user1");
-		users.add("user2");
-		List<String> permissions = new ArrayList<String>();
-		permissions.add("*:*");
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
-		expect(mock.getRoleUsers(role)).andStubReturn(users);
-		expect(mock.getRolePermissions(role)).andStubReturn(permissions);
 		replay(mock);
 		resource.setRepository(mock);
 		
@@ -101,14 +99,16 @@ public class RoleResourceTest extends AbstractShiroTest {
 		assertEquals( 1234, data.get("role").getAsJsonObject().get("id").getAsInt() );
 		assertEquals( "ROLE_CAT_HERDER", data.get("role").getAsJsonObject().get("name").getAsString() );
 		
-		assertTrue( data.get("users").isJsonArray() );
-		assertEquals( 2, data.get("users").getAsJsonArray().size() );
-		assertEquals( "user1", data.get("users").getAsJsonArray().get(0).getAsString() );
-		assertEquals( "user2", data.get("users").getAsJsonArray().get(1).getAsString() );
+		JsonObject roleData = data.get("role").getAsJsonObject();
 		
-		assertTrue( data.get("permissions").isJsonArray() );
-		assertEquals( 1, data.get("permissions").getAsJsonArray().size() );
-		assertEquals( "*:*", data.get("permissions").getAsJsonArray().get(0).getAsString() );
+		assertTrue( roleData.get("users").isJsonArray() );
+		assertEquals( 2, roleData.get("users").getAsJsonArray().size() );
+		assertEquals( "user1", roleData.get("users").getAsJsonArray().get(0).getAsString() );
+		assertEquals( "user2", roleData.get("users").getAsJsonArray().get(1).getAsString() );
+		
+		assertTrue( roleData.get("permissions").isJsonArray() );
+		assertEquals( 1, roleData.get("permissions").getAsJsonArray().size() );
+		assertEquals( "*:*", roleData.get("permissions").getAsJsonArray().get(0).getAsString() );
 	}
 	
 	/**
@@ -129,16 +129,14 @@ public class RoleResourceTest extends AbstractShiroTest {
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
+		role.setUsers(new ArrayList<String>());
+		role.getUsers().add("user1");
+		role.getUsers().add("user2");
+		role.setPermissions(new ArrayList<String>());
+		role.getPermissions().add("*:*");
 		resource.getRequest().getAttributes().put("role", role);
 
-		List<String> users = new ArrayList<String>();
-		users.add("user1");
-		users.add("user2");
-		List<String> permissions = new ArrayList<String>();
-		permissions.add("*:*");
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
-		expect(mock.getRoleUsers(role)).andStubReturn(users);
-		expect(mock.getRolePermissions(role)).andStubReturn(permissions);
 		replay(mock);
 		resource.setRepository(mock);
 		
@@ -171,17 +169,15 @@ public class RoleResourceTest extends AbstractShiroTest {
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
+		role.setUsers(new ArrayList<String>());
+		role.getUsers().add("user1");
+		role.getUsers().add("user2");
+		role.setPermissions(new ArrayList<String>());
+		role.getPermissions().add("*:*");
 		resource.getRequest().getAttributes().put("study", study);
 		resource.getRequest().getAttributes().put("role", role);
 
-		List<String> users = new ArrayList<String>();
-		users.add("user1");
-		users.add("user2");
-		List<String> permissions = new ArrayList<String>();
-		permissions.add("*:*");
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
-		expect(mock.getRoleUsers(role)).andStubReturn(users);
-		expect(mock.getRolePermissions(role)).andStubReturn(permissions);
 		replay(mock);
 		resource.setRepository(mock);
 		
@@ -194,14 +190,16 @@ public class RoleResourceTest extends AbstractShiroTest {
 		assertEquals( 1234, data.get("role").getAsJsonObject().get("id").getAsInt() );
 		assertEquals( "ROLE_CAT_HERDER", data.get("role").getAsJsonObject().get("name").getAsString() );
 		
-		assertTrue( data.get("users").isJsonArray() );
-		assertEquals( 2, data.get("users").getAsJsonArray().size() );
-		assertEquals( "user1", data.get("users").getAsJsonArray().get(0).getAsString() );
-		assertEquals( "user2", data.get("users").getAsJsonArray().get(1).getAsString() );
+		JsonObject roleData = data.get("role").getAsJsonObject();
 		
-		assertTrue( data.get("permissions").isJsonArray() );
-		assertEquals( 1, data.get("permissions").getAsJsonArray().size() );
-		assertEquals( "*:*", data.get("permissions").getAsJsonArray().get(0).getAsString() );
+		assertTrue( roleData.get("users").isJsonArray() );
+		assertEquals( 2, roleData.get("users").getAsJsonArray().size() );
+		assertEquals( "user1", roleData.get("users").getAsJsonArray().get(0).getAsString() );
+		assertEquals( "user2", roleData.get("users").getAsJsonArray().get(1).getAsString() );
+		
+		assertTrue( roleData.get("permissions").isJsonArray() );
+		assertEquals( 1, roleData.get("permissions").getAsJsonArray().size() );
+		assertEquals( "*:*", roleData.get("permissions").getAsJsonArray().get(0).getAsString() );
 	}
 	
 	/**
@@ -227,17 +225,15 @@ public class RoleResourceTest extends AbstractShiroTest {
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
+		role.setUsers(new ArrayList<String>());
+		role.getUsers().add("user1");
+		role.getUsers().add("user2");
+		role.setPermissions(new ArrayList<String>());
+		role.getPermissions().add("*:*");
 		resource.getRequest().getAttributes().put("study", study);
 		resource.getRequest().getAttributes().put("role", role);
 
-		List<String> users = new ArrayList<String>();
-		users.add("user1");
-		users.add("user2");
-		List<String> permissions = new ArrayList<String>();
-		permissions.add("*:*");
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
-		expect(mock.getRoleUsers(role)).andStubReturn(users);
-		expect(mock.getRolePermissions(role)).andStubReturn(permissions);
 		replay(mock);
 		resource.setRepository(mock);
 		
@@ -266,22 +262,26 @@ public class RoleResourceTest extends AbstractShiroTest {
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
+		role.setUsers(new ArrayList<String>());
+		role.getUsers().add("user1");
+		role.getUsers().add("user2");
+		role.setPermissions(new ArrayList<String>());
+		role.getPermissions().add("*:*");
 		resource.getRequest().getAttributes().put("role", role);
 
 		Role renamed = new Role();
 		renamed.setName("X");
 		renamed.setId(1234);
+		renamed.setUsers(new ArrayList<String>());
+		renamed.getUsers().add("user1");
+		renamed.getUsers().add("user2");
+		renamed.setPermissions(new ArrayList<String>());
+		renamed.getPermissions().add("*:*");
 
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
 		mock.saveRole(anyObject(Role.class));
 		expectLastCall();
 		expect(mock.getRole("X")).andStubReturn(renamed);
-		mock.setRoleUsers(anyObject(Role.class), anyObject(ArrayList.class));
-		expectLastCall();
-		mock.setRolePermissions(anyObject(Role.class), anyObject(ArrayList.class));
-		expectLastCall();
-		expect(mock.getRoleUsers(renamed)).andStubReturn(new ArrayList<String>());
-		expect(mock.getRolePermissions(renamed)).andStubReturn(new ArrayList<String>());
 		replay(mock);
 		resource.setRepository(mock);
 		

@@ -256,7 +256,7 @@ public class AuthorizationRepositoryImplTest {
 	@Rollback(true)
 	public void testGetRoleUsers() throws RepositoryException {
 		Role role = authorizationRepository.getRole("ROLE_ADMIN");
-		List<String> list = authorizationRepository.getRoleUsers(role);
+		List<String> list = role.getUsers();
 		Assert.assertNotNull(list);
 		Assert.assertEquals(4, list.size());
 		Assert.assertEquals("morungos@gmail.com", list.get(0));
@@ -270,7 +270,7 @@ public class AuthorizationRepositoryImplTest {
 	@Rollback(true)
 	public void testGetRolePermissions() throws RepositoryException {
 		Role role = authorizationRepository.getRole("ROLE_DEMO_TRACK");
-		List<String> list = authorizationRepository.getRolePermissions(role);
+		List<String> list = role.getPermissions();
 		Assert.assertNotNull(list);
 		Assert.assertEquals(3, list.size());		
 		Assert.assertEquals("DEMO:read", list.get(0));
@@ -393,9 +393,12 @@ public class AuthorizationRepositoryImplTest {
 		users.add("morag");
 		users.add("mungo");
 		users.add("misty");
-		authorizationRepository.setRoleUsers(role, users);
+		role.setUsers(users);
+		authorizationRepository.saveRole(role);
 		
-		List<String> list = authorizationRepository.getRoleUsers(role);
+		Role loadedRole = authorizationRepository.getRole(role.getName());
+		
+		List<String> list = loadedRole.getUsers();
 		Assert.assertEquals(3, list.size());
 		Assert.assertEquals("morag", list.get(0));
 		Assert.assertEquals("mungo", list.get(1));
@@ -413,13 +416,13 @@ public class AuthorizationRepositoryImplTest {
 		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
 		expect(realm.getName()).andStubReturn("mockRealm");
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
-		expectLastCall();
+		expectLastCall().anyTimes();
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("admin", "mockRealm")));
-		expectLastCall();
+		expectLastCall().anyTimes();
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuartw@ads.uhnresearch.ca", "mockRealm")));
-		expectLastCall();
+		expectLastCall().anyTimes();
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("oidcprofile#stuartw", "mockRealm")));
-		expectLastCall();
+		expectLastCall().anyTimes();
 		replay(realm);
 		
 		authorizationRepository.setAuthorizingRealm(realm);
@@ -428,9 +431,12 @@ public class AuthorizationRepositoryImplTest {
 		List<String> permissions = new ArrayList<String>();
 		permissions.add("X:read");
 		permissions.add("X:write");
-		authorizationRepository.setRolePermissions(role, permissions);
+		role.setPermissions(permissions);
+		authorizationRepository.saveRole(role);
 		
-		List<String> list = authorizationRepository.getRolePermissions(role);
+		Role loadedRole = authorizationRepository.getRole(role.getName());
+
+		List<String> list = loadedRole.getPermissions();
 		Assert.assertEquals(2, list.size());
 		Assert.assertEquals("X:read", list.get(0));
 		Assert.assertEquals("X:write", list.get(1));

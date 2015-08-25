@@ -1,5 +1,8 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Role {
@@ -9,6 +12,10 @@ public class Role {
     private String studyName;
 
 	private String name;
+	
+	private List<String> users = new ArrayList<String>();
+	
+	private List<String> permissions = new ArrayList<String>();
 
 	public Role() { }
 
@@ -59,6 +66,36 @@ public class Role {
 	 */
 	public void setStudyName(String studyName) {
 		this.studyName = studyName;
+	}
+
+	/**
+	 * @return the users
+	 */
+	@JsonProperty
+	public List<String> getUsers() {
+		return users;
+	}
+
+	/**
+	 * @param users the users to set
+	 */
+	public void setUsers(List<String> users) {
+		this.users = users;
+	}
+
+	/**
+	 * @return the permissions
+	 */
+	@JsonProperty
+	public List<String> getPermissions() {
+		return permissions;
+	}
+
+	/**
+	 * @param permissions the permissions to set
+	 */
+	public void setPermissions(List<String> permissions) {
+		this.permissions = permissions;
 	}
 
 }

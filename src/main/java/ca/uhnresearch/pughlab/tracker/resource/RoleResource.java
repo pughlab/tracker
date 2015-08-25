@@ -2,7 +2,6 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -50,10 +49,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
 			// Search for the role again because we might have renamed it
 			// This ensures we have an identifier. See #14
 			role = getRepository().getRole(role.getName());
-			
-			getRepository().setRoleUsers(role, data.getUsers());
-			getRepository().setRolePermissions(role, data.getPermissions());
-			
+						
 			getRequest().getAttributes().put("role", role);
 			
 		} catch (IOException e) {
@@ -105,18 +101,5 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     	
     	Role role = (Role) getRequest().getAttributes().get("role");
     	dto.setRole(role);
-    	
-    	try {
-	    	// Query the database for users
-	    	List<String> users = getRepository().getRoleUsers(role);
-	    	dto.setUsers(users);
-	    	
-	    	// And for permissions
-	    	List<String> permissions = getRepository().getRolePermissions(role);
-	    	dto.setPermissions(permissions);
-    	} catch (RepositoryException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-		}
 	};
-
 }
