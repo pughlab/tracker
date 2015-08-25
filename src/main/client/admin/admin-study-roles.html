@@ -1,0 +1,55 @@
+<div class="row" ng-controller="StudyRoleEditorController">
+  <div class="col-md-12">
+    <p class="text-muted">
+      This manages the available study roles. Roles can be authorized for a
+      group of users.
+    </p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <ul ng-model="study.roles" id="viewSortable" class="admin-list-box">
+      <li ng-repeat="role in study.roles" ng-class="{'list-selected' : role == selectedRole}" ng-click="selectRole(role)">{{role.name}}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <form class="form-horizontal" role="form">
+      <fieldset>
+
+        <div class="form-group">
+          <label class="col-md-2 control-label" for="role-name">Name:</label>
+          <div class="col-md-4">
+            <input id="role-name" name="role-name" type="text" placeholder="Name" class="form-control input-md" ng-model="selectedRole.name" ng-disabled="! selectedRole">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-md-2"></div>
+          <div class="col-md-10">
+          <button class="btn btn-default" ng-click="newRole()">New role</button>
+          <button class="btn" ng-class="selectedRole ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedRole" ng-click="deleteRole(selectedRole)">Delete role</button>
+          <button class="btn" ng-class="selectedRole ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedRole || modified" ui-sref="adminRole({studyName: study.study.name, roleName: selectedRole.name})">Edit role</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <hr>
+
+    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+
+    <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="save(study)">Save changes</button>
+    <button class="btn btn-default" ng-disabled="! modified" ng-click="reset()">Reset</button>
+
+    <button ng-show="study.audit" ng-disabled="modified" class="btn btn-default" ui-sref="adminAudit({studyName: study.name})">Show study audit log</button>
+
+  </div>
+</div>

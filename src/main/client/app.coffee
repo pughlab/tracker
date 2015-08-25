@@ -38,7 +38,20 @@ angular
       .state 'adminStudy',
         controller: 'StudyEditorController'
         templateUrl: '/tracker/admin/admin.html'
-        url: '/admin/:studyName/edit'
+        abstract: true
+        url: '/admin/:studyName'
+      .state 'adminStudy.settings',
+        templateUrl: '/tracker/admin/admin-study-settings.html'
+        url: ''
+      .state 'adminStudy.attributes',
+        templateUrl: '/tracker/admin/admin-study-attributes.html'
+        url: '/attributes'
+      .state 'adminStudy.roles',
+        templateUrl: '/tracker/admin/admin-study-roles.html'
+        url: '/roles'
+      .state 'adminStudy.views',
+        templateUrl: '/tracker/admin/admin-study-views.html'
+        url: '/views'
       .state 'adminView',
         controller: 'ViewController'
         templateUrl: '/tracker/admin/admin-view.html'

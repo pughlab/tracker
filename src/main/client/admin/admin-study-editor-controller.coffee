@@ -3,6 +3,8 @@ angular
 
   .controller 'StudyEditorController', Array '$scope', '$http', '$stateParams', '$q', '$timeout', ($scope, $http, $stateParams, $q, $timeout) ->
 
+    console.log 'StudyEditorController'
+
     $scope.study = undefined
     originalStudy = undefined
 
