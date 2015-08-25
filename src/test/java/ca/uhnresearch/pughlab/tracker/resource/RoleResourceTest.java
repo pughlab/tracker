@@ -248,7 +248,6 @@ public class RoleResourceTest extends AbstractShiroTest {
 	 * many views.
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unchecked")
 	@Test
 	public void resourcePutTest() throws IOException, RepositoryException {
 

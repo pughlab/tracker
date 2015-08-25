@@ -111,10 +111,10 @@ public class AuthorizationRepositoryImplTest {
 		Assert.assertNotNull(list);
 		Assert.assertEquals(6, list.size());
 		Assert.assertNull(list.get(0).getStudyName());
-		Assert.assertEquals(null, list.get(1).getStudyName());
+		Assert.assertEquals("DEMO", list.get(1).getStudyName());
 		Assert.assertEquals("DEMO", list.get(2).getStudyName());
 		Assert.assertEquals("DEMO", list.get(3).getStudyName());
-		Assert.assertEquals(null, list.get(4).getStudyName());
+		Assert.assertEquals("SECOND", list.get(4).getStudyName());
 		Assert.assertEquals("SECOND", list.get(5).getStudyName());
 	}
 
@@ -136,13 +136,15 @@ public class AuthorizationRepositoryImplTest {
 
 		List<Role> list = authorizationRepository.getStudyRoles(study, query);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(2, list.size());
+		Assert.assertEquals(3, list.size());
 
-		Assert.assertEquals("ROLE_DEMO_READ", list.get(0).getName());
-		Assert.assertEquals("ROLE_DEMO_TRACK", list.get(1).getName());
+		Assert.assertEquals("ROLE_DEMO_ADMIN", list.get(0).getName());
+		Assert.assertEquals("ROLE_DEMO_READ", list.get(1).getName());
+		Assert.assertEquals("ROLE_DEMO_TRACK", list.get(2).getName());
 
 		Assert.assertEquals("DEMO", list.get(0).getStudyName());
 		Assert.assertEquals("DEMO", list.get(1).getStudyName());
+		Assert.assertEquals("DEMO", list.get(2).getStudyName());
 	}
 
 	/**
@@ -272,10 +274,9 @@ public class AuthorizationRepositoryImplTest {
 		Role role = authorizationRepository.getRole("ROLE_DEMO_TRACK");
 		List<String> list = role.getPermissions();
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());		
-		Assert.assertEquals("DEMO:read", list.get(0));
-		Assert.assertEquals("DEMO:read:track", list.get(1));
-		Assert.assertEquals("DEMO:write:track", list.get(2));
+		Assert.assertEquals(2, list.size());		
+		Assert.assertEquals("read:track", list.get(0));
+		Assert.assertEquals("write:track", list.get(1));
 	}
 
 	/**
