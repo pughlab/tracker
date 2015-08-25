@@ -18,6 +18,6 @@ angular
       $http
         .post "/api/studies", study
         .success (response) ->
-          $state.go 'adminStudy', {studyName: $scope.study.name}
+          $state.go 'adminStudy.settings', {studyName: $scope.study.name}
         .error (response, status) ->
           $scope.alerts.push {type: 'danger', msg: response}
