@@ -7,6 +7,7 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.eq;
 import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 
@@ -276,11 +277,15 @@ public class RoleResourceTest extends AbstractShiroTest {
 		renamed.getUsers().add("user2");
 		renamed.setPermissions(new ArrayList<String>());
 		renamed.getPermissions().add("*:*");
+		
+		Study study = createMock(Study.class);
+		expect(study.getName()).andStubReturn("DEMO");
+		replay(study);
 
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
-		mock.saveRole(anyObject(Role.class));
+		mock.saveStudyRole(eq(study), anyObject(Role.class));
 		expectLastCall();
-		expect(mock.getRole("X")).andStubReturn(renamed);
+		expect(mock.getStudyRole(eq(study), "X")).andStubReturn(renamed);
 		replay(mock);
 		resource.setRepository(mock);
 		

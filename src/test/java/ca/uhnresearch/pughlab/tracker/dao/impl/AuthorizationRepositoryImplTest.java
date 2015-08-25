@@ -61,9 +61,13 @@ public class AuthorizationRepositoryImplTest {
 	@Rollback(true)
 	public void testGetRoleCount() {
 		CaseQuery query = new CaseQuery();
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andStubReturn(2);
+		replay(study);
 
-		Long count = authorizationRepository.getRoleCount(query);
-		Assert.assertEquals(6, count.longValue());
+		Long count = authorizationRepository.getStudyRoleCount(study, query);
+		Assert.assertEquals(3, count.longValue());
 	}
 
 	/**
@@ -75,8 +79,12 @@ public class AuthorizationRepositoryImplTest {
 	public void testGetRoleCountWithPattern() {
 		CaseQuery query = new CaseQuery();
 		query.setPattern("DEMO");
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andStubReturn(2);
+		replay(study);
 
-		Long count = authorizationRepository.getRoleCount(query);
+		Long count = authorizationRepository.getStudyRoleCount(study, query);
 		Assert.assertEquals(3, count.longValue());
 	}
 
@@ -91,9 +99,13 @@ public class AuthorizationRepositoryImplTest {
 		query.setOffset(0);
 		query.setLimit(10);
 
-		List<Role> list = authorizationRepository.getRoles(query);
+		Study study = createMock(Study.class);
+		expect(study.getId()).andStubReturn(2);
+		replay(study);
+
+		List<Role> list = authorizationRepository.getStudyRoles(study, query);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(6, list.size());
+		Assert.assertEquals(3, list.size());
 	}
 
 	/**
@@ -106,8 +118,12 @@ public class AuthorizationRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andStubReturn(2);
+		replay(study);
 
-		List<Role> list = authorizationRepository.getRoles(query);
+		List<Role> list = authorizationRepository.getStudyRoles(study, query);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(6, list.size());
 		Assert.assertEquals("ADMIN", list.get(0).getStudyName());
@@ -155,11 +171,15 @@ public class AuthorizationRepositoryImplTest {
 	@Rollback(true)
 	public void testGetRolesQuery() throws RepositoryException {
 		CaseQuery query = new CaseQuery();
-		query.setOffset(2);
+		query.setOffset(1);
 
-		List<Role> list = authorizationRepository.getRoles(query);
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(1);
+		replay(study);
+		
+		List<Role> list = authorizationRepository.getStudyRoles(study, query);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(4, list.size());
+		Assert.assertEquals(2, list.size());
 	}
 
 	/**
@@ -169,10 +189,15 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRolesQueryPattern() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
 		CaseQuery query = new CaseQuery();
 		query.setPattern("DEMO");
 
-		List<Role> list = authorizationRepository.getRoles(query);
+		List<Role> list = authorizationRepository.getStudyRoles(study, query);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(3, list.size());
 	}
@@ -184,11 +209,16 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRoleByName() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
 
-		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
 		Assert.assertNotNull(role);
 		Assert.assertEquals("ROLE_ADMIN", role.getName());
 	}
@@ -200,11 +230,16 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRoleById() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
 
-		Role role = authorizationRepository.getRoleById(3);
+		Role role = authorizationRepository.getStudyRoleById(study, 3);
 		Assert.assertNotNull(role);
 		Assert.assertEquals("ROLE_DEMO_TRACK", role.getName());
 		Assert.assertEquals("DEMO", role.getStudyName());
@@ -301,11 +336,16 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRoleByNameMissing() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
 		CaseQuery query = new CaseQuery();
 		query.setOffset(0);
 		query.setLimit(10);
 
-		Role role = authorizationRepository.getRole("ROLE_CAST_HERDER");
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_CAST_HERDER");
 		Assert.assertNull(role);
 	}
 
@@ -316,7 +356,12 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRoleUsers() throws RepositoryException {
-		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
 		List<String> list = role.getUsers();
 		Assert.assertNotNull(list);
 		Assert.assertEquals(4, list.size());
@@ -330,7 +375,12 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRolePermissions() throws RepositoryException {
-		Role role = authorizationRepository.getRole("ROLE_DEMO_TRACK");
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_DEMO_TRACK");
 		List<String> list = role.getPermissions();
 		Assert.assertNotNull(list);
 		Assert.assertEquals(2, list.size());		
@@ -346,6 +396,10 @@ public class AuthorizationRepositoryImplTest {
 	@Rollback(true)
 	public void testDeleteRole() throws RepositoryException {
 		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+		
 		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
 		expect(realm.getName()).andStubReturn("mockRealm");
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
@@ -360,12 +414,12 @@ public class AuthorizationRepositoryImplTest {
 		
 		authorizationRepository.setAuthorizingRealm(realm);
 		
-		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
 		Assert.assertNotNull(role);
 
-		authorizationRepository.deleteRole(role);
+		authorizationRepository.deleteStudyRole(study, role);
 		
-		Role search = authorizationRepository.getRole("ROLE_ADMIN");
+		Role search = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
 		Assert.assertNull(search);
 		
 		verify(realm);
@@ -378,13 +432,18 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testRenameRole() throws RepositoryException {
-		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
 		Assert.assertNotNull(role);
 
 		role.setName("ROLE_CAT_HERDER");
-		authorizationRepository.saveRole(role);
+		authorizationRepository.saveStudyRole(study, role);
 		
-		Role search = authorizationRepository.getRole("ROLE_CAT_HERDER");
+		Role search = authorizationRepository.getStudyRole(study, "ROLE_CAT_HERDER");
 		Assert.assertNotNull(search);
 		Assert.assertEquals(role.getId(), search.getId());
 	}
@@ -396,11 +455,16 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testCreateRole() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
-		authorizationRepository.saveRole(role);
+		authorizationRepository.saveStudyRole(study, role);
 		
-		Role search = authorizationRepository.getRole("ROLE_CAT_HERDER");
+		Role search = authorizationRepository.getStudyRole(study, "ROLE_CAT_HERDER");
 		Assert.assertNotNull(search);
 		Assert.assertNotNull(search.getId());
 	}
@@ -412,12 +476,17 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testCreateExistingRole() throws RepositoryException {
+		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
 		Role role = new Role();
 		role.setName("ROLE_ADMIN");
 		
 		thrown.expect(RuntimeException.class);
 
-		authorizationRepository.saveRole(role);
+		authorizationRepository.saveStudyRole(study, role);
 	}
 	
 	/**
@@ -428,6 +497,10 @@ public class AuthorizationRepositoryImplTest {
 	@Rollback(true)
 	public void testSetRoleUsers() throws RepositoryException {
 		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
 		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
 		expect(realm.getName()).andStubReturn("mockRealm");
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
@@ -448,15 +521,15 @@ public class AuthorizationRepositoryImplTest {
 		
 		authorizationRepository.setAuthorizingRealm(realm);
 
-		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
 		List<String> users = new ArrayList<String>();
 		users.add("morag");
 		users.add("mungo");
 		users.add("misty");
 		role.setUsers(users);
-		authorizationRepository.saveRole(role);
+		authorizationRepository.saveStudyRole(study, role);
 		
-		Role loadedRole = authorizationRepository.getRole(role.getName());
+		Role loadedRole = authorizationRepository.getStudyRole(study, role.getName());
 		
 		List<String> list = loadedRole.getUsers();
 		Assert.assertEquals(3, list.size());
@@ -473,6 +546,10 @@ public class AuthorizationRepositoryImplTest {
 	@Rollback(true)
 	public void testSetRolePermissions() throws RepositoryException {
 		
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(0);
+		replay(study);
+
 		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
 		expect(realm.getName()).andStubReturn("mockRealm");
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
@@ -487,14 +564,14 @@ public class AuthorizationRepositoryImplTest {
 		
 		authorizationRepository.setAuthorizingRealm(realm);
 
-		Role role = authorizationRepository.getRole("ROLE_ADMIN");
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
 		List<String> permissions = new ArrayList<String>();
 		permissions.add("X:read");
 		permissions.add("X:write");
 		role.setPermissions(permissions);
-		authorizationRepository.saveRole(role);
+		authorizationRepository.saveStudyRole(study, role);
 		
-		Role loadedRole = authorizationRepository.getRole(role.getName());
+		Role loadedRole = authorizationRepository.getStudyRole(study, role.getName());
 
 		List<String> list = loadedRole.getPermissions();
 		Assert.assertEquals(2, list.size());

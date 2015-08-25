@@ -54,8 +54,8 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 
 
 	@Override
-	public Long getRoleCount(CaseQuery query) {
-		SQLQuery sqlQuery = template.newSqlQuery().from(roles);
+	public Long getStudyRoleCount(Study study, CaseQuery query) {
+		SQLQuery sqlQuery = template.newSqlQuery().from(roles).where(roles.studyId.eq(study.getId()));
 		if (query.getPattern() != null) {
 			sqlQuery = sqlQuery.where(roles.name.like("%" + query.getPattern() + "%"));
 		}
@@ -88,20 +88,6 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	}
 	
     /**
-     * Returns a list of roles
-     */
-	@Override
-	public List<Role> getRoles(CaseQuery query) throws RepositoryException {
-    	SQLQuery sqlQuery = buildRolesQuery(null, query);
-    	List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
-    	for(Role role : roleList) {
-        	role.setUsers(getRoleUsers(role));
-        	role.setPermissions(getRolePermissions(role));
-    	}
-		return roleList;
-	}
-	
-    /**
      * Returns a list of roles for a given study
      */
 	@Override
@@ -115,45 +101,6 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		return roleList;
 	}
 	
-	private Role getRoleFromQuery(SQLQuery sqlQuery) throws RepositoryException {
-    	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
-    	if (role != null) {
-    		role.setUsers(getRoleUsers(role));
-    		role.setPermissions(getRolePermissions(role));
-    	}
-    	return role;
-	}
-	
-	
-	/**
-	 * Finds and returns a role by name
-	 */
-	@Override
-	public Role getRole(String name) throws RepositoryException {
-		logger.debug("Looking for role by name: {}", name);
-    	SQLQuery sqlQuery = template.newSqlQuery()
-    			.from(roles)
-    			.leftJoin(studies)
-    			.on(roles.studyId.eq(studies.id))
-    			.where(roles.name.eq(name));
-    	return getRoleFromQuery(sqlQuery);
-	}
-	
-	
-	/**
-	 * Finds and returns a role by internal identifier
-	 */
-	@Override
-	public Role getRoleById(Integer id) throws RepositoryException {
-		logger.debug("Looking for role by id: {}", id);
-		SQLQuery sqlQuery = template.newSqlQuery()
-    			.from(roles)
-    			.leftJoin(studies)
-    			.on(roles.studyId.eq(studies.id))
-    			.where(roles.id.eq(id));
-    	return getRoleFromQuery(sqlQuery);
-	}
-
 	/**
 	 * Finds and returns a role by name for a given study
 	 */
@@ -196,7 +143,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 * all related users and associated permissions, so not to be done lightly.
 	 */
 	@Override
-	public void deleteRole(final Role role) throws RepositoryException {
+	public void deleteStudyRole(Study study, final Role role) throws RepositoryException {
 		
 		// Before we delete, clear authorization for existing users
 		clearRoleAuthorizationCache(role);
@@ -222,7 +169,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 * Saves (and possibly creates) a role
 	 */
 	@Override
-	public void saveRole(final Role role) throws RepositoryException {
+	public void saveStudyRole(Study study, final Role role) throws RepositoryException {
 		if (role.getId() != null) {
 
 			clearRoleAuthorizationCache(role);

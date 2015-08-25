@@ -40,6 +40,8 @@ angular
         templateUrl: '/tracker/admin/admin.html'
         abstract: true
         url: '/admin/:studyName'
+        resolve:
+          studyName: Array '$stateParams', ($stateParams) -> $stateParams.studyName
       .state 'adminStudy.settings',
         templateUrl: '/tracker/admin/admin-study-settings.html'
         url: ''

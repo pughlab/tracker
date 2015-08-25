@@ -1,15 +1,45 @@
 angular
   .module 'tracker.admin'
 
-  .controller 'StudyRoleEditorController', Array '$scope', '$state', ($scope, $state) ->
+  .controller 'StudyRoleEditorController', Array '$scope', '$state', '$http', 'studyName', ($scope, $state, $http, studyName) ->
 
+    $scope.alerts = []
     $scope.roles = []
+    originalRoles = []
+    $scope.modified = false
+
+    $scope.$on 'admin:modified', (e) ->
+      $scope.modified = true
+
+    console.log 'StudyRoleEditorController', studyName
 
     $scope.selectedRole = undefined
     originalSelectedRole = undefined
 
+    $scope.closeAlert = (index) ->
+      $scope.alerts.splice(index, 1)
+
+    $scope.save = () ->
+      console.log "Save selected"
+      $http
+        .put("/api/studies/#{encodeURIComponent(studyName)}/roles")
+        .success (response) ->
+          console.log "Got successful response"
+          originalRoles = response.roles
+          $scope.reset()
+        .error (response) ->
+          message = response?.error or response
+          $scope.alerts.push {type: 'danger', msg: message}
+
+    $scope.reset = () ->
+      $scope.roles = originalRoles
+      originalRoles = angular.copy $scope.roles
+      $scope.selectedRole = undefined
+      originalSelectedRole = undefined
+      $scope.modified = false
+
     $scope.selectRole = (role) ->
-      $scope.selectedRole = view
+      $scope.selectedRole = role
       originalSelectedRole = angular.copy($scope.selectedRole)
 
     $scope.$watchCollection 'selectedRole', (newValue, oldValue) ->
@@ -19,11 +49,11 @@ angular
     $scope.deleteRole = (role) ->
       $scope.selectedRole = undefined
       originalSelectedRole = undefined
-      $scope.study.roles = $scope.study.roles.filter (att) -> att != role
+      $scope.roles = $scope.roles.filter (att) -> att != role
       $scope.$emit 'admin:modified'
 
     $scope.newRole = () ->
-      newRole = {name: 'UNNAMED'}
+      newRole = {name: 'UNNAMED', users: [], permissions: []}
       $scope.roles.unshift newRole
       $scope.selectedRole = newRole
       originalSelectedRole = angular.copy($scope.selectedRole)
@@ -35,3 +65,11 @@ angular
     $scope.$on 'admin:reset', (e) ->
       $scope.selectedRole = undefined
       originalSelectedRole = undefined
+
+    $http
+      .get("/api/studies/#{encodeURIComponent(studyName)}/roles")
+      .success (response) ->
+        originalRoles = response.roles
+        $scope.reset()
+      .error (error) ->
+        console.log "Error", error

@@ -19,27 +19,12 @@ public interface AuthorizationRepository {
 	 * Retrieves the number of matching roles in the repository
 	 * @return number of roles
 	 */
-	Long getRoleCount(CaseQuery query);
+	Long getStudyRoleCount(Study study, CaseQuery query);
 
-	/**
-	 * Retrieves all the roles from the repository
-	 */
-	List<Role> getRoles(CaseQuery query) throws RepositoryException;
-	
 	/**
 	 * Retrieves all the roles from the repository for a given study
 	 */
 	List<Role> getStudyRoles(Study study, CaseQuery query) throws RepositoryException;
-	
-	/**
-	 * Retrieves a role by name
-	 */
-	Role getRole(String name) throws RepositoryException;
-	
-	/**
-	 * Retrieves a role by internal identifier
-	 */
-	Role getRoleById(Integer id) throws RepositoryException;
 	
 	/**
 	 * Retrieves a role by name
@@ -54,10 +39,10 @@ public interface AuthorizationRepository {
 	/**
 	 * Deletes a role
 	 */
-	void deleteRole(Role role) throws RepositoryException;
+	void deleteStudyRole(Study study, Role role) throws RepositoryException;
 
 	/**
 	 * Saves (and possibly creates) a role
 	 */
-	void saveRole(Role role) throws RepositoryException;
+	void saveStudyRole(Study study, Role role) throws RepositoryException;
 }

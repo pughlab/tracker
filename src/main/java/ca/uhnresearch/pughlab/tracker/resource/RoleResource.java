@@ -38,17 +38,19 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     public Representation putResource(Representation input)  {
     	logger.debug("Got an update", input);
     	
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	
     	try {
     		RoleResponse data = converter.toObject(input, RoleResponse.class, this);
 			logger.debug("Got a new role response {}", data);
 			
 			Role role = data.getRole();
 			
-			getRepository().saveRole(role);
+			getRepository().saveStudyRole(study, role);
 			
 			// Search for the role again because we might have renamed it
 			// This ensures we have an identifier. See #14
-			role = getRepository().getRole(role.getName());
+			role = getRepository().getStudyRole(study, role.getName());
 						
 			getRequest().getAttributes().put("role", role);
 			
