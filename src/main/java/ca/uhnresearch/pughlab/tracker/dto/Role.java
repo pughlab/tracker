@@ -9,6 +9,8 @@ public class Role {
 
     private Integer id;
     
+    private Integer studyId;
+
     private String studyName;
 
 	private String name;
@@ -51,6 +53,22 @@ public class Role {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+
+	/**
+	 * @return the studyId
+	 */
+	@JsonProperty
+	public Integer getStudyId() {
+		return studyId;
+	}
+
+	/**
+	 * @param studyId the studyId to set
+	 */
+	public void setStudyId(Integer studyId) {
+		this.studyId = studyId;
 	}
 
 	/**
@@ -97,5 +115,4 @@ public class Role {
 	public void setPermissions(List<String> permissions) {
 		this.permissions = permissions;
 	}
-
 }

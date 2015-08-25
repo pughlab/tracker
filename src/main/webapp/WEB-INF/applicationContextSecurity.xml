@@ -32,10 +32,10 @@
         </property>
         <property name="permissionsQuery">
             <value>
-                SELECT CASE WHEN S.NAME IS NULL THEN RP.PERMISSION ELSE CONCAT(S.NAME, ':', RP.PERMISSION) END
+                SELECT CASE WHEN S.ID = 0 RP.PERMISSION ELSE CONCAT(S.NAME, ':', RP.PERMISSION) END
                 FROM ROLES R
                 JOIN ROLE_PERMISSIONS RP ON RP.ROLE_ID = R.ID
-                LEFT JOIN STUDIES S ON R.STUDY_ID = S.ID
+                JOIN STUDIES S ON R.STUDY_ID = S.ID
                 WHERE R.NAME = ?
             </value>
         </property>

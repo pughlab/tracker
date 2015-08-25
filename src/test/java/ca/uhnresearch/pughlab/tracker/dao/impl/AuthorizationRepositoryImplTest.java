@@ -110,7 +110,7 @@ public class AuthorizationRepositoryImplTest {
 		List<Role> list = authorizationRepository.getRoles(query);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(6, list.size());
-		Assert.assertNull(list.get(0).getStudyName());
+		Assert.assertEquals("ADMIN", list.get(0).getStudyName());
 		Assert.assertEquals("DEMO", list.get(1).getStudyName());
 		Assert.assertEquals("DEMO", list.get(2).getStudyName());
 		Assert.assertEquals("DEMO", list.get(3).getStudyName());

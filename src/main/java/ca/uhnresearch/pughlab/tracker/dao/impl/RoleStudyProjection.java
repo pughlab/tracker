@@ -24,6 +24,7 @@ public class RoleStudyProjection extends MappingProjection<Role> {
         product.setId(tuple.get(roles.id));
         product.setName(tuple.get(roles.name));
         product.setStudyName(tuple.get(studies.name));
+        product.setStudyId(tuple.get(studies.id));
         return product;
 	}
 

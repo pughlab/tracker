@@ -156,6 +156,7 @@ public class StudyRoleExtractorTest extends AbstractShiroTest {
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
 		role.setStudyName("DEMO");
+		role.setStudyId(321);
 		role.setId(1234);
 		expect(mock.getStudyRole(eq(study), anyObject(String.class))).andStubReturn(role);
 		replay(mock);
