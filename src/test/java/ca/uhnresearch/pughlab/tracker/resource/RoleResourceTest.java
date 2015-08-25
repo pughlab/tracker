@@ -259,6 +259,10 @@ public class RoleResourceTest extends AbstractShiroTest {
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         
+		Study study = createMock(Study.class);
+		expect(study.getName()).andStubReturn("DEMO");
+		replay(study);
+
 		Role role = new Role();
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
@@ -267,6 +271,8 @@ public class RoleResourceTest extends AbstractShiroTest {
 		role.getUsers().add("user2");
 		role.setPermissions(new ArrayList<String>());
 		role.getPermissions().add("*:*");
+		
+		resource.getRequest().getAttributes().put("study", study);
 		resource.getRequest().getAttributes().put("role", role);
 
 		Role renamed = new Role();
@@ -278,14 +284,10 @@ public class RoleResourceTest extends AbstractShiroTest {
 		renamed.setPermissions(new ArrayList<String>());
 		renamed.getPermissions().add("*:*");
 		
-		Study study = createMock(Study.class);
-		expect(study.getName()).andStubReturn("DEMO");
-		replay(study);
-
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
 		mock.saveStudyRole(eq(study), anyObject(Role.class));
 		expectLastCall();
-		expect(mock.getStudyRole(eq(study), "X")).andStubReturn(renamed);
+		expect(mock.getStudyRole(eq(study), eq("X"))).andStubReturn(renamed);
 		replay(mock);
 		resource.setRepository(mock);
 		

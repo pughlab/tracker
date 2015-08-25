@@ -63,7 +63,7 @@ public class AuthorizationRepositoryImplTest {
 		CaseQuery query = new CaseQuery();
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andStubReturn(2);
+		expect(study.getId()).andStubReturn(1);
 		replay(study);
 
 		Long count = authorizationRepository.getStudyRoleCount(study, query);
@@ -78,14 +78,14 @@ public class AuthorizationRepositoryImplTest {
 	@Rollback(true)
 	public void testGetRoleCountWithPattern() {
 		CaseQuery query = new CaseQuery();
-		query.setPattern("DEMO");
+		query.setPattern("TRACK");
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andStubReturn(2);
+		expect(study.getId()).andStubReturn(1);
 		replay(study);
 
 		Long count = authorizationRepository.getStudyRoleCount(study, query);
-		Assert.assertEquals(3, count.longValue());
+		Assert.assertEquals(1, count.longValue());
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class AuthorizationRepositoryImplTest {
 		query.setLimit(10);
 
 		Study study = createMock(Study.class);
-		expect(study.getId()).andStubReturn(2);
+		expect(study.getId()).andStubReturn(1);
 		replay(study);
 
 		List<Role> list = authorizationRepository.getStudyRoles(study, query);
@@ -125,13 +125,9 @@ public class AuthorizationRepositoryImplTest {
 
 		List<Role> list = authorizationRepository.getStudyRoles(study, query);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(6, list.size());
-		Assert.assertEquals("ADMIN", list.get(0).getStudyName());
-		Assert.assertEquals("DEMO", list.get(1).getStudyName());
-		Assert.assertEquals("DEMO", list.get(2).getStudyName());
-		Assert.assertEquals("DEMO", list.get(3).getStudyName());
-		Assert.assertEquals("SECOND", list.get(4).getStudyName());
-		Assert.assertEquals("SECOND", list.get(5).getStudyName());
+		Assert.assertEquals(2, list.size());
+		Assert.assertEquals("SECOND", list.get(0).getStudyName());
+		Assert.assertEquals("SECOND", list.get(1).getStudyName());
 	}
 
 	/**
@@ -191,7 +187,7 @@ public class AuthorizationRepositoryImplTest {
 	public void testGetRolesQueryPattern() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andReturn(1);
 		replay(study);
 
 		CaseQuery query = new CaseQuery();
@@ -232,7 +228,7 @@ public class AuthorizationRepositoryImplTest {
 	public void testGetRoleById() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andReturn(1);
 		replay(study);
 
 		CaseQuery query = new CaseQuery();
@@ -377,7 +373,7 @@ public class AuthorizationRepositoryImplTest {
 	public void testGetRolePermissions() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andReturn(1);
 		replay(study);
 
 		Role role = authorizationRepository.getStudyRole(study, "ROLE_DEMO_TRACK");
@@ -397,29 +393,23 @@ public class AuthorizationRepositoryImplTest {
 	public void testDeleteRole() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andStubReturn(1);
 		replay(study);
 		
 		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
 		expect(realm.getName()).andStubReturn("mockRealm");
-		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("morungos@gmail.com", "mockRealm")));
-		expectLastCall();
-		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuartw@ads.uhnresearch.ca", "mockRealm")));
-		expectLastCall();
-		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("oidcprofile#stuartw", "mockRealm")));
-		expectLastCall();
-		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("admin", "mockRealm")));
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuart", "mockRealm")));
 		expectLastCall();
 		replay(realm);
 		
 		authorizationRepository.setAuthorizingRealm(realm);
 		
-		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_DEMO_ADMIN");
 		Assert.assertNotNull(role);
 
 		authorizationRepository.deleteStudyRole(study, role);
 		
-		Role search = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
+		Role search = authorizationRepository.getStudyRole(study, "ROLE_DEMO_ADMIN");
 		Assert.assertNull(search);
 		
 		verify(realm);
@@ -434,10 +424,10 @@ public class AuthorizationRepositoryImplTest {
 	public void testRenameRole() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andStubReturn(1);
 		replay(study);
 
-		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_DEMO_ADMIN");
 		Assert.assertNotNull(role);
 
 		role.setName("ROLE_CAT_HERDER");
@@ -457,7 +447,7 @@ public class AuthorizationRepositoryImplTest {
 	public void testCreateRole() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andStubReturn(1);
 		replay(study);
 
 		Role role = new Role();
@@ -478,11 +468,11 @@ public class AuthorizationRepositoryImplTest {
 	public void testCreateExistingRole() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andStubReturn(1);
 		replay(study);
 
 		Role role = new Role();
-		role.setName("ROLE_ADMIN");
+		role.setName("ROLE_DEMO_TRACK");
 		
 		thrown.expect(RuntimeException.class);
 
@@ -498,7 +488,7 @@ public class AuthorizationRepositoryImplTest {
 	public void testSetRoleUsers() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andStubReturn(1);
 		replay(study);
 
 		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);
@@ -517,11 +507,13 @@ public class AuthorizationRepositoryImplTest {
 		expectLastCall();
 		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("misty", "mockRealm")));
 		expectLastCall();
+		realm.clearCachedAuthorizationInfo(eq(new SimplePrincipalCollection("stuart", "mockRealm")));
+		expectLastCall();
 		replay(realm);
 		
 		authorizationRepository.setAuthorizingRealm(realm);
 
-		Role role = authorizationRepository.getStudyRole(study, "ROLE_ADMIN");
+		Role role = authorizationRepository.getStudyRole(study, "ROLE_DEMO_ADMIN");
 		List<String> users = new ArrayList<String>();
 		users.add("morag");
 		users.add("mungo");
@@ -547,7 +539,7 @@ public class AuthorizationRepositoryImplTest {
 	public void testSetRolePermissions() throws RepositoryException {
 		
 		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(0);
+		expect(study.getId()).andStubReturn(0);
 		replay(study);
 
 		JdbcAuthorizingRealm realm = createMock(JdbcAuthorizingRealm.class);

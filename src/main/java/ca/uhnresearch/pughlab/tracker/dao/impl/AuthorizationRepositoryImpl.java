@@ -170,6 +170,10 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 */
 	@Override
 	public void saveStudyRole(Study study, final Role role) throws RepositoryException {
+		
+		// Make sure the study id is correct
+		role.setStudyId(study.getId());
+		
 		if (role.getId() != null) {
 
 			clearRoleAuthorizationCache(role);
