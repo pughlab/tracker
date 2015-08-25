@@ -92,6 +92,12 @@
 	            		<lookup-method name="create" bean="studySchemaResource" />
 	            	</bean>
 	            </entry>
+                <entry key="/roles">
+                    <bean class="org.restlet.ext.spring.SpringFinder">
+                        <lookup-method name="create" bean="roleListResource" />
+                    </bean>
+                </entry>
+                <entry key="/roles/{roleName}" value-ref="roleExtractor" />
  	            <entry key="/views">
 	            	<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="studiesViewsResource" />
