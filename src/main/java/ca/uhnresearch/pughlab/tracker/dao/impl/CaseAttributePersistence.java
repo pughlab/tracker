@@ -2,7 +2,6 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
-import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
 
 import java.util.HashMap;
 import java.util.List;

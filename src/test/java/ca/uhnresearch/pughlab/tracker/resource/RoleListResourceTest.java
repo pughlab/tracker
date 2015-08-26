@@ -8,7 +8,6 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -16,7 +15,6 @@ import org.restlet.Request;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
 import com.google.gson.Gson;
@@ -32,7 +30,6 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.easymock.EasyMock.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 public class RoleListResourceTest extends AbstractShiroTest {
 
