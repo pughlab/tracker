@@ -92,7 +92,7 @@ public class StudyRepositoryImplTest {
 	public void testGetStudies() {
 		List<Study> list = studyRepository.getAllStudies();
 		Assert.assertNotNull(list);
-		Assert.assertEquals(2, list.size());
+		Assert.assertEquals(3, list.size());
 	}
 
 	@Test

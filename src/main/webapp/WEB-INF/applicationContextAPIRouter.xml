@@ -23,28 +23,9 @@
 		<constructor-arg ref="router" />
 		<property name="attachments">
 	        <map>
-	            <entry key="/authorization" value-ref="authorizationAuthorizer" />
 	            <entry key="" value-ref="baseRouter" />
 	        </map>
 	    </property>
-	</bean>
-	
-	<bean id="authorizationAuthorizer" class="ca.uhnresearch.pughlab.tracker.restlets.AdminAuthorizer">
-		<property name="next" ref="authorizationRouter" />
-	</bean>
-	
-	<bean id="authorizationRouter" class="org.restlet.ext.spring.SpringRouter">
-		<constructor-arg ref="apiRouter" />
-		<property name="attachments">
-	        <map>
-	            <entry key="/roles">
-	            	<bean class="org.restlet.ext.spring.SpringFinder">
-	            		<lookup-method name="create" bean="roleListResource" />
-	            	</bean>
-	            </entry>
-	            <entry key="/roles/{roleName}" value-ref="roleExtractor" />
-			</map>
-		</property>
 	</bean>
 	
 	<bean id="baseRouter" class="org.restlet.ext.spring.SpringRouter">
@@ -92,6 +73,12 @@
 	            		<lookup-method name="create" bean="studySchemaResource" />
 	            	</bean>
 	            </entry>
+                <entry key="/roles">
+                    <bean class="org.restlet.ext.spring.SpringFinder">
+                        <lookup-method name="create" bean="roleListResource" />
+                    </bean>
+                </entry>
+                <entry key="/roles/{roleName}" value-ref="roleExtractor" />
  	            <entry key="/views">
 	            	<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="studiesViewsResource" />
@@ -198,9 +185,6 @@
 	</bean>
 	
 	<bean id="roleListResource" class="ca.uhnresearch.pughlab.tracker.resource.RoleListResource" scope="prototype">
-		<property name="repository" ref="authorizationRepository"/>
-	</bean>
-	<bean id="roleResource" class="ca.uhnresearch.pughlab.tracker.resource.RoleResource" scope="prototype">
 		<property name="repository" ref="authorizationRepository"/>
 	</bean>
 

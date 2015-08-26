@@ -2,7 +2,6 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -39,21 +38,20 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     public Representation putResource(Representation input)  {
     	logger.debug("Got an update", input);
     	
+    	Study study = (Study) getRequest().getAttributes().get("study");
+    	
     	try {
     		RoleResponse data = converter.toObject(input, RoleResponse.class, this);
 			logger.debug("Got a new role response {}", data);
 			
 			Role role = data.getRole();
 			
-			getRepository().saveRole(role);
+			getRepository().saveStudyRole(study, role);
 			
 			// Search for the role again because we might have renamed it
 			// This ensures we have an identifier. See #14
-			role = getRepository().getRole(role.getName());
-			
-			getRepository().setRoleUsers(role, data.getUsers());
-			getRepository().setRolePermissions(role, data.getPermissions());
-			
+			role = getRepository().getStudyRole(study, role.getName());
+						
 			getRequest().getAttributes().put("role", role);
 			
 		} catch (IOException e) {
@@ -105,18 +103,5 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     	
     	Role role = (Role) getRequest().getAttributes().get("role");
     	dto.setRole(role);
-    	
-    	try {
-	    	// Query the database for users
-	    	List<String> users = getRepository().getRoleUsers(role);
-	    	dto.setUsers(users);
-	    	
-	    	// And for permissions
-	    	List<String> permissions = getRepository().getRolePermissions(role);
-	    	dto.setPermissions(permissions);
-    	} catch (RepositoryException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-		}
 	};
-
 }

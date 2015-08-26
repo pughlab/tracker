@@ -24,12 +24,19 @@
         <property name="permissionsLookupEnabled" value="true" />
         <property name="userRolesQuery">
             <value>
-                SELECT R.NAME FROM USER_ROLES UR JOIN ROLES R ON UR.ROLE_ID = R.ID WHERE UR.USERNAME = LOWER(?)
+                SELECT R.NAME 
+                FROM USER_ROLES UR 
+                JOIN ROLES R ON UR.ROLE_ID = R.ID 
+                WHERE UR.USERNAME = LOWER(?)
             </value>
         </property>
         <property name="permissionsQuery">
             <value>
-                SELECT RP.PERMISSION FROM ROLE_PERMISSIONS RP JOIN ROLES R ON RP.ROLE_ID = R.ID WHERE R.NAME = ?
+                SELECT CASE WHEN S.ID = 0 THEN RP.PERMISSION ELSE CONCAT(S.NAME, ':', RP.PERMISSION) END
+                FROM ROLES R
+                JOIN ROLE_PERMISSIONS RP ON RP.ROLE_ID = R.ID
+                JOIN STUDIES S ON R.STUDY_ID = S.ID
+                WHERE R.NAME = ?
             </value>
         </property>
     </bean>

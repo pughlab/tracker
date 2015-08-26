@@ -19,13 +19,8 @@ public interface AuthorizationRepository {
 	 * Retrieves the number of matching roles in the repository
 	 * @return number of roles
 	 */
-	Long getRoleCount(CaseQuery query);
+	Long getStudyRoleCount(Study study, CaseQuery query);
 
-	/**
-	 * Retrieves all the roles from the repository
-	 */
-	List<Role> getRoles(CaseQuery query) throws RepositoryException;
-	
 	/**
 	 * Retrieves all the roles from the repository for a given study
 	 */
@@ -34,41 +29,20 @@ public interface AuthorizationRepository {
 	/**
 	 * Retrieves a role by name
 	 */
-	Role getRole(String name) throws RepositoryException;
-	
-	/**
-	 * Retrieves a role by name
-	 */
 	Role getStudyRole(Study study, String name) throws RepositoryException;
+
+	/**
+	 * Retrieves a study role by internal identifier
+	 */
+	Role getStudyRoleById(Study study, Integer id) throws RepositoryException;
 
 	/**
 	 * Deletes a role
 	 */
-	void deleteRole(Role role) throws RepositoryException;
+	void deleteStudyRole(Study study, Role role) throws RepositoryException;
 
 	/**
 	 * Saves (and possibly creates) a role
 	 */
-	void saveRole(Role role) throws RepositoryException;
-
-	/**
-	 * Retrieves the list of users associated with a role
-	 */
-	List<String> getRoleUsers(Role role) throws RepositoryException;
-
-	/**
-	 * Updates the list of users associated with a role
-	 */
-	void setRoleUsers(Role role, List<String> users) throws RepositoryException;
-	
-	/**
-	 * Retrieves the list of roles associated with a role
-	 */
-	List<String> getRolePermissions(Role role) throws RepositoryException;
-
-	/**
-	 * Updates the list of permissions associated with a role
-	 */
-	void setRolePermissions(Role role, List<String> permissions) throws RepositoryException;
-
+	void saveStudyRole(Study study, Role role) throws RepositoryException;
 }
