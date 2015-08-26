@@ -3,13 +3,13 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import ca.uhnresearch.pughlab.tracker.domain.BooleanValueValidator;
-import ca.uhnresearch.pughlab.tracker.domain.DateValueValidator;
-import ca.uhnresearch.pughlab.tracker.domain.NumberValueValidator;
-import ca.uhnresearch.pughlab.tracker.domain.OptionValueValidator;
-import ca.uhnresearch.pughlab.tracker.domain.StringValueValidator;
-import ca.uhnresearch.pughlab.tracker.domain.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.validation.BooleanValueValidator;
+import ca.uhnresearch.pughlab.tracker.validation.DateValueValidator;
+import ca.uhnresearch.pughlab.tracker.validation.NumberValueValidator;
+import ca.uhnresearch.pughlab.tracker.validation.OptionValueValidator;
+import ca.uhnresearch.pughlab.tracker.validation.StringValueValidator;
+import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

@@ -41,6 +41,8 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
+import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
+import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;

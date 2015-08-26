@@ -1,4 +1,4 @@
-package ca.uhnresearch.pughlab.tracker.domain;
+package ca.uhnresearch.pughlab.tracker.validation;
 
 import java.sql.Date;
 import java.text.ParseException;

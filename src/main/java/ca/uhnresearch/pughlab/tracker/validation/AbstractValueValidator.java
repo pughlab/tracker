@@ -1,4 +1,4 @@
-package ca.uhnresearch.pughlab.tracker.domain;
+package ca.uhnresearch.pughlab.tracker.validation;
 
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;

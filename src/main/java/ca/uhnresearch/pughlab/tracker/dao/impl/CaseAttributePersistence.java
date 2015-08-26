@@ -29,9 +29,9 @@ import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBooleans;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeDates;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeNumbers;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
-import ca.uhnresearch.pughlab.tracker.domain.WritableValue;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 
 public class CaseAttributePersistence {
 	
