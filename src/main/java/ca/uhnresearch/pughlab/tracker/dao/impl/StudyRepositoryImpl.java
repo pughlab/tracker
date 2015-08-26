@@ -24,6 +24,7 @@ import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.query.ListSubQuery;
+import com.mysema.query.types.query.NumberSubQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
@@ -205,6 +206,23 @@ public class StudyRepositoryImpl implements StudyRepository {
 
     	List<Attributes> attributeList = template.query(sqlQuery, new AttributeProjection(attributes));
     	return attributeList;
+	}
+
+    /**
+     * Returns a single named attributes for a given study. 
+     * @param study
+     * @param name
+     * @return
+     */
+	public Attributes getStudyAttribute(Study study, String name) {
+		logger.debug("Looking for study attribute: {}", name);
+		
+		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
+    	    .where(attributes.studyId.eq(study.getId()).and(attributes.name.eq(name)));
+		
+		logger.debug("Executing query: {}", sqlQuery.toString());
+
+    	return template.queryForObject(sqlQuery, new AttributeProjection(attributes));
 	}
 
 	private void insertView(final View v) {
@@ -429,8 +447,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		// If we have an ordering, use a left join to get the attribute, and order it later
 		if (query.getOrderField() != null) {
+			NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()
+					.from(attributes)
+					.where(attributes.name.eq(query.getOrderField()).and(attributes.studyId.eq(study.getId())))
+					.unique(attributes.id);
 			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
-			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attribute.eq(query.getOrderField())));
+			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
 			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(query.getOrderDirection() == CaseQuery.OrderDirection.ASC);
 			sq = sq.orderBy(ordering);
 		}
@@ -587,10 +609,10 @@ public class StudyRepositoryImpl implements StudyRepository {
     	
     	ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
     	WritableValue writable = validator.validate(a, value);
-    	Object oldValue = cap.getOldCaseAttributeValue(template, caseValue, attribute, writable.getValueClass());
+    	Object oldValue = cap.getOldCaseAttributeValue(template, study, caseValue, attribute, writable.getValueClass());
     	
     	writeAuditLogRecord(study, view, caseValue, attribute, userName, getJsonValue(oldValue), value);
-    	cap.writeCaseAttributeValue(template, caseValue, attribute, writable);
+    	cap.writeCaseAttributeValue(template, study, caseValue, attribute, writable);
     	
     	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
     	// this if we have an UpdateEventService set. 

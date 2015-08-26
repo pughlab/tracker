@@ -704,6 +704,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		Attributes attribute = studyRepository.getStudyAttribute(study, "patientId");
 		
 		try {
 			studyRepository.setCaseAttributeValue(study, view, caseValue, "patientId", "stuart", jsonNodeFactory.nullNode());

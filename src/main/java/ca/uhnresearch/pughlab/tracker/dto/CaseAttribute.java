@@ -2,7 +2,7 @@ package ca.uhnresearch.pughlab.tracker.dto;
 
 public class CaseAttribute {
 
-    private String attribute;
+    private Integer attributeId;
 
     private Integer caseId;
 
@@ -14,12 +14,12 @@ public class CaseAttribute {
 
     private String notes;
 
-    public String getAttribute() {
-        return attribute;
+    public Integer getAttribute() {
+        return attributeId;
     }
 
-    public void setAttribute(String attribute) {
-        this.attribute = attribute;
+    public void setAttributeId(Integer attributeId) {
+        this.attributeId = attributeId;
     }
 
     public Integer getCaseId() {

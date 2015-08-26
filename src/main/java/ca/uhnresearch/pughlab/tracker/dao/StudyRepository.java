@@ -44,6 +44,12 @@ public interface StudyRepository {
 	List<Attributes> getStudyAttributes(Study study);
 
 	/**
+	 * Retrieves a single named attribute for a study from the repository
+	 * @return the attribute
+	 */
+	Attributes getStudyAttribute(Study study, String name);
+
+	/**
 	 * Writes the attributes for a study to the repository
 	 */
 	void setStudyAttributes(Study study, List<Attributes> attributes) throws RepositoryException;
