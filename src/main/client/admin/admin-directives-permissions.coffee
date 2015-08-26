@@ -1,5 +1,5 @@
 angular
-  .module 'tracker.authorization'
+  .module 'tracker.admin'
 
   .directive 'selectizePermissions', Array '$timeout', ($timeout) ->
     result =

@@ -15,7 +15,7 @@ public class RoleStudyProjection extends MappingProjection<Role> {
 	private static final long serialVersionUID = 5391772059404559453L;
 	
 	public RoleStudyProjection(QRole role, QStudy study) {
-        super(Role.class, role.id, role.name, study.name);
+        super(Role.class, role.id, role.name, study.name, study.id);
     }
 
 	@Override

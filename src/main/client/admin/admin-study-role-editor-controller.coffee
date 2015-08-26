@@ -11,8 +11,6 @@ angular
     $scope.$on 'admin:modified', (e) ->
       $scope.modified = true
 
-    console.log 'StudyRoleEditorController', studyName
-
     $scope.selectedRole = undefined
     originalSelectedRole = undefined
 
@@ -22,7 +20,7 @@ angular
     $scope.save = () ->
       console.log "Save selected"
       $http
-        .put("/api/studies/#{encodeURIComponent(studyName)}/roles")
+        .put "/api/studies/#{encodeURIComponent(studyName)}/roles", {roles: $scope.roles}
         .success (response) ->
           console.log "Got successful response"
           originalRoles = response.roles

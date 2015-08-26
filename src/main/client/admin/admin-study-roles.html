@@ -46,7 +46,6 @@
           <div class="col-md-9">
           <button class="btn btn-default" ng-click="newRole()">New role</button>
           <button class="btn" ng-class="selectedRole ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedRole" ng-click="deleteRole(selectedRole)">Delete role</button>
-          <button class="btn" ng-class="selectedRole ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedRole || modified" ui-sref="adminRole({studyName: study.study.name, roleName: selectedRole.name})">Edit role</button>
           </div>
         </div>
       </fieldset>

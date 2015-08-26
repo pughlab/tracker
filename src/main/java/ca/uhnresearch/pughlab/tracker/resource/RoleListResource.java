@@ -51,6 +51,10 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 
     	try {
     		RoleListResponse data = converter.toObject(input, RoleListResponse.class, this);
+    		
+    		if (data == null) {
+    			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+    		}
 			logger.debug("Got a new role response {}", data);
 			
 			// Special cases. If the study has id zero, it's the admin study, so 

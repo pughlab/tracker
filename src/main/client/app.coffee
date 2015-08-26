@@ -9,7 +9,6 @@ angular
     'tracker.pages'
     'tracker.studies'
     'tracker.grid'
-    'tracker.authorization'
     'tracker.authentication'
     'tracker.admin'
     'tracker.error'
@@ -74,14 +73,6 @@ angular
         controller: 'CreateStudyController'
         templateUrl: '/tracker/admin/admin-new-study.html'
         url: '/admin/new/create'
-      .state 'authorizationRoles',
-        controller: 'AuthorizationRolesController'
-        templateUrl: '/tracker/authorization/authorization-roles.html'
-        url: '/authorization/roles'
-      .state 'authorizationRole',
-        controller: 'AuthorizationRoleController'
-        templateUrl: '/tracker/authorization/authorization-role.html'
-        url: '/authorization/roles/:name'
       .state 'adminAudit',
         controller: 'AdminAuditController'
         templateUrl: '/tracker/admin/admin-audit.html'
