@@ -17,7 +17,7 @@ public abstract class QCaseAttributeBase<T extends Object> extends com.mysema.qu
 	
 	private static final long serialVersionUID = 1L;
 
-	public final StringPath attribute = createString("attribute");
+	public final NumberPath<Integer> attributeId = createNumber("attributeId", Integer.class);
 	
 	public static QCaseAttributeBase<?> caseAttributes;
 
@@ -42,7 +42,7 @@ public abstract class QCaseAttributeBase<T extends Object> extends com.mysema.qu
     {
         addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
         addMetadata(caseId, ColumnMetadata.named("CASE_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(attribute, ColumnMetadata.named("ATTRIBUTE").withIndex(3).ofType(Types.VARCHAR).withSize(24).notNull());
+        addMetadata(attributeId, ColumnMetadata.named("ATTRIBUTE_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
         addMetadata(notAvailable, ColumnMetadata.named("NOT_AVAILABLE").withIndex(5).ofType(Types.BIT).notNull());
         addMetadata(notes, ColumnMetadata.named("NOTES").withIndex(6).ofType(Types.VARCHAR).withSize(2048));
     }
