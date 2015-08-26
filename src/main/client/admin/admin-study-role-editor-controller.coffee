@@ -18,11 +18,9 @@ angular
       $scope.alerts.splice(index, 1)
 
     $scope.save = () ->
-      console.log "Save selected"
       $http
         .put "/api/studies/#{encodeURIComponent(studyName)}/roles", {roles: $scope.roles}
         .success (response) ->
-          console.log "Got successful response"
           originalRoles = response.roles
           $scope.reset()
         .error (response) ->

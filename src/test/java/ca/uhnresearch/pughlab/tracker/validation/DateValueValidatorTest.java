@@ -24,13 +24,15 @@ public class DateValueValidatorTest {
 	private JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 	
 	DateValueValidator validator = null;
-	
+	ViewAttributes va = null;
+
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void setUp() {
 		validator = new DateValueValidator();
+		va = new ViewAttributes();
 	}
 	
 	@Test
