@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.validation;
 
-import java.sql.Date;
+import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -23,7 +23,16 @@ public class DateValueValidator extends AbstractValueValidator implements ValueV
 		}
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		try {
-			java.sql.Date finalValue = value.isNull() ? null : new Date(format.parse(value.asText()).getTime());
+			Date finalValue = null;
+			if (! value.isNull()) {
+				String input = value.asText().trim();
+				Date parsed = format.parse(input);
+				String formatted = format.format(parsed);
+				if (! formatted.equals(input)) {
+					throw new InvalidValueException("Invalid date value: " + input);
+				}
+				finalValue = new java.sql.Date(parsed.getTime());
+			}
 			return new WritableValue(java.sql.Date.class, false, finalValue);
 		} catch (ParseException e) {
 			throw new InvalidValueException("Invalid date value: " + value.toString());
