@@ -478,7 +478,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		
 		QueryStudyCaseQuery query = newStudyCaseQuery(study);
-		query = (QueryStudyCaseQuery) addStudyCaseSelector(query, caseValue);
+		query = (QueryStudyCaseQuery) addStudyCaseSelector(query, caseValue.getId());
 		
 		List<ObjectNode> listData = cap.getJsonData(template, query, view);
 		if (listData.size() == 1) {
@@ -726,13 +726,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return
 	 */
 	@Override
-	public StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Cases caseValue) {
+	public StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId) {
 		if (! (query instanceof QueryStudyCaseQuery)) {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
 		}
 
 		SQLSubQuery sq = ((QueryStudyCaseQuery) query).getQuery();
-		sq = sq.where(cases.id.eq(caseValue.getId()));
+		sq = sq.where(cases.id.eq(caseId));
 		return new QueryStudyCaseQuery(sq);
 	}
 

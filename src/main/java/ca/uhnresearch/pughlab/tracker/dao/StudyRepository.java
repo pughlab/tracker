@@ -123,7 +123,7 @@ public interface StudyRepository {
 	 * @param value
 	 * @return
 	 */
-	StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Cases caseValue);
+	StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId);
 
 	/**
 	 * Returns subcases for a StudyCaseQuery, and returns a new study case query in the

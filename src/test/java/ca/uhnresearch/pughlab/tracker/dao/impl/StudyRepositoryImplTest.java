@@ -374,10 +374,9 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
-		query = studyRepository.addStudyCaseSelector(query, caseValue);
+		query = studyRepository.addStudyCaseSelector(query, 1);
 		List<ObjectNode> data = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(data);
 		Assert.assertEquals(1,  data.size());
@@ -395,10 +394,9 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseNumberValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
-		query = studyRepository.addStudyCaseSelector(query, caseValue);
+		query = studyRepository.addStudyCaseSelector(query, 1);
 		
 		List<ObjectNode> data = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(data);
@@ -419,10 +417,9 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseValuesNotes() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
-		query = studyRepository.addStudyCaseSelector(query, caseValue);
+		query = studyRepository.addStudyCaseSelector(query, 1);
 
 		List<ObjectNode> data = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(data);

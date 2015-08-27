@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
-import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
@@ -37,10 +36,7 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
-    	
-    	StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
-    	query = getRepository().addStudyCaseSelector(query, caseValue);
+    	StudyCaseQuery query = (StudyCaseQuery) getRequest().getAttributes().get("query");
     	
     	List<ObjectNode> cases = getRepository().getCaseData(query, view);
     	if (cases.isEmpty()) {

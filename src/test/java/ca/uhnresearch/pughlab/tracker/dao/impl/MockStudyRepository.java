@@ -486,9 +486,9 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public MockStudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Cases caseValue) {
+	public MockStudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId) {
 		MockStudyCaseQuery result = new MockStudyCaseQuery();
-		result.getCases().add(caseValue.getId());
+		result.getCases().add(caseId);
 		return result;
 	}
 
