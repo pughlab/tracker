@@ -197,8 +197,9 @@ angular
           result = handsonTable.search.query query
           handsonTable.render()
 
-          [first, rest...] = result
-          handsonTable.selectCell first.row, first.col, first.row, first.col, true
+          if result.length > 0
+            [first, rest...] = result
+            handsonTable.selectCell first.row, first.col, first.row, first.col, true
 
 
         scope.$on 'socket:welcome', (evt, data) ->
