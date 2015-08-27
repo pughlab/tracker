@@ -691,15 +691,16 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public void setAuditLogRepository(AuditLogRepository repository) {
 		auditLogRepository = repository;
 	}
-
+	
 	@Override
-	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view, List<ViewAttributes> attributes, CasePager pager) {
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
 		if (! (query instanceof QueryStudyCaseQuery)) {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
 		}
-		
-		return cap.getJsonData(template, applyPager((QueryStudyCaseQuery) query, pager), view);
+
+		return cap.getJsonData(template, (QueryStudyCaseQuery) query, view);
 	}
+
 
 	@Override
 	public QueryStudyCaseQuery newStudyCaseQuery(Study study) {
@@ -714,8 +715,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param pager
 	 * @return
 	 */
-	private QueryStudyCaseQuery applyPager(QueryStudyCaseQuery query, CasePager pager) {
-		SQLSubQuery sq = query.getQuery();
+	@Override
+	public QueryStudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager) {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+
+		QueryStudyCaseQuery scq = (QueryStudyCaseQuery) query;
+		
+		SQLSubQuery sq = scq.getQuery();
 		if (pager.hasOffset()) {
 			sq = sq.offset(pager.getOffset().longValue());
 		}

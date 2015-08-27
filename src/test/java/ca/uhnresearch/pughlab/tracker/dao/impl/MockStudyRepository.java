@@ -453,7 +453,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view, List<ViewAttributes> attributes, CasePager pager) {
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -469,7 +469,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public MockStudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
+	public StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
 		throw new RuntimeException("Not yet implemented");
 	}
 
@@ -481,7 +481,12 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public MockStudyCaseQuery subcases(StudyCaseQuery query, String attribute) {
+	public StudyCaseQuery subcases(StudyCaseQuery query, String attribute) {
 		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public StudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager) {
+		return query;
 	}
 }

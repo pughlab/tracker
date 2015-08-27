@@ -12,6 +12,7 @@ import static org.easymock.EasyMock.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
 import org.junit.Test;
+
 import junit.framework.Assert;
 
 import org.junit.rules.ExpectedException;
@@ -38,6 +39,7 @@ import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.domain.QAuditLog;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
@@ -244,11 +246,12 @@ public class StudyRepositoryImplTest {
 	public void testGetData() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CasePager query = new CasePager();
-		query.setOffset(0);
-		query.setLimit(10);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(10);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(10, list.size());
 	}
@@ -263,11 +266,12 @@ public class StudyRepositoryImplTest {
 	public void testGetDataSecurity() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CasePager query = new CasePager();
-		query.setOffset(0);
-		query.setLimit(10);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(10);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(10, list.size());
 		Assert.assertFalse(list.get(0).has("mrn"));
@@ -279,11 +283,12 @@ public class StudyRepositoryImplTest {
 	public void testGetDataNoLimit() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CasePager query = new CasePager();
-		query.setOffset(0);
-		query.setLimit(null);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(null);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(20, list.size());
 	}
@@ -294,11 +299,12 @@ public class StudyRepositoryImplTest {
 	public void testGetDataNoOffset() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CasePager query = new CasePager();
-		query.setOffset(null);
-		query.setLimit(5);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(null);
+		pager.setLimit(5);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(5, list.size());
 	}
@@ -309,13 +315,14 @@ public class StudyRepositoryImplTest {
 	public void testGetDataOrdered() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CasePager query = new CasePager();
-		query.setOffset(0);
-		query.setLimit(5);
-		query.setOrderField("consentDate");
-		query.setOrderDirection(CasePager.OrderDirection.DESC);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(5);
+		pager.setOrderField("consentDate");
+		pager.setOrderDirection(CasePager.OrderDirection.DESC);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(5, list.size());
 	}
@@ -369,10 +376,15 @@ public class StudyRepositoryImplTest {
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
-		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, caseValue);
+		List<ObjectNode> data = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(data);
+		Assert.assertEquals(1,  data.size());
 		
-		String date = data.get("dateEntered").asText();
+		ObjectNode single = data.get(0);
+		
+		String date = single.get("dateEntered").asText();
 		Assert.assertNotNull(date);
 		Assert.assertEquals("2014-08-20", date);
 	}
@@ -385,11 +397,17 @@ public class StudyRepositoryImplTest {
 		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
-		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
-		Assert.assertNotNull(data);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, caseValue);
 		
-		Assert.assertTrue(data.has("numberCores"));
-		Double cores = data.get("numberCores").asDouble();
+		List<ObjectNode> data = studyRepository.getCaseData(query, view);
+		Assert.assertNotNull(data);
+		Assert.assertEquals(1,  data.size());
+		
+		ObjectNode single = data.get(0);
+
+		Assert.assertTrue(single.has("numberCores"));
+		Double cores = single.get("numberCores").asDouble();
 		Assert.assertNotNull(cores);
 		Assert.assertTrue(Math.abs(cores - 2.0) < 0.00000001);
 	}
@@ -403,10 +421,16 @@ public class StudyRepositoryImplTest {
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
-		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, caseValue);
+
+		List<ObjectNode> data = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(data);
+		Assert.assertEquals(1,  data.size());
 		
-		JsonNode notes = data.get("$notes");
+		ObjectNode single = data.get(0);
+
+		JsonNode notes = single.get("$notes");
 		Assert.assertNotNull(notes);
 		
 		// No notes here

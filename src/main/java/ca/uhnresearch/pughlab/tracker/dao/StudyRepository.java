@@ -96,7 +96,7 @@ public interface StudyRepository {
 	 * Retrieves the record-level data for a view and study from the repository
 	 * @return list of JSON nodes
 	 */
-	List<ObjectNode> getCaseData(StudyCaseQuery query, View view, List<ViewAttributes> attributes, CasePager pager);
+	List<ObjectNode> getCaseData(StudyCaseQuery query, View view);
 	
 	/**
 	 * Builds a new study case query, which can be transformed into a set of cases.
@@ -133,6 +133,14 @@ public interface StudyRepository {
 	 * @return
 	 */
 	StudyCaseQuery subcases(StudyCaseQuery query, String attribute);
+	
+	/**
+	 * Applies a CasePager to a query, returning a new query.
+	 * @param query
+	 * @param pager
+	 * @return
+	 */
+	StudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager);
 
 	/**
 	 * Retrieves a single specified case for a study and view from the repository
