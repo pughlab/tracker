@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
+import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeNumbers;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 
 public class CaseAttributePersistence {
@@ -51,7 +53,7 @@ public class CaseAttributePersistence {
 		types.put(Double.class, QCaseAttributeNumbers.caseAttributes);
 	}
 	
-	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, ListSubQuery<Integer> caseQuery) {
+	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, final Study study, final View view, ListSubQuery<Integer> caseQuery) {
 		
 		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
 		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
@@ -65,7 +67,9 @@ public class CaseAttributePersistence {
 			SQLQuery sqlQuery = template.newSqlQuery()
 					.from(caseQuery.as(cases))
 					.innerJoin(atts).on(cases.id.eq(atts.caseId))
-					.innerJoin(attributes).on(atts.attributeId.eq(attributes.id));
+					.innerJoin(attributes).on(atts.attributeId.eq(attributes.id))
+					.innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
+					.where(viewAttributes.viewId.eq(view.getId()));
 			List<Tuple> values = template.query(sqlQuery, new QTuple(atts.caseId, attributes.name, atts.getValue(), atts.notAvailable, atts.notes));
 			builder.addTupleAttributes(values);
 		}
@@ -73,7 +77,7 @@ public class CaseAttributePersistence {
 		return builder.getCaseObjects();
 	}
 	
-	public void writeCaseAttributeValue(QueryDslJdbcTemplate template, final Study study, final Cases caseValue, final String attribute, final WritableValue value) {
+	public void writeCaseAttributeValue(QueryDslJdbcTemplate template, final Study study, final View view, final Cases caseValue, final String attribute, final WritableValue value) {
 		final boolean notAvailable = value.getNotAvailable();
 		final Class<?> cls = value.getValueClass();
 		final Object storableValue = notAvailable ? null : value.getValue();
@@ -108,7 +112,7 @@ public class CaseAttributePersistence {
 		});
 	}
 	
-	public Object getOldCaseAttributeValue(QueryDslJdbcTemplate template, final Study study, final Cases caseValue, final String attribute, final Class<?> cls) throws RepositoryException {
+	public Object getOldCaseAttributeValue(QueryDslJdbcTemplate template, final Study study, final View view, final Cases caseValue, final String attribute, final Class<?> cls) throws RepositoryException {
 		
 		final QCaseAttributeBase<?> atts = getCaseAttribute(cls);
 		NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()

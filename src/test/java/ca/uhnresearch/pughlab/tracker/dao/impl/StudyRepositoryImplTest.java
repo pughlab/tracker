@@ -253,6 +253,26 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals(10, list.size());
 	}
 	
+	/**
+	 * Regression test for #53 -- checks that only lrgitimate view attributes are 
+	 * returned.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetDataSecurity() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(10);
+		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(10, list.size());
+		Assert.assertFalse(list.get(0).has("mrn"));
+	}
+	
 	@Test
 	@Transactional
 	@Rollback(true)
@@ -362,7 +382,7 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testSingleCaseNumberValues() {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
+		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
 		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
@@ -420,7 +440,7 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testSingleCaseAttributeValuesNotAvailable() {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
+		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 2);
 		
 		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "trackerDate");

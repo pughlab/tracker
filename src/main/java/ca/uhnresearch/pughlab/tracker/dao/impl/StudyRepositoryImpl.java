@@ -491,7 +491,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// method. This hugely reduces the complexity of the DSL here too. 
 		
 		ListSubQuery<Integer> caseQuery = getStudySubQueryCaseQuery(study, query);
-		return cap.getJsonData(template, caseQuery);
+		return cap.getJsonData(template, study, view, caseQuery);
 	}
 
 	/**
@@ -522,7 +522,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseValue.getId());
-		List<ObjectNode> listData = cap.getJsonData(template, caseQuery);
+		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseQuery);
 		if (listData.size() == 1) {
 			return listData.get(0);
 		} else {
@@ -611,10 +611,10 @@ public class StudyRepositoryImpl implements StudyRepository {
     	
     	ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
     	WritableValue writable = validator.validate(a, value);
-    	Object oldValue = cap.getOldCaseAttributeValue(template, study, caseValue, attribute, writable.getValueClass());
+    	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute, writable.getValueClass());
     	
     	writeAuditLogRecord(study, view, caseValue, attribute, userName, getJsonValue(oldValue), value);
-    	cap.writeCaseAttributeValue(template, study, caseValue, attribute, writable);
+    	cap.writeCaseAttributeValue(template, study, view, caseValue, attribute, writable);
     	
     	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
     	// this if we have an UpdateEventService set. 
