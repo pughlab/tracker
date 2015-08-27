@@ -31,6 +31,7 @@ import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
@@ -443,27 +444,27 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, CasePager query) {
+	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, QueryStudyCaseQuery query, CasePager pager) {
 		
-		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
+		SQLSubQuery sq = query.getQuery();
 		
 		// If we have an ordering, use a left join to get the attribute, and order it later
-		if (query.getOrderField() != null) {
+		if (pager.getOrderField() != null) {
 			NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()
 					.from(attributes)
-					.where(attributes.name.eq(query.getOrderField()).and(attributes.studyId.eq(study.getId())))
+					.where(attributes.name.eq(pager.getOrderField()).and(attributes.studyId.eq(study.getId())))
 					.unique(attributes.id);
 			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
 			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
-			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(query.getOrderDirection() == CasePager.OrderDirection.ASC);
+			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(pager.getOrderDirection() == CasePager.OrderDirection.ASC);
 			sq = sq.orderBy(ordering);
 		}
 		
-		if (query.getOffset() != null) {
-			sq = sq.offset(query.getOffset());
+		if (pager.getOffset() != null) {
+			sq = sq.offset(pager.getOffset());
 		}
-		if (query.getLimit() != null) {
-			sq = sq.limit(query.getLimit());
+		if (pager.getLimit() != null) {
+			sq = sq.limit(pager.getLimit());
 		}
 	
 		return sq.list(cases.id);
@@ -475,23 +476,22 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * rather than anything more structured. This can typically be sent straight back to the client
 	 * as a response, without needing DTO mediation. 
 	 * 
-	 * Perhaps most interesting is the CaseQuery, which is a structured version of offsets, limits,
-	 * filters, sort orders, and so on.
-	 * 
 	 * @param study
 	 * @param view
 	 * @param attributes
 	 * @param query
 	 */
-	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CasePager query) {
+	@Deprecated
+	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CasePager pager) {
 		// This method retrieves the attributes we needed. In most implementations, we've done 
 		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
 		// since UNIONs generally aren't indexable, we are probably genuinely better off running
 		// separate queries for each primitive attribute type, and then assembling them in this
 		// method. This hugely reduces the complexity of the DSL here too. 
 		
-		ListSubQuery<Integer> caseQuery = getStudySubQueryCaseQuery(study, query);
-		return cap.getJsonData(template, study, view, caseQuery);
+		QueryStudyCaseQuery query = newStudyCaseQuery(study);
+		query = applyPager(query, pager);		
+		return cap.getJsonData(template, query, view);
 	}
 
 	/**
@@ -504,25 +504,16 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
-	 * Generates an SQLQuery on cases from a single case identifier. This can then be incorporated
-	 * into the queries that are used to access data. Note that even for a single case this returns a
-	 * list, because that way we can re-use the tuple data management. 
-	 * @param query
-	 * @return
-	 */
-	private ListSubQuery<Integer> getStudyCaseSubQuery(Study study, Integer caseId) {
-		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
-		return sq.list(cases.id);
-	}
-	
-
-	/**
 	 * Returns the case data for a single study entity, in JSON format.
 	 */
 	@Override
+	@Deprecated
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
-		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseValue.getId());
-		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseQuery);
+		
+		QueryStudyCaseQuery query = newStudyCaseQuery(study);
+		query = (QueryStudyCaseQuery) addStudyCaseSelector(query, caseValue);
+		
+		List<ObjectNode> listData = cap.getJsonData(template, query, view);
 		if (listData.size() == 1) {
 			return listData.get(0);
 		} else {
@@ -699,6 +690,66 @@ public class StudyRepositoryImpl implements StudyRepository {
 	@Override
 	public void setAuditLogRepository(AuditLogRepository repository) {
 		auditLogRepository = repository;
+	}
+
+	@Override
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view, List<ViewAttributes> attributes, CasePager pager) {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+		
+		return cap.getJsonData(template, applyPager((QueryStudyCaseQuery) query, pager), view);
+	}
+
+	@Override
+	public QueryStudyCaseQuery newStudyCaseQuery(Study study) {
+		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
+		return new QueryStudyCaseQuery(sq);
+	}
+	
+	/**
+	 * Applies a pager to the query inside a QueryStudyCaseQuery, which isn't intended to 
+	 * be exposed externally. 
+	 * @param query
+	 * @param pager
+	 * @return
+	 */
+	private QueryStudyCaseQuery applyPager(QueryStudyCaseQuery query, CasePager pager) {
+		SQLSubQuery sq = query.getQuery();
+		if (pager.hasOffset()) {
+			sq = sq.offset(pager.getOffset().longValue());
+		}
+		if (pager.hasLimit()) {
+			sq = sq.limit(pager.getLimit().longValue());
+		}
+		return new QueryStudyCaseQuery(sq);
+	}
+
+	@Override
+	public StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
+		return query;
+	}
+
+	/** 
+	 * Refines a query to a single case, which can be found by identifier. This can then be incorporated
+	 * into the queries that are used to access data. 
+	 * @param query
+	 * @return
+	 */
+	@Override
+	public StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Cases caseValue) {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+
+		SQLSubQuery sq = ((QueryStudyCaseQuery) query).getQuery();
+		sq = sq.where(cases.id.eq(caseValue.getId()));
+		return new QueryStudyCaseQuery(sq);
+	}
+
+	@Override
+	public StudyCaseQuery subcases(StudyCaseQuery query, String attribute) {
+		return query;
 	}
 }
 

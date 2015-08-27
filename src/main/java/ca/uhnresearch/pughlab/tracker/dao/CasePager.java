@@ -44,6 +44,13 @@ public class CasePager {
 	}
 
 	/**
+	 * @return the existence of the offset
+	 */
+	public boolean hasOffset() {
+		return offset != null;
+	}
+
+	/**
 	 * @param offset the offset to set
 	 */
 	public void setOffset(Integer offset) {
@@ -55,6 +62,13 @@ public class CasePager {
 	 */
 	public Integer getLimit() {
 		return limit;
+	}
+
+	/**
+	 * @return the existence of the limit
+	 */
+	public boolean hasLimit() {
+		return limit != null;
 	}
 
 	/**

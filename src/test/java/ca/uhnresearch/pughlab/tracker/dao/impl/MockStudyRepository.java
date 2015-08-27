@@ -25,6 +25,7 @@ import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
@@ -393,6 +394,7 @@ public class MockStudyRepository implements StudyRepository {
 	
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
+		
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
 		if (! data.containsKey(caseValue.getId())) {
@@ -448,5 +450,38 @@ public class MockStudyRepository implements StudyRepository {
 	@Override
 	public void setAuditLogRepository(AuditLogRepository repository) {
 		// Auto-generated method stub
+	}
+
+	@Override
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view, List<ViewAttributes> attributes, CasePager pager) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public MockStudyCaseQuery newStudyCaseQuery(Study study) {
+		MockStudyCaseQuery query = new MockStudyCaseQuery();
+		query.setCases(new ArrayList<Integer>());
+		for(Integer i = 0; i < 5; i++) {
+			query.getCases().add(i);
+		}
+		return query;
+	}
+
+	@Override
+	public MockStudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public MockStudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Cases caseValue) {
+		MockStudyCaseQuery result = new MockStudyCaseQuery();
+		result.getCases().add(caseValue.getId());
+		return result;
+	}
+
+	@Override
+	public MockStudyCaseQuery subcases(StudyCaseQuery query, String attribute) {
+		throw new RuntimeException("Not yet implemented");
 	}
 }

@@ -89,8 +89,51 @@ public interface StudyRepository {
 	 * Retrieves the record-level data for a view and study from the repository
 	 * @return list of JSON nodes
 	 */
-	List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CasePager query);
+	@Deprecated
+	List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CasePager pager);
 	
+	/**
+	 * Retrieves the record-level data for a view and study from the repository
+	 * @return list of JSON nodes
+	 */
+	List<ObjectNode> getCaseData(StudyCaseQuery query, View view, List<ViewAttributes> attributes, CasePager pager);
+	
+	/**
+	 * Builds a new study case query, which can be transformed into a set of cases.
+	 * This is always initialized to a single study. 
+	 * @return
+	 */
+	StudyCaseQuery newStudyCaseQuery(Study study);
+
+	/**
+	 * Adds a new matching element to a study case filter. Only string values 
+	 * are typically allowed here, currently. A new study case query is returned
+	 * and can be used later.
+	 * @param attribute
+	 * @param value
+	 * @return
+	 */
+	StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value);
+	
+	/**
+	 * Adds a new matching element to a study case filter. Only string values 
+	 * are typically allowed here, currently. A new study case query is returned
+	 * and can be used later.
+	 * @param attribute
+	 * @param value
+	 * @return
+	 */
+	StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Cases caseValue);
+
+	/**
+	 * Returns subcases for a StudyCaseQuery, and returns a new study case query in the
+	 * process.
+	 * @param query
+	 * @param attribute
+	 * @return
+	 */
+	StudyCaseQuery subcases(StudyCaseQuery query, String attribute);
+
 	/**
 	 * Retrieves a single specified case for a study and view from the repository
 	 * @return a case
@@ -107,6 +150,7 @@ public interface StudyRepository {
 	 * Retrieves the record-level data for a given case, view and study from the repository
 	 * @return JSON object
 	 */
+	@Deprecated
 	ObjectNode getCaseData(Study study, View view, Cases caseValue);
 	
 	/**
