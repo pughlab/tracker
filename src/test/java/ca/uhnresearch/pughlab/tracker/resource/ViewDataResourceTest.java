@@ -20,7 +20,7 @@ import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 import org.w3c.dom.Document;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -86,7 +86,7 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setLimit(5);
 		query.setOffset(0);
 		resource.getRequest().getAttributes().put("query", query);
@@ -126,7 +126,7 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setLimit(5);
 		query.setOffset(0);
 		resource.getRequest().getAttributes().put("query", query);

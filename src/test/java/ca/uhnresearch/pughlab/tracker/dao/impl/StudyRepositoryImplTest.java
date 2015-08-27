@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLQuery;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
@@ -245,7 +245,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
@@ -264,7 +264,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
@@ -280,7 +280,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(null);
 		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
@@ -295,7 +295,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(null);
 		query.setLimit(5);
 		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
@@ -310,11 +310,11 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		query.setOrderField("consentDate");
-		query.setOrderDirection(CaseQuery.OrderDirection.DESC);
+		query.setOrderDirection(CasePager.OrderDirection.DESC);
 		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(5, list.size());
@@ -468,7 +468,7 @@ public class StudyRepositoryImplTest {
 	public void testAuditLog() {
 		Study study = studyRepository.getStudy("DEMO");
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -483,7 +483,7 @@ public class StudyRepositoryImplTest {
 	public void testAuditLogWithNoLimits() {
 		Study study = studyRepository.getStudy("DEMO");
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(null);
 		query.setLimit(null);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -498,7 +498,7 @@ public class StudyRepositoryImplTest {
 	public void testAuditLogWithBadData() {
 		Study study = studyRepository.getStudy("DEMO");
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(null);
 		query.setLimit(null);
 		
@@ -532,7 +532,7 @@ public class StudyRepositoryImplTest {
 	public void testAuditLogWithGoodData() {
 		Study study = studyRepository.getStudy("DEMO");
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(null);
 		query.setLimit(null);
 		
@@ -575,7 +575,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -614,7 +614,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -653,7 +653,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -693,7 +693,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -732,7 +732,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -771,7 +771,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -811,7 +811,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -952,7 +952,7 @@ public class StudyRepositoryImplTest {
 		}
 
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -994,7 +994,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -1034,7 +1034,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -1074,7 +1074,7 @@ public class StudyRepositoryImplTest {
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);

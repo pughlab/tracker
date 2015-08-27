@@ -12,7 +12,7 @@ import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
@@ -47,7 +47,7 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	public void buildResponseDTO(ViewDataResponse dto) {
 		super.buildResponseDTO(dto);
 		
-    	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
+    	CasePager query = (CasePager) getRequest().getAttributes().get("query");
 
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");

@@ -27,7 +27,7 @@ import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
@@ -438,12 +438,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
-	 * Generates an SQLQuery on cases from a CaseQuery object. This can then be incorporated
+	 * Generates an SQLQuery on cases from a CasePager object. This can then be incorporated
 	 * into the queries that are used to access data.
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, CaseQuery query) {
+	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, CasePager query) {
 		
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		
@@ -455,7 +455,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 					.unique(attributes.id);
 			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
 			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
-			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(query.getOrderDirection() == CaseQuery.OrderDirection.ASC);
+			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(query.getOrderDirection() == CasePager.OrderDirection.ASC);
 			sq = sq.orderBy(ordering);
 		}
 		
@@ -483,7 +483,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param attributes
 	 * @param query
 	 */
-	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
+	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CasePager query) {
 		// This method retrieves the attributes we needed. In most implementations, we've done 
 		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
 		// since UNIONs generally aren't indexable, we are probably genuinely better off running

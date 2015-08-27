@@ -89,7 +89,7 @@ public interface StudyRepository {
 	 * Retrieves the record-level data for a view and study from the repository
 	 * @return list of JSON nodes
 	 */
-	List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query);
+	List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CasePager query);
 	
 	/**
 	 * Retrieves a single specified case for a study and view from the repository

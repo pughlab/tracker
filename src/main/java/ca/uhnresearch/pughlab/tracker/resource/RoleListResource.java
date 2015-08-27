@@ -18,7 +18,7 @@ import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.RoleListResponse;
@@ -70,7 +70,7 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 			// indexed by identifier, so we know which ones we have been asked 
 			// to delete. 
 			
-			CaseQuery query = new CaseQuery();
+			CasePager query = new CasePager();
 			List<Role> oldRoles = getRepository().getStudyRoles(study, query);
 			Map<Integer, Role> roleTable = new HashMap<Integer, Role>();
 			for(Role oldRole : oldRoles) {
@@ -152,7 +152,7 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
-    	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
+    	CasePager query = (CasePager) getRequest().getAttributes().get("query");
     	
     	Long roleCount = getRepository().getStudyRoleCount(study, query);
     	dto.getCounts().setTotal(roleCount);

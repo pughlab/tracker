@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -70,7 +70,7 @@ public class ExcelWriterImplTest {
     	dto.setView(view);
 		dto.setAttributes(attributes);
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(100000);
     	List<ObjectNode> records = repository.getData(study, view, attributes, query);

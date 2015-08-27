@@ -5,7 +5,7 @@ package ca.uhnresearch.pughlab.tracker.dao;
  * 
  * @author stuartw
  */
-public class CaseQuery {
+public class CasePager {
 	
 	/**
 	 * Allows the ordre direction to be specified.
@@ -13,16 +13,6 @@ public class CaseQuery {
 	public enum OrderDirection {
 		ASC, DESC
 	}
-	
-	/**
-	 * For a field filter, specifies which field to fiter by.
-	 */
-	private String field = null;
-	
-	/**
-	 * For a field filter, specifies a value.
-	 */
-	private String pattern = null;
 	
 	/**
 	 * When selecting a set of cases by order, for paging, specifies the start offset.
@@ -45,34 +35,6 @@ public class CaseQuery {
 	 * to order that field.
 	 */
 	private OrderDirection orderDirection;
-
-	/**
-	 * @return the field
-	 */
-	public String getField() {
-		return field;
-	}
-
-	/**
-	 * @param field the field to set
-	 */
-	public void setField(String field) {
-		this.field = field;
-	}
-
-	/**
-	 * @return the pattern
-	 */
-	public String getPattern() {
-		return pattern;
-	}
-
-	/**
-	 * @param pattern the pattern to set
-	 */
-	public void setPattern(String pattern) {
-		this.pattern = pattern;
-	}
 
 	/**
 	 * @return the offset

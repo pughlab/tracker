@@ -24,7 +24,7 @@ import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
@@ -54,15 +54,12 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 
 
 	@Override
-	public Long getStudyRoleCount(Study study, CaseQuery query) {
+	public Long getStudyRoleCount(Study study, CasePager query) {
 		SQLQuery sqlQuery = template.newSqlQuery().from(roles).where(roles.studyId.eq(study.getId()));
-		if (query.getPattern() != null) {
-			sqlQuery = sqlQuery.where(roles.name.like("%" + query.getPattern() + "%"));
-		}
 		return template.count(sqlQuery);
 	}
 	
-	private SQLQuery buildRolesQuery(Study study, CaseQuery query) throws RepositoryException {
+	private SQLQuery buildRolesQuery(Study study, CasePager query) throws RepositoryException {
     	SQLQuery sqlQuery = template.newSqlQuery()
 				.from(roles)
 				.leftJoin(studies)
@@ -74,9 +71,6 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
     	
     	sqlQuery = sqlQuery.orderBy(roles.name.asc());
 
-		if (query.getPattern() != null) {
-			sqlQuery = sqlQuery.where(roles.name.like("%" + query.getPattern() + "%"));
-		}
 		if (query.getOffset() != null) {
 			sqlQuery = sqlQuery.offset(query.getOffset());
 		}
@@ -91,7 +85,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
      * Returns a list of roles for a given study
      */
 	@Override
-	public List<Role> getStudyRoles(Study study, CaseQuery query) throws RepositoryException {
+	public List<Role> getStudyRoles(Study study, CasePager query) throws RepositoryException {
     	SQLQuery sqlQuery = buildRolesQuery(study, query);
     	List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
     	for(Role role : roleList) {

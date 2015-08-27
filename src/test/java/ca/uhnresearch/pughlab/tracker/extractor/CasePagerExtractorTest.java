@@ -10,21 +10,21 @@ import org.restlet.Restlet;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 
-public class CaseQueryExtractorTest {
+public class CasePagerExtractorTest {
 	
 	private class TraceRestlet extends Restlet {
 		// Does snothing, but prevents warning shouts
 	}
 
-	private CaseQueryExtractor extractor;
+	private CasePagerExtractor extractor;
 
 	@Before
 	public void initialize() {
 		
 		Restlet mock = new TraceRestlet();
-		extractor = new CaseQueryExtractor();
+		extractor = new CasePagerExtractor();
 		extractor.setNext(mock);
 	}
 
@@ -38,7 +38,7 @@ public class CaseQueryExtractorTest {
 		Response response = new Response(request);
 		extractor.handle(request, response);
 		
-		CaseQuery query = (CaseQuery) request.getAttributes().get("query");
+		CasePager query = (CasePager) request.getAttributes().get("query");
 		assertNotNull(query);
 		
 		assertNotNull(query.getLimit());
@@ -56,7 +56,7 @@ public class CaseQueryExtractorTest {
 		Response response = new Response(request);
 		extractor.handle(request, response);
 		
-		CaseQuery query = (CaseQuery) request.getAttributes().get("query");
+		CasePager query = (CasePager) request.getAttributes().get("query");
 		assertNotNull(query);
 		
 		assertNull(query.getLimit());
