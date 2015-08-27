@@ -283,7 +283,7 @@ public class MockStudyRepository implements StudyRepository {
 	 * @param view
 	 * @return
 	 */
-	private Map<Integer, JsonObject> getAllData(Study study, View view) {
+	private Map<Integer, JsonObject> getAllData() {
 		
 		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
 		for(Cases caseRecord : cases) {
@@ -340,7 +340,7 @@ public class MockStudyRepository implements StudyRepository {
 	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CasePager query) {
 		
 		// We build all the data in Gson, because it's easier
-		Map<Integer, JsonObject> data = getAllData(study, view);
+		Map<Integer, JsonObject> data = getAllData();
 		
 		JsonArray result = new JsonArray();
 		List<Integer> keys = new ArrayList<Integer>(data.keySet());
@@ -396,7 +396,7 @@ public class MockStudyRepository implements StudyRepository {
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		
 		// We build all the data in Gson, because it's easier
-		Map<Integer, JsonObject> data = getAllData(study, view);
+		Map<Integer, JsonObject> data = getAllData();
 		if (! data.containsKey(caseValue.getId())) {
 			return null;
 		}
@@ -454,8 +454,20 @@ public class MockStudyRepository implements StudyRepository {
 
 	@Override
 	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
-		// TODO Auto-generated method stub
-		return null;
+		MockStudyCaseQuery mq = (MockStudyCaseQuery) query;
+		List<ObjectNode> result = new ArrayList<ObjectNode>();
+		Map<Integer, JsonObject> data = getAllData();
+		try {
+			for(Integer i : mq.getCases()) {
+				JsonObject caseObject = data.get(i);
+				result.add((ObjectNode) mapper.readTree(caseObject.toString()));
+			} 
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	@Override

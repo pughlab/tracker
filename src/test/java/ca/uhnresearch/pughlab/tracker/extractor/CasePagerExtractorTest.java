@@ -38,14 +38,14 @@ public class CasePagerExtractorTest {
 		Response response = new Response(request);
 		extractor.handle(request, response);
 		
-		CasePager query = (CasePager) request.getAttributes().get("query");
-		assertNotNull(query);
+		CasePager pager = (CasePager) request.getAttributes().get("pager");
+		assertNotNull(pager);
 		
-		assertNotNull(query.getLimit());
-		assertEquals(3, query.getLimit().intValue());
+		assertNotNull(pager.getLimit());
+		assertEquals(3, pager.getLimit().intValue());
 		
-		assertNotNull(query.getOffset());
-		assertEquals(5, query.getOffset().intValue());
+		assertNotNull(pager.getOffset());
+		assertEquals(5, pager.getOffset().intValue());
 	}
 
 	@Test
@@ -56,11 +56,11 @@ public class CasePagerExtractorTest {
 		Response response = new Response(request);
 		extractor.handle(request, response);
 		
-		CasePager query = (CasePager) request.getAttributes().get("query");
-		assertNotNull(query);
+		CasePager pager = (CasePager) request.getAttributes().get("pager");
+		assertNotNull(pager);
 		
-		assertNull(query.getLimit());
-		assertNull(query.getOffset());
+		assertNull(pager.getLimit());
+		assertNull(pager.getOffset());
 	}
 
 }

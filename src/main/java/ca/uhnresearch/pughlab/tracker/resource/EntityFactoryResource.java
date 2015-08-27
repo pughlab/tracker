@@ -2,6 +2,7 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -100,10 +102,16 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	View view = (View) getRequest().getAttributes().get("view");
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
     	
-    	ObjectNode caseData = getRepository().getCaseData(study, view, caseValue);
+    	StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
+    	query = getRepository().addStudyCaseSelector(query, caseValue);
+    	
+    	List<ObjectNode> cases = getRepository().getCaseData(query, view);
+    	if (cases.isEmpty()) {
+    		throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+    	}
     	
     	dto.setStudy(study);
     	dto.setView(view);
-    	dto.setEntity(caseData);
+    	dto.setEntity(cases.get(0));
 	}
 }

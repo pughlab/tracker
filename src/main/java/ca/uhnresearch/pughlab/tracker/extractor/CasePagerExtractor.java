@@ -21,17 +21,17 @@ public class CasePagerExtractor extends Extractor {
 		extractFromQuery("limit", "limit", true);
 		super.beforeHandle(request, response);
 		
-		CasePager query = new CasePager();
+		CasePager pager = new CasePager();
 		
 		Map<String, Object> attributes = request.getAttributes();
 		if (attributes.containsKey("offset")) {
-			query.setOffset(new Integer((String) attributes.get("offset")));
+			pager.setOffset(new Integer((String) attributes.get("offset")));
 		}
 		if (attributes.containsKey("limit")) {
-			query.setLimit(new Integer((String) attributes.get("limit")));
+			pager.setLimit(new Integer((String) attributes.get("limit")));
 		}
 
-		attributes.put("query", query);
+		attributes.put("pager", pager);
 
 		return CONTINUE;
 	}

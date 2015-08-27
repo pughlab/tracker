@@ -23,7 +23,6 @@ import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.OrderSpecifier;
-import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
@@ -439,38 +438,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
-	 * Generates an SQLQuery on cases from a CasePager object. This can then be incorporated
-	 * into the queries that are used to access data.
-	 * @param query
-	 * @return
-	 */
-	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, QueryStudyCaseQuery query, CasePager pager) {
-		
-		SQLSubQuery sq = query.getQuery();
-		
-		// If we have an ordering, use a left join to get the attribute, and order it later
-		if (pager.getOrderField() != null) {
-			NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()
-					.from(attributes)
-					.where(attributes.name.eq(pager.getOrderField()).and(attributes.studyId.eq(study.getId())))
-					.unique(attributes.id);
-			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
-			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
-			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(pager.getOrderDirection() == CasePager.OrderDirection.ASC);
-			sq = sq.orderBy(ordering);
-		}
-		
-		if (pager.getOffset() != null) {
-			sq = sq.offset(pager.getOffset());
-		}
-		if (pager.getLimit() != null) {
-			sq = sq.limit(pager.getLimit());
-		}
-	
-		return sq.list(cases.id);
-	}
-			
-	/**
 	 * Main method for extracting record-level case data into something that can be returned. Here
 	 * the logic is very schemaless, so this method returns a list of Jackson JsonNode instances,
 	 * rather than anything more structured. This can typically be sent straight back to the client
@@ -724,6 +691,20 @@ public class StudyRepositoryImpl implements StudyRepository {
 		QueryStudyCaseQuery scq = (QueryStudyCaseQuery) query;
 		
 		SQLSubQuery sq = scq.getQuery();
+		
+		// If we have an ordering, use a left join to get the attribute, and order it later
+		if (pager.getOrderField() != null) {
+			NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()
+					.from(attributes)
+					.where(attributes.name.eq(pager.getOrderField()).and(attributes.studyId.eq(cases.studyId)))
+					.unique(attributes.id);
+			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
+			sq = sq.leftJoin(c)
+					.on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
+			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(pager.getOrderDirection() == CasePager.OrderDirection.ASC);
+			sq = sq.orderBy(ordering);
+		}
+		
 		if (pager.hasOffset()) {
 			sq = sq.offset(pager.getOffset().longValue());
 		}

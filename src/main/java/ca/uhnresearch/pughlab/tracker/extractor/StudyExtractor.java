@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 
@@ -55,6 +56,13 @@ public class StudyExtractor extends Extractor {
     	logger.debug("OK, continuing with the study: {}", s.getName());
 		request.getAttributes().put("study", s);
 		
+		// Now, as well as extracting the study, we can start to build a query
+		// that can be used to pull out the data. Store this as a query
+		// attribute. 
+		
+		StudyCaseQuery query = repository.newStudyCaseQuery(s);
+		request.getAttributes().put("query", query);
+				
 		return CONTINUE;
 	}
 }
