@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -34,8 +36,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
+import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
@@ -79,10 +81,12 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		List<Integer> cases = new ArrayList<Integer>();
+		cases.add(3);
+
 		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
 		entityFieldResource.getRequest().getAttributes().put("view", testView);
-		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
+		entityFieldResource.getRequest().getAttributes().put("query", new MockStudyCaseQuery(cases));
 		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
 
 		Representation result = entityFieldResource.getResource();
@@ -120,10 +124,11 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		List<Integer> cases = new ArrayList<Integer>();
+		cases.add(3);
 		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
 		entityFieldResource.getRequest().getAttributes().put("view", testView);
-		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
+		entityFieldResource.getRequest().getAttributes().put("query", new MockStudyCaseQuery(cases));
 		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
 		
 		// This time, we need an entity value to put
@@ -170,10 +175,11 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		List<Integer> cases = new ArrayList<Integer>();
+		cases.add(3);
 		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
 		entityFieldResource.getRequest().getAttributes().put("view", testView);
-		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
+		entityFieldResource.getRequest().getAttributes().put("query", new MockStudyCaseQuery(cases));
 		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
 		
 		// This time, we need an entity value to put
@@ -225,10 +231,11 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		List<Integer> cases = new ArrayList<Integer>();
+		cases.add(3);
 		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
 		entityFieldResource.getRequest().getAttributes().put("view", testView);
-		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
+		entityFieldResource.getRequest().getAttributes().put("query", new MockStudyCaseQuery(cases));
 		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
 		
 		thrown.expect(ResourceException.class);

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -29,7 +30,12 @@ public class EntityExtractor extends Extractor {
 		
 		Study study = (Study) request.getAttributes().get("study");
 		View view = (View) request.getAttributes().get("view");
+		StudyCaseQuery query = (StudyCaseQuery) request.getAttributes().get("query");
+		
 		String idValue = (String) request.getAttributes().get("entityId");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Continuing with the entity: {}", idValue);
+		}
 		
 		Integer caseId = null;
 		try {
@@ -38,16 +44,8 @@ public class EntityExtractor extends Extractor {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
 		
-		Cases caseValue = repository.getStudyCase(study, view, caseId);
-		if (caseValue == null) {
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Continuing with the entity: {}", caseValue.toString());
-		}
-		
-		request.getAttributes().put("entity", caseValue);
+		query = repository.addStudyCaseSelector(query, caseId);
+		request.getAttributes().put("query", query);
 		
 		return CONTINUE;
 

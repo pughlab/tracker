@@ -5,6 +5,8 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -21,6 +23,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
+import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
@@ -71,9 +74,13 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
         
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
+		List<Integer> cases = new ArrayList<Integer>();
+		cases.add(3);
+
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
-				
+		resource.getRequest().getAttributes().put("query", new MockStudyCaseQuery(cases));
+
 		thrown.expect(ResourceException.class);
 		thrown.expectMessage(containsString("Bad Request"));
 
@@ -98,9 +105,13 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
         
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
+		List<Integer> cases = new ArrayList<Integer>();
+		cases.add(3);
+
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
-				
+		resource.getRequest().getAttributes().put("query", new MockStudyCaseQuery(cases));
+
 		thrown.expect(ResourceException.class);
 		thrown.expectMessage(containsString("Forbidden"));
 
@@ -125,8 +136,12 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
         
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
+		List<Integer> cases = new ArrayList<Integer>();
+		cases.add(3);
+
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
+		resource.getRequest().getAttributes().put("query", new MockStudyCaseQuery(cases));
 				
 		ObjectNode body = jsonNodeFactory.objectNode();
 		ObjectNode entity = jsonNodeFactory.objectNode();

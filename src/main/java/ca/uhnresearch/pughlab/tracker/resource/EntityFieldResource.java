@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -18,12 +19,14 @@ import org.slf4j.LoggerFactory;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityValueResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class EntityFieldResource extends StudyRepositoryResource<EntityValueResponse> {
 	
@@ -39,7 +42,9 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");
+    	
     	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
+    	
     	String attribute = (String) getRequest().getAttributes().get("entityField");
     	
     	boolean writeUser = currentUser.isPermitted(study.getName() + ":write");
@@ -89,11 +94,19 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
+    	StudyCaseQuery query = (StudyCaseQuery) getRequest().getAttributes().get("query");
+
+    	List<ObjectNode> cases = getRepository().getCaseData(query, view);
+    	if (cases.isEmpty()) {
+    		throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+    	}
+    	
+    	ObjectNode result = cases.get(0);
+    	
     	String attribute = (String) getRequest().getAttributes().get("entityField");
     	
     	// Get the value and build an appropriate response
-    	JsonNode val = getRepository().getCaseAttributeValue(study, view, caseValue, attribute);
+    	JsonNode val = result.get(attribute);
     	
     	dto.setStudy(study);
     	dto.setView(view);

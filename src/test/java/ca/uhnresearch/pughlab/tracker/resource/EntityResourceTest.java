@@ -4,6 +4,8 @@ import static junit.framework.Assert.*;
 import static org.easymock.EasyMock.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -19,8 +21,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
+import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
@@ -62,10 +64,12 @@ public class EntityResourceTest extends AbstractShiroTest {
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		List<Integer> cases = new ArrayList<Integer>();
+		cases.add(3);
+		
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
-		resource.getRequest().getAttributes().put("entity", testCase);
+		resource.getRequest().getAttributes().put("query", new MockStudyCaseQuery(cases));
 
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

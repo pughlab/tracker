@@ -165,6 +165,7 @@ public interface StudyRepository {
 	 * Retrieves the attribute value for a given case, view, study, and attribute from the repository
 	 * @return JSON node
 	 */
+	@Deprecated
 	JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute);
 
 	/**

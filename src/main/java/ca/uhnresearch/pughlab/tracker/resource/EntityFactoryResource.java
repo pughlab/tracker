@@ -100,10 +100,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
-    	
-    	StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
-    	query = getRepository().addStudyCaseSelector(query, caseValue);
+    	StudyCaseQuery query = (StudyCaseQuery) getRequest().getAttributes().get("query");
     	
     	List<ObjectNode> cases = getRepository().getCaseData(query, view);
     	if (cases.isEmpty()) {
