@@ -106,6 +106,14 @@ public interface StudyRepository {
 	StudyCaseQuery newStudyCaseQuery(Study study);
 
 	/**
+	 * Adds a view to the case matcher, which might filter out a bunch of data that should not
+	 * be visible. These will typically be row filters, as cases are being selected by the
+	 * case query, not attributes. 
+	 * @return
+	 */
+	StudyCaseQuery addViewCaseMatcher(StudyCaseQuery query, View view);
+
+	/**
 	 * Adds a new matching element to a study case filter. Only string values 
 	 * are typically allowed here, currently. A new study case query is returned
 	 * and can be used later.

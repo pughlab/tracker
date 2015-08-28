@@ -489,6 +489,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 	@Override
+	@Deprecated
 	public Cases getStudyCase(Study study, View view, Integer caseId) {
 		logger.debug("Looking for case by identifier: {}", caseId);
     	SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
@@ -675,6 +676,11 @@ public class StudyRepositoryImpl implements StudyRepository {
 		return new QueryStudyCaseQuery(sq);
 	}
 	
+	@Override
+	public StudyCaseQuery addViewCaseMatcher(StudyCaseQuery query, View view) {
+		return query;
+	}
+
 	/**
 	 * Applies a pager to the query inside a QueryStudyCaseQuery, which isn't intended to 
 	 * be exposed externally. 
@@ -740,5 +746,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public StudyCaseQuery subcases(StudyCaseQuery query, String attribute) {
 		return query;
 	}
+
 }
 

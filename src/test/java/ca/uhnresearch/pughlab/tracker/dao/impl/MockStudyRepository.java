@@ -481,6 +481,11 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
+	public StudyCaseQuery addViewCaseMatcher(StudyCaseQuery query, View view) {
+		return query;
+	}
+
+	@Override
 	public StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
 		throw new RuntimeException("Not yet implemented");
 	}
