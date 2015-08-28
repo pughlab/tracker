@@ -215,7 +215,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(31, list.size());
 	}
 
 	@Test
@@ -1169,7 +1169,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(31, list.size());
 		
 		studyRepository.setStudyAttributes(study, list);
 
@@ -1194,7 +1194,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(31, list.size());
 		
 		studyRepository.setStudyAttributes(study, list.subList(0, 10));
 
@@ -1218,7 +1218,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(31, list.size());
 		
 		Attributes att1 = new Attributes();
 		att1.setName("test");
@@ -1475,7 +1475,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals(15, list.size());
 		
 		ViewAttributes att1 = new ViewAttributes();
-		att1.setId(28);
+		att1.setId(600);
 		att1.setName("unknown");
 		att1.setType("string");
 		att1.setLabel("Specimen #");
