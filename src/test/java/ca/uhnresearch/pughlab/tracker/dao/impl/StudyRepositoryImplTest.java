@@ -340,6 +340,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCase() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -351,6 +352,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleMissingCase() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -361,6 +363,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleFromDifferentStudy() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -446,6 +449,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -459,6 +463,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeValuesNotAvailable() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
@@ -474,6 +479,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeMissing() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -584,6 +590,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueDate() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -622,6 +629,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueDateInsert() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
@@ -661,6 +669,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueString() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -701,6 +710,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueStringInsert() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
@@ -741,6 +751,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueStringNull() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -779,6 +790,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueOption() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
@@ -819,6 +831,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueBoolean() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -862,6 +875,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueBooleanValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -877,6 +891,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueStringValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -892,6 +907,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueDateValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -907,6 +923,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueDateValueFormatError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -922,6 +939,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueOptionValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
@@ -937,6 +955,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueOptionUnexpectedValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
@@ -953,6 +972,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueBooleanTwice() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -1001,6 +1021,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueBooleanNotAvailable() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -1043,6 +1064,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteValueBooleanNull() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -1081,6 +1103,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteNonExistentValue() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -1123,6 +1146,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testSingleCaseAttributeWriteMissingAttribute() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -1472,6 +1496,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testNewCase() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
@@ -1522,6 +1547,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	@SuppressWarnings("deprecation")
 	public void testNewCaseWithoutManager() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");

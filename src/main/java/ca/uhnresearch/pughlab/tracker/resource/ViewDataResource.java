@@ -13,6 +13,7 @@ import org.w3c.dom.Document;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.CasePager;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
@@ -47,17 +48,19 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	public void buildResponseDTO(ViewDataResponse dto) {
 		super.buildResponseDTO(dto);
 		
-    	CasePager query = (CasePager) getRequest().getAttributes().get("query");
-
     	Study study = (Study) getRequest().getAttributes().get("study");
     	View view = (View) getRequest().getAttributes().get("view");
+    	StudyCaseQuery query = (StudyCaseQuery) getRequest().getAttributes().get("query");
+    	CasePager pager = (CasePager) getRequest().getAttributes().get("pager");
     	dto.setStudy(study);
     	dto.setView(view);
+    	
+    	query = getRepository().applyPager(query, pager);
     	
 		List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
 		dto.setAttributes(attributes);
 		
-    	List<ObjectNode> records = getRepository().getData(study, view, attributes, query);
+    	List<ObjectNode> records = getRepository().getCaseData(query, view);
     	dto.setRecords(records);
     	dto.getCounts().setTotal(getRepository().getRecordCount(study, view));
 

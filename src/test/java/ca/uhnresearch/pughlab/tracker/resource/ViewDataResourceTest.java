@@ -21,6 +21,7 @@ import org.restlet.representation.Representation;
 import org.w3c.dom.Document;
 
 import ca.uhnresearch.pughlab.tracker.dao.CasePager;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -86,9 +87,13 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
-		CasePager query = new CasePager();
-		query.setLimit(5);
-		query.setOffset(0);
+		CasePager pager = new CasePager();
+		pager.setLimit(5);
+		pager.setOffset(0);
+		resource.getRequest().getAttributes().put("pager", pager);
+		
+		StudyCaseQuery query = repository.newStudyCaseQuery(testStudy);
+		query = repository.addViewCaseMatcher(query, testView);
 		resource.getRequest().getAttributes().put("query", query);
 
 		Representation result = resource.getResource();
@@ -126,9 +131,13 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		resource.getRequest().getAttributes().put("study", testStudy);
 		resource.getRequest().getAttributes().put("view", testView);
-		CasePager query = new CasePager();
-		query.setLimit(5);
-		query.setOffset(0);
+		CasePager pager = new CasePager();
+		pager.setLimit(5);
+		pager.setOffset(0);
+		resource.getRequest().getAttributes().put("pager", pager);
+		
+		StudyCaseQuery query = repository.newStudyCaseQuery(testStudy);
+		query = repository.addViewCaseMatcher(query, testView);
 		resource.getRequest().getAttributes().put("query", query);
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
