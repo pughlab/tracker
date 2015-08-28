@@ -471,7 +471,11 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
-	 * Returns the case data for a single study entity, in JSON format.
+	 * Returns the case data for a single study entity, in JSON format. Here
+	 * the logic is very schemaless, so this method returns a list of Jackson JsonNode instances,
+	 * rather than anything more structured. This can typically be sent straight back to the client
+	 * as a response, without needing DTO mediation. 
+	 * 
 	 */
 	@Override
 	@Deprecated
@@ -594,8 +598,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	@Override
 	public ObjectNode setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not yet implemented");
 	}
 
 
@@ -695,7 +698,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	@Override
 	public StudyCaseQuery addViewCaseMatcher(StudyCaseQuery query, View view) {
-		return query;
+		throw new RuntimeException("Not yet implemented");
 	}
 
 	/**
@@ -737,9 +740,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 		return new QueryStudyCaseQuery(scq.getStudy(), sq);
 	}
 
+	/**
+	 * Only applies to string values (for now) this applies a filter into the case query
+	 * matcher. 
+	 */
 	@Override
 	public StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
-		return query;
+		throw new RuntimeException("Not yet implemented");
 	}
 
 
@@ -763,7 +770,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 	@Override
 	public StudyCaseQuery subcases(StudyCaseQuery query, String attribute) {
-		return query;
+		throw new RuntimeException("Not yet implemented");
 	}
 
 }
