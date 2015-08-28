@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
@@ -34,6 +35,8 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 
 	private JacksonConverter converter = new JacksonConverter();
 
+	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
+
     @Post("json")
     public Representation postResource(Representation input) {
     	
@@ -47,6 +50,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	}
     	
     	View view = (View) getRequest().getAttributes().get("view");
+    	StudyCaseQuery query = (StudyCaseQuery) getRequest().getAttributes().get("query");
 
     	// First of all, we should try to deserialize what we have as an input.
     	// The interesting part is the entity field, which should contain the 
@@ -65,12 +69,15 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			}
 			
 			// And now we should write any attributes we have into the new
-			// case. 
+			// case. This should probably be done as a single operation to the
+			// repository.
 			ObjectNode attributes = caseData.getEntity();
 			Iterator<Map.Entry<String,JsonNode>> fieldIterator = attributes.fields();
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
-				getRepository().setCaseAttributeValue(study, view, newCase, field.getKey(), user, field.getValue());
+				ObjectNode values = jsonNodeFactory.objectNode();
+				values.replace(field.getKey(), field.getValue());
+				getRepository().setQueryAttributes(query, user, values);
 			}
 			
 			getRequest().getAttributes().put("entity", newCase);

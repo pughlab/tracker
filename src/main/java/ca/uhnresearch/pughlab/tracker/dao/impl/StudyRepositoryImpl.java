@@ -553,6 +553,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	
 	@Override
+	@Deprecated
 	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
 		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
@@ -570,10 +571,15 @@ public class StudyRepositoryImpl implements StudyRepository {
     	
     	ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
     	WritableValue writable = validator.validate(a, value);
-    	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute, writable.getValueClass());
+    	
+    	QueryStudyCaseQuery query = this.newStudyCaseQuery(study);
+    	query = (QueryStudyCaseQuery) addViewCaseMatcher(query, view);
+    	query = (QueryStudyCaseQuery) addStudyCaseSelector(query, caseValue.getId());
+    	
+    	Object oldValue = cap.getOldCaseAttributeValue(template, query, attribute, writable.getValueClass());
     	
     	writeAuditLogRecord(study, view, caseValue, attribute, userName, getJsonValue(oldValue), value);
-    	cap.writeCaseAttributeValue(template, study, view, caseValue, attribute, writable);
+    	cap.writeCaseAttributeValue(template, query, attribute, writable);
     	
     	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
     	// this if we have an UpdateEventService set. 
@@ -581,7 +587,18 @@ public class StudyRepositoryImpl implements StudyRepository {
     	sendUpdateEvent(study, view, caseValue, attribute, userName);
 	}
 	
-	
+	/**
+	 * Writing data into a StudyCaseQuery is a little more complex. We will end up with 
+	 * a case selection, which we can then use to make the insert/updates that we need to do. 
+	 * Much of the logic should be delegated to the CaseAttributePersistence layer.
+	 */
+	@Override
+	public ObjectNode setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 	private void sendUpdateEvent(final Study study, final View view, final Cases caseValue, final String attribute, final String userName) {
     	UpdateEventService manager = getUpdateEventService();
     	if (manager != null) {
@@ -673,7 +690,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	@Override
 	public QueryStudyCaseQuery newStudyCaseQuery(Study study) {
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
-		return new QueryStudyCaseQuery(sq);
+		return new QueryStudyCaseQuery(study, sq);
 	}
 	
 	@Override
@@ -717,13 +734,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 		if (pager.hasLimit()) {
 			sq = sq.limit(pager.getLimit().longValue());
 		}
-		return new QueryStudyCaseQuery(sq);
+		return new QueryStudyCaseQuery(scq.getStudy(), sq);
 	}
 
 	@Override
 	public StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
 		return query;
 	}
+
 
 	/** 
 	 * Refines a query to a single case, which can be found by identifier. This can then be incorporated
@@ -737,9 +755,10 @@ public class StudyRepositoryImpl implements StudyRepository {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
 		}
 
-		SQLSubQuery sq = ((QueryStudyCaseQuery) query).getQuery();
+		QueryStudyCaseQuery scq = (QueryStudyCaseQuery) query;
+		SQLSubQuery sq = scq.getQuery();
 		sq = sq.where(cases.id.eq(caseId));
-		return new QueryStudyCaseQuery(sq);
+		return new QueryStudyCaseQuery(scq.getStudy(), sq);
 	}
 
 	@Override

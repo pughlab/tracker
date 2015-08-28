@@ -161,6 +161,8 @@ public interface StudyRepository {
 	 * @return the case identifier
 	 */
 	Cases newStudyCase(Study study, View view, String userName) throws RepositoryException;
+	
+	ObjectNode setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException;
 
 	/**
 	 * Retrieves the record-level data for a given case, view and study from the repository
@@ -179,6 +181,7 @@ public interface StudyRepository {
 	/**
 	 * Writes the attribute value for a given case, view, study, and attribute to the repository
 	 */
+	@Deprecated
 	void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
 
 	void setUpdateEventService(UpdateEventService manager);

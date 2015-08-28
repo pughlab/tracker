@@ -20,12 +20,12 @@ import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
-import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityValueResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class EntityFieldResource extends StudyRepositoryResource<EntityValueResponse> {
@@ -34,6 +34,8 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 	
 	private JacksonConverter converter = new JacksonConverter();
 	
+	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
+
     @Put("json")
     public Representation putResource(Representation input) {
     	
@@ -41,9 +43,7 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     	Subject currentUser = SecurityUtils.getSubject();
 
     	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
-    	
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
+    	StudyCaseQuery query = (StudyCaseQuery) getRequest().getAttributes().get("query");
     	
     	String attribute = (String) getRequest().getAttributes().get("entityField");
     	
@@ -67,7 +67,9 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 		String user = principals.getPrimaryPrincipal().toString();
     	
     	try {
-			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, user, data.get("value"));
+    		ObjectNode values = jsonNodeFactory.objectNode();
+    		values.replace(attribute, data.get("value"));
+			getRepository().setQueryAttributes(query, user, values);
 		} catch (InvalidValueException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} catch (NotFoundException e) {
