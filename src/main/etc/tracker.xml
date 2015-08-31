@@ -132,7 +132,7 @@
 	        <Arg>
 	            <New class="org.apache.commons.dbcp.BasicDataSource">
 	                <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
-	                <Set name="url">jdbc:mysql://localhost:3306/working_tracker?sessionVariables=sql_mode=ansi</Set>
+	                <Set name="url">jdbc:mysql://localhost:3306/working_tracker?sessionVariables=sql_mode=ansi,strict_all_tables</Set>
 	                <Set name="username">tracker</Set>
 	                <Set name="password">tracker</Set>
                     <Set name="testOnBorrow">true</Set>
