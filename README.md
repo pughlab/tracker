@@ -33,7 +33,7 @@ yourself.
 
 Docker
 --------
-Download and install the latest version of (Docker)[http://docker.com] and 
+Download and install the latest version of [Docker](http://docker.com) and 
 build the container.
 
     sudo docker build -t tracker .
