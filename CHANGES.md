@@ -1,6 +1,14 @@
 ## Revision history
 
 
+### Version 2.0.1-RC1 - August 31st 2015
+
+ * Internal change: attributes are now linked by id rather than name
+ * Added a new role management interface and per-study roles
+ * Support for numeric fields
+ * Note: DB schema has changed
+
+
 ### Version 2.0.0-RC5 - August 17th 2015
 
  * Added support for OpenID Connect authentication
