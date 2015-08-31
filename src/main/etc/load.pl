@@ -531,11 +531,11 @@ sub write_data {
         carp("Invalid value: $value");
       }
 
-      $logger->trace("Values: ", join(', ', $case_id, $attribute, $value, localtime(), "load", $not_available));
+      $logger->trace("Values: ", join(', ', $case_id, $attribute_ids->{$attribute}, $value, localtime(), "load", $not_available));
       my $time = localtime();
       eval {
-        $dbh->do(qq{INSERT INTO $sql (case_id, attribute, value, not_available) VALUES (?, ?, ?, ?)}, {},
-          $case_id, $attribute, $value, $not_available);
+        $dbh->do(qq{INSERT INTO $sql (case_id, attribute_id, value, not_available) VALUES (?, ?, ?, ?)}, {},
+          $case_id, $attribute_ids->{$attribute}, $value, $not_available);
       };
       my $error = $@;
       if ($error) {
