@@ -1,6 +1,6 @@
 angular
   .module 'tracker.controls'
-  
+
   .directive 'selectizeTags', Array '$timeout', ($timeout) ->
     result =
       restrict: "A"
@@ -38,7 +38,11 @@ angular
         scope.$watchCollection 'model', (value, old) ->
           if selectize
             $timeout () ->
-              if value && Array.isArray(value)
+              if typeof value == 'undefined' and value != old
+                selectize.clearOptions()
+                selectize.setValue(value)
+                initialized = true
+              else if value && Array.isArray(value)
                 selectize.clearOptions()
                 for tag in value
                   selectize.addOption({text: tag})
@@ -52,6 +56,3 @@ angular
                 selectize.disable()
               else
                 selectize.enable()
-
-
-  

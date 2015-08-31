@@ -16,7 +16,7 @@ import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 
-public class AuditResource extends StudyRepositoryResource<AuditLogResponse> {
+public class AuditResource extends AuditLogRepositoryResource<AuditLogResponse> {
 
     @Get("json")
     public Representation getResource()  {
@@ -33,7 +33,7 @@ public class AuditResource extends StudyRepositoryResource<AuditLogResponse> {
     	Study study = (Study) getRequest().getAttributes().get("study");
     	
     	Subject currentUser = SecurityUtils.getSubject();
-    	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
+    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	
     	// Only administrators can get the audit log
     	if (! adminUser) {

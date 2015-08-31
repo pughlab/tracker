@@ -39,7 +39,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	Subject currentUser = SecurityUtils.getSubject();
 
     	Study study = (Study) getRequest().getAttributes().get("study");
-    	boolean writeUser = currentUser.isPermitted("study:write:" + study.getName());
+    	boolean writeUser = currentUser.isPermitted(study.getName() + ":write");
     	if (! writeUser) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}

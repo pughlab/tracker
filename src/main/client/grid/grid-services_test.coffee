@@ -98,6 +98,3 @@ describe 'Grid services', ->
       definitions[0].should.have.property('field', 'coffeeTime')
       definitions[0].should.have.property('displayName', 'Coffee Time')
       definitions[0].should.have.property('cellTemplate').and.match /cell-date/
-
-
-

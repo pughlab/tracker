@@ -6,7 +6,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.CollectionUtils;
 
 public class JdbcAuthorizingRealm extends JdbcRealm {
-
+	
 	/**
 	 * Indicator that authentication is not supported
 	 */

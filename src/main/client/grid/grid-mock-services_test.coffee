@@ -3,12 +3,12 @@ angular
 
   .factory 'mockEventEmitter', () ->
 
-    class EventEmitter 
+    class EventEmitter
 
       constructor: () ->
         @events = {}
 
-      on: (evt, fn) -> 
+      on: (evt, fn) ->
         @events[evt] ?= []
         @events[evt].push fn
 

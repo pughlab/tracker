@@ -21,14 +21,12 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeBooleans;
-import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeDates;
-import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
@@ -49,9 +47,9 @@ public class MockStudyRepository implements StudyRepository {
 	List<View> views = new ArrayList<View>();
 	Map<Integer, List<ViewAttributes>> viewAttributes = new HashMap<Integer, List<ViewAttributes>>();
 	List<Cases> cases = new ArrayList<Cases>();
-	List<CaseAttributeStrings> strings = new ArrayList<CaseAttributeStrings>();
-	List<CaseAttributeDates> dates = new ArrayList<CaseAttributeDates>();
-	List<CaseAttributeBooleans> booleans = new ArrayList<CaseAttributeBooleans>();
+	List<MockCaseAttribute> strings = new ArrayList<MockCaseAttribute>();
+	List<MockCaseAttribute> dates = new ArrayList<MockCaseAttribute>();
+	List<MockCaseAttribute> booleans = new ArrayList<MockCaseAttribute>();
 
 	public MockStudyRepository() {
 		
@@ -109,54 +107,30 @@ public class MockStudyRepository implements StudyRepository {
 		for(Integer i = 0; i < caseCount; i++) {
 			Calendar date = Calendar.getInstance();
 			date.set(2014, 8, i + 10);
-			dates.add(mockCaseAttributeDates(i, "dateEntered", new Date(date.getTimeInMillis())));
-			dates.add(mockCaseAttributeDates(i, "consentDate", new Date(date.getTimeInMillis())));
-			strings.add(mockCaseAttributeStrings(i, "patientId", String.format("DEMO-%02d", i)));
+			dates.add(new MockCaseAttribute(i, "dateEntered", new Date(date.getTimeInMillis())));
+			dates.add(new MockCaseAttribute(i, "consentDate", new Date(date.getTimeInMillis())));
+			strings.add(new MockCaseAttribute(i, "patientId", String.format("DEMO-%02d", i)));
 		}
 		
-		strings.add(mockCaseAttributeStrings(0, "mrn", "0101010"));
-		strings.add(mockCaseAttributeStrings(1, "mrn", "0202020"));
-		strings.add(mockCaseAttributeStrings(2, "mrn", "0303030"));
-		strings.add(mockCaseAttributeStrings(3, "mrn", "0404040"));
-		strings.add(mockCaseAttributeStrings(4, "mrn", "0505050"));
+		strings.add(new MockCaseAttribute(0, "mrn", "0101010"));
+		strings.add(new MockCaseAttribute(1, "mrn", "0202020"));
+		strings.add(new MockCaseAttribute(2, "mrn", "0303030"));
+		strings.add(new MockCaseAttribute(3, "mrn", "0404040"));
+		strings.add(new MockCaseAttribute(4, "mrn", "0505050"));
 
-		booleans.add(mockCaseAttributeBooleans(0, "specimenAvailable", true));
-		booleans.add(mockCaseAttributeBooleans(1, "specimenAvailable", false));
-		booleans.add(mockCaseAttributeBooleans(2, "specimenAvailable", true));
-		CaseAttributeBooleans bv = mockCaseAttributeBooleans(3, "specimenAvailable", null);
+		booleans.add(new MockCaseAttribute(0, "specimenAvailable", true));
+		booleans.add(new MockCaseAttribute(1, "specimenAvailable", false));
+		booleans.add(new MockCaseAttribute(2, "specimenAvailable", true));
+		MockCaseAttribute bv = new MockCaseAttribute(3, "specimenAvailable", null);
 		bv.setNotAvailable(true);
 		booleans.add(bv);
-		booleans.add(mockCaseAttributeBooleans(4, "specimenAvailable", false));
+		booleans.add(new MockCaseAttribute(4, "specimenAvailable", false));
 	}
 	
 	private Cases mockCase(Integer id) {
 		Cases c = new Cases();
 		c.setId(id);
 		return c;
-	}
-	
-	private CaseAttributeStrings mockCaseAttributeStrings(Integer caseId, String attribute, String value) {
-		CaseAttributeStrings obj = new CaseAttributeStrings();
-		obj.setCaseId(caseId);
-		obj.setAttribute(attribute);
-		obj.setValue(value);
-		return obj;
-	}
-	
-	private CaseAttributeDates mockCaseAttributeDates(Integer caseId, String attribute, Date value) {
-		CaseAttributeDates obj = new CaseAttributeDates();
-		obj.setCaseId(caseId);
-		obj.setAttribute(attribute);
-		obj.setValue(value);
-		return obj;
-	}
-	
-	private CaseAttributeBooleans mockCaseAttributeBooleans(Integer caseId, String attribute, Boolean value) {
-		CaseAttributeBooleans obj = new CaseAttributeBooleans();
-		obj.setCaseId(caseId);
-		obj.setAttribute(attribute);
-		obj.setValue(value);
-		return obj;
 	}
 	
 	private ViewAttributes mockViewAttribute(Attributes att, JsonNode viewOptions) {
@@ -271,6 +245,18 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getStudyAttributes
 	 */
+	public Attributes getStudyAttribute(Study study, String name) {
+		for (Attributes a : attributes) {
+			if (name.equals(a.getName())) {
+				return a;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * A mocked getStudyAttributes
+	 */
 	public void setStudyAttributes(Study study, List<Attributes> attributes) {
 		this.attributes = attributes;
 	}
@@ -304,7 +290,7 @@ public class MockStudyRepository implements StudyRepository {
 				data.put(caseRecord.getId(), new JsonObject());
 			}
 		}
-		for(CaseAttributeStrings string : strings) {
+		for(MockCaseAttribute string : strings) {
 			Integer caseId = string.getCaseId();
 			if (! data.containsKey(caseId)) {
 				data.put(caseId, new JsonObject());
@@ -312,10 +298,10 @@ public class MockStudyRepository implements StudyRepository {
 			if (string.getNotAvailable()) {
 				data.get(caseId).add(string.getAttribute(), getNotAvailableValue());
 			} else {
-				data.get(caseId).addProperty(string.getAttribute(), string.getValue());
+				data.get(caseId).addProperty(string.getAttribute(), (String) string.getValue());
 			}
 		}
-		for(CaseAttributeDates date : dates) {
+		for(MockCaseAttribute date : dates) {
 			Integer caseId = date.getCaseId();
 			if (! data.containsKey(caseId)) {
 				data.put(caseId, new JsonObject());
@@ -326,7 +312,7 @@ public class MockStudyRepository implements StudyRepository {
 				data.get(caseId).addProperty(date.getAttribute(), date.getValue().toString());
 			}
 		}
-		for(CaseAttributeBooleans bool : booleans) {
+		for(MockCaseAttribute bool : booleans) {
 			Integer caseId = bool.getCaseId();
 			if (! data.containsKey(caseId)) {
 				data.put(caseId, new JsonObject());
@@ -334,7 +320,7 @@ public class MockStudyRepository implements StudyRepository {
 			if (bool.getNotAvailable()) {
 				data.get(caseId).add(bool.getAttribute(), getNotAvailableValue());
 			} else {
-				data.get(caseId).addProperty(bool.getAttribute(), bool.getValue());
+				data.get(caseId).addProperty(bool.getAttribute(), (Boolean) bool.getValue());
 			}
 		}
 		
@@ -445,15 +431,6 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	/**
-	 * Mocked implementation of getAuditData, which doesn't really return anything useful. 
-	 */
-	@Override
-	public List<JsonNode> getAuditData(Study study, CaseQuery query) {
-		
-		return new ArrayList<JsonNode>();
-	}
-
-	/**
 	 * Mocked setter for an update event manager
 	 */
 	public void setUpdateEventService(UpdateEventService manager) {
@@ -466,5 +443,10 @@ public class MockStudyRepository implements StudyRepository {
 		newCase.setId(nextCaseId++);
 		cases.add(newCase);
 		return newCase;
+	}
+
+	@Override
+	public void setAuditLogRepository(AuditLogRepository repository) {
+		// Auto-generated method stub
 	}
 }

@@ -1,32 +1,48 @@
 package ca.uhnresearch.pughlab.tracker.domain;
 
 import static com.mysema.query.types.PathMetadataFactory.*;
-import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeBooleans;
 
+import com.mysema.query.types.OrderSpecifier;
+import com.mysema.query.types.Path;
+import com.mysema.query.types.expr.ComparableExpressionBase;
 import com.mysema.query.types.path.*;
 import com.mysema.query.sql.ColumnMetadata;
 
 import java.sql.Types;
 
-public class QCaseAttributeBooleans extends QCaseAttributeBase<CaseAttributeBooleans> {
+/**
+ * Query mapping for the boolean attributes table. 
+ * @author stuartw
+ */
+public class QCaseAttributeBooleans extends QCaseAttributeBase<Boolean> {
 
     private static final long serialVersionUID = -1225368846;
 
-    public static final QCaseAttributeBooleans caseAttributeBooleans = new QCaseAttributeBooleans("case_attribute_booleans");
+    public static final QCaseAttributeBooleans caseAttributes = new QCaseAttributeBooleans("case_attribute_booleans");
 
     public final BooleanPath value = createBoolean("value");
-
-    public final com.mysema.query.sql.PrimaryKey<CaseAttributeBooleans> primary = createPrimaryKey(id);
-
+    
     public QCaseAttributeBooleans(String variable) {
-        super(CaseAttributeBooleans.class, forVariable(variable), "null", "case_attribute_booleans");
-        addMetadata();
+        super(forVariable(variable), "null", "case_attribute_booleans");
     }
+    
+    @Override
+    public ComparableExpressionBase<? extends Comparable<?>> getValue() {
+    	return value;
+    };
+    
+    @Override
+    public Path<Boolean> getValuePath(Class<? extends Object> cls) {
+    	return value;
+    };
 
-    public void addMetadata() {
-    	super.addMetadata();
+    @Override
+    public OrderSpecifier<? extends Comparable<?>> getValueOrderSpecifier(boolean ascending) {
+    	return ascending ? value.asc() : value.desc();
+    };
+
+    {
         addMetadata(value, ColumnMetadata.named("VALUE").withIndex(3).ofType(Types.BIT));
     }
-
 }
 

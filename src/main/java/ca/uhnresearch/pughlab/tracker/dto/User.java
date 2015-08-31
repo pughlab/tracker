@@ -49,6 +49,8 @@ public class User {
 				setUsername(profile.getAttribute("preferred_username").toString());
 				setDisplayName(profile.getAttribute("name").toString());
 				setEmail(profile.getAttribute("email").toString());
+			} else {
+				throw new RuntimeException("Unexpected principal type: " + p.getClass().getCanonicalName());
 			}
 		}
 		

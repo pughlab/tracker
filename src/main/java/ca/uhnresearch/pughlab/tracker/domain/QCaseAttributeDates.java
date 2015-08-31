@@ -1,32 +1,48 @@
 package ca.uhnresearch.pughlab.tracker.domain;
 
 import static com.mysema.query.types.PathMetadataFactory.*;
-import ca.uhnresearch.pughlab.tracker.dto.CaseAttributeDates;
 
-import com.mysema.query.types.path.*;
 import com.mysema.query.sql.ColumnMetadata;
+import com.mysema.query.types.OrderSpecifier;
+import com.mysema.query.types.Path;
+import com.mysema.query.types.expr.ComparableExpressionBase;
+import com.mysema.query.types.path.DatePath;
 
 import java.sql.Types;
 
-public class QCaseAttributeDates extends QCaseAttributeBase<CaseAttributeDates> {
+/**
+ * Query mapping for the date attributes table. 
+ * @author stuartw
+ */
+public class QCaseAttributeDates extends QCaseAttributeBase<java.sql.Date> {
 
     private static final long serialVersionUID = 1605860926;
 
-    public static final QCaseAttributeDates caseAttributeDates = new QCaseAttributeDates("case_attribute_dates");
+    public static final QCaseAttributeDates caseAttributes = new QCaseAttributeDates("case_attribute_dates");
+
+    public QCaseAttributeDates(String variable) {
+        super(forVariable(variable), "null", "case_attribute_dates");
+    }
 
     public final DatePath<java.sql.Date> value = createDate("value", java.sql.Date.class);
 
-    public final com.mysema.query.sql.PrimaryKey<CaseAttributeDates> primary = createPrimaryKey(id);
+    @Override
+    public Path<java.sql.Date> getValuePath(Class<? extends Object> cls) {
+    	return value;
+    };
 
-    public QCaseAttributeDates(String variable) {
-        super(CaseAttributeDates.class, forVariable(variable), "null", "case_attribute_dates");
-        addMetadata();
-    }
+	@Override
+	public ComparableExpressionBase<? extends Comparable<?>> getValue() {
+		return value;
+	}
 
-    public void addMetadata() {
-    	super.addMetadata();
+	@Override
+	public OrderSpecifier<? extends Comparable<?>> getValueOrderSpecifier(boolean ascending) {
+		return ascending ? value.asc() : value.desc();
+	}
+
+    {
         addMetadata(value, ColumnMetadata.named("VALUE").withIndex(3).ofType(Types.DATE).withSize(10));
     }
-
 }
 

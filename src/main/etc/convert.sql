@@ -14,13 +14,13 @@ ALTER TABLE audit_log MODIFY event_user varchar(128) NOT NULL;
 
 CREATE TABLE roles (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(64) NOT NULL, 
+  name VARCHAR(64) NOT NULL,
   UNIQUE (name)
 );
 
 CREATE TABLE user_roles (
   id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(128) NOT NULL, 
+  username VARCHAR(128) NOT NULL,
   role_id INTEGER NOT NULL REFERENCES roles(id)
 );
 
@@ -40,11 +40,11 @@ SELECT u.username AS username, r.id
 FROM study_role_users sru
 JOIN users u ON u.id = sru.user_id
 JOIN study_roles sr ON sru.study_role_id = sr.id
-JOIN roles r 
+JOIN roles r
 WHERE sr.study_id IS NULL
 AND r.name = 'ROLE_ADMIN';
 
-INSERT INTO roles (name) 
+INSERT INTO roles (name)
 SELECT CONCAT('ROLE_', UCASE(s.name), '_', UCASE(REPLACE(sr.name, ' ', ''))) AS name
 FROM study_roles sr JOIN studies s ON sr.study_id = s.id;
 

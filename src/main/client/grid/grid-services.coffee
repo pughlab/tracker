@@ -3,7 +3,7 @@ angular
 
   ## We have an endpoint that returns a cell/entity history, but that isn't especially
   ## useful for us directly. This service formats it into HTML that can be rendered
-  ## in a tooltip. That means we can do formatting niceness. 
+  ## in a tooltip. That means we can do formatting niceness.
 
   .factory 'renderHistory', () ->
 
@@ -17,7 +17,7 @@ angular
           newValue = "N/A" if typeof newValue == 'object' and newValue['$notAvailable']
           "<div class='history-entry'>" +
           "<span class='history-username'>#{entry.event_user}</span>, " +
-          "<span class='history-modified'>#{(new Date(entry.event_time)).toLocaleString()}</span>: " + 
+          "<span class='history-modified'>#{(new Date(entry.event_time)).toLocaleString()}</span>: " +
           "<span class='history-comment'>Changed from '#{oldValue}' to '#{newValue}'</span>" +
           "</div>"
 
@@ -52,18 +52,18 @@ angular
 
           if response.history?.length
             content = renderHistory(response.history)
-  
+
             cellElement = gridCellFinder scope.row.grid, scope.row.entity.id, scope.col.colDef.field
-            
+
             template = '<div class="popover right fade history-popover">' +
                        '  <div class="arrow"></div>' +
-                       '  <div class="popover-inner">' + 
+                       '  <div class="popover-inner">' +
                        '    <div class="popover-content history-popover-content scrollable">' + content + '</div>' +
                        '  </div>' +
                        '</div>'
-  
+
             tooltipElement = angular.element(template)
-  
+
             positionTooltip = () ->
               ttPosition = $position.positionElements(cellElement, tooltipElement, "right", true)
 
@@ -75,7 +75,7 @@ angular
               ttPosition.top += 'px'
               ttPosition.left += 'px'
               tooltipElement.css ttPosition
-  
+
             $document.find('body').append(tooltipElement)
             positionTooltip()
             tooltipElement.addClass 'in'

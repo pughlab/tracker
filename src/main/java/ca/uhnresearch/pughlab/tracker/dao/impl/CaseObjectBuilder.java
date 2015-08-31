@@ -79,6 +79,8 @@ public class CaseObjectBuilder {
 				obj.put(attributeName, ((Date) value).toString());
 			} else if (value instanceof Boolean) {
 				obj.put(attributeName, (Boolean) value);
+			} else if (value instanceof Double) {
+				obj.put(attributeName, (Double) value);
 			} else {
 				throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
 			}

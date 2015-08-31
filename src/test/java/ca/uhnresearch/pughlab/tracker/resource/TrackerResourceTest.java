@@ -54,12 +54,12 @@ public class TrackerResourceTest extends AbstractShiroTest {
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:write:OTHER")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:admin:OTHER")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:download:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("OTHER:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:download")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -89,15 +89,15 @@ public class TrackerResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:download:DEMO")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:download")).andStubReturn(true);
         
-        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:write:OTHER")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:admin:OTHER")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:download:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:download")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -128,15 +128,15 @@ public class TrackerResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         
-        expect(subjectUnderTest.isPermitted("study:admin:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:read:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:write:DEMO")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:download:DEMO")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:download")).andStubReturn(false);
 
-        expect(subjectUnderTest.isPermitted("study:admin:OTHER")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:read:OTHER")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:write:OTHER")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("study:download:OTHER")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:download")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 

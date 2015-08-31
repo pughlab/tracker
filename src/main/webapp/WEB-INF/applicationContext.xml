@@ -14,8 +14,13 @@
 	                    
 	<bean id="trackerComponent" class="org.restlet.ext.spring.SpringComponent">
 		<property name="defaultTarget" ref="trackerApplication" />
+        <property name="logService" ref="logService" />
 	</bean>
 	
+    <bean id="logService" class="org.restlet.service.LogService">
+        <property name="loggerName" value="http" />
+    </bean>
+    
 	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     	<property name="targetObject"><value>#{trackerComponent.getClients()}</value></property>
     	<property name="targetMethod"><value>add</value></property>

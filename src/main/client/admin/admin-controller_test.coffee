@@ -29,7 +29,7 @@ describe 'StudyEditorController', ->
         "studyId": 1,
         "studyName": "DEMO",
         "views": [
-          {id:1, study_id:1, name:"manage"}, 
+          {id:1, study_id:1, name:"manage"},
           {id:2, study_id:1, name:"track"}
         ]
       }
@@ -83,7 +83,7 @@ describe 'StudyEditorController', ->
         "studyId": 1,
         "studyName": "DEMO",
         "views": [
-          {id:1, study_id:1, name:"manage"}, 
+          {id:1, study_id:1, name:"manage"},
           {id:2, study_id:1, name:"track"}
         ]
       }
@@ -122,7 +122,7 @@ describe 'StudyEditorController', ->
         "studyId": 1,
         "studyName": "DEMO",
         "views": [
-          {id:1, study_id:1, name:"manage"}, 
+          {id:1, study_id:1, name:"manage"},
           {id:2, study_id:1, name:"track"}
         ]
       }
@@ -137,7 +137,7 @@ describe 'StudyEditorController', ->
 
     should.exist(scope.selectedAttribute)
     scope.deleteAttribute scope.selectedAttribute
-    
+
     scope.study.attributes.should.be.instanceof(Array).and.have.lengthOf(2)
 
     scope.save()
@@ -147,4 +147,3 @@ describe 'StudyEditorController', ->
     should.not.exist(scope.selectedAttribute)
 
     scope.study.attributes.should.be.instanceof(Array).and.have.lengthOf(2)
-

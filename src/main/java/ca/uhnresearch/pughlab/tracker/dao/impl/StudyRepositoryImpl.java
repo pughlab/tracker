@@ -1,17 +1,10 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -24,16 +17,16 @@ import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
-import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.OrderSpecifier;
-import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
+import com.mysema.query.types.query.NumberSubQuery;
 
+import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
@@ -41,18 +34,16 @@ import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLog;
+import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
-import static ca.uhnresearch.pughlab.tracker.domain.QAuditLog.auditLog;
+import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
+import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
-import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBooleans.caseAttributeBooleans;
-import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeDates.caseAttributeDates;
-import static ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings.caseAttributeStrings;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
 import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttributes;
@@ -66,12 +57,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private final Logger logger = LoggerFactory.getLogger(StudyRepositoryImpl.class);
 	
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
-	
-	private static ObjectMapper objectMapper = new ObjectMapper();
-	
+		
 	private UpdateEventService manager;
 
 	private QueryDslJdbcTemplate template;
+	
+	private AuditLogRepository auditLogRepository;
+	
+	private CaseAttributePersistence cap = new CaseAttributePersistence();
 
 	@Required
     public void setTemplate(QueryDslJdbcTemplate template) {
@@ -217,6 +210,23 @@ public class StudyRepositoryImpl implements StudyRepository {
     	return attributeList;
 	}
 
+    /**
+     * Returns a single named attributes for a given study. 
+     * @param study
+     * @param name
+     * @return
+     */
+	public Attributes getStudyAttribute(Study study, String name) {
+		logger.debug("Looking for study attribute: {}", name);
+		
+		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
+    	    .where(attributes.studyId.eq(study.getId()).and(attributes.name.eq(name)));
+		
+		logger.debug("Executing query: {}", sqlQuery.toString());
+
+    	return template.queryForObject(sqlQuery, new AttributeProjection(attributes));
+	}
+
 	private void insertView(final View v) {
 		template.insert(views, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
@@ -331,7 +341,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			Attributes newAttribute = newAttributes.get(a.getId());
 			if (newAttribute != null) {
 				// We have both old and new -- this is an update!
-				updateAttribute(a);
+				updateAttribute(newAttribute);
 			} else {
 				// Old but no new, delete the attribute, remembering to
 				// delete from all views too.
@@ -439,9 +449,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		// If we have an ordering, use a left join to get the attribute, and order it later
 		if (query.getOrderField() != null) {
+			NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()
+					.from(attributes)
+					.where(attributes.name.eq(query.getOrderField()).and(attributes.studyId.eq(study.getId())))
+					.unique(attributes.id);
 			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
-			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attribute.eq(query.getOrderField())));
-			OrderSpecifier<String> ordering = (query.getOrderDirection() == CaseQuery.OrderDirection.ASC) ? c.value.asc() : c.value.desc();
+			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
+			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(query.getOrderDirection() == CaseQuery.OrderDirection.ASC);
 			sq = sq.orderBy(ordering);
 		}
 		
@@ -454,38 +468,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 		return sq.list(cases.id);
 	}
-		
-	private List<ObjectNode> getJsonData(ListSubQuery<Integer> query) {
-		
-		SQLQuery caseIdQuery = template.newSqlQuery().from(query.as(cases));
-		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
-		CaseObjectBuilder builder = new CaseObjectBuilder(caseIds);
-
-		// Right. Now we can add in the attributes from a set of related queries, using the same basic
-		// case query as a starting point. Yes, we're re-doing this query more times than I'd like, but
-		// we can optimize later.
-		
-		// Sadly, we are returning all attributes rather than just the ones that are accessible. In
-		// effect, we don't use attributes as a filter. 
-				
-		SQLQuery sqlQuery;
-		List<Tuple> values;
-		
-		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId));
-		values = template.query(sqlQuery, new QTuple(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable, caseAttributeStrings.notes));
-		builder.addTupleAttributes(values);
-
-		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeDates).on(cases.id.eq(caseAttributeDates.caseId));
-		values = template.query(sqlQuery, new QTuple(caseAttributeDates.caseId, caseAttributeDates.attribute, caseAttributeDates.value, caseAttributeDates.notAvailable, caseAttributeDates.notes));
-		builder.addTupleAttributes(values);
-
-		sqlQuery = template.newSqlQuery().from(query.as(cases)).innerJoin(caseAttributeBooleans).on(cases.id.eq(caseAttributeBooleans.caseId));
-		values = template.query(sqlQuery, new QTuple(caseAttributeBooleans.caseId, caseAttributeBooleans.attribute, caseAttributeBooleans.value, caseAttributeBooleans.notAvailable, caseAttributeBooleans.notes));
-		builder.addTupleAttributes(values);
-
-		return builder.getCaseObjects();
-	}
-	
+			
 	/**
 	 * Main method for extracting record-level case data into something that can be returned. Here
 	 * the logic is very schemaless, so this method returns a list of Jackson JsonNode instances,
@@ -508,7 +491,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// method. This hugely reduces the complexity of the DSL here too. 
 		
 		ListSubQuery<Integer> caseQuery = getStudySubQueryCaseQuery(study, query);
-		return getJsonData(caseQuery);
+		return cap.getJsonData(template, study, view, caseQuery);
 	}
 
 	/**
@@ -539,7 +522,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseValue.getId());
-		List<ObjectNode> listData = getJsonData(caseQuery);
+		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseQuery);
 		if (listData.size() == 1) {
 			return listData.get(0);
 		} else {
@@ -573,14 +556,43 @@ public class StudyRepositoryImpl implements StudyRepository {
 		return caseData.get(attribute);
 	}
 	
-
-	private JsonNode getNotAvailableValue() {
-		ObjectNode marked = jsonNodeFactory.objectNode();
-		marked.put("$notAvailable", Boolean.TRUE);
-		return marked;
+	
+	private JsonNode getJsonValue(Object value) {
+		if (value == null) {
+			return jsonNodeFactory.nullNode();
+		} else if (value instanceof JsonNode) {
+			return (JsonNode) value;
+		} else if (value instanceof String) {
+			return jsonNodeFactory.textNode((String) value);
+		} else if (value instanceof Boolean) {
+			return jsonNodeFactory.booleanNode((Boolean) value);
+		} else if (value instanceof java.sql.Date) {
+			return jsonNodeFactory.textNode((String) value.toString());
+		} else if (value instanceof Number) {
+			return jsonNodeFactory.numberNode(((Number) value).doubleValue());
+		} else {
+			throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
+		}
 	}
+	
+	
+	protected void writeAuditLogRecord(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode oldValue, JsonNode value) {
+		
+    	final ObjectNode auditLogValues = jsonNodeFactory.objectNode();
+    	auditLogValues.replace("old", oldValue);
+		auditLogValues.replace("value", value);
 
-
+		AuditLogRecord record = new AuditLogRecord();
+		record.setStudyId(study.getId());
+		record.setCaseId(caseValue.getId());
+		record.setAttribute(attribute);
+		record.setEventType("set_value");
+		record.setEventUser(userName);
+		record.setEventArgs(auditLogValues.toString());
+		auditLogRepository.writeAuditLogRecord(record);
+	}
+	
+	
 	@Override
 	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
 		
@@ -597,123 +609,21 @@ public class StudyRepositoryImpl implements StudyRepository {
     		throw new NotFoundException("Can't find attribute: " + attribute);
     	}
     	
-    	// Now let's pull the current attribute value, if it exists, mainly so we can generate an audit entry for it.
-    	Tuple oldValue;
-    	final ObjectNode auditLogValues = jsonNodeFactory.objectNode();
-
-    	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING) || a.getType().equals(Attributes.ATTRIBUTE_TYPE_OPTION)) {
-    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeStrings).on(cases.id.eq(caseAttributeStrings.caseId)).where(cases.id.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)));
-    		oldValue = template.queryForObject(query, new QTuple(caseAttributeStrings.value, caseAttributeStrings.notAvailable));
-    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
-    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeDates).on(cases.id.eq(caseAttributeDates.caseId)).where(cases.id.eq(caseValue.getId()).and(caseAttributeDates.attribute.eq(attribute)));
-    		oldValue = template.queryForObject(query, new QTuple(caseAttributeDates.value, caseAttributeDates.notAvailable));
-    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
-    		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(caseAttributeBooleans).on(cases.id.eq(caseAttributeBooleans.caseId)).where(cases.id.eq(caseValue.getId()).and(caseAttributeBooleans.attribute.eq(attribute)));
-    		oldValue = template.queryForObject(query, new QTuple(caseAttributeBooleans.value, caseAttributeBooleans.notAvailable));    		
-    	} else {
-    		throw new RuntimeException("Invalid attribute type: " + a.getType());
-    	}
+    	ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
+    	WritableValue writable = validator.validate(a, value);
+    	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute, writable.getValueClass());
     	
-    	// It is very possible there is no old value, so we ought to handle that appropriately.
-    	Object oldRawValue = oldValue == null ? null : oldValue.get(0, Object.class);
-		Boolean oldNotAvailable = oldValue == null ? false : oldValue.get(1, Boolean.class);
-		if (oldNotAvailable) {
-			auditLogValues.replace("old", getNotAvailableValue());
-		} else if (oldRawValue == null) {
-			auditLogValues.put("old", (String) oldRawValue);
-		} else if (oldRawValue instanceof String) {
-			auditLogValues.put("old", (String) oldRawValue);
-		} else if (oldRawValue instanceof Date) {
-			auditLogValues.put("old", ((Date) oldRawValue).toString());
-		} else if (oldRawValue instanceof Boolean) {
-			auditLogValues.put("old", (Boolean) oldRawValue);
-		} else {
-			throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
-		}
-
-		// Right. Now we can add the new value. Which is much easier, as it's already encoded.
-		auditLogValues.replace("value", value);
-		
-    	// So here we know what type of attribute we have, and can therefore build a query to
-    	// write into the correct table. 
-    	    	
-    	template.insert(auditLog, new SqlInsertCallback() {
-    		public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-    			return sqlInsertClause.columns(auditLog.studyId, auditLog.caseId, auditLog.attribute, auditLog.eventType, auditLog.eventUser, auditLog.eventTime, auditLog.eventArgs)
-    				.values(study.getId(), caseValue.getId(), attribute, "set_value", userName, new Timestamp((new java.util.Date()).getTime()), auditLogValues.toString())
-    				.execute();
-    		};
-    	});
-    	
-    	// And next, we ought to either (a) insert, or (b) update, existing values. There are lots of nasty combinations of
-    	// conditions here, because we have several tables and we may need to either insert or update, and of course, to 
-    	// figure out which. The easiest is to an attempt an update, and insert if no rows were affected.
-    	
-    	final Boolean valueNotAvailable = value != null && value.isObject() && value.has("$notAvailable");
-    	JsonNode valueNode = valueNotAvailable ? null : value;
-    	
-    	// Yuck, yuck, yuck! I'd love to do this better, but I can't think of an easy way. The values are of 
-    	// different types. Possible multiple inner classes might be one way. 
-    	
-    	if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING)) {
-    		
-    		if (valueNode != null && ! valueNode.isTextual()) {
-    			throw new InvalidValueException("Invalid string value: " + valueNode.toString());
-    		}
-    		String finalValue = valueNode == null ? null : valueNode.asText();
-    		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable,finalValue);
-    		
-    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_OPTION)) {
-    		
-    		// Option values should also match one of the specified original values from the 
-    		// attribute definition.
-    		
-    		if (a.getOptions() == null || ! a.getOptions().has("values") || ! a.getOptions().get("values").isArray()) {
-    			throw new InvalidValueException("No option values specified: " + a.getName());
-    		}
-    		
-    		if (valueNode != null) {
-        		Boolean found = false;
-        		Iterator<JsonNode> elements = a.getOptions().get("values").elements();
-        		while(elements.hasNext()) {
-        			if (elements.next().equals(valueNode)) {
-        				found = true;
-        				break;
-        			}
-        		}
-        		if (! found) {
-        			throw new InvalidValueException("Invalid string value: " + valueNode.toString());
-        		}
-    		}
-    		String finalValue = valueNode == null ? null : valueNode.asText();
-    		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable,finalValue);
-
-		} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
-			
-    		if (valueNode != null && ! valueNode.isTextual()) {
-    			throw new InvalidValueException("Invalid date value: " + valueNode.toString());
-    		}
-    		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    		try {
-				Date finalValue = valueNode == null ? null : new Date(format.parse(valueNode.asText()).getTime());
-	    		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable, finalValue);				
-			} catch (ParseException e) {
-				throw new InvalidValueException("Invalid date value: " + valueNode.toString());
-			}
-    		
-    	} else if (a.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
-    		
-    		if (valueNode != null && ! valueNode.isBoolean()) {
-    			throw new InvalidValueException("Invalid boolean value: " + valueNode.toString());
-    		}
-    		Boolean finalValue = valueNode == null ? null : valueNode.asBoolean();
-    		writeCaseAttributeValue(caseValue, attribute, valueNotAvailable, finalValue);
-    		
-    	}
+    	writeAuditLogRecord(study, view, caseValue, attribute, userName, getJsonValue(oldValue), value);
+    	cap.writeCaseAttributeValue(template, study, view, caseValue, attribute, writable);
     	
     	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
     	// this if we have an UpdateEventService set. 
     	
+    	sendUpdateEvent(study, view, caseValue, attribute, userName);
+	}
+	
+	
+	private void sendUpdateEvent(final Study study, final View view, final Cases caseValue, final String attribute, final String userName) {
     	UpdateEventService manager = getUpdateEventService();
     	if (manager != null) {
     		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_SET_FIELD);
@@ -729,105 +639,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 
     		manager.sendMessage(event);
     	}
-	}
-	
-	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final String value) {
-		final String writableValue = valueNotAvailable ? null : value;
-		long updateCount = template.update(caseAttributeStrings, new SqlUpdateCallback() { 
-			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(caseAttributeStrings.caseId.eq(caseValue.getId()).and(caseAttributeStrings.attribute.eq(attribute)))
-					.set(caseAttributeStrings.notAvailable, valueNotAvailable)
-					.set(caseAttributeStrings.value, writableValue)
-					.execute();
-			};
-		});
-		if (updateCount == 1) return;
-		template.insert(caseAttributeStrings, new SqlInsertCallback() { 
-			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.columns(caseAttributeStrings.caseId, caseAttributeStrings.attribute, caseAttributeStrings.value, caseAttributeStrings.notAvailable)
-					.values(caseValue.getId(), attribute, writableValue, valueNotAvailable)
-					.execute();
-			};
-		});
-
-	}
-
-	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final Date value) {
-		final Date writableValue = valueNotAvailable ? null : value;
-		long updateCount = template.update(caseAttributeDates, new SqlUpdateCallback() { 
-			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(caseAttributeDates.caseId.eq(caseValue.getId()).and(caseAttributeDates.attribute.eq(attribute)))
-					.set(caseAttributeDates.notAvailable, valueNotAvailable)
-					.set(caseAttributeDates.value, writableValue)
-					.execute();
-			};
-		});
-		if (updateCount == 1) return;
-		template.insert(caseAttributeDates, new SqlInsertCallback() { 
-			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.columns(caseAttributeDates.caseId, caseAttributeDates.attribute, caseAttributeDates.value, caseAttributeDates.notAvailable)
-					.values(caseValue.getId(), attribute, writableValue, valueNotAvailable)
-					.execute();
-			};
-		});
-	}
-
-	private void writeCaseAttributeValue(final Cases caseValue, final String attribute, final Boolean valueNotAvailable, final Boolean value) {
-		final Boolean writableValue = valueNotAvailable ? null : value;
-		long updateCount = template.update(caseAttributeBooleans, new SqlUpdateCallback() { 
-			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(caseAttributeBooleans.caseId.eq(caseValue.getId()).and(caseAttributeBooleans.attribute.eq(attribute)))
-					.set(caseAttributeBooleans.notAvailable, valueNotAvailable)
-					.set(caseAttributeBooleans.value, writableValue)
-					.execute();
-			};
-		});
-		if (updateCount == 1) return;
-		template.insert(caseAttributeBooleans, new SqlInsertCallback() { 
-			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.columns(caseAttributeBooleans.caseId, caseAttributeBooleans.attribute, caseAttributeBooleans.value, caseAttributeBooleans.notAvailable)
-					.values(caseValue.getId(), attribute, writableValue, valueNotAvailable)
-					.execute();
-			};
-		});
-	}
-
-	@Override
-	public List<JsonNode> getAuditData(Study study, CaseQuery query) {
-		
-		
-		SQLQuery sq = template.newSqlQuery().from(auditLog).where(auditLog.studyId.eq(study.getId())).orderBy(auditLog.eventTime.desc());
-		
-		if (query.getOffset() != null) {
-			sq = sq.offset(query.getOffset());
-		}
-		if (query.getLimit() != null) {
-			sq = sq.limit(query.getLimit());
-		}
-	
-    	List<AuditLog> data = template.query(sq, auditLog);
-    	List<JsonNode> result = new ArrayList<JsonNode>();
-    	
-    	for(AuditLog audit : data) {
-    		ObjectNode obj = jsonNodeFactory.objectNode();
-    		obj.put("caseId", audit.getCaseId());
-    		obj.put("attribute", audit.getAttribute());
-    		obj.put("eventTime", audit.getEventTime().toString());
-    		obj.put("eventType", audit.getEventType());
-    		obj.put("eventUser", audit.getEventUser());
-			JsonNode argsNode = null;
-			logger.debug("Got data: {}", audit.getEventArgs().toString());
-			try {
-				argsNode = objectMapper.readTree(audit.getEventArgs());
-			} catch (Exception e) {
-				logger.error("Invalid JSON arguments: {}, {}", e.getMessage(), audit.getEventArgs());
-			}
-			
-			obj.replace("eventArgs", argsNode);
-    		result.add(obj);
-    	}
-
-		return result;
 	}
 	
 	/**
@@ -883,6 +694,11 @@ public class StudyRepositoryImpl implements StudyRepository {
     	}
     	
 		return newCase;
+	}
+
+	@Override
+	public void setAuditLogRepository(AuditLogRepository repository) {
+		auditLogRepository = repository;
 	}
 }
 

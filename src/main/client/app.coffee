@@ -9,10 +9,8 @@ angular
     'tracker.pages'
     'tracker.studies'
     'tracker.grid'
-    'tracker.authorization'
     'tracker.authentication'
     'tracker.admin'
-    'tracker.account'
     'tracker.error'
     'tracker-templates'
   ]
@@ -39,7 +37,25 @@ angular
       .state 'adminStudy',
         controller: 'StudyEditorController'
         templateUrl: '/tracker/admin/admin.html'
-        url: '/admin/:studyName/edit'
+        abstract: true
+        url: '/admin/:studyName'
+        resolve:
+          studyName: Array '$stateParams', ($stateParams) -> $stateParams.studyName
+      .state 'adminStudy.settings',
+        templateUrl: '/tracker/admin/admin-study-settings.html'
+        url: ''
+      .state 'adminStudy.attributes',
+        controller: 'AttributeEditorController'
+        templateUrl: '/tracker/admin/admin-study-attributes.html'
+        url: '/attributes'
+      .state 'adminStudy.roles',
+        controller: 'StudyRoleEditorController'
+        templateUrl: '/tracker/admin/admin-study-roles.html'
+        url: '/roles'
+      .state 'adminStudy.views',
+        controller: 'ViewEditorController'
+        templateUrl: '/tracker/admin/admin-study-views.html'
+        url: '/views'
       .state 'adminView',
         controller: 'ViewController'
         templateUrl: '/tracker/admin/admin-view.html'
@@ -57,14 +73,6 @@ angular
         controller: 'CreateStudyController'
         templateUrl: '/tracker/admin/admin-new-study.html'
         url: '/admin/new/create'
-      .state 'authorizationRoles',
-        controller: 'AuthorizationRolesController'
-        templateUrl: '/tracker/authorization/authorization-roles.html'
-        url: '/authorization/roles'
-      .state 'authorizationRole',
-        controller: 'AuthorizationRoleController'
-        templateUrl: '/tracker/authorization/authorization-role.html'
-        url: '/authorization/roles/:name'
       .state 'adminAudit',
         controller: 'AdminAuditController'
         templateUrl: '/tracker/admin/admin-audit.html'

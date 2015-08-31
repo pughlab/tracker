@@ -9,7 +9,7 @@
   <div class="col-md-8">
     <p class="text-muted">
       Use this to create a new study. You can also choose initial users, which will be able to administer
-      the new study. 
+      the new study.
     </p>
   </div>
 </div>
@@ -20,12 +20,12 @@
       <fieldset>
 
         <div class="form-group">
-          <label class="col-md-2 control-label" for="study-type">Description:</label>  
+          <label class="col-md-2 control-label" for="study-type">Description:</label>
           <div class="col-md-4">
             <input id="study-description" name="description" type="text" class="form-control input-md" placeholder="Description" ng-model="study.description"></input>
           </div>
 
-          <label class="col-md-2 control-label" for="study-name">Key:</label>  
+          <label class="col-md-2 control-label" for="study-name">Key:</label>
           <div class="col-md-4">
             <input id="study-name" name="name" type="text" class="form-control input-md" placeholder="Key" ng-model="study.name" required>
             <span class="error" ng-show="studyForm.name.$error.required">This field is required</span>
@@ -39,7 +39,7 @@
         </div>
 
         <div class="form-group">
-          <div class="col-md-2 control-label"></div>  
+          <div class="col-md-2 control-label"></div>
           <div class="col-md-10">
 
               <button class="btn btn-danger" ng-disabled="! studyForm.$valid" ng-click="create(study)">Create new study</button>

@@ -1,0 +1,60 @@
+<div class="row">
+  <div class="col-md-12">
+    <p class="text-muted">
+      This manages the available study views. Views show a subset of attributes, and can be authorized for a
+      group of users.
+    </p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <ul ng-model="study.views" id="viewSortable" class="admin-list-box">
+      <li ng-repeat="view in study.views" ng-class="{'list-selected' : view == selectedView}" ng-click="selectView(view)">{{view.name}} &mdash; {{view.description}} </li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <form class="form-horizontal" role="form">
+      <fieldset>
+
+        <div class="form-group">
+          <label class="col-md-2 control-label" for="view-description">Description:</label>
+          <div class="col-md-4">
+            <input id="view-description" name="view-description" type="text" placeholder="Description" class="form-control input-md" ng-model="selectedView.description" ng-disabled="! selectedView">
+          </div>
+
+          <label class="col-md-2 control-label" for="view-name">Key:</label>
+          <div class="col-md-4">
+            <input id="view-name" name="view-name" type="text" placeholder="Key" class="form-control input-md" ng-model="selectedView.name" ng-disabled="! selectedView">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-md-2"></div>
+          <div class="col-md-10">
+          <button class="btn btn-default" ng-click="newView()">New view</button>
+          <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView" ng-click="deleteView(selectedView)">Delete view</button>
+          <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView || modified" ui-sref="adminView({studyName: study.study.name, viewName: selectedView.name})">Edit view</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <hr>
+
+    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+
+    <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="save(study)">Save changes</button>
+    <button class="btn btn-default" ng-disabled="! modified" ng-click="reset()">Reset</button>
+
+    <button ng-show="study.audit" ng-disabled="modified" class="btn btn-default" ui-sref="adminAudit({studyName: study.name})">Show study audit log</button>
+
+  </div>
+</div>

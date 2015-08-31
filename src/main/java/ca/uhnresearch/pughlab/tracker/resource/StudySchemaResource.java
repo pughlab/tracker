@@ -55,7 +55,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	Subject currentUser = SecurityUtils.getSubject();
     	Study study = (Study) getRequest().getAttributes().get("study");
 
-    	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
+    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
@@ -98,7 +98,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	Study study = (Study) getRequest().getAttributes().get("study");
     	
     	Subject currentUser = SecurityUtils.getSubject();
-    	boolean adminUser = currentUser.isPermitted("study:admin:" + study.getName());
+    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
