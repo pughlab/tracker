@@ -56,15 +56,6 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     		}
 			logger.debug("Got a new role response {}", data);
 			
-			// Special cases. If the study has id zero, it's the admin study, so 
-			// exactly a single role is allowed.
-			
-			if (study.getId() == 0) {
-				if (data.getRoles().size() != 1) {
-					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
-				}
-			}
-			
 			// OK, we're attempting to save roles, so let's be safe
 			// about this. First of all, though, we find the current roles, 
 			// indexed by identifier, so we know which ones we have been asked 
@@ -110,8 +101,12 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 			}
 			
     	} catch (IOException e) {
+    		logger.error("IOException: " + e.getLocalizedMessage());
+    		e.printStackTrace();
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} catch (RepositoryException e) {
+    		logger.error("RepositoryException: " + e.getLocalizedMessage());
+    		e.printStackTrace();
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
     	
