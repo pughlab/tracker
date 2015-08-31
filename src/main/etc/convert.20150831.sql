@@ -45,3 +45,11 @@ CREATE INDEX cas_case_values_numbers ON case_attribute_numbers(case_id, attribut
 
 -- It'd be nice to map the roles, but I'm thinking it's more or less impossible
 -- without Perl or some such, and it'd be easier to do it manually. 
+
+ALTER TABLE roles ADD COLUMN study_id INTEGER NOT NULL;
+UPDATE roles SET study_id = 0;
+
+-- Let's allow zeros into auto_increment, just for this
+SET SESSION SQL_MODE = 'ansi,strict_all_tables,no_auto_value_on_zero';
+
+INSERT INTO studies (id, name, description) VALUES (0, 'ADMIN', 'Admin study');
