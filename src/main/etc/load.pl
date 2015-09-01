@@ -181,7 +181,6 @@ sub extract_workbook {
 
     for my $row ($row_min + 1 .. $row_max) {
       # last if ($row > 100);
-      $logger->debug("Reading row: $row");
 
       my $record = {};
       my $values = '';
