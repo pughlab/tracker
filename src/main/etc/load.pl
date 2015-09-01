@@ -5,7 +5,7 @@ use warnings;
 
 use common::sense;
 
-use Spreadsheet::XLSX::Reader::LibXML qw(:just_the_data);
+use Spreadsheet::ParseXLSX;
 use Text::Iconv;
 use XML::Entities;
 use String::CamelCase qw(camelize);
@@ -135,12 +135,9 @@ sub camelHeader {
 sub extract {
   my ($context, $cfg, $file) = @_;
   $logger->info("Opening spreadsheet: $file");
-  my $parser  = Spreadsheet::XLSX::Reader::LibXML->new();
-  my $fh = IO::File->new($file, 'r') or die("Can't open $file: $!");
-  $fh->binmode(':raw');
-  my $workbook = $parser->parse($fh);
+  my $parser  = Spreadsheet::ParseXLSX->new();
+  my $workbook = $parser->parse($file);
   extract_workbook($context, $cfg, $file, $workbook);
-  $fh->close();
 }
 
 sub extract_workbook {
@@ -161,7 +158,7 @@ sub extract_workbook {
 
     for my $col ($col_min .. $col_max) {
       my $cell = $worksheet->get_cell($row_min, $col);
-      my $value = $cell;
+      my $value = $cell && $cell->value();
       # $logger->debug("Value: " . ($value // 'undef'));
       # $value = XML::Entities::decode('all', $value) if (defined($value));
 
@@ -175,13 +172,12 @@ sub extract_workbook {
     for my $row ($row_min + 1 .. $row_max) {
       # last if ($row > 100);
       $logger->debug("Reading row: $row");
-      my $row_cells = $worksheet->fetchrow_arrayref($row);
 
       my $record = {};
       my $values = '';
       for my $col ($col_min .. $col_max) {
         my $cell = $worksheet->get_cell($row, $col);
-        my $value = $cell;
+        my $value = $cell && $cell->value();
         # next if ($value =~ m{<row });
         # $value = XML::Entities::decode('all', $value) if (defined($value));
 
