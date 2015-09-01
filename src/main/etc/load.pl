@@ -301,6 +301,8 @@ sub extract {
         } elsif ($value) {
           $logger->warn("Got unexpected boolean value: ", $value, ' in field: ', $mapped);
           $value = undef;
+        } else {
+          $value = undef;
         }
       } elsif ($type eq 'String') {
         ## Nothing to do here...
