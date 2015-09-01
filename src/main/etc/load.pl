@@ -170,13 +170,20 @@ sub extract {
       # last if ($row > 100);
 
       my $record = {};
+      my $values = '';
       for my $col ($col_min .. $col_max) {
         my $cell = $worksheet->{Cells}[$row][$col];
         my $value = $cell->{Val};
+        next if ($value =~ m{<row });
         $value = XML::Entities::decode('all', $value) if (defined($value));
 
         my $attribute = $headers[$col];
         $record->{$attribute} = $value;
+        $values ||= $value;
+      }
+      if (! $values) {
+        $logger->warn("Skipping blank record");
+        next;
       }
 
       push @records, $record;
