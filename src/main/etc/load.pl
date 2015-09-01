@@ -5,7 +5,8 @@ use warnings;
 
 use common::sense;
 
-use Spreadsheet::XLSX;
+use Spreadsheet::ParseXLSX;
+use Spreadsheet::ParseExcel;
 use Text::Iconv;
 use XML::Entities;
 use String::CamelCase qw(camelize);
@@ -134,30 +135,42 @@ sub camelHeader {
 
 sub extract {
   my ($context, $cfg, $file) = @_;
-  my $notes = $cfg->{$file};
-  my $converter = Text::Iconv->new ("utf-8", "windows-1251");
+  my $path = $file->{path};
+  $logger->info("Opening spreadsheet: $path");
+  my $workbook;
+  if ($path =~ m{\.xls\b}i) {
+    my $parser  = Spreadsheet::ParseExcel->new();
+    $workbook = $parser->parse($path);
+  } elsif ($path =~ m{\.xls[xm]\b}i) {
+    my $parser  = Spreadsheet::ParseXLSX->new();
+    $workbook = $parser->parse($path);
+  } else {
+    die("Can't recognize input data from: " . ($path // 'undef'))
+  }
+  extract_workbook($context, $cfg, $file->{file_key}, $workbook);
+}
 
-  $logger->info("Opening spreadsheet: $file");
-  my $excel   = Spreadsheet::XLSX->new($file, $converter);
-
+sub extract_workbook {
+  my ($context, $cfg, $file, $workbook) = @_;
   my @headers = ();
   my @records = ();
   my $headerNames = {};
+  my $notes = $cfg->{$file};
 
-  for my $worksheet (@{$excel->{Worksheet}}) {
-    next unless ($worksheet->{Name} eq $notes->{sheet});
+  for my $worksheet ($workbook->worksheets()) {
+    next unless ($worksheet->get_name() eq $notes->{sheet});
     $logger->info("Reading data from sheet: $worksheet->{Name}");
-    my $row_min = $worksheet->{MinRow};
-    my $row_max = $worksheet->{MaxRow};
-    my $col_min = $worksheet->{MinCol};
-    my $col_max = $worksheet->{MaxCol};
+
+    my ($row_min, $row_max) = $worksheet->row_range();
+    my ($col_min, $col_max) = $worksheet->col_range();
 
     $logger->info("Reading rows: $row_min to $row_max, columns: $col_min to $col_max");
 
     for my $col ($col_min .. $col_max) {
-      my $cell = $worksheet->{Cells}[$row_min][$col];
-      my $value = $cell->{Val};
-      $value = XML::Entities::decode('all', $value) if (defined($value));
+      my $cell = $worksheet->get_cell($row_min, $col);
+      my $value = $cell && $cell->value();
+      # $logger->debug("Value: " . ($value // 'undef'));
+      # $value = XML::Entities::decode('all', $value) if (defined($value));
 
       $logger->warn("Missing header cell value: column: $col") if (! defined($value));
       my $label = $value // "Unknown $col";
@@ -172,10 +185,10 @@ sub extract {
       my $record = {};
       my $values = '';
       for my $col ($col_min .. $col_max) {
-        my $cell = $worksheet->{Cells}[$row][$col];
-        my $value = $cell->{Val};
-        next if ($value =~ m{<row });
-        $value = XML::Entities::decode('all', $value) if (defined($value));
+        my $cell = $worksheet->get_cell($row, $col);
+        my $value = $cell && $cell->value();
+        # next if ($value =~ m{<row });
+        # $value = XML::Entities::decode('all', $value) if (defined($value));
 
         my $attribute = $headers[$col];
         $record->{$attribute} = $value;
