@@ -6,6 +6,7 @@ use warnings;
 use common::sense;
 
 use Spreadsheet::ParseXLSX;
+use Spreadsheet::ParseExcel;
 use Text::Iconv;
 use XML::Entities;
 use String::CamelCase qw(camelize);
@@ -134,10 +135,19 @@ sub camelHeader {
 
 sub extract {
   my ($context, $cfg, $file) = @_;
-  $logger->info("Opening spreadsheet: $file");
-  my $parser  = Spreadsheet::ParseXLSX->new();
-  my $workbook = $parser->parse($file);
-  extract_workbook($context, $cfg, $file, $workbook);
+  my $path = $file->{path};
+  $logger->info("Opening spreadsheet: $path");
+  my $workbook;
+  if ($path =~ m{\.xls\b}i) {
+    my $parser  = Spreadsheet::ParseExcel->new();
+    $workbook = $parser->parse($path);
+  } elsif ($path =~ m{\.xls[xm]\b}i) {
+    my $parser  = Spreadsheet::ParseXLSX->new();
+    $workbook = $parser->parse($path);
+  } else {
+    die("Can't recognize input data from: " . ($path // 'undef'))
+  }
+  extract_workbook($context, $cfg, $file->{file_key}, $workbook);
 }
 
 sub extract_workbook {
