@@ -5,7 +5,7 @@ use warnings;
 
 use common::sense;
 
-use Spreadsheet::XLSX::Reader::LibXML;
+use Spreadsheet::XLSX::Reader::LibXML qw(:just_the_data);
 use Text::Iconv;
 use XML::Entities;
 use String::CamelCase qw(camelize);
@@ -159,10 +159,9 @@ sub extract_workbook {
 
     $logger->info("Reading rows: $row_min to $row_max, columns: $col_min to $col_max");
 
-    my $row_cells = $worksheet->fetchrow_arrayref($row_min);
     for my $col ($col_min .. $col_max) {
-      my $cell = $row_cells->[$col];
-      my $value = $cell && $cell->value();
+      my $cell = $worksheet->get_cell($row_min, $col);
+      my $value = $cell;
       # $logger->debug("Value: " . ($value // 'undef'));
       # $value = XML::Entities::decode('all', $value) if (defined($value));
 
@@ -181,8 +180,8 @@ sub extract_workbook {
       my $record = {};
       my $values = '';
       for my $col ($col_min .. $col_max) {
-        my $cell = $row_cells->[$col];
-        my $value = $cell && $cell->value();
+        my $cell = $worksheet->get_cell($row, $col);
+        my $value = $cell;
         # next if ($value =~ m{<row });
         # $value = XML::Entities::decode('all', $value) if (defined($value));
 
