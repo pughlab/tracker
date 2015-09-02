@@ -88,7 +88,7 @@
 		</Call>
 	
 		<Call name="setWar">
-			<Arg>/Users/stuartw/git/tracker-java-restlet/target/tracker-java-restlet-2.0.0-RC5.war</Arg>
+			<Arg>/Users/stuartw/git/tracker-java-restlet/target/tracker-java-restlet-2.0.1-RC1.war</Arg>
 		</Call>
 				
 		<!-- Add the JSP initializer -->
@@ -132,7 +132,7 @@
 	        <Arg>
 	            <New class="org.apache.commons.dbcp.BasicDataSource">
 	                <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
-	                <Set name="url">jdbc:mysql://localhost:3306/working_tracker?sessionVariables=sql_mode=ansi</Set>
+	                <Set name="url">jdbc:mysql://localhost:3306/tracker_test?sessionVariables=sql_mode='ansi,strict_all_tables'</Set>
 	                <Set name="username">tracker</Set>
 	                <Set name="password">tracker</Set>
                     <Set name="testOnBorrow">true</Set>

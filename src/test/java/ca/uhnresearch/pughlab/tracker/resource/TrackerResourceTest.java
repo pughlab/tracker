@@ -55,11 +55,8 @@ public class TrackerResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:view")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("OTHER:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:download")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -90,14 +87,10 @@ public class TrackerResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:download")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:view")).andStubReturn(true);
         
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:view")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("OTHER:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:download")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -111,9 +104,6 @@ public class TrackerResourceTest extends AbstractShiroTest {
 		JsonArray studies = data.get("studies").getAsJsonArray();
 		assertEquals( 1, studies.size() );
 		assertEquals(false, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("adminAllowed").getAsBoolean());
-		assertEquals(true, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("readAllowed").getAsBoolean());
-		assertEquals(false, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("writeAllowed").getAsBoolean());
-		assertEquals(true, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("downloadAllowed").getAsBoolean());
 		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
 	}
 
@@ -129,14 +119,10 @@ public class TrackerResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:download")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:view")).andStubReturn(false);
 
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:view")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("OTHER:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:download")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -150,4 +136,5 @@ public class TrackerResourceTest extends AbstractShiroTest {
 		JsonArray studies = data.get("studies").getAsJsonArray();
 		assertEquals( 0, studies.size() );
 	}
+	
 }

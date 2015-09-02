@@ -2,9 +2,9 @@ package ca.uhnresearch.pughlab.tracker.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Permissions {
+public class ViewPermissions extends AdministratorPermissions {
 
-	public Permissions() { }
+	public ViewPermissions() { }
 	
 	/**
 	 * @return the readAllowed
@@ -51,21 +51,6 @@ public class Permissions {
 		this.downloadAllowed = downloadAllowed;
 	}
 
-	/**
-	 * @return the adminAllowed
-	 */
-	public Boolean getAdminAllowed() {
-		return adminAllowed;
-	}
-
-	/**
-	 * @param adminAllowed the adminAllowed to set
-	 */
-	public void setAdminAllowed(Boolean adminAllowed) {
-		this.adminAllowed = adminAllowed;
-	}
-
-	private Boolean adminAllowed = false;
 	private Boolean readAllowed = false;
 	private Boolean writeAllowed = false;
 	private Boolean downloadAllowed = false;

@@ -33,40 +33,24 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     		
     		String studyAdminPermissionString = s.getName() + ":admin";
     		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
-    		Boolean studyReadPermission = studyAdminPermission;
-    		Boolean studyWritePermission = studyAdminPermission;
-    		Boolean studyDownloadPermission = studyAdminPermission;
+    		Boolean studyViewPermission = studyAdminPermission;
     		
     		if (studyAdminPermission) {
     			// Do nothing, as all permissions are already true
     		} else {
-    			String studyReadPermissionString = s.getName() + ":read";
-    			studyReadPermission = currentUser.isPermitted(studyReadPermissionString);
-    			
-    			String studyWritePermissionString = s.getName() + ":write";
-    			studyWritePermission = currentUser.isPermitted(studyWritePermissionString);
-
-    			String studyDownloadPermissionString = s.getName() + ":download";
-    			studyDownloadPermission = currentUser.isPermitted(studyDownloadPermissionString);
+    			String studyViewPermissionString = s.getName() + ":view";
+    			studyViewPermission = currentUser.isPermitted(studyViewPermissionString);
     		}
 
-    		if (studyWritePermission) {
-    			studyReadPermission = studyWritePermission;
-    		}
-    		
-  
     		// For each study, we also ought to derive the precise nature of the
     		// allowed permissions, and embed them in a permissions DTO.
     		
-    		if (studyReadPermission) {
+    		if (studyViewPermission) {
     			StudyWithAccess study = new StudyWithAccess();
     			study.setId(s.getId());
     			study.setName(s.getName());
     			study.setDescription(s.getDescription());
     			study.getAccess().setAdminAllowed(studyAdminPermission);
-    			study.getAccess().setReadAllowed(studyReadPermission);
-    			study.getAccess().setWriteAllowed(studyWritePermission);
-    			study.getAccess().setDownloadAllowed(studyDownloadPermission);
     			dto.getStudies().add(study);
     		}
     	}

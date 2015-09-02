@@ -4,20 +4,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class StudyWithAccess extends Study {
 
-	private Permissions access = new Permissions();
+	private StudyPermissions access = new StudyPermissions();
 
 	/**
 	 * @return the access
 	 */
 	@JsonProperty
-	public Permissions getAccess() {
+	public StudyPermissions getAccess() {
 		return access;
 	}
 
 	/**
 	 * @param access the access to set
 	 */
-	public void setAccess(Permissions access) {
+	public void setAccess(StudyPermissions access) {
 		this.access = access;
 	}
 }

@@ -23,6 +23,8 @@ import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.AtmosphereResourceEvent;
 import org.atmosphere.cpr.FrameworkConfig;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
+import org.easymock.EasyMock;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -169,8 +171,8 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		expect(resource.getRequest()).andStubReturn(req);
 		replay(resource);
 		
-		Capture<UpdateEvent> capturedEvent = new Capture<UpdateEvent>();
-		Capture<AtmosphereResource> capturedResource = new Capture<AtmosphereResource>();
+		Capture<UpdateEvent> capturedEvent = EasyMock.newCapture(CaptureType.FIRST);
+		Capture<AtmosphereResource> capturedResource = EasyMock.newCapture(CaptureType.FIRST);
 
 		SocketEventService manager = createMock(SocketEventService.class);
 		manager.registerAtmosphereResource(resource);

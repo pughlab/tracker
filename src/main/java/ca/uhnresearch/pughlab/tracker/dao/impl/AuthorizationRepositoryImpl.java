@@ -220,14 +220,12 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	private List<String> getRoleUsers(Role role) throws RepositoryException {
     	SQLQuery sqlQuery = template.newSqlQuery().from(userRoles).where(userRoles.roleId.eq(role.getId()));
     	List<String> userList = template.query(sqlQuery, userRoles.username);
-    	logger.debug("Got some users: {}", userList.toString());
 		return userList;
 	}
 
 	private List<String> getRolePermissions(Role role) {
     	SQLQuery sqlQuery = template.newSqlQuery().from(rolePermissions).where(rolePermissions.roleId.eq(role.getId()));
     	List<String> permissionList = template.query(sqlQuery, rolePermissions.permission);
-    	logger.debug("Got some permissions: {}", permissionList.toString());
 		return permissionList;
 	}
 

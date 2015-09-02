@@ -46,7 +46,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 	public void testBasicExtraction() {
 		
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:view")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -68,7 +68,7 @@ public class StudyExtractorTest extends AbstractShiroTest {
 	public void testPermissions() throws ResourceException {
 		
         Subject subjectUnderTest = createMock(Subject.class);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:view")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);

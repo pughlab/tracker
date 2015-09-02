@@ -22,14 +22,14 @@ public class ViewAttributesResponse extends ViewResponse {
 		this.attributes = attributes;
 	}
 
-	Permissions permissions = new Permissions();
+	ViewPermissions permissions = new ViewPermissions();
 
 	@JsonProperty
-	public Permissions getPermissions() {
+	public ViewPermissions getPermissions() {
 		return permissions;
 	}
 
-	public void setPermissions(Permissions permissions) {
+	public void setPermissions(ViewPermissions permissions) {
 		this.permissions = permissions;
 	}
 }
