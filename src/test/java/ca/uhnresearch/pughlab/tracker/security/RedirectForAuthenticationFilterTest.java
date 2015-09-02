@@ -6,18 +6,15 @@ import mockit.Mocked;
 
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.oidc.client.OidcClient;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -29,6 +26,7 @@ public class RedirectForAuthenticationFilterTest extends AbstractShiroTest {
 	MockHttpServletRequest request;
 	MockHttpServletResponse response;
 	
+	@SuppressWarnings("rawtypes")
 	@Mocked
 	private BaseClient client;
 	
@@ -58,7 +56,7 @@ public class RedirectForAuthenticationFilterTest extends AbstractShiroTest {
 	}
 
 	@Test
-	public void testPreHandle(@Mocked final BaseClient client) throws Exception {
+	public void testPreHandle(@SuppressWarnings("rawtypes") @Mocked final BaseClient client) throws Exception {
 		
 		new Expectations() {{
 			client.getCallbackUrl(); result = "http://example.com/client";

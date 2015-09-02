@@ -11,6 +11,8 @@ import static org.easymock.EasyMock.capture;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +79,7 @@ public class CustomSpringSessionAuthenticatorTest extends AbstractShiroTest {
 		
 		ClientInfo clientInfo = new ClientInfo();
 		
-		Capture<ChallengeResponse> capturedArgument = new Capture<ChallengeResponse>();
+		Capture<ChallengeResponse> capturedArgument = EasyMock.newCapture(CaptureType.FIRST);
 		
 		reset(request);
 		expect(request.getClientInfo()).andStubReturn(clientInfo);
