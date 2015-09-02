@@ -79,5 +79,7 @@ public class RedirectForAuthenticationFilterTest extends AbstractShiroTest {
 		
 	    boolean result = filter.preHandle(request, response);
 	    Assert.assertFalse(result);
+	    Assert.assertEquals("*", response.getHeaderValue("Access-Control-Allow-Origin"));
+	    Assert.assertEquals("redirect", response.getHeaderValue("Location"));
 	}
 }
