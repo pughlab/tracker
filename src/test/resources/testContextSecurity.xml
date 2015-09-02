@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/util
+                        http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <bean id="authorizationRealm" class="ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm">
+        <property name="dataSource" ref="dataSource" />
+        <property name="permissionsLookupEnabled" value="true" />
+        <property name="userRolesQuery">
+            <value>
+                SELECT R.NAME 
+                FROM USER_ROLES UR 
+                JOIN ROLES R ON UR.ROLE_ID = R.ID 
+                WHERE UR.USERNAME = LOWER(?)
+            </value>
+        </property>
+        <property name="permissionsQuery">
+            <value>
+                SELECT CASE WHEN S.ID = 0 THEN RP.PERMISSION ELSE CONCAT(S.NAME, ':', RP.PERMISSION) END
+                FROM ROLES R
+                JOIN ROLE_PERMISSIONS RP ON RP.ROLE_ID = R.ID
+                JOIN STUDIES S ON R.STUDY_ID = S.ID
+                WHERE R.NAME = ?
+            </value>
+        </property>
+    </bean>
+</beans>
