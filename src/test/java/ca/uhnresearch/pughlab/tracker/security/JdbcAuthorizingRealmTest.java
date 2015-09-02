@@ -1,7 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import java.lang.reflect.InvocationTargetException;
-
 import javax.sql.DataSource;
 
 import org.apache.shiro.authc.AuthenticationToken;
