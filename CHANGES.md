@@ -1,6 +1,12 @@
 ## Revision history
 
 
+### Version 2.0.1-RC2 - September 2nd 2015
+
+ * Added a view permission to studies. See #59
+ * Improved import scripts to handle XLSX files properly
+ 
+
 ### Version 2.0.1-RC1 - August 31st 2015
 
  * Internal change: attributes are now linked by id rather than name
