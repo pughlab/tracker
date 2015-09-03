@@ -111,7 +111,6 @@ public class StudySchemaResourceTest extends AbstractShiroTest{
 		
 		Representation readResult = resource.getResource();
 		
-		
 		Gson gson = new Gson();
 		JsonObject readData = gson.fromJson(readResult.getText(), JsonObject.class);
 		

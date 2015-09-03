@@ -6,15 +6,21 @@ import java.util.List;
 
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.easymock.Capture;
+import org.easymock.CaptureType;
+import org.easymock.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.restlet.Request;
+import org.restlet.data.ChallengeResponse;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
 import com.google.gson.Gson;
@@ -30,6 +36,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.easymock.EasyMock.*;
 import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 public class RoleListResourceTest extends AbstractShiroTest {
 
@@ -236,4 +243,61 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		resource.getResource();
 	}
 
+	/**
+	 * Checks that an admin user can access the entire study, including all its 
+	 * many views.
+	 * @throws IOException
+	 */
+	@Test
+	public void resourcPutTest() throws IOException, RepositoryException {
+
+		Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(true);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("admin")).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+		Study study = createMock(Study.class);
+		expect(study.getName()).andStubReturn("DEMO");
+		expect(study.getId()).andStubReturn(5);
+		replay(study);
+		
+		Capture<Role> capturedArgument = EasyMock.newCapture(CaptureType.FIRST);
+
+		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
+		List<Role> roles = new ArrayList<Role>();
+		Role role = new Role();
+		role.setName("ROLE_CAT_HERDER");
+		role.setId(1234);
+		role.setStudyId(5);
+		roles.add(role);
+		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		mock.saveStudyRole(eq(study), capture(capturedArgument));
+		expectLastCall();
+		replay(mock);
+
+        resource.setRepository(mock);
+
+		resource.getRequest().getAttributes().put("study", study);
+
+		Representation readResult = resource.getResource();
+		
+		// Make the old data set something we can muck about with
+		Gson gson = new Gson();
+		JsonObject readData = gson.fromJson(readResult.getText(), JsonObject.class);
+		
+		JsonObject writeData = readData;
+		Representation writeRepresentation = new StringRepresentation(writeData.toString(), APPLICATION_JSON);   
+
+		Representation writeResult = resource.putResource(writeRepresentation);
+		assertEquals("application/json", writeResult.getMediaType().toString());		
+		JsonObject data = gson.fromJson(writeResult.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		
+		Assert.assertEquals("ROLE_CAT_HERDER", capturedArgument.getValue().getName());
+
+	}
 }

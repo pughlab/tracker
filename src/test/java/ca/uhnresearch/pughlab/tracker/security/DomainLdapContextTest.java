@@ -227,4 +227,24 @@ public class DomainLdapContextTest {
 		
 		Assert.assertTrue(context.canAuthenticate(token, realm));
 	}
+	
+	@Test
+	public void testGetConnectionsPool() throws Exception {
+		DomainLdapContext context = new DomainLdapContext();
+		
+		LdapConnectionPool pool = context.getConnectionPool();
+		Assert.assertNotNull(pool);
+	}
+	
+
+	@Test
+	public void testGetConnectionsPoolReuse() throws Exception {
+		DomainLdapContext context = new DomainLdapContext();
+		
+		LdapConnectionPool pool1 = context.getConnectionPool();
+		LdapConnectionPool pool2 = context.getConnectionPool();
+		Assert.assertNotNull(pool2);
+		Assert.assertEquals(pool1,  pool2);
+	}
+	
 }
