@@ -3,6 +3,12 @@ angular
 
   .controller 'LoginController', Array '$scope', '$state', 'authenticationService', ($scope, $state, authenticationService) ->
 
+    $scope.prompt = null
+    console.log "State params", $state.params
+
+    if $state.params.prompt != 'default'
+      $scope.prompt = $state.params.prompt
+
     if $state.params.challenge == 'default'
       $state.go 'home'
       return
@@ -38,8 +44,9 @@ angular
 
     $scope.$on 'event:loginRequired', (event, values) ->
       challenge = values.challenge
+      prompt = values.prompt
       match = /(\w+)/.exec challenge
-      $state.go 'login', {challenge: match[1].toLowerCase()}
+      $state.go 'login', {challenge: match[1].toLowerCase(), prompt: prompt}
 
 
     $scope.$on 'event:loginDenied', (evt, data) ->

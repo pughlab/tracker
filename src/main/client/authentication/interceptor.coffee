@@ -33,8 +33,9 @@ angular
           else
             req = {config: response.config, deferred: deferred}
             challenge = response.headers('www-authenticate')
+            prompt = response.headers('x-tracker-login-prompt')
             $rootScope.requests401.push(req)
-            $rootScope.$broadcast 'event:loginRequired', {challenge: challenge}
+            $rootScope.$broadcast 'event:loginRequired', {challenge: challenge, prompt: prompt}
             deferred.promise
         else
           $q.reject response

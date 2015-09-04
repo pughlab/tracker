@@ -67,7 +67,7 @@ angular
       .state 'login',
         controller: 'LoginController'
         templateUrl: '/tracker/authentication/login.html'
-        params: { challenge : { value: "default" }}
+        params: { challenge : { value: "default" }, prompt : { value : "default" }}
         url: '/login'
       .state 'adminCreate',
         controller: 'CreateStudyController'
