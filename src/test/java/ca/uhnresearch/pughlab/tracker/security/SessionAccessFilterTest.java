@@ -58,5 +58,20 @@ public class SessionAccessFilterTest extends AbstractShiroTest {
 				
 		Assert.assertEquals(false, filter.onAccessDenied(request, response));
 		Assert.assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+		Assert.assertFalse(response.getHeaderNames().contains(SessionAccessFilter.PROMPT_HEADER));
+	}
+	
+	@Test
+	public void testOnAccessDeniedPrompt() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		
+		request.setContextPath("http://localhost:8666/");
+		request.setRequestURI("/api/studies");
+		
+		filter.setPrompt("Please login using both front paws");
+				
+		Assert.assertEquals(false, filter.onAccessDenied(request, response));
+		Assert.assertEquals("Please login using both front paws", response.getHeaderValue(SessionAccessFilter.PROMPT_HEADER));
 	}
 }
