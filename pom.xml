@@ -25,6 +25,13 @@
 		<quartz.version>2.2.1</quartz.version>
 		<jackson.version>2.4.4</jackson.version>
         <apache-ldap-api.version>1.0.0-M31</apache-ldap-api.version>
+        
+        <ldap.domain>ads.uhnresearch.ca</ldap.domain>
+        <ldap.host>192.168.198.100</ldap.host>
+        <ldap.port>389</ldap.port>
+        <ldap.timeout>60</ldap.timeout>
+        <ldap.searchTemplate>OU=user,OU=accounts,DC=ads,DC=uhnresearch,DC=ca</ldap.searchTemplate>
+        <ldap.filterTemplate>(userPrincipalName={0})</ldap.filterTemplate>
 	</properties>
 	
 	<licenses>
