@@ -449,4 +449,9 @@ public class MockStudyRepository implements StudyRepository {
 	public void setAuditLogRepository(AuditLogRepository repository) {
 		// Auto-generated method stub
 	}
+
+	@Override
+	public Study saveStudy(Study study) {
+		return study;
+	}
 }

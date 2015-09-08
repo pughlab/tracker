@@ -27,6 +27,12 @@ public interface StudyRepository {
 	Study getStudy(String name);
 	
 	/**
+	 * Writes or updates a study in the repository
+	 * @return a study
+	 */
+	Study saveStudy(Study name) throws RepositoryException;
+	
+	/**
 	 * Retrieves all the views for a study from the repository
 	 * @return list of views
 	 */

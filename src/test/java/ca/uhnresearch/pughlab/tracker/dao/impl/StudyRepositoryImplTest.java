@@ -81,6 +81,41 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testSaveStudyNew() {
+		Study s = new Study();
+		s.setName("TEST");
+		s.setDescription("A test study");
+				
+		studyRepository.saveStudy(s);
+		Assert.assertNotNull(s);
+		Assert.assertNotNull(s.getId());
+		
+		Study second = studyRepository.getStudy("TEST");
+		Assert.assertNotNull(second);
+		Assert.assertEquals("TEST", second.getName());
+		Assert.assertEquals("A test study", second.getDescription());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSaveStudyUpdate() {
+		Study s = studyRepository.getStudy("DEMO");
+		s.setDescription("Another test");
+				
+		Study result = studyRepository.saveStudy(s);
+		Assert.assertNotNull(result);
+		Assert.assertNotNull(result.getId());
+		Assert.assertEquals(result.getId(), s.getId());
+
+		Study second = studyRepository.getStudy("DEMO");
+		Assert.assertNotNull(second);
+		Assert.assertEquals("Another test", second.getDescription());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testGetMissingStudy() {
 		Study s = studyRepository.getStudy("DEMOX");
 		Assert.assertNull(s);
