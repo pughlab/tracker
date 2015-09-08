@@ -1,10 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import junit.framework.Assert;
+import static org.easymock.EasyMock.*;
+import org.junit.Assert;
 
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.junit.Before;

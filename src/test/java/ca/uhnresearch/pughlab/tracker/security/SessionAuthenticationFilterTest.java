@@ -1,9 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.*;
 
 import java.io.UnsupportedEncodingException;
 
@@ -37,19 +34,24 @@ public class SessionAuthenticationFilterTest extends AbstractShiroTest {
 	
 	private SessionAuthenticationFilter filter;
 	
+	private DefaultWebSecurityManager manager;
+	
 	@Before
 	public void initialize() {
 		filter = new SessionAuthenticationFilter();
 		
 		DefaultWebSessionManager sessions = new DefaultWebSessionManager();
-		DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
+		
+		manager = new DefaultWebSecurityManager();
 		manager.setSessionManager(sessions);
 		setSecurityManager(manager);
 	}
 	
 	@After
 	public void tearDown() {
+		manager = null;
 		setSecurityManager(null);
+		clearSubject();
 	}
 
 	@Test
@@ -203,8 +205,6 @@ public class SessionAuthenticationFilterTest extends AbstractShiroTest {
 		request.setParameter("username", "user");
 		request.setParameter("password", "password");
 		
-		DefaultWebSecurityManager manager = (DefaultWebSecurityManager) getSecurityManager();
-		
 		PrincipalCollection principals = new SimplePrincipalCollection("user", "mock");
 		
 		AuthenticationInfo info = createMock(AuthenticationInfo.class);
@@ -239,8 +239,6 @@ public class SessionAuthenticationFilterTest extends AbstractShiroTest {
 		request.setParameter("username", "user");
 		request.setParameter("password", "password");
 		
-		DefaultWebSecurityManager manager = (DefaultWebSecurityManager) getSecurityManager();
-				
 		// Null is the correct expected response for a missing account, which is enough for now
 		Realm realm = createMock(Realm.class);
 		expect(realm.supports(anyObject(AuthenticationToken.class))).andStubReturn(true);

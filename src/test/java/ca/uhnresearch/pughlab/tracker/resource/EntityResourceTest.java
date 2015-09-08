@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 import static org.easymock.EasyMock.*;
 
 import java.io.IOException;

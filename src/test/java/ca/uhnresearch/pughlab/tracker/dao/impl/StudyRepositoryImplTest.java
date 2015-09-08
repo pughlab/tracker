@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -12,7 +12,7 @@ import static org.easymock.EasyMock.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
 import org.junit.Test;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
