@@ -11,7 +11,7 @@
 	distributed research projects.
 	</description>
 	<inceptionYear>2014</inceptionYear>
-	<version>2.0.1-RC2</version>
+	<version>2.0.1-RC3</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,6 +25,13 @@
 		<quartz.version>2.2.1</quartz.version>
 		<jackson.version>2.4.4</jackson.version>
         <apache-ldap-api.version>1.0.0-M31</apache-ldap-api.version>
+        
+        <ldap.domain>ads.uhnresearch.ca</ldap.domain>
+        <ldap.host>192.168.198.100</ldap.host>
+        <ldap.port>389</ldap.port>
+        <ldap.timeout>60</ldap.timeout>
+        <ldap.searchTemplate>OU=user,OU=accounts,DC=ads,DC=uhnresearch,DC=ca</ldap.searchTemplate>
+        <ldap.filterTemplate>(userPrincipalName={0})</ldap.filterTemplate>
 	</properties>
 	
 	<licenses>
@@ -113,8 +120,17 @@
 					<groupId>commons-logging</groupId>
 					<artifactId>commons-logging</artifactId>
 				</exclusion>
+                <exclusion>
+                    <groupId>cglib</groupId>
+                    <artifactId>cglib-nodep</artifactId>
+                </exclusion>
 			</exclusions>
 		</dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>2.2.2</version>
+        </dependency>
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.jackson</artifactId>
@@ -347,18 +363,34 @@
 		</dependency>
 		
 		<!-- Testing -->
-        <dependency>
-            <groupId>org.jmockit</groupId>
-            <artifactId>jmockit</artifactId>
-            <version>1.17</version>
-            <scope>test</scope>
-        </dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.2.4</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-easymock</artifactId>
+            <version>1.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>cglib</groupId>
+                    <artifactId>cglib-nodep</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>1.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency>
 			<groupId>org.easymock</groupId>
 			<artifactId>easymock</artifactId>
@@ -374,7 +406,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.9</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
 		<dependency>

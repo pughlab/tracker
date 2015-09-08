@@ -1,7 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 
 import java.sql.Date;
 import java.time.Instant;

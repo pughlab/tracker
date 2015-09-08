@@ -18,6 +18,11 @@ public class SessionAccessFilter extends UserFilter {
      * and can be overridden by the {@link #setApplicationName(String) setApplicationName} method.
      */
     private String applicationName = "application";
+    
+    /**
+     * Default prompt isn't set.
+     */
+    private String prompt = null;
 
     protected static final String SESSION_AUTH = "session";
 
@@ -25,6 +30,11 @@ public class SessionAccessFilter extends UserFilter {
      * HTTP Authentication header, equal to <code>WWW-Authenticate</code>
      */
     protected static final String AUTHENTICATE_HEADER = "WWW-Authenticate";
+    
+    /**
+     * Non-standard header, used to transmit an optional prompt to the client.
+     */
+    protected static final String PROMPT_HEADER = "X-Tracker-Login-Prompt";
 
     /**
      * The authcScheme to look for in the <code>Authorization</code> header, defaults to <code>session</code>
@@ -40,6 +50,9 @@ public class SessionAccessFilter extends UserFilter {
         httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         String authcHeader = getAuthcScheme() + " realm=\"" + getApplicationName() + "\"";
         httpResponse.setHeader(AUTHENTICATE_HEADER, authcHeader);
+        if (prompt != null) {
+        	httpResponse.setHeader(PROMPT_HEADER, prompt);
+        }
         return false;
     }
 
@@ -65,5 +78,19 @@ public class SessionAccessFilter extends UserFilter {
     public String getApplicationName() {
         return applicationName;
     }
+
+	/**
+	 * @return the prompt
+	 */
+	public String getPrompt() {
+		return prompt;
+	}
+
+	/**
+	 * @param prompt the prompt to set
+	 */
+	public void setPrompt(String prompt) {
+		this.prompt = prompt;
+	}
 
 }

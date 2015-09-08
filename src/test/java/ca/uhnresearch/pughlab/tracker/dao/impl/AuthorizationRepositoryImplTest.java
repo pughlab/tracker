@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,10 +1,8 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
-import static junit.framework.Assert.*;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.junit.Assert.*;
+import static org.easymock.EasyMock.*;
+import static org.hamcrest.Matchers.containsString;
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.IOException;

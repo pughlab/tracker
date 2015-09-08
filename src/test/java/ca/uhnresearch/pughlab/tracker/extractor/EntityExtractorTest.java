@@ -1,7 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 
 import org.junit.Before;
 import org.junit.Rule;

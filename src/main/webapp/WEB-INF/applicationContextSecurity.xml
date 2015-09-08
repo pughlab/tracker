@@ -64,6 +64,7 @@
         
         <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
             <property name="authcScheme" value="session" />
+            <property name="prompt" value="Please log in using your database credentials." />
         </bean>
     
         <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
@@ -118,6 +119,7 @@
         
         <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
             <property name="authcScheme" value="session" />
+            <property name="prompt" value="Please log in using either your SIMS t-id or your RIS username as appropriate." />
         </bean>
     
         <bean id="sessionAuthenticationFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAuthenticationFilter">
@@ -126,33 +128,23 @@
             <property name="authcScheme" value="session" />
         </bean>
         
+        <!-- We're using an LdapRealm here as it allows Active Directory to work better.
+             But there's no requirement on that. It'd be fine to use a JndiLdapRealm -->
         <bean id="authenticationRealm" class="ca.uhnresearch.pughlab.tracker.security.LdapRealm">
             <property name="ldapContexts">
                 <util:list>
-                    <ref bean="risLdapContext" />
-                    <ref bean="simsLdapContext" />
+                    <ref bean="ldapContext" />
                 </util:list>
             </property>
         </bean>
         
-        <!-- A standard context that we can use for RIS -->
-        <bean id="risLdapContext" class="ca.uhnresearch.pughlab.tracker.security.DomainLdapContext">
-            <property name="domain" value="ads.uhnresearch.ca" />
-            <property name="ldapHost" value="192.168.198.100" />
-            <property name="ldapPort" value="389" />
-            <property name="timeout" value="60" />
-            <property name="searchTemplate" value="OU=user,OU=accounts,DC=ads,DC=uhnresearch,DC=ca" />
-            <property name="filterTemplate" value="(userPrincipalName={0})" />
-        </bean>
-        
-        <!-- A standard context that we can use for SIMS -->
-        <bean id="simsLdapContext" class="ca.uhnresearch.pughlab.tracker.security.DomainLdapContext">
-            <property name="domain" value="uhn.ca" />
-            <property name="ldapHost" value="142.224.16.52" />
-            <property name="ldapPort" value="389" />
-            <property name="timeout" value="60" />
-            <property name="searchTemplate" value="OU=UHNPeople,DC=uhn,DC=ca" />
-            <property name="filterTemplate" value="(userPrincipalName={0})" />
+        <bean id="ldapContext" class="ca.uhnresearch.pughlab.tracker.security.DomainLdapContext">
+            <property name="domain" value="${ldap.domain}" />
+            <property name="ldapHost" value="${ldap.host}" />
+            <property name="ldapPort" value="${ldap.port}" />
+            <property name="timeout" value="${ldap.timeout}" />
+            <property name="searchTemplate" value="${ldap.searchTemplate}" />
+            <property name="filterTemplate" value="${ldap.filterTemplate}" />
         </bean>
         
         <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
@@ -187,6 +179,7 @@
     
         <bean id="sessionAccessFilter" class="ca.uhnresearch.pughlab.tracker.security.SessionAccessFilter">
             <property name="authcScheme" value="OIDC" />
+            <property name="prompt" value="Please log in using either your SIMS t-id or your RIS username as appropriate." />
         </bean>
     
         <bean id="oidcClient" class="ca.uhnresearch.pughlab.tracker.security.AbsolutifyingOidcClient">

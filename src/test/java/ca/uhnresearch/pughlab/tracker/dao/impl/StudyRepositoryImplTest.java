@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -12,7 +12,7 @@ import static org.easymock.EasyMock.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
 import org.junit.Test;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
@@ -76,6 +76,41 @@ public class StudyRepositoryImplTest {
 		Study s = studyRepository.getStudy("DEMO");
 		Assert.assertNotNull(s);
 		Assert.assertEquals("DEMO", s.getName());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSaveStudyNew() {
+		Study s = new Study();
+		s.setName("TEST");
+		s.setDescription("A test study");
+				
+		studyRepository.saveStudy(s);
+		Assert.assertNotNull(s);
+		Assert.assertNotNull(s.getId());
+		
+		Study second = studyRepository.getStudy("TEST");
+		Assert.assertNotNull(second);
+		Assert.assertEquals("TEST", second.getName());
+		Assert.assertEquals("A test study", second.getDescription());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSaveStudyUpdate() {
+		Study s = studyRepository.getStudy("DEMO");
+		s.setDescription("Another test");
+				
+		Study result = studyRepository.saveStudy(s);
+		Assert.assertNotNull(result);
+		Assert.assertNotNull(result.getId());
+		Assert.assertEquals(result.getId(), s.getId());
+
+		Study second = studyRepository.getStudy("DEMO");
+		Assert.assertNotNull(second);
+		Assert.assertEquals("Another test", second.getDescription());
 	}
 	
 	@Test

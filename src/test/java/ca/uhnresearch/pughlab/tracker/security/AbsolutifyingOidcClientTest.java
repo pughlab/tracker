@@ -22,13 +22,8 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.util.Resource;
 import com.nimbusds.openid.connect.sdk.util.ResourceRetriever;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.easymock.EasyMock.*;
+import static org.hamcrest.Matchers.containsString;
 
 public class AbsolutifyingOidcClientTest {
 	

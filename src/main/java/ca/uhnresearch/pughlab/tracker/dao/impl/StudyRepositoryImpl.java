@@ -109,6 +109,33 @@ public class StudyRepositoryImpl implements StudyRepository {
     	return study;
 	}
 
+	
+	/**
+	 * Writes or updates a study.
+	 */
+	@Override
+	public Study saveStudy(final Study study) {
+		if (study.getId() == null) {
+			logger.info("Saving new study: {}", study.getName());
+			Integer studyId = template.insertWithKey(studies, new SqlInsertWithKeyCallback<Integer>() { 
+				public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
+					return (int) sqlInsertClause.populate(study).execute();
+				};
+			});
+			study.setId(studyId);
+		} else {
+			logger.info("Updating existing study: {}", study.getName());
+			template.update(studies, new SqlUpdateCallback() { 
+				public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+					return sqlUpdateClause.where(studies.id.eq(study.getId())).populate(study).execute();
+				};
+			});
+
+		}
+		return study;
+	}
+	
+	
     /**
      * Returns the list of views associated with a study
      * @param study
@@ -700,5 +727,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public void setAuditLogRepository(AuditLogRepository repository) {
 		auditLogRepository = repository;
 	}
+
 }
 
