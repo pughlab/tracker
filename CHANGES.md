@@ -1,6 +1,13 @@
 ## Revision history
 
 
+### Version 2.0.1-RC3 - September 8th 2015
+
+ * Restored create study functionality. See #63
+ * Password prompts can now be configured externally. See #61
+ * Removed broken JMockit, which hurt continuous integration. See #60
+
+
 ### Version 2.0.1-RC2 - September 2nd 2015
 
  * Added a view permission to studies. See #59
