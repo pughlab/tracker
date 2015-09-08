@@ -31,10 +31,10 @@ import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.easymock.EasyMock.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 public class RoleListResourceTest extends AbstractShiroTest {

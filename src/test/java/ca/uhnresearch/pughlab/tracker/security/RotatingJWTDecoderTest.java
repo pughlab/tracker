@@ -1,15 +1,13 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Before;
 import org.junit.Rule;

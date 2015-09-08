@@ -12,9 +12,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 import static org.easymock.EasyMock.*;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 
 import org.junit.Before;
 import org.junit.Rule;

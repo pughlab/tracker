@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;

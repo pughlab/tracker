@@ -11,10 +11,8 @@ import org.pac4j.oidc.profile.OidcProfile;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import ca.uhnresearch.pughlab.tracker.security.LdapProfile;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.expect;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.easymock.EasyMock.*;
+import static org.hamcrest.Matchers.containsString;
 
 public class UserTest {
 

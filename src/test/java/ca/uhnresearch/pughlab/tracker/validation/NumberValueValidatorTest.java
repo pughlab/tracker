@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.validation;
 
-import static org.junit.matchers.JUnitMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 
 import java.text.ParseException;
 
