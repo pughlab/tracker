@@ -1,4 +1,5 @@
 SET SESSION SQL_MODE = 'ansi,strict_all_tables,no_auto_value_on_zero';
+SET SESSION STORAGE_ENGINE = 'INNODB';
 
 -- =============================================================================================
 -- Delete permissions due to MySQL stupid integrity ordering
