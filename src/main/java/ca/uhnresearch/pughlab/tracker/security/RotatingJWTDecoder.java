@@ -123,6 +123,13 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	}
 	
 	
+	protected KeySelector getKeySelector(final EncryptedJWT encryptedJWT) {
+		JWEAlgorithm alg = encryptedJWT.getHeader().getAlgorithm();
+		String kid = encryptedJWT.getHeader().getKeyID();
+		return new KeySelector(alg, kid);
+	}
+	
+	
 	protected JWSVerifier getJWSVerifier(final SignedJWT signedJWT) {
 		KeySelector selector = getKeySelector(signedJWT);
 		
@@ -135,6 +142,20 @@ public class RotatingJWTDecoder implements JWTDecoder {
 		}
 		
 		return verifier;
+	}
+	
+	protected JWEDecrypter getJWEDecrypter(final EncryptedJWT encryptedJWT) {
+		KeySelector selector = getKeySelector(encryptedJWT);
+		
+		JWEDecrypter decrypter = jweDecrypters.get(selector);
+		if (decrypter == null) {
+			
+			// If we can'ty find a verifier, that probably means that we need to check for new
+			// keys and try again. 
+			throw new MissingKeyException(selector.getAlgorithm(), selector.getKid());
+		}
+		
+		return decrypter;
 	}
 	
 	/**
@@ -189,16 +210,8 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	private ReadOnlyJWTClaimsSet decrypt(final EncryptedJWT encryptedJWT)
 		throws JOSEException, ParseException {
 		
-		JWEAlgorithm alg = encryptedJWT.getHeader().getAlgorithm();
-		
-		JWEDecrypter decrypter = jweDecrypters.get(alg);
-		
-		if (decrypter == null) {
+		JWEDecrypter decrypter = getJWEDecrypter(encryptedJWT);
 
-			throw new JOSEException("Unsupported JWE algorithm: " + alg);
-		}
-		
-		
 		try {
 			encryptedJWT.decrypt(decrypter);
 
