@@ -7,7 +7,6 @@ import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -25,7 +24,6 @@ import org.junit.Test;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
-import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 public class AuditedSecurityManagerTest extends AbstractShiroTest {

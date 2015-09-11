@@ -266,13 +266,21 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
 
         return new ContextualOidcCredentials(code, context);
     }
+    
+    protected TokenRequest getUserProfileTokenRequest(final ContextualOidcCredentials credentials) {
+    	return new TokenRequest(this.oidcProvider.getTokenEndpointURI(), this.clientAuthentication,
+                new AuthorizationCodeGrant(credentials.getCode(), getAbsoluteRedirectURI(credentials.getContext()),
+                        this.clientAuthentication.getClientID()));
+    }
+    
+    protected UserInfoRequest getUserProfileUserInfoRequest(final BearerAccessToken accessToken) {
+    	return new UserInfoRequest(this.oidcProvider.getUserInfoEndpointURI(), accessToken);
+    }
 
     @Override
     protected OidcProfile retrieveUserProfile(final ContextualOidcCredentials credentials, final WebContext context) {
 
-        TokenRequest request = new TokenRequest(this.oidcProvider.getTokenEndpointURI(), this.clientAuthentication,
-                new AuthorizationCodeGrant(credentials.getCode(), getAbsoluteRedirectURI(credentials.getContext()),
-                        this.clientAuthentication.getClientID()));
+        TokenRequest request = getUserProfileTokenRequest(credentials);
         HTTPResponse httpResponse;
         try {
             // Token request
@@ -292,8 +300,7 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
             // User Info request
             UserInfo userInfo = null;
             if (this.oidcProvider.getUserInfoEndpointURI() != null) {
-                UserInfoRequest userInfoRequest = new UserInfoRequest(this.oidcProvider.getUserInfoEndpointURI(),
-                        accessToken);
+                UserInfoRequest userInfoRequest = getUserProfileUserInfoRequest(accessToken);
                 httpResponse = userInfoRequest.toHTTPRequest().send();
                 logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
                         httpResponse.getContent());
@@ -319,7 +326,7 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
                 JWKSet jwkSet;
                 // Download OIDC metadata and Json Web Key Set
                 try {
-                    DefaultResourceRetriever resourceRetriever = new DefaultResourceRetriever();
+                    ResourceRetriever resourceRetriever = getResourceRetriever();
                     this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
                             new URL(this.discoveryURI)).getContent());
                     jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
