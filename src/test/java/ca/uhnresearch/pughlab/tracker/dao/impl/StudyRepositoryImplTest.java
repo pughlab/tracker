@@ -1561,4 +1561,18 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals(newCase.getId(), caseValue.getId());
 	}
 
+	/**
+	 * Simple test of writing the exact same attributes back into the view. After
+	 * we do this, a second call should retrieve the exact same data.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetStudyAttribute() throws RepositoryException {
+		Study study = studyRepository.getStudy("DEMO");
+		Attributes attributes = studyRepository.getStudyAttribute(study, "patientId");
+		
+		Assert.assertEquals("patientId", attributes.getName());
+		Assert.assertEquals("Patient ID", attributes.getLabel());
+	}
 }
