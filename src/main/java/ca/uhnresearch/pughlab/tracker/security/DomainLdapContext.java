@@ -297,4 +297,32 @@ public class DomainLdapContext implements LdapContext {
 		this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
 	}
 
+	/**
+	 * @return the displayNameAttribute
+	 */
+	public String getDisplayNameAttribute() {
+		return displayNameAttribute;
+	}
+
+	/**
+	 * @param displayNameAttribute the displayNameAttribute to set
+	 */
+	public void setDisplayNameAttribute(String displayNameAttribute) {
+		this.displayNameAttribute = displayNameAttribute;
+	}
+
+	/**
+	 * @return the emailAttribute
+	 */
+	public String getEmailAttribute() {
+		return emailAttribute;
+	}
+
+	/**
+	 * @param emailAttribute the emailAttribute to set
+	 */
+	public void setEmailAttribute(String emailAttribute) {
+		this.emailAttribute = emailAttribute;
+	}
+
 }
