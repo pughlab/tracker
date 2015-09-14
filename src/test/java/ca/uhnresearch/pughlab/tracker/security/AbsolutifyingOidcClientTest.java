@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.entity.ContentType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,7 +22,20 @@ import org.pac4j.core.exception.RequiresHttpAction;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.oidc.profile.OidcProfile;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.Request;
+import com.nimbusds.oauth2.sdk.SerializeException;
+import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
+import com.nimbusds.openid.connect.sdk.OIDCAccessTokenResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.util.Resource;
 import com.nimbusds.openid.connect.sdk.util.ResourceRetriever;
 
@@ -41,6 +55,7 @@ public class AbsolutifyingOidcClientTest {
 	        ",\"issuer\":\"http://localhost\"" +
 	        ",\"jwks_uri\":\"http://localhost/jwks\"" +
 	        ",\"authorization_endpoint\":\"http://localhost/authorize\"" +
+	        ",\"userinfo_endpoint\":\"http://localhost/userinfo\"" +
 			"}";
 	
 	String jwksContent = 
@@ -189,5 +204,142 @@ public class AbsolutifyingOidcClientTest {
 
 		ContextualOidcCredentials credentials = client.retrieveCredentials(context);
 		Assert.assertEquals("1234", credentials.getCode().getValue());
+	}
+	
+	@Test
+	public void testGetUserAccessTokenResponse() throws Exception {
+		AbsolutifyingOidcClient partialMock = createMockBuilder(AbsolutifyingOidcClient.class)
+				.withConstructor()
+				.addMockedMethod("getHTTPResponse").createMock();
+		
+		String jsonResponse = "{\"id\":\"b08e\", \"token_type\":\"bearer\", \"access_token\":\"1234\"}";
+		
+		HTTPResponse response = createMock(HTTPResponse.class);
+		expect(response.getStatusCode()).andStubReturn(200);
+		expect(response.getContent()).andStubReturn(jsonResponse);
+		expect(response.getContentAsJSONObject()).andStubReturn(JSONObjectUtils.parseJSONObject(jsonResponse));
+		response.ensureStatusCode(eq(200));
+		expectLastCall().asStub();
+		replay(response);
+	
+		expect(partialMock.getHTTPResponse(anyObject(Request.class))).andStubReturn(response);
+		replay(partialMock);
+		
+		Map<String, String[]> parameters = new HashMap<String, String[]>();
+		parameters.put("state", new String[] { "nibble" });
+		parameters.put("code", new String[] { "1234" });
+		
+		WebContext context = createMock(WebContext.class);
+		expect(context.getRequestParameters()).andReturn(parameters);
+		expect(context.getSessionAttribute("oidcStateAttribute")).andStubReturn(new State("nibble"));
+		replay(context);
+		
+		ContextualOidcCredentials credentials = createMock(ContextualOidcCredentials.class);
+		expect(credentials.getCode()).andStubReturn(new AuthorizationCode("1234"));
+		expect(credentials.getContext()).andStubReturn(context);
+		replay(credentials);
+		
+		partialMock.setClientID("flooby1234");
+		partialMock.setSecret("dhfdsuyfbnjkdsz.ndifszbfzs");
+		partialMock.setDiscoveryURI("http://localhost/discovery");
+		partialMock.setCallbackUrl("http://example.com/");
+		partialMock.setResourceRetriever(resourceRetriever);
+		partialMock.internalInit();
+
+		OIDCAccessTokenResponse tokenResponse = partialMock.getUserAccessTokenResponse(credentials);
+		Assert.assertEquals("1234", tokenResponse.getAccessToken().toString());
+	}
+	
+	@Test
+	public void testGetUserInfo() throws Exception {
+		AbsolutifyingOidcClient partialMock = createMockBuilder(AbsolutifyingOidcClient.class)
+				.withConstructor()
+				.addMockedMethod("getHTTPResponse").createMock();
+		
+		String jsonResponse = "{\"sub\": \"248289761001\", \"name\": \"Jane Doe\", \"given_name\": \"Jane\", \"family_name\": \"Doe\", \"email\": \"janedoe@example.com\", \"preferred_username\": \"j.doe\"}";
+		
+		HTTPResponse response = createMock(HTTPResponse.class);
+		expect(response.getStatusCode()).andStubReturn(200);
+		expect(response.getContent()).andStubReturn(jsonResponse);
+		expect(response.getContentAsJSONObject()).andStubReturn(JSONObjectUtils.parseJSONObject(jsonResponse));
+		expect(response.getContentType()).andStubReturn(CommonContentTypes.APPLICATION_JSON);
+		response.ensureStatusCode(eq(200));
+		expectLastCall().asStub();
+		response.ensureContentType();
+		expectLastCall().asStub();
+		replay(response);
+	
+		expect(partialMock.getHTTPResponse(anyObject(Request.class))).andStubReturn(response);
+		replay(partialMock);
+
+		BearerAccessToken accessToken = new BearerAccessToken("1234");
+				
+		partialMock.setClientID("flooby1234");
+		partialMock.setSecret("dhfdsuyfbnjkdsz.ndifszbfzs");
+		partialMock.setDiscoveryURI("http://localhost/discovery");
+		partialMock.setCallbackUrl("http://example.com/");
+		partialMock.setResourceRetriever(resourceRetriever);
+		partialMock.internalInit();
+
+		UserInfo info = partialMock.getUserInfo(accessToken);
+		Assert.assertNotNull(info);
+		Assert.assertEquals("Jane", info.getGivenName());
+		Assert.assertEquals("Doe", info.getFamilyName());
+		Assert.assertEquals("janedoe@example.com", info.getEmail().toString());
+	}
+	
+	@Test
+	public void testRetrieveUserProfile() throws Exception {
+
+		ContextualOidcCredentials credentials = createMock(ContextualOidcCredentials.class);
+		replay(credentials);
+
+		WebContext context = createMock(WebContext.class);
+		replay(context);
+		
+		SignedJWT idToken = createMock(SignedJWT.class);
+		replay(idToken);
+
+		OIDCAccessTokenResponse accessTokenResponse = createMock(OIDCAccessTokenResponse.class);
+		expect(accessTokenResponse.getAccessToken()).andStubReturn(new BearerAccessToken("1234"));
+		expect(accessTokenResponse.getIDToken()).andStubReturn(idToken);
+		replay(accessTokenResponse);
+		
+		Map<String, Object> claims = new HashMap<String, Object>();
+		
+		JWTClaimsSet jwtClaims = createMock(JWTClaimsSet.class);
+		expect(jwtClaims.getAllClaims()).andStubReturn(claims);
+		replay(jwtClaims);
+		
+		UserInfo userInfo = createMock(UserInfo.class);
+		expect(userInfo.toJWTClaimsSet()).andStubReturn(jwtClaims);
+		replay(userInfo);
+		
+		ReadOnlyJWTClaimsSet claimsSet = createMock(ReadOnlyJWTClaimsSet.class);
+		expect(claimsSet.getSubject()).andStubReturn("248289761001");
+		expect(claimsSet.getAllClaims()).andStubReturn(claims);
+		replay(claimsSet);
+		
+		AbsolutifyingOidcClient partialMock = createMockBuilder(AbsolutifyingOidcClient.class)
+				.withConstructor()
+				.addMockedMethod("getUserAccessTokenResponse")
+				.addMockedMethod("getUserInfo")
+				.addMockedMethod("getClaimsSet")
+				.createMock();
+
+		expect(partialMock.getUserAccessTokenResponse(eq(credentials))).andStubReturn(accessTokenResponse);
+		expect(partialMock.getUserInfo(anyObject(BearerAccessToken.class))).andStubReturn(userInfo);
+		expect(partialMock.getClaimsSet(eq(idToken))).andStubReturn(claimsSet);
+		replay(partialMock);
+
+		partialMock.setClientID("flooby1234");
+		partialMock.setSecret("dhfdsuyfbnjkdsz.ndifszbfzs");
+		partialMock.setDiscoveryURI("http://localhost/discovery");
+		partialMock.setCallbackUrl("http://example.com/");
+		partialMock.setResourceRetriever(resourceRetriever);
+		partialMock.internalInit();
+
+		OidcProfile retrieveUserProfile = partialMock.retrieveUserProfile(credentials, context);
+		Assert.assertNotNull(retrieveUserProfile);
 	}
 }

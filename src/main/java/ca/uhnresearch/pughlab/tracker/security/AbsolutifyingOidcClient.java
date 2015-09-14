@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -34,6 +35,8 @@ import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Request;
+import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.TokenResponse;
@@ -268,11 +271,15 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         return new ContextualOidcCredentials(code, context);
     }
     
+    protected HTTPResponse getHTTPResponse(Request request) throws SerializeException, IOException {
+    	return request.toHTTPRequest().send();
+    }
+    
     protected OIDCAccessTokenResponse getUserAccessTokenResponse(final ContextualOidcCredentials credentials) throws Exception {
         TokenRequest request = new TokenRequest(this.oidcProvider.getTokenEndpointURI(), this.clientAuthentication,
                 new AuthorizationCodeGrant(credentials.getCode(), getAbsoluteRedirectURI(credentials.getContext()),
                         this.clientAuthentication.getClientID()));
-        HTTPResponse httpResponse = request.toHTTPRequest().send();
+        HTTPResponse httpResponse = getHTTPResponse(request);
         
         logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
                 httpResponse.getContent());
@@ -292,7 +299,7 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         UserInfo userInfo = null;
         if (this.oidcProvider.getUserInfoEndpointURI() != null) {
             UserInfoRequest userInfoRequest = new UserInfoRequest(this.oidcProvider.getUserInfoEndpointURI(), accessToken);
-            HTTPResponse httpResponse = userInfoRequest.toHTTPRequest().send();
+            HTTPResponse httpResponse = getHTTPResponse(userInfoRequest);
             logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
                     httpResponse.getContent());
 
