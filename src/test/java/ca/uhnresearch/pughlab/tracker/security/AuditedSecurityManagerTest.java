@@ -90,6 +90,7 @@ public class AuditedSecurityManagerTest extends AbstractShiroTest {
 		
 		Session session = createMock(Session.class);
 		expect(session.getHost()).andStubReturn("localhost");
+		expect(session.getId()).andStubReturn("123");
 		expect(session.getAttribute("org.apache.shiro.subject.support.DelegatingSubject.RUN_AS_PRINCIPALS_SESSION_KEY")).andStubReturn(new ArrayList<String>());
 		expect(session.getAttribute("org.apache.shiro.subject.support.DefaultSubjectContext_PRINCIPALS_SESSION_KEY")).andStubReturn(principals);
 		expect(session.getAttribute("org.apache.shiro.subject.support.DefaultSubjectContext_AUTHENTICATED_SESSION_KEY")).andStubReturn(false);

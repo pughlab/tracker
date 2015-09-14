@@ -13,10 +13,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.pac4j.core.client.BaseClient;
+import org.pac4j.core.client.Mechanism;
 import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.RequiresHttpAction;
 import org.pac4j.core.exception.TechnicalException;
+import org.pac4j.oidc.profile.OidcProfile;
 
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.util.Resource;
@@ -48,9 +51,6 @@ public class AbsolutifyingOidcClientTest {
 			"  \"e\":\"AQAB\"," +
 	        "  \"n\": \"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\"" +
 			"}]}";
-
-	
-
 
 	
 	@Rule
@@ -91,12 +91,40 @@ public class AbsolutifyingOidcClientTest {
 	}
 	
 	@Test
+	public void testGetMechanism() {
+		Assert.assertEquals(Mechanism.OPENID_CONNECT_PROTOCOL, client.getMechanism());
+	}
+	
+	@Test 
+	public void testNewClient() {
+		client.internalInit();
+
+		BaseClient<ContextualOidcCredentials, OidcProfile> newClient = client.newClient();
+		Assert.assertNotNull(newClient);
+	}
+	
+	@Test
 	public void testRedirectAction() throws MalformedURLException, IOException {
 		WebContext context = createMock(WebContext.class);
 		context.setSessionAttribute(eq("oidcStateAttribute"), anyObject(Object.class));
 		expectLastCall();
 		replay(context);
 		
+		client.internalInit();
+		
+		RedirectAction action = client.retrieveRedirectAction(context);
+		Assert.assertNotNull(action);
+	}
+	
+	@Test
+	public void testRedirectActionWithNonce() throws MalformedURLException, IOException {
+		WebContext context = createMock(WebContext.class);
+		context.setSessionAttribute(eq("oidcStateAttribute"), anyObject(Object.class));
+		context.setSessionAttribute(eq("oidcNonceAttribute"), anyObject(Object.class));
+		expectLastCall();
+		replay(context);
+		
+		client.addCustomParam("useNonce", "true");
 		client.internalInit();
 		
 		RedirectAction action = client.retrieveRedirectAction(context);

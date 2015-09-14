@@ -29,6 +29,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
@@ -267,78 +268,86 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         return new ContextualOidcCredentials(code, context);
     }
     
-    protected TokenRequest getUserProfileTokenRequest(final ContextualOidcCredentials credentials) {
-    	return new TokenRequest(this.oidcProvider.getTokenEndpointURI(), this.clientAuthentication,
+    protected OIDCAccessTokenResponse getUserAccessTokenResponse(final ContextualOidcCredentials credentials) throws Exception {
+        TokenRequest request = new TokenRequest(this.oidcProvider.getTokenEndpointURI(), this.clientAuthentication,
                 new AuthorizationCodeGrant(credentials.getCode(), getAbsoluteRedirectURI(credentials.getContext()),
                         this.clientAuthentication.getClientID()));
+        HTTPResponse httpResponse = request.toHTTPRequest().send();
+        
+        logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
+                httpResponse.getContent());
+
+        TokenResponse response = OIDCTokenResponseParser.parse(httpResponse);
+        if (response instanceof TokenErrorResponse) {
+            logger.error("Bad token response, error={}", ((TokenErrorResponse) response).getErrorObject());
+            return null;
+        }
+        logger.debug("Token response successful");
+        OIDCAccessTokenResponse tokenSuccessResponse = (OIDCAccessTokenResponse) response;
+
+        return tokenSuccessResponse;
     }
     
-    protected UserInfoRequest getUserProfileUserInfoRequest(final BearerAccessToken accessToken) {
-    	return new UserInfoRequest(this.oidcProvider.getUserInfoEndpointURI(), accessToken);
+    protected UserInfo getUserInfo(final BearerAccessToken accessToken) throws Exception {
+        UserInfo userInfo = null;
+        if (this.oidcProvider.getUserInfoEndpointURI() != null) {
+            UserInfoRequest userInfoRequest = new UserInfoRequest(this.oidcProvider.getUserInfoEndpointURI(), accessToken);
+            HTTPResponse httpResponse = userInfoRequest.toHTTPRequest().send();
+            logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
+                    httpResponse.getContent());
+
+            UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
+
+            if (userInfoResponse instanceof UserInfoErrorResponse) {
+                logger.error("Bad User Info response, error={}",
+                        ((UserInfoErrorResponse) userInfoResponse).getErrorObject());
+            } else {
+                UserInfoSuccessResponse userInfoSuccessResponse = (UserInfoSuccessResponse) userInfoResponse;
+                userInfo = userInfoSuccessResponse.getUserInfo();
+            }
+        }
+        
+        return userInfo;
+    }
+    
+    protected ReadOnlyJWTClaimsSet getClaimsSet(final JWT idToken) throws Exception {
+        ReadOnlyJWTClaimsSet claimsSet;
+        try {
+        	claimsSet = this.jwtDecoder.decodeJWT(idToken);
+        } catch (MissingKeyException e) {
+        	
+        	// Retrieve updated keys
+            JWKSet jwkSet;
+            // Download OIDC metadata and Json Web Key Set
+            try {
+                ResourceRetriever resourceRetriever = getResourceRetriever();
+                this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
+                        new URL(this.discoveryURI)).getContent());
+                jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
+                        .getContent());
+            } catch (Exception e2) {
+                throw new TechnicalException(e2);
+            }
+            initJwtDecoder(this.jwtDecoder, jwkSet);
+
+        	// Try to validate again -- a second failure here is going to be bad
+        	claimsSet = this.jwtDecoder.decodeJWT(idToken);
+        };
+
+        return claimsSet;
     }
 
     @Override
     protected OidcProfile retrieveUserProfile(final ContextualOidcCredentials credentials, final WebContext context) {
 
-        TokenRequest request = getUserProfileTokenRequest(credentials);
-        HTTPResponse httpResponse;
         try {
-            // Token request
-            httpResponse = request.toHTTPRequest().send();
-            logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
-                    httpResponse.getContent());
-
-            TokenResponse response = OIDCTokenResponseParser.parse(httpResponse);
-            if (response instanceof TokenErrorResponse) {
-                logger.error("Bad token response, error={}", ((TokenErrorResponse) response).getErrorObject());
-                return null;
-            }
-            logger.debug("Token response successful");
-            OIDCAccessTokenResponse tokenSuccessResponse = (OIDCAccessTokenResponse) response;
+            OIDCAccessTokenResponse tokenSuccessResponse = getUserAccessTokenResponse(credentials);
             BearerAccessToken accessToken = (BearerAccessToken) tokenSuccessResponse.getAccessToken();
 
-            // User Info request
-            UserInfo userInfo = null;
-            if (this.oidcProvider.getUserInfoEndpointURI() != null) {
-                UserInfoRequest userInfoRequest = getUserProfileUserInfoRequest(accessToken);
-                httpResponse = userInfoRequest.toHTTPRequest().send();
-                logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
-                        httpResponse.getContent());
-
-                UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
-
-                if (userInfoResponse instanceof UserInfoErrorResponse) {
-                    logger.error("Bad User Info response, error={}",
-                            ((UserInfoErrorResponse) userInfoResponse).getErrorObject());
-                } else {
-                    UserInfoSuccessResponse userInfoSuccessResponse = (UserInfoSuccessResponse) userInfoResponse;
-                    userInfo = userInfoSuccessResponse.getUserInfo();
-                }
-            }
-
+            UserInfo userInfo = getUserInfo(accessToken);
+            
             // Check ID Token
-            ReadOnlyJWTClaimsSet claimsSet;
-            try {
-            	claimsSet = this.jwtDecoder.decodeJWT(tokenSuccessResponse.getIDToken());
-            } catch (MissingKeyException e) {
-            	
-            	// Retrieve updated keys
-                JWKSet jwkSet;
-                // Download OIDC metadata and Json Web Key Set
-                try {
-                    ResourceRetriever resourceRetriever = getResourceRetriever();
-                    this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
-                            new URL(this.discoveryURI)).getContent());
-                    jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
-                            .getContent());
-                } catch (Exception e2) {
-                    throw new TechnicalException(e2);
-                }
-                initJwtDecoder(this.jwtDecoder, jwkSet);
-
-            	// Try to validate again -- a second failure here is going to be bad
-            	claimsSet = this.jwtDecoder.decodeJWT(tokenSuccessResponse.getIDToken());
-            };
+            ReadOnlyJWTClaimsSet claimsSet = getClaimsSet(tokenSuccessResponse.getIDToken());
             
             if (useNonce()) {
                 String nonce = claimsSet.getStringClaim("nonce");
@@ -360,7 +369,6 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         } catch (Exception e) {
             throw new TechnicalException(e);
         }
-
     }
 
     /**
