@@ -20,6 +20,7 @@ import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.oidc.profile.OidcProfile;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
@@ -317,28 +318,32 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         return userInfo;
     }
     
+    protected ReadOnlyJWTClaimsSet requestNewKeyAndVerify(final JWT idToken) throws JOSEException, java.text.ParseException {
+        JWKSet jwkSet;
+        // Download OIDC metadata and Json Web Key Set
+        try {
+            ResourceRetriever resourceRetriever = getResourceRetriever();
+            this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
+                    new URL(this.discoveryURI)).getContent());
+            jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
+                    .getContent());
+        } catch (Exception e2) {
+            throw new TechnicalException(e2);
+        }
+        initJwtDecoder(this.jwtDecoder, jwkSet);
+
+    	// Try to validate again -- a second failure here is going to be bad
+    	return this.jwtDecoder.decodeJWT(idToken);
+    }
+    
     protected ReadOnlyJWTClaimsSet getClaimsSet(final JWT idToken) throws Exception {
         ReadOnlyJWTClaimsSet claimsSet;
         try {
         	claimsSet = this.jwtDecoder.decodeJWT(idToken);
         } catch (MissingKeyException e) {
         	
-        	// Retrieve updated keys
-            JWKSet jwkSet;
-            // Download OIDC metadata and Json Web Key Set
-            try {
-                ResourceRetriever resourceRetriever = getResourceRetriever();
-                this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
-                        new URL(this.discoveryURI)).getContent());
-                jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
-                        .getContent());
-            } catch (Exception e2) {
-                throw new TechnicalException(e2);
-            }
-            initJwtDecoder(this.jwtDecoder, jwkSet);
-
         	// Try to validate again -- a second failure here is going to be bad
-        	claimsSet = this.jwtDecoder.decodeJWT(idToken);
+        	claimsSet = requestNewKeyAndVerify(idToken);
         };
 
         return claimsSet;

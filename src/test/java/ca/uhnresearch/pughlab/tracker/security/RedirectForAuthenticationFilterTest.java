@@ -9,15 +9,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.pac4j.core.client.BaseClient;
-import org.pac4j.core.client.Clients;
-import org.pac4j.core.client.RedirectAction;
-import org.pac4j.core.context.WebContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
-import static org.easymock.EasyMock.*;
 
 public class RedirectForAuthenticationFilterTest extends AbstractShiroTest {
 	
