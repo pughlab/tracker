@@ -251,6 +251,22 @@ public class DomainLdapContextTest {
 		context.query(token, realm);
 	}
 	
+	@Test
+	public void testQueryInvalidToken() {
+		
+		AuthenticationToken token = createMock(AuthenticationToken.class);
+		replay(token);
+
+		DomainLdapContext context = EasyMock.createMockBuilder(DomainLdapContext.class).addMockedMethod("getConnectionPool").createMock();
+		replay(context);
+
+		thrown.expect(AuthenticationException.class);
+		thrown.expectMessage("Expecting a username and a password");
+
+		context.query(token, realm);
+
+	}
+	
 	@Test 
 	public void testCanAuthenticateMatchingDomain() throws Exception {
 		AuthenticationToken token = createMock(AuthenticationToken.class);
