@@ -21,10 +21,8 @@ import org.pac4j.core.util.CommonHelper;
 import org.pac4j.oidc.profile.OidcProfile;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.crypto.RSADecrypter;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
@@ -414,20 +412,11 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
             for (JWK key : jwkSet.getKeys()) {
                 if (key.getKeyUse() == null || key.getKeyUse() == KeyUse.SIGNATURE) {
                     jwtDecoder.addJWSVerifier(getVerifier(key), key.getKeyID());
-                } else if (key.getKeyUse() == KeyUse.ENCRYPTION) {
-                    jwtDecoder.addJWEDecrypter(getDecrypter(key), key.getKeyID());
                 }
             }
         } catch (Exception e) {
             throw new TechnicalException(e);
         }
-    }
-
-    private JWEDecrypter getDecrypter(final JWK key) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        if (key instanceof RSAKey) {
-            return new RSADecrypter(((RSAKey) key).toRSAPrivateKey());
-        }
-        return null;
     }
 
     private JWSVerifier getVerifier(final JWK key) throws NoSuchAlgorithmException, InvalidKeySpecException {

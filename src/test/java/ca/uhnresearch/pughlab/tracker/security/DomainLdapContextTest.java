@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.BindResponse;
@@ -115,6 +116,8 @@ public class DomainLdapContextTest {
 		replay(bindResponse);
 		
 		Entry resultEntry = createMock(Entry.class);
+		expect(resultEntry.get("displayName")).andStubReturn(new DefaultAttribute("displayName", "Stuart Watt"));
+		expect(resultEntry.get("mail")).andStubReturn(new DefaultAttribute("mail", "stuart@morungos.com"));
 		replay(resultEntry);
 		
 		EntryCursor cursor = createMock(EntryCursor.class);
@@ -134,7 +137,10 @@ public class DomainLdapContextTest {
 		expectLastCall();
 		replay(pool);
 		
-		DomainLdapContext context = EasyMock.createMockBuilder(DomainLdapContext.class).addMockedMethod("getConnectionPool").createMock();
+		DomainLdapContext context = EasyMock.createMockBuilder(DomainLdapContext.class)
+				.addMockedMethod("getConnectionPool")
+				.withConstructor()
+				.createMock();
 		expect(context.getConnectionPool()).andStubReturn(pool);
 		replay(context);
 		
@@ -246,5 +252,4 @@ public class DomainLdapContextTest {
 		Assert.assertNotNull(pool2);
 		Assert.assertEquals(pool1,  pool2);
 	}
-	
 }
