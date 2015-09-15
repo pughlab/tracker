@@ -258,26 +258,12 @@ public class RoleResourceTest extends AbstractShiroTest {
 		expect(study.getName()).andStubReturn("DEMO");
 		replay(study);
 
-		Role role = new Role();
-		role.setName("ROLE_CAT_HERDER");
-		role.setId(1234);
-		role.setUsers(new ArrayList<String>());
-		role.getUsers().add("user1");
-		role.getUsers().add("user2");
-		role.setPermissions(new ArrayList<String>());
-		role.getPermissions().add("*:*");
+		Role role = makeRole("ROLE_CAT_HERDER", 1234);
 		
 		resource.getRequest().getAttributes().put("study", study);
 		resource.getRequest().getAttributes().put("role", role);
 
-		Role renamed = new Role();
-		renamed.setName("X");
-		renamed.setId(1234);
-		renamed.setUsers(new ArrayList<String>());
-		renamed.getUsers().add("user1");
-		renamed.getUsers().add("user2");
-		renamed.setPermissions(new ArrayList<String>());
-		renamed.getPermissions().add("*:*");
+		Role renamed = makeRole("X", 1234);
 		
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
 		mock.saveStudyRole(eq(study), anyObject(Role.class));
@@ -298,6 +284,61 @@ public class RoleResourceTest extends AbstractShiroTest {
 		assertTrue( data.get("role").isJsonObject() );
 		assertEquals( 1234, data.get("role").getAsJsonObject().get("id").getAsInt() );
 		assertEquals( "X", data.get("role").getAsJsonObject().get("name").getAsString() );
+	}
+	
+	/**
+	 * Checks that an admin user can access the entire study, including all its 
+	 * many views.
+	 * @throws IOException
+	 */
+	@Test
+	public void resourcePutTestForbidden() throws IOException, RepositoryException {
 
+		Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(true);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+		Study study = createMock(Study.class);
+		expect(study.getName()).andStubReturn("DEMO");
+		replay(study);
+
+		Role role = makeRole("ROLE_CAT_HERDER", 1234);
+		
+		resource.getRequest().getAttributes().put("study", study);
+		resource.getRequest().getAttributes().put("role", role);
+
+		Role renamed = makeRole("X", 1234);
+		
+		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
+		mock.saveStudyRole(eq(study), anyObject(Role.class));
+		expectLastCall();
+		expect(mock.getStudyRole(eq(study), eq("X"))).andStubReturn(renamed);
+		replay(mock);
+		resource.setRepository(mock);
+		
+		Gson gson = new Gson();
+		JsonObject writeData = gson.fromJson("{\"role\": {\"id\": 1234, \"name\": \"X\"}}", JsonObject.class);		
+		Representation input = new StringRepresentation(writeData.toString(), APPLICATION_JSON);   
+
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Forbidden"));
+
+		resource.putResource(input);
+	}
+	
+	private Role makeRole(String name, Integer id) {
+		Role role = new Role();
+		role.setName(name);
+		role.setId(id);
+		role.setUsers(new ArrayList<String>());
+		role.getUsers().add("user1");
+		role.getUsers().add("user2");
+		role.setPermissions(new ArrayList<String>());
+		role.getPermissions().add("*:*");
+		return role;
 	}
 }
