@@ -104,6 +104,20 @@ public class DomainLdapContextTest {
 		Assert.assertEquals(54321, context.getTimeBetweenEvictionRunsMillis());
 	}
 	
+	@Test
+	public void testGetSetDisplayNameAttribute() {
+		DomainLdapContext context = new DomainLdapContext();
+		context.setDisplayNameAttribute("displayNameTest");
+		Assert.assertEquals("displayNameTest", context.getDisplayNameAttribute());
+	}
+
+	@Test
+	public void testGetSetEmailAttribute() {
+		DomainLdapContext context = new DomainLdapContext();
+		context.setEmailAttribute("emailTest");
+		Assert.assertEquals("emailTest", context.getEmailAttribute());
+	}
+
 	@Test 
 	public void testQuerySuccess() throws Exception {
 		
@@ -156,6 +170,45 @@ public class DomainLdapContextTest {
 		Assert.assertNotNull(info);
 		Assert.assertEquals(2, info.getPrincipals().asList().size());
 		Assert.assertEquals("stuart@example.com", info.getPrincipals().getPrimaryPrincipal());
+	}
+	
+	@Test 
+	public void testQueryNotAuthenticated() throws Exception {
+		
+		LdapResult bindResult = createMock(LdapResult.class);
+		expect(bindResult.getResultCode()).andStubReturn(ResultCodeEnum.SUCCESS);
+		replay(bindResult);
+		
+		BindResponse bindResponse = createMock(BindResponse.class);
+		expect(bindResponse.getLdapResult()).andStubReturn(bindResult);
+		replay(bindResponse);
+
+		LdapConnection connection = createMock(LdapConnection.class);
+		expect(connection.bind(anyObject(BindRequest.class))).andStubReturn(bindResponse);
+		expect(connection.isAuthenticated()).andStubReturn(false);
+		replay(connection);
+
+		LdapConnectionPool pool = createMock(LdapConnectionPool.class);
+		expect(pool.getConnection()).andStubReturn(connection);
+		pool.releaseConnection(connection);
+		expectLastCall();
+		replay(pool);
+
+		DomainLdapContext context = EasyMock.createMockBuilder(DomainLdapContext.class)
+				.addMockedMethod("getConnectionPool")
+				.withConstructor()
+				.createMock();
+		expect(context.getConnectionPool()).andStubReturn(pool);
+		replay(context);
+
+		UsernamePasswordToken token = new UsernamePasswordToken();
+		token.setUsername("stuart");
+		token.setPassword("password".toCharArray());
+
+		thrown.expect(AuthenticationException.class);
+		thrown.expectMessage("Failed to authenticate");
+
+		context.query(token, realm);
 	}
 	
 	@Test 
