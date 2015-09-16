@@ -14,7 +14,7 @@ wrapTdContentWithWrapper = (TD, WRAPPER) ->
   TD.appendChild(WRAPPER)
 
 
-addNotesClasses = (instance, TD, row, col, prop) ->
+annotateCells = (cellProperties, instance, TD, row, col, prop) ->
   rowData = instance.getSourceDataAtRow(row)
   fieldName = prop()
   tags = rowData['$notes']?[fieldName]?.tags or []
@@ -22,7 +22,8 @@ addNotesClasses = (instance, TD, row, col, prop) ->
     Handsontable.Dom.addClass(TD, tag)
   for tag in rowData['$notes']?['$tags'] or []
     Handsontable.Dom.addClass(TD, tag)
-
+  if rowData['$notes']?[fieldName]?.locked == true
+    cellProperties.readOnly = true
 
 ## Modified autocomplete option renderer
 ## @param {Object} instance Handsontable instance
@@ -42,7 +43,7 @@ TrackerOptionRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
   ARROW = clonableARROW.cloneNode(true); ##this is faster than createElement
 
   Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
-  addNotesClasses instance, TD, row, col, prop
+  annotateCells cellProperties, instance, TD, row, col, prop
 
   TD.appendChild(ARROW)
   Handsontable.Dom.addClass(TD, 'htAutocomplete')
@@ -84,7 +85,7 @@ TrackerStringRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
     value = "N/A"
 
   Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
-  addNotesClasses instance, TD, row, col, prop
+  annotateCells cellProperties, instance, TD, row, col, prop
 
 ## And finally, deploy the various renderers.
 
