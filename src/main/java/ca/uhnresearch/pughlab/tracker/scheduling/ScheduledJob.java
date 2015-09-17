@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.scheduling;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -12,18 +13,31 @@ import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.quartz.JobExecutionException;
 
 public class ScheduledJob  {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
+	private String fileUrl = null;
+	
 	private ScriptContext context;
 	
 	ScheduledJob() {
+		this(new ClassPathResource("tracker.js"));
+	}
+	
+	ScheduledJob(Resource scriptResource) {
 		
-		InputStream in = this.getClass().getClassLoader().getResourceAsStream("tracker.js");
-		if (in == null) {
+		InputStream in;
+		
+		try {
+			in = scriptResource.getInputStream();
+			logger.info("Loading script resource: {}", scriptResource.getURL().toString());
+		} catch (IOException e) {
+			logger.warn("Can't find a script resource: {}", scriptResource);
 			return;
 		}
 		
@@ -53,4 +67,18 @@ public class ScheduledJob  {
     protected void execute() throws JobExecutionException {
         // logger.debug("Scheduled ping");
     }
+
+	/**
+	 * @return the fileUrl
+	 */
+	public String getFileUrl() {
+		return fileUrl;
+	}
+
+	/**
+	 * @param fileUrl the fileUrl to set
+	 */
+	public void setFileUrl(String fileUrl) {
+		this.fileUrl = fileUrl;
+	}
 }
