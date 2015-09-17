@@ -358,7 +358,7 @@ angular
               colHeaders: (a.label for a in orderedAttributes)
               columns: (convertColumn(a) for a in orderedAttributes)
               contextMenu: false
-              multiSelect: false
+              multiSelect: true
               startCols: orderedAttributes.length
               fixedRowsTop: 0
               fixedColumnsLeft: pinnedAttributes.length
