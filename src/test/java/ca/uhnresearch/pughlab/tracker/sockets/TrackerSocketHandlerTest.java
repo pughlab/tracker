@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -171,7 +171,7 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		expect(resource.getRequest()).andStubReturn(req);
 		replay(resource);
 		
-		Capture<UpdateEvent> capturedEvent = EasyMock.newCapture(CaptureType.FIRST);
+		Capture<Event> capturedEvent = EasyMock.newCapture(CaptureType.FIRST);
 		Capture<AtmosphereResource> capturedResource = EasyMock.newCapture(CaptureType.FIRST);
 
 		SocketEventService manager = createMock(SocketEventService.class);
@@ -188,7 +188,7 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		verify(resource);
 		
 		Assert.assertEquals(resource, capturedResource.getValue());
-		Assert.assertEquals(UpdateEvent.EVENT_WELCOME, capturedEvent.getValue().getType());
+		Assert.assertEquals(Event.EVENT_WELCOME, capturedEvent.getValue().getType());
 	}
 	
 	@Test

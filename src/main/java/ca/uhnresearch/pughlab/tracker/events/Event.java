@@ -1,11 +1,22 @@
 package ca.uhnresearch.pughlab.tracker.events;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class UpdateEvent {
+/**
+ * This class defines the shape of an event within the tracker. The data field
+ * is serialized and sent through websocket connections. The properties field is
+ * not, and can be used for internal server-side data. For example, this might 
+ * contain an actual value which we don't send because it might be confidential. 
+ * 
+ * @author Stuart Watt
+ */
+public class Event {
 	
 	/**
 	 * Event sent by the server to a client on initial connection
@@ -41,17 +52,18 @@ public class UpdateEvent {
 
 	private String type;
 	private EventData data = new EventData();
+	private Map<String, Object> properties = new HashMap<String, Object>();
 	
 	/**
 	 * Default constructor
 	 */
-	public UpdateEvent() { }
+	public Event() { }
 	
 	/**
 	 * Constructor that accepts an initial type
 	 * @param type
 	 */
-	public UpdateEvent (String type) {
+	public Event (String type) {
 		this.type = type;
 	}
 	
@@ -150,5 +162,20 @@ public class UpdateEvent {
 	 */
 	public void setData(EventData data) {
 		this.data = data;
+	}
+
+	/**
+	 * @return the properties
+	 */
+	@JsonIgnore
+	public Map<String, Object> getProperties() {
+		return properties;
+	}
+
+	/**
+	 * @param properties the properties to set
+	 */
+	public void setProperties(Map<String, Object> properties) {
+		this.properties = properties;
 	}
 }

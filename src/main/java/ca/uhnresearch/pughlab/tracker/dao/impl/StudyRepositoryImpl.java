@@ -39,7 +39,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
 import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
@@ -653,7 +653,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private void sendUpdateEvent(final Study study, final View view, final Cases caseValue, final String attribute, final String userName) {
     	UpdateEventService manager = getUpdateEventService();
     	if (manager != null) {
-    		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_SET_FIELD);
+    		Event event = new Event(Event.EVENT_SET_FIELD);
     		event.getData().setScope(study.getName());
     		event.getData().setUser(userName);
     		
@@ -707,7 +707,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 
     	UpdateEventService manager = getUpdateEventService();
     	if (manager != null) {
-    		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_NEW_RECORD);
+    		Event event = new Event(Event.EVENT_NEW_RECORD);
     		event.getData().setScope(study.getName());
     		event.getData().setUser(userName);
     		

@@ -15,7 +15,7 @@ import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 
 public class SocketEventServiceTest {
 	
@@ -125,8 +125,8 @@ public class SocketEventServiceTest {
 
         service.registerAtmosphereResource(resource1);
 
-        UpdateEvent joinEvent = new UpdateEvent();
-        joinEvent.setType(UpdateEvent.EVENT_JOIN);
+        Event joinEvent = new Event();
+        joinEvent.setType(Event.EVENT_JOIN);
         joinEvent.getData().setScope("TEST");
         
         service.receivedMessage(joinEvent, resource1);
@@ -147,8 +147,8 @@ public class SocketEventServiceTest {
         service.registerAtmosphereResource(resource1);
         service.registerAtmosphereResource(resource2);
         
-        UpdateEvent joinEvent = new UpdateEvent();
-        joinEvent.setType(UpdateEvent.EVENT_JOIN);
+        Event joinEvent = new Event();
+        joinEvent.setType(Event.EVENT_JOIN);
         joinEvent.getData().setScope("TEST");
         
         service.receivedMessage(joinEvent, resource1);
@@ -172,8 +172,8 @@ public class SocketEventServiceTest {
         service.registerAtmosphereResource(resource1);
         service.registerAtmosphereResource(resource2);
         
-        UpdateEvent joinEvent = new UpdateEvent();
-        joinEvent.setType(UpdateEvent.EVENT_JOIN);
+        Event joinEvent = new Event();
+        joinEvent.setType(Event.EVENT_JOIN);
         joinEvent.getData().setScope("TEST");
         
         service.receivedMessage(joinEvent, resource1);

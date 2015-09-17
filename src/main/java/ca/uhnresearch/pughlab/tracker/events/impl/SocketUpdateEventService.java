@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.events.impl;
 
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
 import ca.uhnresearch.pughlab.tracker.sockets.SocketEventService;
 
@@ -9,7 +9,7 @@ public class SocketUpdateEventService implements UpdateEventService {
 	private SocketEventService server;
 
 	@Override
-	public void sendMessage(UpdateEvent event) {
+	public void sendMessage(Event event) {
 		server.sendMessage(event, event.getData().getScope());
 	}
 
