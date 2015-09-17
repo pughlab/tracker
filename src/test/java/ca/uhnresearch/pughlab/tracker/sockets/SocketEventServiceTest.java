@@ -22,11 +22,11 @@ public class SocketEventServiceTest {
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private SocketEventService service;
+	private SocketEventHandler service;
 
 	@Before
 	public void initialize() {
-		service = new SocketEventService();
+		service = new SocketEventHandler();
 	}
 	
 	private AtmosphereResource createMockedResource(String uuid, AtmosphereRequest request) {

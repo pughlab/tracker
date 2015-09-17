@@ -40,7 +40,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.Event;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
+import ca.uhnresearch.pughlab.tracker.events.EventService;
 import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
@@ -58,7 +58,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 		
-	private UpdateEventService manager;
+	private EventService manager;
 
 	private QueryDslJdbcTemplate template;
 	
@@ -651,7 +651,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	
 	private void sendUpdateEvent(final Study study, final View view, final Cases caseValue, final String attribute, final String userName) {
-    	UpdateEventService manager = getUpdateEventService();
+    	EventService manager = getUpdateEventService();
     	if (manager != null) {
     		Event event = new Event(Event.EVENT_SET_FIELD);
     		event.getData().setScope(study.getName());
@@ -671,7 +671,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	/**
 	 * Getter for an update event manager. 
 	 */
-	public UpdateEventService getUpdateEventService() {
+	public EventService getUpdateEventService() {
 		return manager;
 	}
 
@@ -679,7 +679,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Setter for an update event manager, allowing events to be triggered from the repository.
 	 * @param manager
 	 */
-	public void setUpdateEventService(UpdateEventService manager) {
+	public void setEventService(EventService manager) {
 		this.manager = manager;
 	}
 
@@ -705,7 +705,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		newCase.setStudyId(study.getId());
 		newCase.setId(caseId);
 
-    	UpdateEventService manager = getUpdateEventService();
+    	EventService manager = getUpdateEventService();
     	if (manager != null) {
     		Event event = new Event(Event.EVENT_NEW_RECORD);
     		event.getData().setScope(study.getName());
