@@ -12,7 +12,7 @@ import org.atmosphere.cpr.FrameworkConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * event context for the whole application, and should be used as a singleton for the
  * application. 
  */
-public class SocketEventService {
+public class SocketEventHandler {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private Map<String, AtmosphereResource> resources = new HashMap<String, AtmosphereResource>();
@@ -38,7 +38,7 @@ public class SocketEventService {
 	 * @param event
 	 * @param r
 	 */
-	public void sendMessage(UpdateEvent event, AtmosphereResource r) {
+	public void sendMessage(Event event, AtmosphereResource r) {
         try {
         	String messageBody = mapper.writeValueAsString(event);
         	logger.debug("Sending to: {}, {}", r.uuid(), messageBody);
@@ -67,7 +67,7 @@ public class SocketEventService {
 	/**
 	 * Sends a message to all connected resources with a given scope.
 	 */
-	public void sendMessage(UpdateEvent event, String scope) {
+	public void sendMessage(Event event, String scope) {
 		if (scope == null) {
 			throw new IllegalArgumentException("Can't send to a null scope");
 		}
@@ -88,7 +88,7 @@ public class SocketEventService {
 	 * @param message
 	 * @param r
 	 */
-	public void receivedMessage(UpdateEvent message, AtmosphereResource r) {
+	public void receivedMessage(Event message, AtmosphereResource r) {
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         try {
 			logger.debug("{} just sent {}", subject.getPrincipals().getPrimaryPrincipal(), mapper.writeValueAsString(message));
@@ -97,7 +97,7 @@ public class SocketEventService {
 			e.printStackTrace();
 		}
         
-        if (message.getType().equals(UpdateEvent.EVENT_JOIN)) {
+        if (message.getType().equals(Event.EVENT_JOIN)) {
         	// We're joining a study, add that to our associations
         	String resourceKey = r.uuid();
         	String scope = message.getData().getScope();
@@ -110,7 +110,7 @@ public class SocketEventService {
         		// Before we record this user, tell everyone else someone new has connected
         		
         		logger.debug("Sending to scope watchers");
-        		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
+        		Event event = new Event(Event.EVENT_USER_CONNECTED);
         		event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
         		event.getData().setScope(scope);
         		sendMessage(event, scope);
@@ -190,7 +190,7 @@ public class SocketEventService {
 		// And after we have disconnected, tell everyone else we are gone.
 		if (scope != null) {
 	        Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-			UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_DISCONNECTED);
+			Event event = new Event(Event.EVENT_USER_DISCONNECTED);
 			event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
 			event.getData().setScope(scope);
 			sendMessage(event, scope);

@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.easymock.EasyMock.*;
+import org.hamcrest.Matchers;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.Assert;
-
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
+import org.springframework.data.jdbc.query.SqlUpdateCallback;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -33,19 +34,21 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLQuery;
+import com.mysema.query.types.Expression;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.domain.QAuditLog;
+import ca.uhnresearch.pughlab.tracker.domain.QCases;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
+import ca.uhnresearch.pughlab.tracker.events.EventService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
@@ -1505,6 +1508,37 @@ public class StudyRepositoryImplTest {
 	/**
 	 * Simple test of adding a number of attributes as well as deleting.
 	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testNewCaseOrdering() throws RepositoryException {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		
+		Cases foundCase = studyRepository.getStudyCase(study, view, 10);
+		Integer foundCaseOrder = foundCase.getOrder();
+
+		Cases newCase = studyRepository.newStudyCase(study, view, "test", foundCase);
+		Assert.assertNotNull(newCase);
+		Assert.assertNotNull(newCase.getId());
+		Assert.assertNotNull(newCase.getStudyId());
+		
+		// And now let's dig out the new case -- mainly to check that we can actually
+		// follow this identifier.
+		Cases caseValue = studyRepository.getStudyCase(study, view, newCase.getId());
+		Assert.assertNotNull(caseValue);
+		Assert.assertEquals(newCase.getId(), caseValue.getId());
+		Assert.assertEquals(foundCaseOrder, caseValue.getOrder());
+		
+		// And check we've bumped the order
+		Cases refoundCase = studyRepository.getStudyCase(study, view, foundCase.getId());
+		Assert.assertThat(caseValue.getOrder(), Matchers.lessThan(refoundCase.getOrder()));
+		Assert.assertThat(foundCase.getOrder(), Matchers.not(refoundCase.getOrder()));
+	}
+
+	/**
+	 * Simple test of adding a number of attributes as well as deleting.
+	 */
 	@SuppressWarnings("unchecked")
 	@Test
 	@Transactional
@@ -1514,6 +1548,9 @@ public class StudyRepositoryImplTest {
 		View view = studyRepository.getStudyView(study, "track");
 		
 		QueryDslJdbcTemplate mockTemplate = createMock(QueryDslJdbcTemplate.class);
+		expect(mockTemplate.newSqlQuery()).andStubReturn(studyRepository.getTemplate().newSqlQuery());
+		expect(mockTemplate.queryForObject(anyObject(SQLQuery.class), anyObject(Expression.class))).andStubReturn(null);
+		expect(mockTemplate.update(eq(QCases.cases), anyObject(SqlUpdateCallback.class))).andStubReturn(new Long(1));
 		expect(mockTemplate.insertWithKey(anyObject(RelationalPath.class), anyObject(SqlInsertWithKeyCallback.class))).andStubReturn(null);
 		replay(mockTemplate);
 		
@@ -1540,14 +1577,14 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		
-		UpdateEventService oldService = studyRepository.getUpdateEventService();
-		studyRepository.setUpdateEventService(null);
+		EventService oldService = studyRepository.getUpdateEventService();
+		studyRepository.setEventService(null);
 		
 		Cases newCase = null;
 		try {
 			newCase = studyRepository.newStudyCase(study, view, "test");
 		} finally {
-			studyRepository.setUpdateEventService(oldService);
+			studyRepository.setEventService(oldService);
 		}
 		
 		Assert.assertNotNull(newCase);

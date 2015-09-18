@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.security.SpringShiroInterceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +38,7 @@ public class TrackerSocketHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private SocketEventService server;
+	private SocketEventHandler server;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -67,7 +67,7 @@ public class TrackerSocketHandler {
             // When we are ready, we should actually send a welcome message to the client. This starts off
             // much of the protocol.
             
-            UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_WELCOME);
+            Event event = new Event(Event.EVENT_WELCOME);
             getEventManager().sendMessage(event, r);
         } else {
         	logger.error("No subject principal available");
@@ -93,7 +93,7 @@ public class TrackerSocketHandler {
     /**
 	 * Handles a message from the client. This is where most of the actual logic goes here. 
 	 * 
-     * @param message an instance of {@link UpdateEvent}
+     * @param message an instance of {@link Event}
      * @return
      * @throws IOException
      */
@@ -101,7 +101,7 @@ public class TrackerSocketHandler {
     public String onMessage(AtmosphereResource r, String input) throws IOException {
     	
     	logger.debug("Message received: {}", input);
-    	UpdateEvent message = mapper.readValue(input, UpdateEvent.class);
+    	Event message = mapper.readValue(input, Event.class);
     	logger.debug("Translated message: {}", message);
     	getEventManager().receivedMessage(message, r);
 
@@ -112,7 +112,7 @@ public class TrackerSocketHandler {
      * Gets the current event manager.
      * @return the event manager
      */
-	public SocketEventService getEventManager() {
+	public SocketEventHandler getEventManager() {
 		return server;
 	}
 
@@ -122,7 +122,7 @@ public class TrackerSocketHandler {
 	 */
 	@Inject
 	@Named("socketEventService")
-	public void setEventManager(SocketEventService server) {
+	public void setEventManager(SocketEventHandler server) {
 		logger.debug("Setting eventManager to: {}", server);
 		this.server = server;
 	}

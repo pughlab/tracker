@@ -31,7 +31,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
+import ca.uhnresearch.pughlab.tracker.events.EventService;
 
 public class MockStudyRepository implements StudyRepository {
 
@@ -433,14 +433,22 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * Mocked setter for an update event manager
 	 */
-	public void setUpdateEventService(UpdateEventService manager) {
+	public void setEventService(EventService manager) {
 		// Do nothing
 	}
 
 	@Override
 	public Cases newStudyCase(Study study, View view, String userName) throws RepositoryException {
+		return newStudyCase(study, view, userName, null);
+	}
+
+	@Override
+	public Cases newStudyCase(Study study, View view, String userName, Cases afterCase) throws RepositoryException {
 		Cases newCase = new Cases();
 		newCase.setId(nextCaseId++);
+		if (afterCase != null) {
+			newCase.setOrder(afterCase.getOrder() + 1);
+		}
 		cases.add(newCase);
 		return newCase;
 	}

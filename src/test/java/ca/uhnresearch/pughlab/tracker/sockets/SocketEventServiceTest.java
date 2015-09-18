@@ -15,18 +15,18 @@ import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 
 public class SocketEventServiceTest {
 	
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private SocketEventService service;
+	private SocketEventHandler service;
 
 	@Before
 	public void initialize() {
-		service = new SocketEventService();
+		service = new SocketEventHandler();
 	}
 	
 	private AtmosphereResource createMockedResource(String uuid, AtmosphereRequest request) {
@@ -125,8 +125,8 @@ public class SocketEventServiceTest {
 
         service.registerAtmosphereResource(resource1);
 
-        UpdateEvent joinEvent = new UpdateEvent();
-        joinEvent.setType(UpdateEvent.EVENT_JOIN);
+        Event joinEvent = new Event();
+        joinEvent.setType(Event.EVENT_JOIN);
         joinEvent.getData().setScope("TEST");
         
         service.receivedMessage(joinEvent, resource1);
@@ -147,8 +147,8 @@ public class SocketEventServiceTest {
         service.registerAtmosphereResource(resource1);
         service.registerAtmosphereResource(resource2);
         
-        UpdateEvent joinEvent = new UpdateEvent();
-        joinEvent.setType(UpdateEvent.EVENT_JOIN);
+        Event joinEvent = new Event();
+        joinEvent.setType(Event.EVENT_JOIN);
         joinEvent.getData().setScope("TEST");
         
         service.receivedMessage(joinEvent, resource1);
@@ -172,8 +172,8 @@ public class SocketEventServiceTest {
         service.registerAtmosphereResource(resource1);
         service.registerAtmosphereResource(resource2);
         
-        UpdateEvent joinEvent = new UpdateEvent();
-        joinEvent.setType(UpdateEvent.EVENT_JOIN);
+        Event joinEvent = new Event();
+        joinEvent.setType(Event.EVENT_JOIN);
         joinEvent.getData().setScope("TEST");
         
         service.receivedMessage(joinEvent, resource1);
