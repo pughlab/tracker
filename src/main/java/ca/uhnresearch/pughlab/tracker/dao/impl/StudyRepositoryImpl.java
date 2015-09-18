@@ -683,6 +683,10 @@ public class StudyRepositoryImpl implements StudyRepository {
 		this.manager = manager;
 	}
 
+	@Override
+	public Cases newStudyCase(final Study study, final View view, final String userName) throws RepositoryException {
+		return newStudyCase(study, view, userName, null);
+	}	
 	/**
 	 * Creates and returns a case object for a new case. The only fields set will be the
 	 * study identifier and the case identifier, but these are enough for finding and 
@@ -690,10 +694,34 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return the new case
 	 */
 	@Override
-	public Cases newStudyCase(final Study study, final View view, final String userName) throws RepositoryException {
+	public Cases newStudyCase(final Study study, final View view, final String userName, final Cases afterCase) throws RepositoryException {
+		
+		Integer orderPoint = 1;
+		if (afterCase != null) {
+			orderPoint = afterCase.getOrder();
+		} else {
+			SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()));
+			orderPoint = template.queryForObject(sqlQuery, cases.order.max());
+			if (orderPoint == null) {
+				orderPoint = 0;
+			}
+			orderPoint = orderPoint + 1;
+		}
+		
+		final Integer orderValue = orderPoint;
+	
+		// Now we can update everything > breakpoint.
+		template.update(cases, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(cases.studyId.eq(study.getId()).and(cases.order.goe(orderValue)))
+						.set(cases.order, cases.order.add(1)).execute();
+			};
+		});
+
+		// And now let's insert a new case, with the right break value
 		Integer caseId = template.insertWithKey(cases, new SqlInsertWithKeyCallback<Integer>() { 
 			public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.columns(cases.studyId).values(study.getId()).executeWithKey(cases.id);
+				return sqlInsertClause.columns(cases.studyId, cases.order).values(study.getId(), orderValue).executeWithKey(cases.id);
 			};
 		});
 		

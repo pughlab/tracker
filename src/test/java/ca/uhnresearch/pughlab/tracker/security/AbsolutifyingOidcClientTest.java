@@ -265,6 +265,7 @@ public class AbsolutifyingOidcClientTest {
 	
 	@Test
 	public void testGetUserAccessTokenResponse() throws Exception {
+		
 		AbsolutifyingOidcClient partialMock = createMockBuilder(AbsolutifyingOidcClient.class)
 				.withConstructor()
 				.addMockedMethod("getHTTPResponse").createMock();

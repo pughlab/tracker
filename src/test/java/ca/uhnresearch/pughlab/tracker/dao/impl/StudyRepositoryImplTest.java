@@ -13,7 +13,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.Assert;
-
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
+import org.springframework.data.jdbc.query.SqlUpdateCallback;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -33,12 +33,14 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLQuery;
+import com.mysema.query.types.Expression;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.domain.QAuditLog;
+import ca.uhnresearch.pughlab.tracker.domain.QCases;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
@@ -1514,6 +1516,9 @@ public class StudyRepositoryImplTest {
 		View view = studyRepository.getStudyView(study, "track");
 		
 		QueryDslJdbcTemplate mockTemplate = createMock(QueryDslJdbcTemplate.class);
+		expect(mockTemplate.newSqlQuery()).andStubReturn(studyRepository.getTemplate().newSqlQuery());
+		expect(mockTemplate.queryForObject(anyObject(SQLQuery.class), anyObject(Expression.class))).andStubReturn(null);
+		expect(mockTemplate.update(eq(QCases.cases), anyObject(SqlUpdateCallback.class))).andStubReturn(new Long(1));
 		expect(mockTemplate.insertWithKey(anyObject(RelationalPath.class), anyObject(SqlInsertWithKeyCallback.class))).andStubReturn(null);
 		replay(mockTemplate);
 		

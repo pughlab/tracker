@@ -439,8 +439,16 @@ public class MockStudyRepository implements StudyRepository {
 
 	@Override
 	public Cases newStudyCase(Study study, View view, String userName) throws RepositoryException {
+		return newStudyCase(study, view, userName, null);
+	}
+
+	@Override
+	public Cases newStudyCase(Study study, View view, String userName, Cases afterCase) throws RepositoryException {
 		Cases newCase = new Cases();
 		newCase.setId(nextCaseId++);
+		if (afterCase != null) {
+			newCase.setOrder(afterCase.getOrder() + 1);
+		}
 		cases.add(newCase);
 		return newCase;
 	}
