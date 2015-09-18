@@ -299,4 +299,40 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		Assert.assertEquals("ROLE_CAT_HERDER", capturedArgument.getValue().getName());
 
 	}
+
+
+	/**
+	 * Checks that an admin user can access the entire study, including all its 
+	 * many views.
+	 * @throws IOException
+	 */
+	@Test
+	public void resourcPutTestForbidden() throws IOException, RepositoryException {
+		
+		Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+		Study study = createMock(Study.class);
+		expect(study.getName()).andStubReturn("DEMO");
+		expect(study.getId()).andStubReturn(5);
+		replay(study);
+
+		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
+		replay(mock);
+		
+        resource.setRepository(mock);
+		resource.getRequest().getAttributes().put("study", study);
+
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Forbidden"));
+
+		Representation writeRepresentation = new StringRepresentation("[]", APPLICATION_JSON);
+		resource.putResource(writeRepresentation);
+	}
+
 }
