@@ -356,6 +356,7 @@ angular
               minSpareRows: 1
               colWidths: (getColWidth(a) for a in orderedAttributes)
               colHeaders: (a.label for a in orderedAttributes)
+              rowHeaders: true
               columns: (convertColumn(a) for a in orderedAttributes)
               contextMenu: false
               multiSelect: true
@@ -365,6 +366,7 @@ angular
               columnSorting: false
               trackerColumnSorting: true
               manualColumnResize: true
+              manualRowResize: true
               search: true
               dataSchema: () ->
                 schema = {}
