@@ -486,6 +486,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 			sq = sq.orderBy(ordering);
 		}
 		
+		// And then order by the natural case order
+		sq = sq.orderBy(cases.order.asc());
+		
 		if (query.getOffset() != null) {
 			sq = sq.offset(query.getOffset());
 		}

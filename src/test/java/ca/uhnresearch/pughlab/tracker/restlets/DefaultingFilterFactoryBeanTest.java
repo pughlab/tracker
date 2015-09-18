@@ -1,7 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.restlets;
 
-import java.util.Date;
-
 import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Test;
