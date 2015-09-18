@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.easymock.EasyMock.*;
+import org.hamcrest.Matchers;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
@@ -1502,6 +1503,37 @@ public class StudyRepositoryImplTest {
 		Cases caseValue = studyRepository.getStudyCase(study, view, newCase.getId());
 		Assert.assertNotNull(caseValue);
 		Assert.assertEquals(newCase.getId(), caseValue.getId());
+	}
+
+	/**
+	 * Simple test of adding a number of attributes as well as deleting.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testNewCaseOrdering() throws RepositoryException {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		
+		Cases foundCase = studyRepository.getStudyCase(study, view, 10);
+		Integer foundCaseOrder = foundCase.getOrder();
+
+		Cases newCase = studyRepository.newStudyCase(study, view, "test", foundCase);
+		Assert.assertNotNull(newCase);
+		Assert.assertNotNull(newCase.getId());
+		Assert.assertNotNull(newCase.getStudyId());
+		
+		// And now let's dig out the new case -- mainly to check that we can actually
+		// follow this identifier.
+		Cases caseValue = studyRepository.getStudyCase(study, view, newCase.getId());
+		Assert.assertNotNull(caseValue);
+		Assert.assertEquals(newCase.getId(), caseValue.getId());
+		Assert.assertEquals(foundCaseOrder, caseValue.getOrder());
+		
+		// And check we've bumped the order
+		Cases refoundCase = studyRepository.getStudyCase(study, view, foundCase.getId());
+		Assert.assertThat(caseValue.getOrder(), Matchers.lessThan(refoundCase.getOrder()));
+		Assert.assertThat(foundCase.getOrder(), Matchers.not(refoundCase.getOrder()));
 	}
 
 	/**
