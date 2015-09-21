@@ -122,6 +122,8 @@ public class SocketEventHandler {
         	String scope = message.getData().getScope();
         	
         	logger.debug("Connecting to scope: {}", scope);
+        	completelyRemoveUuid(resourceKey);
+        	
         	scopeByWatcher.put(resourceKey,scope);
         	if (! watcherListByScope.containsKey(scope)) {
         		watcherListByScope.put(scope, new ArrayList<String>());
