@@ -19,10 +19,12 @@ import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.CharacterSet;
+import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.engine.io.ReaderInputStream;
+import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
@@ -283,4 +285,33 @@ public class TrackerResourceTest extends AbstractShiroTest {
 		studiesResource.postResource(ir);
 	}
 
+	/**
+	 * Check that a new study can be created.
+	 * @throws RepositoryException 
+	 */
+	@Test
+	public void createTestIOException() throws IOException, RepositoryException {
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("admin")).andStubReturn(true);
+
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        StudyRepository mock = createMock(StudyRepository.class);
+        mock.saveStudy(anyObject(Study.class));
+        expectLastCall().andStubThrow(new InvalidValueException("Error"));
+        replay(mock);
+        
+        studiesResource.setRepository(mock);
+
+		FileRepresentation ir = new FileRepresentation("/dev/null", MediaType.APPLICATION_JSON);
+		ir.setCharacterSet(CharacterSet.ISO_8859_1);
+
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Bad Request"));
+
+		studiesResource.postResource(ir);
+	}
 }

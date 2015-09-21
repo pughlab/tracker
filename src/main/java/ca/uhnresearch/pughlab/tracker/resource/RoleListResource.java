@@ -102,12 +102,10 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 			
     	} catch (IOException e) {
     		logger.error("IOException: " + e.getLocalizedMessage());
-    		e.printStackTrace();
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} catch (RepositoryException e) {
     		logger.error("RepositoryException: " + e.getLocalizedMessage());
-    		e.printStackTrace();
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
     	
     	return getResource();
