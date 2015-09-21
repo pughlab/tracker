@@ -51,9 +51,7 @@ public class SocketEventHandler {
 		}
 	}
 	
-	private void completelyRemoveUuid(String uuid) {
-		resources.remove(uuid);
-		
+	private void removeScopeUuid(String uuid) {
 		String scope = scopeByWatcher.get(uuid);
 		if (scope != null) {
 			logger.info("Found scope being watched: {}", scope);
@@ -67,13 +65,18 @@ public class SocketEventHandler {
 		}
 	}
 	
+	private void removeScopeAndResourceUuid(String uuid) {
+		removeScopeUuid(uuid);
+		resources.remove(uuid);
+	}
+	
 	private void checkResource(String uuid, AtmosphereResource r) throws SocketException {
 		if (r == null) {
-			completelyRemoveUuid(uuid);
+			removeScopeAndResourceUuid(uuid);
 			throw new SocketException("Whoa! Something removed a resource: " + uuid);
 		}
 		if (r.getRequest() == null) {
-			completelyRemoveUuid(uuid);
+			removeScopeAndResourceUuid(uuid);
 			throw new SocketException("Whoa! Something removed a resource request: " + uuid);
 		}
 	}
@@ -89,7 +92,7 @@ public class SocketEventHandler {
 		logger.debug("Sending message to everyone watching: {}", scope);
 		List<String> resourceKeys = watcherListByScope.get(scope);
 		if (resourceKeys != null) {
-			for (String uuid : resourceKeys) {
+			for (String uuid : new ArrayList<String>(resourceKeys)) {
 				try {
 					AtmosphereResource r = resources.get(uuid);
 					logger.info("Checking: " + uuid + ", " + r);
@@ -122,9 +125,12 @@ public class SocketEventHandler {
         	String scope = message.getData().getScope();
         	
         	logger.debug("Connecting to scope: {}", scope);
-        	completelyRemoveUuid(resourceKey);
         	
+        	// If we're already watching a scope, we should remove all the scope watching.
+        	
+        	removeScopeUuid(resourceKey);
         	scopeByWatcher.put(resourceKey,scope);
+        	
         	if (! watcherListByScope.containsKey(scope)) {
         		watcherListByScope.put(scope, new ArrayList<String>());
         	} else {
@@ -194,7 +200,7 @@ public class SocketEventHandler {
 		logger.debug("Unregistering AtmosphereResource: {}", uuid);
 		
 		String scope = scopeByWatcher.get(uuid);
-		completelyRemoveUuid(uuid);
+		removeScopeAndResourceUuid(uuid);
 		
 		logger.debug("After removal: registered resources");
 		for(Entry<String, AtmosphereResource> entry : resources.entrySet()) {
