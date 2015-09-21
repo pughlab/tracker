@@ -8,8 +8,16 @@
 	                    http://www.springframework.org/schema/util
 	                    http://www.springframework.org/schema/util/spring-util.xsd">
                         
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location" value = "#{contextParameters.propertiesLocation}" />
+    <bean id="configProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location">
+            <bean class="org.springframework.core.io.UrlResource">
+                <constructor-arg>
+                    <bean class="org.springframework.jndi.JndiObjectFactoryBean">
+                        <property name="jndiName" value="java:comp/env/trackerProperties" />
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
     </bean>
 	                    
 	<bean id="trackerComponent" class="org.restlet.ext.spring.SpringComponent">

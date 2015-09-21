@@ -124,6 +124,12 @@
 	            </New>
             </Arg>
 	    </Call>
+        
+        <New class="org.eclipse.jetty.plus.naming.EnvEntry">
+            <Arg>trackerProperties</Arg> 
+            <Arg type="java.lang.String"><SystemProperty name="jetty.home" default="."/>tracker.properties</Arg> 
+            <Arg type="boolean">true</Arg> 
+        </New>
 	
 		<!-- The data source -->
 	    <New id="ds" class="org.eclipse.jetty.plus.jndi.Resource">

@@ -35,4 +35,10 @@
         </Arg>
     </New>
     
+    <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
+        <Arg>trackerProperties</Arg> 
+        <Arg type="java.lang.String"><SystemProperty name="jetty.home" default="file:."/>/tracker.properties</Arg> 
+        <Arg type="boolean">true</Arg> 
+    </New>
+    
 </Configure>
