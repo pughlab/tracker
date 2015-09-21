@@ -211,4 +211,40 @@ public class TrackerResourceTest extends AbstractShiroTest {
 
 		studiesResource.postResource(ir);
 	}
+	
+	/**
+	 * Checks admin resource access to the tracker, to make sure we get a create action
+	 * URL. 
+	 * @throws IOException
+	 */
+	@Test
+	public void adminTest() throws IOException {
+
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("admin")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("OTHER:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:view")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Representation result = studiesResource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		JsonArray studies = data.get("studies").getAsJsonArray();
+		assertEquals( 1, studies.size() );
+		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
+		assertEquals( "A demo clinical genomics study", studies.get(0).getAsJsonObject().get("description").getAsString());
+		
+		JsonObject actions = data.getAsJsonObject("actions");
+		assertNotNull(actions.get("create"));
+		assertEquals("http://localhost:9998/services/api/studies", actions.get("create").getAsString());
+	}
+
 }
