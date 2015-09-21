@@ -93,5 +93,8 @@
         "dist/fonts/glyphicons-halflings-regular.woff"
       ]
     }
+  },
+  "resolutions": {
+    "pikaday": "^1.3.2"
   }
 }
