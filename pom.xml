@@ -4,7 +4,7 @@
 	<groupId>ca.uhnresearch.pughlab</groupId>
 	<artifactId>tracker-java-restlet</artifactId>
 	<packaging>war</packaging>
-	
+
 	<name>tracker</name>
 	<description>
 	A generic tracking system designed for easy and secure data recording within large
@@ -15,7 +15,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		
+
 		<restlet.version>2.3.1</restlet.version>
 		<spring.version>4.1.6.RELEASE</spring.version>
 		<slf4j.version>1.7.7</slf4j.version>
@@ -25,7 +25,7 @@
 		<quartz.version>2.2.1</quartz.version>
 		<jackson.version>2.4.4</jackson.version>
         <apache-ldap-api.version>1.0.0-M31</apache-ldap-api.version>
-        
+
         <ldap.domain>ads.uhnresearch.ca</ldap.domain>
         <ldap.host>192.168.198.100</ldap.host>
         <ldap.port>389</ldap.port>
@@ -33,7 +33,7 @@
         <ldap.searchTemplate>OU=user,OU=accounts,DC=ads,DC=uhnresearch,DC=ca</ldap.searchTemplate>
         <ldap.filterTemplate>(userPrincipalName={0})</ldap.filterTemplate>
 	</properties>
-	
+
 	<licenses>
         <license>
             <name>BSD 3-Clause License</name>
@@ -41,7 +41,7 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <issueManagement>
 	    <system>GitHub Issues</system>
 	    <url>https://github.com/pughlab/tracker/issues</url>
@@ -52,7 +52,7 @@
 	    <connection>scm:git:git@github.com:pughlab/tracker.git</connection>
 	    <developerConnection>scm:git:git@github.com:pughlab/tracker.git</developerConnection>
 	</scm>
-        
+
     <developers>
 		<developer>
 			<id>stuartw</id>
@@ -67,7 +67,7 @@
 			<timezone>America/Toronto</timezone>
 		</developer>
 	</developers>
-	
+
 	<contributors>
 		<contributor>
 			<name>Lillian Siu</name>
@@ -208,7 +208,7 @@
             <artifactId>httpclient</artifactId>
             <version>4.5</version>
         </dependency>
-		
+
 		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -231,7 +231,7 @@
 			<artifactId>jackson-core</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
-		
+
 		<!-- Shiro -->
 		<dependency>
 		    <groupId>org.apache.shiro</groupId>
@@ -253,7 +253,7 @@
 			<artifactId>jbcrypt</artifactId>
 			<version>0.3m</version>
 		</dependency>
-        
+
         <!-- OIDC -->
         <dependency>
             <groupId>io.buji</groupId>
@@ -319,7 +319,7 @@
             <artifactId>api-ldap-model</artifactId>
             <version>${apache-ldap-api.version}</version>
         </dependency>
-		
+
 		<!-- Quartz framework -->
 		<dependency>
             <groupId>org.springframework</groupId>
@@ -349,7 +349,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-      	
+
 
 		<!-- Logging -->
 		<dependency>
@@ -361,7 +361,7 @@
 			<artifactId>slf4j-jdk14</artifactId>
 			<version>${slf4j.version}</version>
 		</dependency>
-		
+
 		<!-- Testing -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -405,9 +405,9 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
-				
+
 	</dependencies>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -464,9 +464,9 @@
 	</dependencyManagement>
 
 	<build>
-	
+
 		<plugins>
-        
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
@@ -487,8 +487,8 @@
                     </execution>
                 </executions>
             </plugin>
-      
-      
+
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -597,13 +597,13 @@
                         </configuration>
                     </execution>
 
-                    <execution>
+										<execution>
                         <id>bower install</id>
                         <goals>
                             <goal>bower</goal>
                         </goals>
                         <configuration>
-                            <arguments>--allow-root install</arguments>
+                            <arguments>--allow-root --force-latest install</arguments>
                         </configuration>
                     </execution>
 
@@ -669,13 +669,13 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-pmd-plugin</artifactId>
 		        <version>3.4</version>
 		    </plugin>
-			
+
 			<plugin>
 			    <groupId>org.jacoco</groupId>
 			    <artifactId>jacoco-maven-plugin</artifactId>
@@ -719,7 +719,7 @@
 					</execution>
 				</executions>
 			</plugin>
-				
+
 		</plugins>
 
 
@@ -865,6 +865,6 @@
             <url>http://oss.sonatype.org/content/repositories/snapshots</url>
             <snapshots/>
         </repository>
- -->            
+ -->
 	</repositories>
 </project>
