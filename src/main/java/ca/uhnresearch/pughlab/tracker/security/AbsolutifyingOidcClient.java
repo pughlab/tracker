@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -19,20 +20,22 @@ import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.oidc.profile.OidcProfile;
 
-import com.nimbusds.jose.JWEDecrypter;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.crypto.RSADecrypter;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Request;
+import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.TokenResponse;
@@ -266,72 +269,95 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
 
         return new ContextualOidcCredentials(code, context);
     }
+    
+    protected HTTPResponse getHTTPResponse(Request request) throws SerializeException, IOException {
+    	return request.toHTTPRequest().send();
+    }
+    
+    protected OIDCAccessTokenResponse getUserAccessTokenResponse(final ContextualOidcCredentials credentials) throws Exception {
+        TokenRequest request = new TokenRequest(this.oidcProvider.getTokenEndpointURI(), this.clientAuthentication,
+                new AuthorizationCodeGrant(credentials.getCode(), getAbsoluteRedirectURI(credentials.getContext()),
+                        this.clientAuthentication.getClientID()));
+        HTTPResponse httpResponse = getHTTPResponse(request);
+        
+        logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
+                httpResponse.getContent());
+
+        TokenResponse response = OIDCTokenResponseParser.parse(httpResponse);
+        if (response instanceof TokenErrorResponse) {
+            logger.error("Bad token response, error={}", ((TokenErrorResponse) response).getErrorObject());
+            return null;
+        }
+        logger.debug("Token response successful");
+        OIDCAccessTokenResponse tokenSuccessResponse = (OIDCAccessTokenResponse) response;
+
+        return tokenSuccessResponse;
+    }
+    
+    protected UserInfo getUserInfo(final BearerAccessToken accessToken) throws Exception {
+        UserInfo userInfo = null;
+        if (this.oidcProvider.getUserInfoEndpointURI() != null) {
+            UserInfoRequest userInfoRequest = new UserInfoRequest(this.oidcProvider.getUserInfoEndpointURI(), accessToken);
+            HTTPResponse httpResponse = getHTTPResponse(userInfoRequest);
+            logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
+                    httpResponse.getContent());
+
+            UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
+
+            if (userInfoResponse instanceof UserInfoErrorResponse) {
+                logger.error("Bad User Info response, error={}",
+                        ((UserInfoErrorResponse) userInfoResponse).getErrorObject());
+            } else {
+                UserInfoSuccessResponse userInfoSuccessResponse = (UserInfoSuccessResponse) userInfoResponse;
+                userInfo = userInfoSuccessResponse.getUserInfo();
+            }
+        }
+        
+        return userInfo;
+    }
+    
+    protected ReadOnlyJWTClaimsSet requestNewKeyAndVerify(final JWT idToken) throws JOSEException, java.text.ParseException {
+        JWKSet jwkSet;
+        // Download OIDC metadata and Json Web Key Set
+        try {
+            ResourceRetriever resourceRetriever = getResourceRetriever();
+            this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
+                    new URL(this.discoveryURI)).getContent());
+            jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
+                    .getContent());
+        } catch (Exception e2) {
+            throw new TechnicalException(e2);
+        }
+        initJwtDecoder(this.jwtDecoder, jwkSet);
+
+    	// Try to validate again -- a second failure here is going to be bad
+    	return this.jwtDecoder.decodeJWT(idToken);
+    }
+    
+    protected ReadOnlyJWTClaimsSet getClaimsSet(final JWT idToken) throws Exception {
+        ReadOnlyJWTClaimsSet claimsSet;
+        try {
+        	claimsSet = this.jwtDecoder.decodeJWT(idToken);
+        } catch (MissingKeyException e) {
+        	
+        	// Try to validate again -- a second failure here is going to be bad
+        	claimsSet = requestNewKeyAndVerify(idToken);
+        };
+
+        return claimsSet;
+    }
 
     @Override
     protected OidcProfile retrieveUserProfile(final ContextualOidcCredentials credentials, final WebContext context) {
 
-        TokenRequest request = new TokenRequest(this.oidcProvider.getTokenEndpointURI(), this.clientAuthentication,
-                new AuthorizationCodeGrant(credentials.getCode(), getAbsoluteRedirectURI(credentials.getContext()),
-                        this.clientAuthentication.getClientID()));
-        HTTPResponse httpResponse;
         try {
-            // Token request
-            httpResponse = request.toHTTPRequest().send();
-            logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
-                    httpResponse.getContent());
-
-            TokenResponse response = OIDCTokenResponseParser.parse(httpResponse);
-            if (response instanceof TokenErrorResponse) {
-                logger.error("Bad token response, error={}", ((TokenErrorResponse) response).getErrorObject());
-                return null;
-            }
-            logger.debug("Token response successful");
-            OIDCAccessTokenResponse tokenSuccessResponse = (OIDCAccessTokenResponse) response;
+            OIDCAccessTokenResponse tokenSuccessResponse = getUserAccessTokenResponse(credentials);
             BearerAccessToken accessToken = (BearerAccessToken) tokenSuccessResponse.getAccessToken();
 
-            // User Info request
-            UserInfo userInfo = null;
-            if (this.oidcProvider.getUserInfoEndpointURI() != null) {
-                UserInfoRequest userInfoRequest = new UserInfoRequest(this.oidcProvider.getUserInfoEndpointURI(),
-                        accessToken);
-                httpResponse = userInfoRequest.toHTTPRequest().send();
-                logger.debug("Token response: status={}, content={}", httpResponse.getStatusCode(),
-                        httpResponse.getContent());
-
-                UserInfoResponse userInfoResponse = UserInfoResponse.parse(httpResponse);
-
-                if (userInfoResponse instanceof UserInfoErrorResponse) {
-                    logger.error("Bad User Info response, error={}",
-                            ((UserInfoErrorResponse) userInfoResponse).getErrorObject());
-                } else {
-                    UserInfoSuccessResponse userInfoSuccessResponse = (UserInfoSuccessResponse) userInfoResponse;
-                    userInfo = userInfoSuccessResponse.getUserInfo();
-                }
-            }
-
+            UserInfo userInfo = getUserInfo(accessToken);
+            
             // Check ID Token
-            ReadOnlyJWTClaimsSet claimsSet;
-            try {
-            	claimsSet = this.jwtDecoder.decodeJWT(tokenSuccessResponse.getIDToken());
-            } catch (MissingKeyException e) {
-            	
-            	// Retrieve updated keys
-                JWKSet jwkSet;
-                // Download OIDC metadata and Json Web Key Set
-                try {
-                    DefaultResourceRetriever resourceRetriever = new DefaultResourceRetriever();
-                    this.oidcProvider = OIDCProviderMetadata.parse(resourceRetriever.retrieveResource(
-                            new URL(this.discoveryURI)).getContent());
-                    jwkSet = JWKSet.parse(resourceRetriever.retrieveResource(this.oidcProvider.getJWKSetURI().toURL())
-                            .getContent());
-                } catch (Exception e2) {
-                    throw new TechnicalException(e2);
-                }
-                initJwtDecoder(this.jwtDecoder, jwkSet);
-
-            	// Try to validate again -- a second failure here is going to be bad
-            	claimsSet = this.jwtDecoder.decodeJWT(tokenSuccessResponse.getIDToken());
-            };
+            ReadOnlyJWTClaimsSet claimsSet = getClaimsSet(tokenSuccessResponse.getIDToken());
             
             if (useNonce()) {
                 String nonce = claimsSet.getStringClaim("nonce");
@@ -353,7 +379,6 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
         } catch (Exception e) {
             throw new TechnicalException(e);
         }
-
     }
 
     /**
@@ -387,20 +412,11 @@ public class AbsolutifyingOidcClient extends BaseClient<ContextualOidcCredential
             for (JWK key : jwkSet.getKeys()) {
                 if (key.getKeyUse() == null || key.getKeyUse() == KeyUse.SIGNATURE) {
                     jwtDecoder.addJWSVerifier(getVerifier(key), key.getKeyID());
-                } else if (key.getKeyUse() == KeyUse.ENCRYPTION) {
-                    jwtDecoder.addJWEDecrypter(getDecrypter(key), key.getKeyID());
                 }
             }
         } catch (Exception e) {
             throw new TechnicalException(e);
         }
-    }
-
-    private JWEDecrypter getDecrypter(final JWK key) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        if (key instanceof RSAKey) {
-            return new RSADecrypter(((RSAKey) key).toRSAPrivateKey());
-        }
-        return null;
     }
 
     private JWSVerifier getVerifier(final JWK key) throws NoSuchAlgorithmException, InvalidKeySpecException {

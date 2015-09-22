@@ -29,6 +29,11 @@
 	</bean>
 	
 	<bean id="scheduledJob" class="ca.uhnresearch.pughlab.tracker.scheduling.ScheduledJob">
+        <constructor-arg>
+            <bean class="org.springframework.core.io.FileSystemResource">
+                <constructor-arg value="${script.source:src/test/resources/tracker.js}" />
+            </bean>
+        </constructor-arg>
 	</bean>
     
 </beans>

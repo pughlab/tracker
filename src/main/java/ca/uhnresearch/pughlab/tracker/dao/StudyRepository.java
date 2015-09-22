@@ -10,7 +10,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
+import ca.uhnresearch.pughlab.tracker.events.EventService;
 
 public interface StudyRepository {
 
@@ -104,9 +104,13 @@ public interface StudyRepository {
 	Cases getStudyCase(Study study, View view, Integer caseId);
 	
 	/**
-	 * Makes a new, empty, case
+	 * Makes a new, empty, case. If an afterCase is passed, the new case will be added after that case
+	 * and the others reordered. If afterCase is null or not passed, the new case will be added at the
+	 * beginning of the case list, which is very probably not what you want.
+	 * 
 	 * @return the case identifier
 	 */
+	Cases newStudyCase(Study study, View view, String userName, Cases afterCase) throws RepositoryException;
 	Cases newStudyCase(Study study, View view, String userName) throws RepositoryException;
 
 	/**
@@ -126,7 +130,7 @@ public interface StudyRepository {
 	 */
 	void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
 
-	void setUpdateEventService(UpdateEventService manager);
+	void setEventService(EventService manager);
 	
 	/**
 	 * Setter for the reference to the authorization repository, which we use for the audit logging

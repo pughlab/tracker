@@ -21,6 +21,8 @@ public class QCases extends com.mysema.query.sql.RelationalPathBase<Cases> {
 
     public final NumberPath<Integer> studyId = createNumber("studyId", Integer.class);
 
+    public final NumberPath<Integer> order = createNumber("order", Integer.class);
+
     public final com.mysema.query.sql.PrimaryKey<Cases> primary = createPrimaryKey(id);
 
     public QCases(String variable) {
@@ -30,8 +32,9 @@ public class QCases extends com.mysema.query.sql.RelationalPathBase<Cases> {
 
     public void addMetadata() {
         addMetadata(id, ColumnMetadata.named("ID").withIndex(1).ofType(Types.INTEGER).withSize(10).notNull());
-        addMetadata(state, ColumnMetadata.named("STATE").withIndex(3).ofType(Types.VARCHAR).withSize(255));
+        addMetadata(state, ColumnMetadata.named("STATE").withIndex(4).ofType(Types.VARCHAR).withSize(255));
         addMetadata(studyId, ColumnMetadata.named("STUDY_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
+        addMetadata(order, ColumnMetadata.named("ORDER").withIndex(3).ofType(Types.INTEGER).withSize(10).notNull());
     }
 
 }

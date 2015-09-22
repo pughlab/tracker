@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -66,12 +66,12 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 	
 	@Test
 	public void testGetSetEventManager() {
-		SocketEventService manager = createMock(SocketEventService.class);
+		SocketEventHandler manager = createMock(SocketEventHandler.class);
 		replay(manager);
 		
 		handler.setEventManager(manager);
 		
-		SocketEventService retrieved = handler.getEventManager();
+		SocketEventHandler retrieved = handler.getEventManager();
 		Assert.assertEquals(manager, retrieved);
 	}
 	
@@ -92,7 +92,7 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		expect(resource.uuid()).andStubReturn("B37815E9-1ACE-4C7D-8741-1ADECC2B5532");
 		replay(resource);
 		
-		SocketEventService manager = createMock(SocketEventService.class);
+		SocketEventHandler manager = createMock(SocketEventHandler.class);
 		manager.unregisterAtmosphereResource(resource);
 		expectLastCall();
 		replay(manager);
@@ -115,7 +115,7 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		expect(resource.uuid()).andStubReturn("B37815E9-1ACE-4C7D-8741-1ADECC2B5532");
 		replay(resource);
 		
-		SocketEventService manager = createMock(SocketEventService.class);
+		SocketEventHandler manager = createMock(SocketEventHandler.class);
 		manager.unregisterAtmosphereResource(resource);
 		expectLastCall();
 		replay(manager);
@@ -139,7 +139,7 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		expect(resource.uuid()).andStubReturn("B37815E9-1ACE-4C7D-8741-1ADECC2B5532");
 		replay(resource);
 		
-		SocketEventService manager = createMock(SocketEventService.class);
+		SocketEventHandler manager = createMock(SocketEventHandler.class);
 		manager.unregisterAtmosphereResource(resource);
 		expectLastCall();
 		replay(manager);
@@ -171,10 +171,10 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		expect(resource.getRequest()).andStubReturn(req);
 		replay(resource);
 		
-		Capture<UpdateEvent> capturedEvent = EasyMock.newCapture(CaptureType.FIRST);
+		Capture<Event> capturedEvent = EasyMock.newCapture(CaptureType.FIRST);
 		Capture<AtmosphereResource> capturedResource = EasyMock.newCapture(CaptureType.FIRST);
 
-		SocketEventService manager = createMock(SocketEventService.class);
+		SocketEventHandler manager = createMock(SocketEventHandler.class);
 		manager.registerAtmosphereResource(resource);
 		expectLastCall();
 		manager.sendMessage(capture(capturedEvent), capture(capturedResource));
@@ -188,7 +188,7 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		verify(resource);
 		
 		Assert.assertEquals(resource, capturedResource.getValue());
-		Assert.assertEquals(UpdateEvent.EVENT_WELCOME, capturedEvent.getValue().getType());
+		Assert.assertEquals(Event.EVENT_WELCOME, capturedEvent.getValue().getType());
 	}
 	
 	@Test
@@ -201,7 +201,7 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 		expect(resource.getRequest()).andStubReturn(req);
 		replay(resource);
 
-		SocketEventService manager = createMock(SocketEventService.class);
+		SocketEventHandler manager = createMock(SocketEventHandler.class);
 		manager.registerAtmosphereResource(resource);
 		expectLastCall();
 		replay(manager);

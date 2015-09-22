@@ -97,6 +97,15 @@ public class SessionAuthenticationFilterTest extends AbstractShiroTest {
 	}
 
 	@Test
+	public void testGetSetFailureAttribute() {
+		
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		AuthenticationException e = new AuthenticationException("Aaargh");
+		filter.setFailureAttribute(request, e);
+		Assert.assertEquals(e.getClass().getName(), request.getAttribute("shiroLoginFailure"));
+	}
+
+	@Test
 	public void testGetUsername() {
 		HttpServletRequest request = createMock(HttpServletRequest.class);
 		expect(request.getParameter("username")).andStubReturn("admin");

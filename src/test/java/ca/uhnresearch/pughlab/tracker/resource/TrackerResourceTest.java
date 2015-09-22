@@ -19,10 +19,12 @@ import org.junit.rules.ExpectedException;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.CharacterSet;
+import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.engine.io.ReaderInputStream;
+import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
@@ -31,8 +33,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 public class TrackerResourceTest extends AbstractShiroTest {
@@ -208,6 +213,104 @@ public class TrackerResourceTest extends AbstractShiroTest {
 
 		thrown.expect(ResourceException.class);
 		thrown.expectMessage(containsString("Forbidden"));
+
+		studiesResource.postResource(ir);
+	}
+	
+	/**
+	 * Checks admin resource access to the tracker, to make sure we get a create action
+	 * URL. 
+	 * @throws IOException
+	 */
+	@Test
+	public void adminTest() throws IOException {
+
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("admin")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("OTHER:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:view")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Representation result = studiesResource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		JsonArray studies = data.get("studies").getAsJsonArray();
+		assertEquals( 1, studies.size() );
+		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
+		assertEquals( "A demo clinical genomics study", studies.get(0).getAsJsonObject().get("description").getAsString());
+		
+		JsonObject actions = data.getAsJsonObject("actions");
+		assertNotNull(actions.get("create"));
+		assertEquals("http://localhost:9998/services/api/studies", actions.get("create").getAsString());
+	}
+
+	/**
+	 * Check that a new study can be created.
+	 * @throws RepositoryException 
+	 */
+	@Test
+	public void createTestException() throws IOException, RepositoryException {
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("admin")).andStubReturn(true);
+
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        StudyRepository mock = createMock(StudyRepository.class);
+        mock.saveStudy(anyObject(Study.class));
+        expectLastCall().andStubThrow(new InvalidValueException("Error"));
+        replay(mock);
+        
+        studiesResource.setRepository(mock);
+
+        String s = "{\"name\":\"TEST\",\"description\":\"A test study\"}";
+		Reader r=new StringReader(s);
+		InputStream is=new ReaderInputStream(r);
+		InputRepresentation ir =new InputRepresentation(is);
+		ir.setCharacterSet(CharacterSet.ISO_8859_1);
+
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Bad Request"));
+
+		studiesResource.postResource(ir);
+	}
+
+	/**
+	 * Check that a new study can be created.
+	 * @throws RepositoryException 
+	 */
+	@Test
+	public void createTestIOException() throws IOException, RepositoryException {
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("admin")).andStubReturn(true);
+
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        StudyRepository mock = createMock(StudyRepository.class);
+        mock.saveStudy(anyObject(Study.class));
+        expectLastCall().andStubThrow(new InvalidValueException("Error"));
+        replay(mock);
+        
+        studiesResource.setRepository(mock);
+
+		FileRepresentation ir = new FileRepresentation("/dev/null", MediaType.APPLICATION_JSON);
+		ir.setCharacterSet(CharacterSet.ISO_8859_1);
+
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Bad Request"));
 
 		studiesResource.postResource(ir);
 	}

@@ -75,7 +75,7 @@
 	
         <Call name="setInitParameter">
             <Arg>spring.profiles.active</Arg>
-            <Arg type="java.lang.String">default,ldap_authentication</Arg>
+            <Arg type="java.lang.String">default,database_authentication</Arg>
         </Call>
 
 		<Call name="addBean">
@@ -88,7 +88,7 @@
 		</Call>
 	
 		<Call name="setWar">
-			<Arg>/Users/stuartw/git/tracker-java-restlet/target/tracker-java-restlet-2.0.1-RC1.war</Arg>
+			<Arg>/Users/stuartw/git/tracker-java-restlet/target/tracker-java-restlet-2.0.1-RC3.war</Arg>
 		</Call>
 				
 		<!-- Add the JSP initializer -->
@@ -124,6 +124,12 @@
 	            </New>
             </Arg>
 	    </Call>
+        
+        <New class="org.eclipse.jetty.plus.naming.EnvEntry">
+            <Arg>trackerProperties</Arg> 
+            <Arg type="java.lang.String"><SystemProperty name="jetty.home" default="."/>tracker.properties</Arg> 
+            <Arg type="boolean">true</Arg> 
+        </New>
 	
 		<!-- The data source -->
 	    <New id="ds" class="org.eclipse.jetty.plus.jndi.Resource">
@@ -132,7 +138,7 @@
 	        <Arg>
 	            <New class="org.apache.commons.dbcp.BasicDataSource">
 	                <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
-	                <Set name="url">jdbc:mysql://localhost:3306/tracker_test?sessionVariables=sql_mode='ansi,strict_all_tables'</Set>
+	                <Set name="url">jdbc:mysql://localhost:3306/tracker?sessionVariables=sql_mode='ansi,strict_all_tables'</Set>
 	                <Set name="username">tracker</Set>
 	                <Set name="password">tracker</Set>
                     <Set name="testOnBorrow">true</Set>

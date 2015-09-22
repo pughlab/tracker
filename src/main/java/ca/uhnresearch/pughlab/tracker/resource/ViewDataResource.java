@@ -17,11 +17,11 @@ import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
-import ca.uhnresearch.pughlab.tracker.services.ExcelWriter;
+import ca.uhnresearch.pughlab.tracker.services.Writer;
 
 public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> {
 	
-	private ExcelWriter excelWriter;
+	private Writer excelWriter;
 
 	@Get("json")
     public Representation getResource()  {
@@ -34,7 +34,7 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
     public Representation getXmlResource()  {
 		ViewDataResponse response = new ViewDataResponse();
 		buildResponseDTO(response);
-		Document xmlDocument = excelWriter.getExcelDocument(response);
+		Document xmlDocument = excelWriter.getXMLDocument(response);
 		Representation result = new DomRepresentation(MediaType.APPLICATION_EXCEL, xmlDocument);
 		Disposition disposition = new Disposition();
 		disposition.setFilename("report.xls");
@@ -66,14 +66,14 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	/**
 	 * @return the excelWriter
 	 */
-	public ExcelWriter getExcelWriter() {
+	public Writer getExcelWriter() {
 		return excelWriter;
 	}
 
 	/**
 	 * @param excelWriter the excelWriter to set
 	 */
-	public void setExcelWriter(ExcelWriter excelWriter) {
+	public void setExcelWriter(Writer excelWriter) {
 		this.excelWriter = excelWriter;
 	}
 }

@@ -14,7 +14,7 @@ public class CaseAttribute {
 
     private String notes;
 
-    public Integer getAttribute() {
+    public Integer getAttributeId() {
         return attributeId;
     }
 

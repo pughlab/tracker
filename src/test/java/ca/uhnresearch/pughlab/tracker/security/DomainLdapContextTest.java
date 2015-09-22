@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.BindResponse;
@@ -103,6 +104,20 @@ public class DomainLdapContextTest {
 		Assert.assertEquals(54321, context.getTimeBetweenEvictionRunsMillis());
 	}
 	
+	@Test
+	public void testGetSetDisplayNameAttribute() {
+		DomainLdapContext context = new DomainLdapContext();
+		context.setDisplayNameAttribute("displayNameTest");
+		Assert.assertEquals("displayNameTest", context.getDisplayNameAttribute());
+	}
+
+	@Test
+	public void testGetSetEmailAttribute() {
+		DomainLdapContext context = new DomainLdapContext();
+		context.setEmailAttribute("emailTest");
+		Assert.assertEquals("emailTest", context.getEmailAttribute());
+	}
+
 	@Test 
 	public void testQuerySuccess() throws Exception {
 		
@@ -115,6 +130,8 @@ public class DomainLdapContextTest {
 		replay(bindResponse);
 		
 		Entry resultEntry = createMock(Entry.class);
+		expect(resultEntry.get("displayName")).andStubReturn(new DefaultAttribute("displayName", "Stuart Watt"));
+		expect(resultEntry.get("mail")).andStubReturn(new DefaultAttribute("mail", "stuart@morungos.com"));
 		replay(resultEntry);
 		
 		EntryCursor cursor = createMock(EntryCursor.class);
@@ -134,7 +151,10 @@ public class DomainLdapContextTest {
 		expectLastCall();
 		replay(pool);
 		
-		DomainLdapContext context = EasyMock.createMockBuilder(DomainLdapContext.class).addMockedMethod("getConnectionPool").createMock();
+		DomainLdapContext context = EasyMock.createMockBuilder(DomainLdapContext.class)
+				.addMockedMethod("getConnectionPool")
+				.withConstructor()
+				.createMock();
 		expect(context.getConnectionPool()).andStubReturn(pool);
 		replay(context);
 		
@@ -150,6 +170,45 @@ public class DomainLdapContextTest {
 		Assert.assertNotNull(info);
 		Assert.assertEquals(2, info.getPrincipals().asList().size());
 		Assert.assertEquals("stuart@example.com", info.getPrincipals().getPrimaryPrincipal());
+	}
+	
+	@Test 
+	public void testQueryNotAuthenticated() throws Exception {
+		
+		LdapResult bindResult = createMock(LdapResult.class);
+		expect(bindResult.getResultCode()).andStubReturn(ResultCodeEnum.SUCCESS);
+		replay(bindResult);
+		
+		BindResponse bindResponse = createMock(BindResponse.class);
+		expect(bindResponse.getLdapResult()).andStubReturn(bindResult);
+		replay(bindResponse);
+
+		LdapConnection connection = createMock(LdapConnection.class);
+		expect(connection.bind(anyObject(BindRequest.class))).andStubReturn(bindResponse);
+		expect(connection.isAuthenticated()).andStubReturn(false);
+		replay(connection);
+
+		LdapConnectionPool pool = createMock(LdapConnectionPool.class);
+		expect(pool.getConnection()).andStubReturn(connection);
+		pool.releaseConnection(connection);
+		expectLastCall();
+		replay(pool);
+
+		DomainLdapContext context = EasyMock.createMockBuilder(DomainLdapContext.class)
+				.addMockedMethod("getConnectionPool")
+				.withConstructor()
+				.createMock();
+		expect(context.getConnectionPool()).andStubReturn(pool);
+		replay(context);
+
+		UsernamePasswordToken token = new UsernamePasswordToken();
+		token.setUsername("stuart");
+		token.setPassword("password".toCharArray());
+
+		thrown.expect(AuthenticationException.class);
+		thrown.expectMessage("Failed to authenticate");
+
+		context.query(token, realm);
 	}
 	
 	@Test 
@@ -190,6 +249,22 @@ public class DomainLdapContextTest {
 		thrown.expectMessage("It went wrong");
 
 		context.query(token, realm);
+	}
+	
+	@Test
+	public void testQueryInvalidToken() {
+		
+		AuthenticationToken token = createMock(AuthenticationToken.class);
+		replay(token);
+
+		DomainLdapContext context = EasyMock.createMockBuilder(DomainLdapContext.class).addMockedMethod("getConnectionPool").createMock();
+		replay(context);
+
+		thrown.expect(AuthenticationException.class);
+		thrown.expectMessage("Expecting a username and a password");
+
+		context.query(token, realm);
+
 	}
 	
 	@Test 
@@ -246,5 +321,4 @@ public class DomainLdapContextTest {
 		Assert.assertNotNull(pool2);
 		Assert.assertEquals(pool1,  pool2);
 	}
-	
 }

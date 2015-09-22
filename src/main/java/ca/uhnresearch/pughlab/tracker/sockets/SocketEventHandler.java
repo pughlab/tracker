@@ -12,7 +12,7 @@ import org.atmosphere.cpr.FrameworkConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
+import ca.uhnresearch.pughlab.tracker.events.Event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,8 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * event context for the whole application, and should be used as a singleton for the
  * application. 
  */
-public class SocketEventService {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class SocketEventHandler {
+	private final Logger logger = LoggerFactory.getLogger(SocketEventHandler.class);
 
 	private Map<String, AtmosphereResource> resources = new HashMap<String, AtmosphereResource>();
 	
@@ -38,7 +38,7 @@ public class SocketEventService {
 	 * @param event
 	 * @param r
 	 */
-	public void sendMessage(UpdateEvent event, AtmosphereResource r) {
+	public void sendMessage(Event event, AtmosphereResource r) {
         try {
         	String messageBody = mapper.writeValueAsString(event);
         	logger.debug("Sending to: {}, {}", r.uuid(), messageBody);
@@ -51,9 +51,7 @@ public class SocketEventService {
 		}
 	}
 	
-	private void completelyRemoveUuid(String uuid) {
-		resources.remove(uuid);
-		
+	private void removeScopeUuid(String uuid) {
 		String scope = scopeByWatcher.get(uuid);
 		if (scope != null) {
 			logger.info("Found scope being watched: {}", scope);
@@ -67,13 +65,18 @@ public class SocketEventService {
 		}
 	}
 	
+	private void removeScopeAndResourceUuid(String uuid) {
+		removeScopeUuid(uuid);
+		resources.remove(uuid);
+	}
+	
 	private void checkResource(String uuid, AtmosphereResource r) throws SocketException {
 		if (r == null) {
-			completelyRemoveUuid(uuid);
+			removeScopeAndResourceUuid(uuid);
 			throw new SocketException("Whoa! Something removed a resource: " + uuid);
 		}
 		if (r.getRequest() == null) {
-			completelyRemoveUuid(uuid);
+			removeScopeAndResourceUuid(uuid);
 			throw new SocketException("Whoa! Something removed a resource request: " + uuid);
 		}
 	}
@@ -81,7 +84,7 @@ public class SocketEventService {
 	/**
 	 * Sends a message to all connected resources with a given scope.
 	 */
-	public void sendMessage(UpdateEvent event, String scope) {
+	public void sendMessage(Event event, String scope) {
 		if (scope == null) {
 			throw new IllegalArgumentException("Can't send to a null scope");
 		}
@@ -89,7 +92,7 @@ public class SocketEventService {
 		logger.debug("Sending message to everyone watching: {}", scope);
 		List<String> resourceKeys = watcherListByScope.get(scope);
 		if (resourceKeys != null) {
-			for (String uuid : resourceKeys) {
+			for (String uuid : new ArrayList<String>(resourceKeys)) {
 				try {
 					AtmosphereResource r = resources.get(uuid);
 					logger.info("Checking: " + uuid + ", " + r);
@@ -107,7 +110,7 @@ public class SocketEventService {
 	 * @param message
 	 * @param r
 	 */
-	public void receivedMessage(UpdateEvent message, AtmosphereResource r) {
+	public void receivedMessage(Event message, AtmosphereResource r) {
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         try {
 			logger.debug("{} just sent {}", subject.getPrincipals().getPrimaryPrincipal(), mapper.writeValueAsString(message));
@@ -116,20 +119,25 @@ public class SocketEventService {
 			e.printStackTrace();
 		}
         
-        if (message.getType().equals(UpdateEvent.EVENT_JOIN)) {
+        if (message.getType().equals(Event.EVENT_JOIN)) {
         	// We're joining a study, add that to our associations
         	String resourceKey = r.uuid();
         	String scope = message.getData().getScope();
         	
         	logger.debug("Connecting to scope: {}", scope);
+        	
+        	// If we're already watching a scope, we should remove all the scope watching.
+        	
+        	removeScopeUuid(resourceKey);
         	scopeByWatcher.put(resourceKey,scope);
+        	
         	if (! watcherListByScope.containsKey(scope)) {
         		watcherListByScope.put(scope, new ArrayList<String>());
         	} else {
         		// Before we record this user, tell everyone else someone new has connected
         		
         		logger.debug("Sending to scope watchers");
-        		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_CONNECTED);
+        		Event event = new Event(Event.EVENT_USER_CONNECTED);
         		event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
         		event.getData().setScope(scope);
         		sendMessage(event, scope);
@@ -192,7 +200,7 @@ public class SocketEventService {
 		logger.debug("Unregistering AtmosphereResource: {}", uuid);
 		
 		String scope = scopeByWatcher.get(uuid);
-		completelyRemoveUuid(uuid);
+		removeScopeAndResourceUuid(uuid);
 		
 		logger.debug("After removal: registered resources");
 		for(Entry<String, AtmosphereResource> entry : resources.entrySet()) {
@@ -202,7 +210,7 @@ public class SocketEventService {
 		// And after we have disconnected, tell everyone else we are gone.
 		if (scope != null) {
 	        Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-			UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_USER_DISCONNECTED);
+			Event event = new Event(Event.EVENT_USER_DISCONNECTED);
 			event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
 			event.getData().setScope(scope);
 			sendMessage(event, scope);

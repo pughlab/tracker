@@ -15,12 +15,10 @@ public class AuditedSecurityManager extends DefaultWebSecurityManager {
 	public Subject login(Subject subject, AuthenticationToken token) {
 		Subject result = super.login(subject, token);
 		
-		if (result != null) {
-			AuditLogRecord record = new AuditLogRecord();
-			record.setEventType("login");
-			record.setEventUser(result.getPrincipals().getPrimaryPrincipal().toString());
-			auditLogRepository.writeAuditLogRecord(record);
-		}
+		AuditLogRecord record = new AuditLogRecord();
+		record.setEventType("login");
+		record.setEventUser(result.getPrincipals().getPrimaryPrincipal().toString());
+		auditLogRepository.writeAuditLogRecord(record);
 		
 		return result;
 	}

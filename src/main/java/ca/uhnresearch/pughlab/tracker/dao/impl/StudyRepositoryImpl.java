@@ -39,8 +39,8 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEvent;
-import ca.uhnresearch.pughlab.tracker.events.UpdateEventService;
+import ca.uhnresearch.pughlab.tracker.events.Event;
+import ca.uhnresearch.pughlab.tracker.events.EventService;
 import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
@@ -58,7 +58,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 		
-	private UpdateEventService manager;
+	private EventService manager;
 
 	private QueryDslJdbcTemplate template;
 	
@@ -486,6 +486,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 			sq = sq.orderBy(ordering);
 		}
 		
+		// And then order by the natural case order
+		sq = sq.orderBy(cases.order.asc());
+		
 		if (query.getOffset() != null) {
 			sq = sq.offset(query.getOffset());
 		}
@@ -651,9 +654,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	
 	private void sendUpdateEvent(final Study study, final View view, final Cases caseValue, final String attribute, final String userName) {
-    	UpdateEventService manager = getUpdateEventService();
+    	EventService manager = getUpdateEventService();
     	if (manager != null) {
-    		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_SET_FIELD);
+    		Event event = new Event(Event.EVENT_SET_FIELD);
     		event.getData().setScope(study.getName());
     		event.getData().setUser(userName);
     		
@@ -671,7 +674,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	/**
 	 * Getter for an update event manager. 
 	 */
-	public UpdateEventService getUpdateEventService() {
+	public EventService getUpdateEventService() {
 		return manager;
 	}
 
@@ -679,10 +682,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Setter for an update event manager, allowing events to be triggered from the repository.
 	 * @param manager
 	 */
-	public void setUpdateEventService(UpdateEventService manager) {
+	public void setEventService(EventService manager) {
 		this.manager = manager;
 	}
 
+	@Override
+	public Cases newStudyCase(final Study study, final View view, final String userName) throws RepositoryException {
+		return newStudyCase(study, view, userName, null);
+	}	
 	/**
 	 * Creates and returns a case object for a new case. The only fields set will be the
 	 * study identifier and the case identifier, but these are enough for finding and 
@@ -690,10 +697,34 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return the new case
 	 */
 	@Override
-	public Cases newStudyCase(final Study study, final View view, final String userName) throws RepositoryException {
+	public Cases newStudyCase(final Study study, final View view, final String userName, final Cases afterCase) throws RepositoryException {
+		
+		Integer orderPoint = 1;
+		if (afterCase != null) {
+			orderPoint = afterCase.getOrder();
+		} else {
+			SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()));
+			orderPoint = template.queryForObject(sqlQuery, cases.order.max());
+			if (orderPoint == null) {
+				orderPoint = 0;
+			}
+			orderPoint = orderPoint + 1;
+		}
+		
+		final Integer orderValue = orderPoint;
+	
+		// Now we can update everything > breakpoint.
+		template.update(cases, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(cases.studyId.eq(study.getId()).and(cases.order.goe(orderValue)))
+						.set(cases.order, cases.order.add(1)).execute();
+			};
+		});
+
+		// And now let's insert a new case, with the right break value
 		Integer caseId = template.insertWithKey(cases, new SqlInsertWithKeyCallback<Integer>() { 
 			public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.columns(cases.studyId).values(study.getId()).executeWithKey(cases.id);
+				return sqlInsertClause.columns(cases.studyId, cases.order).values(study.getId(), orderValue).executeWithKey(cases.id);
 			};
 		});
 		
@@ -705,9 +736,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 		newCase.setStudyId(study.getId());
 		newCase.setId(caseId);
 
-    	UpdateEventService manager = getUpdateEventService();
+    	EventService manager = getUpdateEventService();
     	if (manager != null) {
-    		UpdateEvent event = new UpdateEvent(UpdateEvent.EVENT_NEW_RECORD);
+    		Event event = new Event(Event.EVENT_NEW_RECORD);
     		event.getData().setScope(study.getName());
     		event.getData().setUser(userName);
     		
