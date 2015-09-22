@@ -95,7 +95,7 @@ public class SocketEventHandler {
 			for (String uuid : new ArrayList<String>(resourceKeys)) {
 				try {
 					AtmosphereResource r = resources.get(uuid);
-					logger.info("Checking: " + uuid + ", " + r);
+					logger.debug("Checking: " + uuid + ", " + r);
 					checkResource(uuid, r);
 					sendMessage(event, r);
 				} catch (SocketException e) {
