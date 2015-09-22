@@ -478,9 +478,11 @@ angular
         jQuery(window).on 'resize', resizeWrapper
 
         scope.$on '$destroy', (evt) ->
-          handsonTable.unlisten()
-          handsonTable.destroy()
-          handsonTable = undefined
+          if handsonTable?
+            handsonTable.unlisten()
+            handsonTable.destroy()
+            handsonTable = undefined
+            
           jQuery(window).off 'resize', resizeWrapper
 
           entityRowTable = undefined

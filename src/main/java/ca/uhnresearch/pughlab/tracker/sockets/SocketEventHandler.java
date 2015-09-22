@@ -95,7 +95,7 @@ public class SocketEventHandler {
 			for (String uuid : new ArrayList<String>(resourceKeys)) {
 				try {
 					AtmosphereResource r = resources.get(uuid);
-					logger.info("Checking: " + uuid + ", " + r);
+					logger.debug("Checking: " + uuid + ", " + r);
 					checkResource(uuid, r);
 					sendMessage(event, r);
 				} catch (SocketException e) {
@@ -123,8 +123,6 @@ public class SocketEventHandler {
         	// We're joining a study, add that to our associations
         	String resourceKey = r.uuid();
         	String scope = message.getData().getScope();
-        	
-        	logger.debug("Connecting to scope: {}", scope);
         	
         	// If we're already watching a scope, we should remove all the scope watching.
         	

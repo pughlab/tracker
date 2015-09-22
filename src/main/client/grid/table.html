@@ -18,12 +18,12 @@
       <toggle-switch ng-model="editingStatus" class="switch-danger switch-small" knob-label="Editing"><toggle-switch>
     </div>
     <small ng-show="currentUsers.length">
-      Also connected:
+      Connected:
       <span ng-repeat="user in currentUsers" class="badge" ng-class="&apos;editorUser-&apos; + $index">{{user}}</span></small>
   </h3>
-  
+
   <div tracker-error error-message="errorMessage"></div>
-  
+
   <div tracker-table tracker-study="study" tracker-view="view" tracker-attributes="attributes" tracker-editing-status="editingStatus" ></div>
 
   <div ng-controller="GridActionController">
