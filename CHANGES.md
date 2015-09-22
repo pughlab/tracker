@@ -1,6 +1,15 @@
 ## Revision history
 
 
+### Version 2.0.1-RC4 - September 22nd 2015
+
+ * Fixed a number of websocket issues. See #76
+ * Changed Spring config to use a JNDI environment to set property sources
+ * Updated handsontable to 0.18.0
+ * Significant improvements in testing
+ * Added an order field to the cases table. See #69
+
+
 ### Version 2.0.1-RC3 - September 8th 2015
 
  * Restored create study functionality. See #63
