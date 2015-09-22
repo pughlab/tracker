@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tracker</title>
     <!-- inject:bootstrap:css -->
-	<!-- endinject -->
+	  <!-- endinject -->
     <!-- inject:vendor:css -->
     <!-- endinject -->
     <!-- inject:css -->
@@ -41,7 +41,7 @@
           </p>
           -->
           <li ng-show="user" class="dropdown" dropdown>
-            <a href class="dropdown-toggle" dropdown-toggle>{{user.displayName || user.username}}<span class="caret"></span></a>
+            <a href class="dropdown-toggle" dropdown-toggle><span ng-bind="user.displayName || user.username"></span><span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
                 <li><a href ng-click="logout()">Logout</a></li>
               </ul>
@@ -52,7 +52,7 @@
     </div>
 
     <div class="page-wrap">
-      <div class="page-main container-fluid" role="main">
+      <div class="page-main container-fluid" role="main" id="main-container">
         <div ui-view></div>
       </div>
     </div>
@@ -72,5 +72,15 @@
     <!-- endinject -->
     <!-- inject:js -->
     <!-- endinject -->
+
+    <script type="text/javascript">
+      if(! document.addEventListener){
+        element = document.getElementById("ng-app");
+        element.removeAttribute("ng-app");
+        element.removeAttribute("ng-strict-di");
+        element = document.getElementById("main-container");
+        element.innerHTML = '<h3>Sorry, your browser is too old</h3><p>Please use a newer browser to use this application.</p>';
+      }
+    </script>
   </body>
 </html>
