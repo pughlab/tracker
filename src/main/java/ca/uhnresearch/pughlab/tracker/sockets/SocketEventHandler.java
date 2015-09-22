@@ -124,8 +124,6 @@ public class SocketEventHandler {
         	String resourceKey = r.uuid();
         	String scope = message.getData().getScope();
         	
-        	logger.debug("Connecting to scope: {}", scope);
-        	
         	// If we're already watching a scope, we should remove all the scope watching.
         	
         	removeScopeUuid(resourceKey);

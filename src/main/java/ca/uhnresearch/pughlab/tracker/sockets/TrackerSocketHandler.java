@@ -45,7 +45,7 @@ public class TrackerSocketHandler {
 
 	@Heartbeat
     public void onHeartbeat(final AtmosphereResourceEvent event) {
-//        logger.info("Heartbeat send by {}", event.getResource().uuid());
+        logger.info("Heartbeat send by {}", event.getResource().uuid());
     }
 	
     /**
@@ -56,21 +56,19 @@ public class TrackerSocketHandler {
     @Ready
     public void onReady(final AtmosphereResource r) {
 
-        logger.debug("Browser {} connected", r.uuid());
-        
         getEventManager().registerAtmosphereResource(r);
         
         Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         if (subject != null) {
-            logger.debug("Subject: {}", subject.getPrincipals().getPrimaryPrincipal());
         	
             // When we are ready, we should actually send a welcome message to the client. This starts off
             // much of the protocol.
             
+            logger.info("Browser connected: {}, subject principal: {}", r.uuid(), subject.getPrincipals().getPrimaryPrincipal());
             Event event = new Event(Event.EVENT_WELCOME);
             getEventManager().sendMessage(event, r);
         } else {
-        	logger.error("No subject principal available");
+        	logger.error("Browser connected: {}, subject principal unavailable", r.uuid());
         }
         
     }
@@ -83,9 +81,9 @@ public class TrackerSocketHandler {
     @Disconnect
     public void onDisconnect(AtmosphereResourceEvent event) {
         if (event.isCancelled()) {
-            logger.debug("Browser {} unexpectedly disconnected", event.getResource().uuid());
+            logger.info("Browser {} unexpectedly disconnected", event.getResource().uuid());
         } else if (event.isClosedByClient()) {
-            logger.debug("Browser {} closed the connection", event.getResource().uuid());
+            logger.info("Browser {} closed the connection", event.getResource().uuid());
         }
         getEventManager().unregisterAtmosphereResource(event.getResource());
     }
@@ -121,9 +119,9 @@ public class TrackerSocketHandler {
 	 * @param eventManager
 	 */
 	@Inject
-	@Named("socketEventService")
+	@Named("socketEventHandler")
 	public void setEventManager(SocketEventHandler server) {
-		logger.debug("Setting eventManager to: {}", server);
+		logger.debug("Setting SocketEventHandler to: {}", server);
 		this.server = server;
 	}
 }
