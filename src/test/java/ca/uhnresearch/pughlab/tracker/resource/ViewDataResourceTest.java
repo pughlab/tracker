@@ -26,7 +26,7 @@ import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
-import ca.uhnresearch.pughlab.tracker.services.ExcelWriter;
+import ca.uhnresearch.pughlab.tracker.services.Writer;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 import com.google.gson.Gson;
@@ -61,9 +61,9 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 	@Test
 	public void resourceAccessors() {
 		
-        ExcelWriter oldWriter = resource.getExcelWriter();
+        Writer oldWriter = resource.getExcelWriter();
         
-        ExcelWriter mockWriter = createMock(ExcelWriter.class);
+        Writer mockWriter = createMock(Writer.class);
         resource.setExcelWriter(mockWriter);
         
         assertEquals(mockWriter, resource.getExcelWriter());
@@ -136,8 +136,8 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
 		Document doc = builder.newDocument();
 
-        ExcelWriter mockWriter = createMock(ExcelWriter.class);
-        expect(mockWriter.getExcelDocument(anyObject(ViewDataResponse.class))).andStubReturn(doc);
+        Writer mockWriter = createMock(Writer.class);
+        expect(mockWriter.getXMLDocument(anyObject(ViewDataResponse.class))).andStubReturn(doc);
         replay(mockWriter);
         resource.setExcelWriter(mockWriter);
 

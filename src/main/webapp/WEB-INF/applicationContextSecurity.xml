@@ -139,12 +139,12 @@
         </bean>
         
         <bean id="ldapContext" class="ca.uhnresearch.pughlab.tracker.security.DomainLdapContext">
-            <property name="domain" value="${ldap.domain}" />
-            <property name="ldapHost" value="${ldap.host}" />
-            <property name="ldapPort" value="${ldap.port}" />
-            <property name="timeout" value="${ldap.timeout}" />
-            <property name="searchTemplate" value="${ldap.searchTemplate}" />
-            <property name="filterTemplate" value="${ldap.filterTemplate}" />
+            <property name="domain" value="#{configProperties.ldap_domain}" />
+            <property name="ldapHost" value="#{configProperties.ldap_host}" />
+            <property name="ldapPort" value="#{configProperties.ldap_port}" />
+            <property name="timeout" value="#{configProperties.ldap_timeout}" />
+            <property name="searchTemplate" value="#{configProperties.ldap_search_template}" />
+            <property name="filterTemplate" value="#{configProperties.ldap_filter_template}" />
         </bean>
         
         <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">

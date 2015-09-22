@@ -1,5 +1,12 @@
 package ca.uhnresearch.pughlab.tracker.services;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +19,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import static org.junit.Assert.*;
-import static org.easymock.EasyMock.*;
-import static org.hamcrest.Matchers.containsString;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
@@ -37,9 +38,11 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 import ca.uhnresearch.pughlab.tracker.resource.ViewDataResource;
-import ca.uhnresearch.pughlab.tracker.services.impl.ExcelWriterImpl;
+import ca.uhnresearch.pughlab.tracker.services.impl.HtmlWriterImpl;
 
-public class ExcelWriterImplTest {
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+public class HtmlWriterImplTest {
 
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -48,7 +51,7 @@ public class ExcelWriterImplTest {
 	private ViewDataResponse dto;
 	private StudyRepository repository = new MockStudyRepository();
 	
-	private Writer excelWriter;
+	private Writer htmlWriter;
 
 	@Before
 	public void initialize() {
@@ -78,15 +81,15 @@ public class ExcelWriterImplTest {
     	
     	dto.getCounts().setTotal(repository.getRecordCount(study, view));
     	
-    	excelWriter = new ExcelWriterImpl();
+    	htmlWriter = new HtmlWriterImpl();
 	}
 	
 	@Test
 	public void excelTest() {
     	assertNotNull(dto);
 		
-    	excelWriter.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
-    	Document result = excelWriter.getXMLDocument(dto);
+    	htmlWriter.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
+    	Document result = htmlWriter.getXMLDocument(dto);
 		assertNotNull(result);
 		
 		String xml = getStringFromDocument(result);
@@ -109,8 +112,8 @@ public class ExcelWriterImplTest {
 		thrown.expect(RuntimeException.class);
 		thrown.expectMessage(containsString("Failed to generate XML parser"));
 		
-    	excelWriter.setDocumentBuilderFactory(badBuilder);
-    	excelWriter.getXMLDocument(dto);
+		htmlWriter.setDocumentBuilderFactory(badBuilder);
+		htmlWriter.getXMLDocument(dto);
 	}
 	
 	
@@ -118,7 +121,7 @@ public class ExcelWriterImplTest {
 	public void excelTestBadAttributes() throws ParserConfigurationException {
     	assertNotNull(dto);
     	
-    	excelWriter.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
+    	htmlWriter.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
     	
     	ViewDataResponse alternate = new ViewDataResponse();
     	alternate.setUser(dto.getUser());
@@ -142,7 +145,7 @@ public class ExcelWriterImplTest {
 		thrown.expect(RuntimeException.class);
 		thrown.expectMessage(containsString("Invalid type: xxx"));
 		
-    	excelWriter.getXMLDocument(alternate);
+		htmlWriter.getXMLDocument(alternate);
 	}
 	
 

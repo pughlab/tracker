@@ -183,4 +183,35 @@ public class SocketEventServiceTest {
         verify(resource1);
         verify(resource2);
 	}
+	
+	/**
+	 * Regression test for #76. Replicates a resource being removed inconsistently, and 
+	 * still getting events sent incorrectly. 
+	 */
+	@Test
+	public void testSendMessageSocketException() {
+        AtmosphereResource resource = getResource1();
+        expect(resource.write(anyObject(String.class))).andStubReturn(resource);
+        replay(resource);
+        
+        service.registerAtmosphereResource(resource);
+        
+        Event joinEvent = new Event();
+        joinEvent.setType(Event.EVENT_JOIN);
+        joinEvent.getData().setScope("TEST");
+        
+        Event otherEvent = new Event();
+        otherEvent.setType(Event.EVENT_JOIN);
+        otherEvent.getData().setScope("OTHER");
+
+        Event notifyEvent = new Event();
+        notifyEvent.setType(Event.EVENT_SET_FIELD);
+
+        service.receivedMessage(joinEvent, resource);
+        service.receivedMessage(otherEvent, resource);
+        service.receivedMessage(joinEvent, resource);
+
+        service.unregisterAtmosphereResource(resource);
+        service.sendMessage(notifyEvent, "TEST");
+   	}
 }

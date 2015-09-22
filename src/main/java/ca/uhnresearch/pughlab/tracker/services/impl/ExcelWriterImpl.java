@@ -1,11 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.services.impl;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -13,42 +7,22 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
-import ca.uhnresearch.pughlab.tracker.services.ExcelWriter;
+import ca.uhnresearch.pughlab.tracker.services.Writer;
 
-public class ExcelWriterImpl implements ExcelWriter {
-	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+public class ExcelWriterImpl extends AbstractXMLWriter implements Writer {
 	
 	private final String EXCEL_NAMESPACE = "urn:schemas-microsoft-com:office:spreadsheet";
 	
-	private DocumentBuilderFactory documentBuilderFactory;
-
 	@Override
-	public Document getExcelDocument(ViewDataResponse data) {
-		
-		Document doc = null;
-				
-		try {
-			documentBuilderFactory.setNamespaceAware(true);			
-			DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
-			doc = builder.newDocument();
-						
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException("Failed to generate XML parser");
-		}
-		
-		logger.debug("Writing Excel XML data");
-		
+	protected void write(Document doc, ViewDataResponse data) {
 		Element rootElement = doc.createElementNS(EXCEL_NAMESPACE, "ss:Workbook");
 		rootElement.setAttribute("xmlns:ss", EXCEL_NAMESPACE);
 		doc.appendChild(rootElement);
 		
 		writeStyles(doc, rootElement);
 		writeWorksheets(doc, rootElement, data);
-
-		return doc;
 	}
-	
+
 	private void writeWorksheets(Document doc, Element parent, ViewDataResponse data) {
 		Element worksheet = doc.createElement("ss:Worksheet");
 		worksheet.setAttribute("ss:Name", "Data");
@@ -78,7 +52,7 @@ public class ExcelWriterImpl implements ExcelWriter {
 		Element start = doc.createElement("ss:Row");
 		parent.appendChild(start);
 		for (Attributes column : data.getAttributes()) {
-			writeStringCell(doc, start, column.getLabel());
+			writeHeaderCell(doc, start, column.getLabel());
 		}
 		
 		for (JsonNode row : data.getRecords()) {
@@ -156,6 +130,10 @@ public class ExcelWriterImpl implements ExcelWriter {
 
 		cell.appendChild(body);
 	}
+	
+	private void writeHeaderCell(Document doc, Element parent, String data) {
+		writeStringCell(doc, parent, data);
+	}
 
 	private void writeStringCell(Document doc, Element parent, String data) {
 		Element cell = doc.createElement("ss:Cell");
@@ -168,10 +146,4 @@ public class ExcelWriterImpl implements ExcelWriter {
 		cell.appendChild(body);
 	}
 
-	/**
-	 * @param documentBuilderFactory the documentBuilderFactory to set
-	 */
-	public void setDocumentBuilderFactory(DocumentBuilderFactory documentBuilderFactory) {
-		this.documentBuilderFactory = documentBuilderFactory;
-	}
 }
