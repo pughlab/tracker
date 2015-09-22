@@ -59,8 +59,9 @@ public class ScheduledJob  {
 	}
 	
 	public Bindings getInitialBindings(ScriptEngine engine) {
+		JSLogger jsLogger = new JSLogger();
 		Bindings bindings = engine.createBindings();
-		bindings.put("console", logger);
+		bindings.put("console", jsLogger);
 		return bindings;
 	}
 	

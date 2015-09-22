@@ -1,4 +1,4 @@
 'use strict';
 
-console.info("Welcome to the scripts");
+console.log("Welcome to the", console);
 

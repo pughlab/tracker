@@ -30,8 +30,8 @@
 	
 	<bean id="scheduledJob" class="ca.uhnresearch.pughlab.tracker.scheduling.ScheduledJob">
         <constructor-arg>
-            <bean class="org.springframework.core.io.FileSystemResource">
-                <constructor-arg value="${script.source:src/test/resources/tracker.js}" />
+            <bean class="org.springframework.jndi.JndiObjectFactoryBean">
+                <property name="jndiName" value="java:comp/env/trackerScript" />
             </bean>
         </constructor-arg>
 	</bean>
