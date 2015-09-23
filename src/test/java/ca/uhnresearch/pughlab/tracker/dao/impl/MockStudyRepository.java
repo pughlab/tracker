@@ -390,6 +390,12 @@ public class MockStudyRepository implements StudyRepository {
 		return result;		
 	}
 	
+
+	@Override
+	public void setStudyCaseState(Study study, View view, Cases cases, String userName, String state) {
+		cases.setState(state);		
+	}
+
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		// We build all the data in Gson, because it's easier

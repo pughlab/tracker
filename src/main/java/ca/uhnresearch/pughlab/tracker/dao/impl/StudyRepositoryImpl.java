@@ -573,6 +573,55 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
+	 * Changes a case state. This is a something that's easy to listen for, and can be set 
+	 * simply by a listener. States are often mapped to display classes for row-level 
+	 * highlighting. States are also handy for modelling workflows, as they can be
+	 * triggered by other changes, and generate notifications.
+	 * 
+	 * @param study
+	 * @param view
+	 * @param cases
+	 * @param state
+	 */
+	@Override
+	public void setStudyCaseState(final Study study, final View view, final Cases c, final String userName, final String state) {
+		logger.debug("Updating a case: {}", c.getId());
+		
+		String oldState = c.getState();
+		
+		template.update(cases, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(cases.id.eq(c.getId()).and(cases.studyId.eq(study.getId())))
+						.set(cases.state, state)
+						.execute();
+			};
+		});
+		
+		// This merits a new event, too, but it's not an attribute event, it's a state change
+		// event. That way it gets audited and can be sent through a websocket connection
+		// to a listening client. 
+
+		Event event = new Event(Event.EVENT_STATE);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+		parameters.put("study_id", study.getId());
+		parameters.put("case_id", c.getId());
+		parameters.put("old_state", oldState);
+		parameters.put("state", state);
+		event.getData().setParameters(parameters);
+
+    	EventHandler manager = getEventHandler();
+    	manager.sendMessage(event, event.getData().getScope());
+    	
+    	c.setState(state);
+
+    	return;
+	}
+
+	/**
 	 * Retrieves a single value from a case attribute. There is a subtle but important issue here: what is the return value for a
 	 * missing attribute. There is a Java null (when it isn't there) and a JSON null, which is there, but is null. Both can happen,
 	 * and are to some extent equivalent. One interpretation us that a set to null is actually a deletion. 

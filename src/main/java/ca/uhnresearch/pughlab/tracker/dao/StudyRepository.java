@@ -104,6 +104,20 @@ public interface StudyRepository {
 	Cases getStudyCase(Study study, View view, Integer caseId);
 	
 	/**
+	 * /**
+	 * Changes a case state. This is a something that's easy to listen for, and can be set 
+	 * simply by a listener. States are often mapped to display classes for row-level 
+	 * highlighting. States are also handy for modelling workflows, as they can be
+	 * triggered by other changes, and generate notifications. 
+	 * 
+	 * @param study
+	 * @param view
+	 * @param cases
+	 * @param state
+	 */
+	void setStudyCaseState(Study study, View view, Cases cases, String userName, String state);
+	
+	/**
 	 * Makes a new, empty, case. If an afterCase is passed, the new case will be added after that case
 	 * and the others reordered. If afterCase is null or not passed, the new case will be added at the
 	 * beginning of the case list, which is very probably not what you want.

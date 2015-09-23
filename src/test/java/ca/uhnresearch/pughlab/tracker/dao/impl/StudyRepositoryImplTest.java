@@ -1580,4 +1580,32 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("patientId", attributes.getName());
 		Assert.assertEquals("Patient ID", attributes.getLabel());
 	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetCaseState() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 15);
+		
+		studyRepository.setStudyCaseState(study, view, caseValue, "morag", "pending");
+		
+		// Check we now have an audit log entry
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(5);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
+		Assert.assertNotNull(auditEntries);
+		Assert.assertEquals(1, auditEntries.size());
+		
+		JsonNode entry = auditEntries.get(0);
+		Assert.assertEquals("morag", entry.get("eventUser").asText());
+		Assert.assertTrue(entry.get("eventArgs").get("old_state").isNull());
+		Assert.assertEquals("pending", entry.get("eventArgs").get("state").asText());
+		
+		// Check a re-read gets the new state
+		Cases foundValue = studyRepository.getStudyCase(study, view, 15);
+		Assert.assertEquals("pending", foundValue.getState());
+	}
 }

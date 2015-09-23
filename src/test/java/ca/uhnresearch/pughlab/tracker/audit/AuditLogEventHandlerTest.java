@@ -4,14 +4,12 @@ import static org.easymock.EasyMock.*;
 
 import org.easymock.Capture;
 import org.easymock.CaptureType;
-import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Assert;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
-import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.RedactedJsonNode;
 
