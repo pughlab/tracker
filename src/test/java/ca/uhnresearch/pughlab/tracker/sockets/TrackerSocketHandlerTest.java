@@ -59,8 +59,14 @@ public class TrackerSocketHandlerTest extends AbstractShiroTest {
 	
 	@Test
 	public void testHeartbeat() {
+		AtmosphereResource resource = createMock(AtmosphereResource.class);
+		expect(resource.uuid()).andReturn("EF783953-077E-4E4F-8550-15149A75C38C");
+		replay(resource);
+		
 		AtmosphereResourceEvent event = createMock(AtmosphereResourceEvent.class);
+		expect(event.getResource()).andReturn(resource);
 		replay(event);
+		
 		handler.onHeartbeat(event);
 	}
 	
