@@ -35,7 +35,11 @@
             </bean>
         </constructor-arg>
         <constructor-arg>
-            <ref bean="scriptEventHandlerRoot" />
+            <map>
+                <entry key="console" value-ref="scriptLogger" />
+                <entry key="events" value-ref="scriptEventHandlerRoot" />
+                <entry key="repository" value-ref="studyRepository" />
+            </map>
         </constructor-arg>
 	</bean>
     
@@ -45,5 +49,7 @@
     </bean>
     
     <bean id="scriptEventHandlerRoot" class="ca.uhnresearch.pughlab.tracker.scripting.JSEventHandlerRoot"></bean>
+    
+    <bean id="scriptLogger" class="ca.uhnresearch.pughlab.tracker.scripting.JSLogger"></bean>
     
 </beans>
