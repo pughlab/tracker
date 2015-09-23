@@ -5,6 +5,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.io.CharTypes;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ValueNode;
@@ -18,13 +20,13 @@ import com.fasterxml.jackson.databind.node.ValueNode;
  * @author stuartw
  */
 
-public class RedactedPOJONode extends ValueNode {
+public class RedactedJsonNode extends ValueNode {
 	
-	protected final Object _value;
+	protected final JsonNode _value;
 	
 	private final String REDACTED_VALUE = "REDACTED";
 
-	public RedactedPOJONode(Object v) {
+	public RedactedJsonNode(JsonNode v) {
 		_value = v;
 	}
 
@@ -33,7 +35,7 @@ public class RedactedPOJONode extends ValueNode {
 		return JsonToken.VALUE_STRING;
 	}
 	
-	public Object getPojo() { 
+	public JsonNode getValue() { 
 		return _value;
 	}
 
@@ -51,13 +53,24 @@ public class RedactedPOJONode extends ValueNode {
 	public String asText() {
 		return REDACTED_VALUE;
 	}
+	
+	@Override
+    public String toString() {
+        int len = REDACTED_VALUE.length();
+        len = len + 2 + (len >> 4);
+        StringBuilder sb = new StringBuilder(len);
+        sb.append('"');
+        CharTypes.appendQuoted(sb, REDACTED_VALUE);
+        sb.append('"');
+        return sb.toString();
+    }
 
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) return true;
 		if (o == null) return false;
-		if (o instanceof RedactedPOJONode) {
-			return ((RedactedPOJONode) o)._value.equals(_value);
+		if (o instanceof RedactedJsonNode) {
+			return ((RedactedJsonNode) o)._value.equals(_value);
 		}
 		return false;
 	}

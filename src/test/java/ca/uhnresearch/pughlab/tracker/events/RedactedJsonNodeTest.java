@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * 
  * @author stuartw
  */
-public class RedactedPOJONodeTest {
+public class RedactedJsonNodeTest {
 	
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -30,7 +30,7 @@ public class RedactedPOJONodeTest {
 		
 		ObjectNode parent = jsonNodeFactory.objectNode();
 		parent.set("field1", jsonNodeFactory.textNode("value1"));
-		parent.set("field2", new RedactedPOJONode("secret"));
+		parent.set("field2", new RedactedJsonNode(jsonNodeFactory.textNode("secret")));
 		
 		String output = mapper.writeValueAsString(parent);
 		Assert.assertEquals("{\"field1\":\"value1\",\"field2\":\"REDACTED\"}", output);
@@ -45,11 +45,26 @@ public class RedactedPOJONodeTest {
 		
 		ObjectNode parent = jsonNodeFactory.objectNode();
 		parent.set("field1", jsonNodeFactory.textNode("value1"));
-		parent.set("field2", new RedactedPOJONode("secret"));
+		parent.set("field2", new RedactedJsonNode(jsonNodeFactory.textNode("secret")));
 		
 		JsonNode output = parent.get("field2");
-		Assert.assertTrue(output instanceof RedactedPOJONode);
-		RedactedPOJONode outputNode = (RedactedPOJONode) output;
-		Assert.assertEquals("secret", outputNode.getPojo());
+		Assert.assertTrue(output instanceof RedactedJsonNode);
+		RedactedJsonNode outputNode = (RedactedJsonNode) output;
+		Assert.assertEquals("secret", outputNode.getValue().asText());
+	}
+
+	/**
+	 * Checks the original value can still be retrieved
+	 * @throws JsonProcessingException
+	 */
+	@Test
+	public void testToString() throws JsonProcessingException {
+		
+		ObjectNode parent = jsonNodeFactory.objectNode();
+		parent.set("field1", jsonNodeFactory.textNode("value1"));
+		parent.set("field2", new RedactedJsonNode(jsonNodeFactory.textNode("secret")));
+		
+		String output = parent.toString();
+		Assert.assertEquals("{\"field1\":\"value1\",\"field2\":\"REDACTED\"}", output);
 	}
 }
