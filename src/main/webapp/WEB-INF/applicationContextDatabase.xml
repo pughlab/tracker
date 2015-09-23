@@ -50,6 +50,7 @@
     <bean id="eventHandler" class="ca.uhnresearch.pughlab.tracker.events.MultipleEventDispatcher">
         <property name="handlers">
             <util:list value-type="ca.uhnresearch.pughlab.tracker.events.EventHandler">
+                <ref bean="scriptEventHandler" />
                 <ref bean="auditLogEventHandler" />
                 <ref bean="socketEventHandler" />
             </util:list>

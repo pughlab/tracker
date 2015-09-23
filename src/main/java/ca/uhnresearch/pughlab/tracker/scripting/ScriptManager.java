@@ -25,11 +25,11 @@ public class ScriptManager  {
 	
 	private ScriptContext context;
 	
-	ScriptManager() {
-		this(new ClassPathResource("tracker.js"));
-	}
+	private JSEventHandlerRoot handlerRoot;
 	
-	ScriptManager(Resource scriptResource) {
+	ScriptManager(Resource scriptResource, JSEventHandlerRoot handlerRoot) {
+		
+		this.handlerRoot = handlerRoot;
 		
 		InputStream in;
 		
@@ -61,13 +61,14 @@ public class ScriptManager  {
 	public Bindings getInitialBindings(ScriptEngine engine) {
 		Bindings bindings = engine.createBindings();
 		bindings.put("console", new JSLogger());
-		bindings.put("events", new JSEventHandlerRoot());
+		bindings.put("events", getHandlerRoot());
 		return bindings;
 	}
 	
     protected void execute() throws JobExecutionException {
         // logger.debug("Scheduled ping");
     }
+    
 
 	/**
 	 * @return the fileUrl
@@ -81,5 +82,19 @@ public class ScriptManager  {
 	 */
 	public void setFileUrl(String fileUrl) {
 		this.fileUrl = fileUrl;
+	}
+
+	/**
+	 * @return the handlerRoot
+	 */
+	public JSEventHandlerRoot getHandlerRoot() {
+		return handlerRoot;
+	}
+
+	/**
+	 * @param handlerRoot the handlerRoot to set
+	 */
+	public void setHandlerRoot(JSEventHandlerRoot handlerRoot) {
+		this.handlerRoot = handlerRoot;
 	}
 }
