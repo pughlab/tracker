@@ -37,8 +37,7 @@
 
 	<bean id="studyRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.StudyRepositoryImpl">
 		<property name="template" ref="queryDslJdbcTemplate"/>
-		<property name="eventHandler" ref="socketEventHandler" />
-        <property name="auditLogRepository" ref="auditLogRepository" />
+		<property name="eventHandler" ref="eventHandler" />
 	</bean>
 	
 	<bean id="authorizationRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.AuthorizationRepositoryImpl">
@@ -47,6 +46,19 @@
 	
     <bean id="auditLogRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.AuditLogRepositoryImpl">
         <property name="template" ref="queryDslJdbcTemplate"/>
+    </bean>
+    
+    <bean id="eventHandler" class="ca.uhnresearch.pughlab.tracker.events.MultipleEventDispatcher">
+        <property name="handlers">
+            <util:list value-type="ca.uhnresearch.pughlab.tracker.events.EventHandler">
+                <ref bean="auditLogEventHandler" />
+                <ref bean="socketEventHandler" />
+            </util:list>
+        </property>
+    </bean>
+    
+    <bean id="auditLogEventHandler" class="ca.uhnresearch.pughlab.tracker.audit.AuditLogEventHandler">
+        <property name="repository" ref="auditLogRepository" />
     </bean>
 
 	<bean id="socketEventHandler" class="ca.uhnresearch.pughlab.tracker.sockets.SocketEventHandler">

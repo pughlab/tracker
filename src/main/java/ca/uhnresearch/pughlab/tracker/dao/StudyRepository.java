@@ -131,9 +131,4 @@ public interface StudyRepository {
 	void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
 
 	void setEventHandler(EventHandler manager);
-	
-	/**
-	 * Setter for the reference to the authorization repository, which we use for the audit logging
-	 */
-	void setAuditLogRepository(AuditLogRepository repository);
 }

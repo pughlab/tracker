@@ -26,7 +26,6 @@ import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
 
-import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
@@ -34,13 +33,13 @@ import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.EventHandler;
+import ca.uhnresearch.pughlab.tracker.events.RedactedJsonNode;
 import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
@@ -58,11 +57,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 		
-	private EventHandler manager;
+	private EventHandler eventHandler;
 
 	private QueryDslJdbcTemplate template;
-	
-	private AuditLogRepository auditLogRepository;
 	
 	private CaseAttributePersistence cap = new CaseAttributePersistence();
 
@@ -606,23 +603,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 	
-	protected void writeAuditLogRecord(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode oldValue, JsonNode value) {
-		
-    	final ObjectNode auditLogValues = jsonNodeFactory.objectNode();
-    	auditLogValues.replace("old", oldValue);
-		auditLogValues.replace("value", value);
-
-		AuditLogRecord record = new AuditLogRecord();
-		record.setStudyId(study.getId());
-		record.setCaseId(caseValue.getId());
-		record.setAttribute(attribute);
-		record.setEventType("set_value");
-		record.setEventUser(userName);
-		record.setEventArgs(auditLogValues.toString());
-		auditLogRepository.writeAuditLogRecord(record);
-	}
-	
-	
 	@Override
 	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
 		
@@ -643,39 +623,33 @@ public class StudyRepositoryImpl implements StudyRepository {
     	WritableValue writable = validator.validate(a, value);
     	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute, writable.getValueClass());
     	
-    	writeAuditLogRecord(study, view, caseValue, attribute, userName, getJsonValue(oldValue), value);
     	cap.writeCaseAttributeValue(template, study, view, caseValue, attribute, writable);
+    	
+		Event event = new Event(Event.EVENT_SET_FIELD);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+		parameters.put("field", attribute);
+		parameters.put("case_id", caseValue.getId());
+		parameters.put("study_id", study.getId());
+		parameters.replace("old", new RedactedJsonNode(getJsonValue(oldValue)));
+		parameters.replace("new", new RedactedJsonNode(value));
+		event.getData().setParameters(parameters);
     	
     	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
     	// this if we have an UpdateEventService set. 
-    	
-    	sendUpdateEvent(study, view, caseValue, attribute, userName);
-	}
-	
-	
-	private void sendUpdateEvent(final Study study, final View view, final Cases caseValue, final String attribute, final String userName) {
-    	EventHandler manager = getUpdateEventService();
-    	if (manager != null) {
-    		Event event = new Event(Event.EVENT_SET_FIELD);
-    		event.getData().setScope(study.getName());
-    		event.getData().setUser(userName);
-    		
-    		final JsonNodeFactory factory = JsonNodeFactory.instance;
-    		ObjectNode parameters = factory.objectNode();
-    		parameters.put("field", attribute);
-    		parameters.put("case", caseValue.getId());
-    		
-    		event.getData().setParameters(parameters);
-
-    		manager.sendMessage(event, event.getData().getScope());
-    	}
-	}
-	
+		
+		EventHandler handler = getEventHandler();
+    	handler.sendMessage(event, event.getData().getScope());
+   	}
+		
 	/**
 	 * Getter for an update event manager. 
 	 */
-	public EventHandler getUpdateEventService() {
-		return manager;
+	public EventHandler getEventHandler() {
+		return eventHandler;
 	}
 
 	/**
@@ -683,7 +657,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param manager
 	 */
 	public void setEventHandler(EventHandler manager) {
-		this.manager = manager;
+		this.eventHandler = manager;
 	}
 
 	@Override
@@ -736,28 +710,20 @@ public class StudyRepositoryImpl implements StudyRepository {
 		newCase.setStudyId(study.getId());
 		newCase.setId(caseId);
 
-    	EventHandler manager = getUpdateEventService();
-    	if (manager != null) {
-    		Event event = new Event(Event.EVENT_NEW_RECORD);
-    		event.getData().setScope(study.getName());
-    		event.getData().setUser(userName);
-    		
-    		final JsonNodeFactory factory = JsonNodeFactory.instance;
-    		ObjectNode parameters = factory.objectNode();
-    		parameters.put("case", newCase.getId());
-    		
-    		event.getData().setParameters(parameters);
+		Event event = new Event(Event.EVENT_NEW_RECORD);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+		parameters.put("study_id", study.getId());
+		parameters.put("case_id", newCase.getId());
+		event.getData().setParameters(parameters);
 
-    		manager.sendMessage(event, event.getData().getScope());
-    	}
+    	EventHandler manager = getEventHandler();
+    	manager.sendMessage(event, event.getData().getScope());
     	
 		return newCase;
 	}
-
-	@Override
-	public void setAuditLogRepository(AuditLogRepository repository) {
-		auditLogRepository = repository;
-	}
-
 }
 

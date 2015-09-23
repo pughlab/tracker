@@ -48,7 +48,6 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
@@ -626,7 +625,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("dateEntered", entry.get("attribute").asText());
 		Assert.assertEquals("2014-08-20", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isNull());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isNull());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -665,7 +664,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("procedureDate", entry.get("attribute").asText());
 		Assert.assertTrue(entry.get("eventArgs").get("old").isNull());
-		Assert.assertEquals("2014-02-03", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("2014-02-03", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -704,7 +703,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("patientId", entry.get("attribute").asText());
 		Assert.assertEquals("DEMO-01", entry.get("eventArgs").get("old").asText());
-		Assert.assertEquals("DEMO-XX", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("DEMO-XX", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -744,7 +743,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenNo", entry.get("attribute").asText());
 		Assert.assertTrue(entry.get("eventArgs").get("old").isNull());
-		Assert.assertEquals("SMP-XX", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("SMP-XX", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -783,7 +782,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("patientId", entry.get("attribute").asText());
 		Assert.assertEquals("DEMO-01", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isNull());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isNull());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -822,7 +821,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("sampleAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("LMP", entry.get("eventArgs").get("old").asText());
-		Assert.assertEquals("St. Michaels", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("St. Michaels", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -862,7 +861,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("true", entry.get("eventArgs").get("old").asText());
-		Assert.assertEquals("false", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("false", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -1003,7 +1002,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("false", entry.get("eventArgs").get("old").asText());
-		Assert.assertEquals("true", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("true", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -1045,8 +1044,8 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("true", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isObject());
-		Assert.assertEquals(true, entry.get("eventArgs").get("value").get("$notAvailable").asBoolean());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isObject());
+		Assert.assertEquals(true, entry.get("eventArgs").get("new").get("$notAvailable").asBoolean());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -1085,7 +1084,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("true", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isNull());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isNull());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -1125,8 +1124,8 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("null", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isObject());
-		Assert.assertEquals(true, entry.get("eventArgs").get("value").get("$notAvailable").asBoolean());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isObject());
+		Assert.assertEquals(true, entry.get("eventArgs").get("new").get("$notAvailable").asBoolean());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
@@ -1565,37 +1564,6 @@ public class StudyRepositoryImplTest {
 		} finally {
 			studyRepository.setTemplate(originalTemplate);
 		}
-	}
-
-	/**
-	 * Simple test of adding a number of attributes as well as deleting.
-	 */
-	@Test
-	@Transactional
-	@Rollback(true)
-	public void testNewCaseWithoutManager() throws RepositoryException {
-		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
-		
-		EventHandler oldService = studyRepository.getUpdateEventService();
-		studyRepository.setEventHandler(null);
-		
-		Cases newCase = null;
-		try {
-			newCase = studyRepository.newStudyCase(study, view, "test");
-		} finally {
-			studyRepository.setEventHandler(oldService);
-		}
-		
-		Assert.assertNotNull(newCase);
-		Assert.assertNotNull(newCase.getId());
-		Assert.assertNotNull(newCase.getStudyId());
-		
-		// And now let's dig out the new case -- mainly to check that we can actually
-		// follow this identifier.
-		Cases caseValue = studyRepository.getStudyCase(study, view, newCase.getId());
-		Assert.assertNotNull(caseValue);
-		Assert.assertEquals(newCase.getId(), caseValue.getId());
 	}
 
 	/**

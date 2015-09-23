@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * This class defines the shape of an event within the tracker. The data field
@@ -71,7 +71,7 @@ public class Event {
 		private String user;
 		private String scope;
 		private long time = (new Date()).getTime();
-		private JsonNode parameters;
+		private ObjectNode parameters;
 
 		@JsonProperty
 		/**
@@ -122,14 +122,14 @@ public class Event {
 		 * @return the parameters
 		 */
 		@JsonProperty
-		public JsonNode getParameters() {
+		public ObjectNode getParameters() {
 			return parameters;
 		}
 
 		/**
 		 * @param parameters the parameters to set
 		 */
-		public void setParameters(JsonNode parameters) {
+		public void setParameters(ObjectNode parameters) {
 			this.parameters = parameters;
 		}
 	}
