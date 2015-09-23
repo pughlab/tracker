@@ -13,7 +13,11 @@ public class JSLogger {
 		List<Object> list = Arrays.asList(strings);
 		StringBuilder message = new StringBuilder();
 		for(Object element : list) {
-			message.append(element.toString());
+			if (element == null) {
+				message.append("null");
+			} else {
+				message.append(element.toString());
+			}
 			message.append(" ");
 		}
 		int length = message.length();

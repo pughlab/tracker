@@ -23,4 +23,10 @@ public class JSLoggerTest {
 		JSLogger logger = new JSLogger();
 		logger.log();
 	}
+
+	@Test
+	public void testJSLoggerNull() {
+		JSLogger logger = new JSLogger();
+		logger.log((String)null);
+	}
 }

@@ -608,6 +608,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 		final JsonNodeFactory factory = JsonNodeFactory.instance;
 		ObjectNode parameters = factory.objectNode();
 		parameters.put("study_id", study.getId());
+		parameters.put("study", study.getName());
+		parameters.put("view", view.getName());
 		parameters.put("case_id", c.getId());
 		parameters.put("old_state", oldState);
 		parameters.put("state", state);
@@ -683,6 +685,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 		parameters.put("field", attribute);
 		parameters.put("case_id", caseValue.getId());
 		parameters.put("study_id", study.getId());
+		parameters.put("study", study.getName());
+		parameters.put("view", view.getName());
 		parameters.replace("old", new RedactedJsonNode(getJsonValue(oldValue)));
 		parameters.replace("new", new RedactedJsonNode(value));
 		event.getData().setParameters(parameters);

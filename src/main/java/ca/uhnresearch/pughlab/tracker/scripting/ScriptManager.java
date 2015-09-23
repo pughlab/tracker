@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -13,7 +15,6 @@ import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.quartz.JobExecutionException;
 
@@ -21,15 +22,15 @@ public class ScriptManager  {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
+	private Map<String, Object> initialBindings = new HashMap<String, Object>();
+	
 	private String fileUrl = null;
 	
 	private ScriptContext context;
 	
-	private JSEventHandlerRoot handlerRoot;
-	
-	ScriptManager(Resource scriptResource, JSEventHandlerRoot handlerRoot) {
+	ScriptManager(Resource scriptResource, Map<String, Object> initialBindings) {
 		
-		this.handlerRoot = handlerRoot;
+		this.initialBindings = initialBindings;
 		
 		InputStream in;
 		
@@ -60,8 +61,9 @@ public class ScriptManager  {
 	
 	public Bindings getInitialBindings(ScriptEngine engine) {
 		Bindings bindings = engine.createBindings();
-		bindings.put("console", new JSLogger());
-		bindings.put("events", getHandlerRoot());
+		for(Map.Entry<String, Object> e : initialBindings.entrySet()) {
+			bindings.put(e.getKey(), e.getValue());
+		}
 		return bindings;
 	}
 	
@@ -85,16 +87,16 @@ public class ScriptManager  {
 	}
 
 	/**
-	 * @return the handlerRoot
+	 * @return the initialBindings
 	 */
-	public JSEventHandlerRoot getHandlerRoot() {
-		return handlerRoot;
+	public Map<String, Object> getInitialBindings() {
+		return initialBindings;
 	}
 
 	/**
-	 * @param handlerRoot the handlerRoot to set
+	 * @param initialBindings the initialBindings to set
 	 */
-	public void setHandlerRoot(JSEventHandlerRoot handlerRoot) {
-		this.handlerRoot = handlerRoot;
+	public void setInitialBindings(Map<String, Object> initialBindings) {
+		this.initialBindings = initialBindings;
 	}
 }
