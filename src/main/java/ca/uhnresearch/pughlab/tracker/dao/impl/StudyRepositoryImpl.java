@@ -40,7 +40,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.Event;
-import ca.uhnresearch.pughlab.tracker.events.EventService;
+import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
@@ -58,7 +58,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 		
-	private EventService manager;
+	private EventHandler manager;
 
 	private QueryDslJdbcTemplate template;
 	
@@ -654,7 +654,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	
 	private void sendUpdateEvent(final Study study, final View view, final Cases caseValue, final String attribute, final String userName) {
-    	EventService manager = getUpdateEventService();
+    	EventHandler manager = getUpdateEventService();
     	if (manager != null) {
     		Event event = new Event(Event.EVENT_SET_FIELD);
     		event.getData().setScope(study.getName());
@@ -667,14 +667,14 @@ public class StudyRepositoryImpl implements StudyRepository {
     		
     		event.getData().setParameters(parameters);
 
-    		manager.sendMessage(event);
+    		manager.sendMessage(event, event.getData().getScope());
     	}
 	}
 	
 	/**
 	 * Getter for an update event manager. 
 	 */
-	public EventService getUpdateEventService() {
+	public EventHandler getUpdateEventService() {
 		return manager;
 	}
 
@@ -682,7 +682,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Setter for an update event manager, allowing events to be triggered from the repository.
 	 * @param manager
 	 */
-	public void setEventService(EventService manager) {
+	public void setEventHandler(EventHandler manager) {
 		this.manager = manager;
 	}
 
@@ -736,7 +736,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		newCase.setStudyId(study.getId());
 		newCase.setId(caseId);
 
-    	EventService manager = getUpdateEventService();
+    	EventHandler manager = getUpdateEventService();
     	if (manager != null) {
     		Event event = new Event(Event.EVENT_NEW_RECORD);
     		event.getData().setScope(study.getName());
@@ -748,7 +748,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     		
     		event.getData().setParameters(parameters);
 
-    		manager.sendMessage(event);
+    		manager.sendMessage(event, event.getData().getScope());
     	}
     	
 		return newCase;

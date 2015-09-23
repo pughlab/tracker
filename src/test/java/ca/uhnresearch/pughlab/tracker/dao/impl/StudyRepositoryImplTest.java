@@ -48,7 +48,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventService;
+import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
@@ -1577,14 +1577,14 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		
-		EventService oldService = studyRepository.getUpdateEventService();
-		studyRepository.setEventService(null);
+		EventHandler oldService = studyRepository.getUpdateEventService();
+		studyRepository.setEventHandler(null);
 		
 		Cases newCase = null;
 		try {
 			newCase = studyRepository.newStudyCase(study, view, "test");
 		} finally {
-			studyRepository.setEventService(oldService);
+			studyRepository.setEventHandler(oldService);
 		}
 		
 		Assert.assertNotNull(newCase);

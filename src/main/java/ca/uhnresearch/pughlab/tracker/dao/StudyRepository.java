@@ -10,7 +10,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventService;
+import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 
 public interface StudyRepository {
 
@@ -130,7 +130,7 @@ public interface StudyRepository {
 	 */
 	void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
 
-	void setEventService(EventService manager);
+	void setEventHandler(EventHandler manager);
 	
 	/**
 	 * Setter for the reference to the authorization repository, which we use for the audit logging

@@ -37,7 +37,7 @@
 
 	<bean id="studyRepository" class="ca.uhnresearch.pughlab.tracker.dao.impl.StudyRepositoryImpl">
 		<property name="template" ref="queryDslJdbcTemplate"/>
-		<property name="eventService" ref="socketEventService" />
+		<property name="eventHandler" ref="socketEventHandler" />
         <property name="auditLogRepository" ref="auditLogRepository" />
 	</bean>
 	
@@ -49,10 +49,6 @@
         <property name="template" ref="queryDslJdbcTemplate"/>
     </bean>
 
-	<bean id="socketEventService" class="ca.uhnresearch.pughlab.tracker.events.impl.SocketEventService">
-		<property name="socketEventHandler" ref="socketEventHandler" />
-	</bean>
-	
 	<bean id="socketEventHandler" class="ca.uhnresearch.pughlab.tracker.sockets.SocketEventHandler">
 	</bean>
 </beans>

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.events.Event;
 
-public class SocketEventServiceTest {
+public class SocketEventHandlerTest {
 	
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
