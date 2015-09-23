@@ -1,6 +1,8 @@
-package ca.uhnresearch.pughlab.tracker.scheduling;
+package ca.uhnresearch.pughlab.tracker.scripting;
 
 import org.junit.Test;
+
+import ca.uhnresearch.pughlab.tracker.scripting.JSLogger;
 
 public class JSLoggerTest {
 

@@ -1,4 +1,4 @@
-package ca.uhnresearch.pughlab.tracker.scheduling;
+package ca.uhnresearch.pughlab.tracker.scripting;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.quartz.JobExecutionException;
 
-public class ScheduledJob  {
+public class ScriptManager  {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
@@ -25,11 +25,11 @@ public class ScheduledJob  {
 	
 	private ScriptContext context;
 	
-	ScheduledJob() {
+	ScriptManager() {
 		this(new ClassPathResource("tracker.js"));
 	}
 	
-	ScheduledJob(Resource scriptResource) {
+	ScriptManager(Resource scriptResource) {
 		
 		InputStream in;
 		
@@ -59,9 +59,9 @@ public class ScheduledJob  {
 	}
 	
 	public Bindings getInitialBindings(ScriptEngine engine) {
-		JSLogger jsLogger = new JSLogger();
 		Bindings bindings = engine.createBindings();
-		bindings.put("console", jsLogger);
+		bindings.put("console", new JSLogger());
+		bindings.put("events", new JSEventHandlerRoot());
 		return bindings;
 	}
 	

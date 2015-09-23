@@ -23,12 +23,12 @@
     </bean>
     
     <bean id="scheduledJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-	    <property name="targetObject" ref="scheduledJob"/>
+	    <property name="targetObject" ref="scriptManager"/>
 	    <property name="targetMethod" value="execute"/>
 	    <property name="concurrent" value="false"/>
 	</bean>
 	
-	<bean id="scheduledJob" class="ca.uhnresearch.pughlab.tracker.scheduling.ScheduledJob">
+	<bean id="scriptManager" class="ca.uhnresearch.pughlab.tracker.scripting.ScriptManager">
         <constructor-arg>
             <bean class="org.springframework.jndi.JndiObjectFactoryBean">
                 <property name="jndiName" value="java:comp/env/trackerScript" />
