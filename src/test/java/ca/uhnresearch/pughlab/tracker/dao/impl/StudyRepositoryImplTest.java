@@ -83,6 +83,20 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testGetStudyOptions() {
+		Study s = studyRepository.getStudy("DEMO");
+		Assert.assertNotNull(s);
+		Assert.assertNotNull(s.getOptions());
+		Assert.assertTrue(s.getOptions().has("stateLabels"));
+		Assert.assertTrue(s.getOptions().get("stateLabels").isObject());
+		Assert.assertTrue(s.getOptions().get("stateLabels").has("pending"));
+		Assert.assertTrue(s.getOptions().get("stateLabels").get("pending").isTextual());
+		Assert.assertEquals("label1", s.getOptions().get("stateLabels").get("pending").asText());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testSaveStudyNew() {
 		Study s = new Study();
 		s.setName("TEST");

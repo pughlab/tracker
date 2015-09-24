@@ -21,7 +21,7 @@ CREATE TABLE "STUDIES" (
 );
 
 INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION") VALUES (0, 'ADMIN', 'Admin study');
-INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION") VALUES (1, 'DEMO', 'A demo clinical genomics study');
+INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION", "OPTIONS") VALUES (1, 'DEMO', 'A demo clinical genomics study', '{"stateLabels":{"pending":"label1"}}');
 INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION") VALUES (2, 'SECOND', 'A second study');
 
 SET SESSION SQL_MODE = 'ansi,strict_all_tables';
