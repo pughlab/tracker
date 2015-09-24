@@ -379,6 +379,10 @@ angular
               readOnly: ! (scope.trackerEditingStatus or false)
             })
 
+            handsonTable.trackerData = {
+              stateLabels: scope.trackerStudy.options.stateLabels
+            }
+
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
               {"$value": value, "$source": source}
 

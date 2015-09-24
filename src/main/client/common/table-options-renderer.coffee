@@ -20,8 +20,10 @@ annotateCells = (cellProperties, instance, TD, row, col, prop) ->
   tags = rowData['$notes']?[fieldName]?.tags or []
   for tag in tags
     Handsontable.Dom.addClass(TD, tag)
-  for tag in rowData['$notes']?['$tags'] or []
-    Handsontable.Dom.addClass(TD, tag)
+  if rowData['$state']
+    mapping = instance.trackerData?.stateLabels
+    label = mapping?[rowData['$state']]
+    Handsontable.Dom.addClass(TD, label) if label?
   if rowData['$notes']?[fieldName]?.locked == true
     cellProperties.readOnly = true
 
