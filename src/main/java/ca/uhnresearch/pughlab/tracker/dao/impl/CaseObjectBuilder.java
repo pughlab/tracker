@@ -34,14 +34,15 @@ public class CaseObjectBuilder {
 		return marked;
 	}
 	
-	public CaseObjectBuilder(List<Integer> caseIds) {
+	public CaseObjectBuilder(List<CaseInfo> caseInfos) {
 		objects.clear();
 		
 		Integer index = 0;
-		for(Integer id : caseIds) {
+		for(CaseInfo info : caseInfos) {
 			ObjectNode obj = jsonNodeFactory.objectNode();
+			obj.put("$state", info.getState());
 			objects.add(index++, obj);
-			table.put(id, obj);
+			table.put(info.getId(), obj);
 		}
 	}
 	

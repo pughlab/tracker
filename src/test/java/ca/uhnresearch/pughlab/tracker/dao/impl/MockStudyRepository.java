@@ -21,7 +21,6 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
@@ -31,7 +30,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventService;
+import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 
 public class MockStudyRepository implements StudyRepository {
 
@@ -130,6 +129,9 @@ public class MockStudyRepository implements StudyRepository {
 	private Cases mockCase(Integer id) {
 		Cases c = new Cases();
 		c.setId(id);
+		if (id == 3) {
+			c.setState("pending");
+		}
 		return c;
 	}
 	
@@ -287,7 +289,9 @@ public class MockStudyRepository implements StudyRepository {
 		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
 		for(Cases caseRecord : cases) {
 			if (! data.containsKey(caseRecord.getId())) {
-				data.put(caseRecord.getId(), new JsonObject());
+				JsonObject record = new JsonObject();
+				record.addProperty("$state", caseRecord.getState());
+				data.put(caseRecord.getId(), record);
 			}
 		}
 		for(MockCaseAttribute string : strings) {
@@ -391,6 +395,12 @@ public class MockStudyRepository implements StudyRepository {
 		return result;		
 	}
 	
+
+	@Override
+	public void setStudyCaseState(Study study, View view, Cases cases, String userName, String state) {
+		cases.setState(state);		
+	}
+
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		// We build all the data in Gson, because it's easier
@@ -433,7 +443,7 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * Mocked setter for an update event manager
 	 */
-	public void setEventService(EventService manager) {
+	public void setEventHandler(EventHandler manager) {
 		// Do nothing
 	}
 
@@ -451,11 +461,6 @@ public class MockStudyRepository implements StudyRepository {
 		}
 		cases.add(newCase);
 		return newCase;
-	}
-
-	@Override
-	public void setAuditLogRepository(AuditLogRepository repository) {
-		// Auto-generated method stub
 	}
 
 	@Override

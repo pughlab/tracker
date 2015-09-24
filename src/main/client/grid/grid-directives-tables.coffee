@@ -23,8 +23,9 @@ angular
 
     highlightElement = (element, editingClasses) ->
 
+      classes = editingClasses.split(' ')
+
       highlightOn = () ->
-        classes = editingClasses.split(' ')
         for cls in classes
           Handsontable.Dom.addClass element, cls
 
@@ -227,13 +228,13 @@ angular
               ## If we get a cell editing event, we need to identify the cell element, and then update
               ## the right stuff. We might need to do something similar for a row, too.
 
-              if handsonTable != undefined and original.data.userNumber != -1
+              if handsonTable != undefined and original.data.userNumber > 0
                 handleEditCell original.data.parameters.case, original.data.parameters.field, original.data.editingClasses
 
 
             scope.$on 'socket:record', (evt, original) ->
               console.log "Got socket:record", evt, original
-              if handsonTable != undefined and original.data.userNumber != -1
+              if handsonTable != undefined and original.data.userNumber > 0
                 handleAddRecord original.data.parameters.case, original.data.editingClasses
 
 
@@ -356,15 +357,17 @@ angular
               minSpareRows: 1
               colWidths: (getColWidth(a) for a in orderedAttributes)
               colHeaders: (a.label for a in orderedAttributes)
+              rowHeaders: true
               columns: (convertColumn(a) for a in orderedAttributes)
               contextMenu: false
-              multiSelect: false
+              multiSelect: true
               startCols: orderedAttributes.length
               fixedRowsTop: 0
               fixedColumnsLeft: pinnedAttributes.length
               columnSorting: false
               trackerColumnSorting: true
               manualColumnResize: true
+              manualRowResize: true
               search: true
               dataSchema: () ->
                 schema = {}
@@ -375,6 +378,10 @@ angular
               currentColClassName: 'currentCol'
               readOnly: ! (scope.trackerEditingStatus or false)
             })
+
+            handsonTable.trackerData = {
+              stateLabels: scope.trackerStudy.options.stateLabels
+            }
 
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
               {"$value": value, "$source": source}
@@ -480,7 +487,7 @@ angular
             handsonTable.unlisten()
             handsonTable.destroy()
             handsonTable = undefined
-            
+
           jQuery(window).off 'resize', resizeWrapper
 
           entityRowTable = undefined

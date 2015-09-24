@@ -41,8 +41,9 @@ public class CaseObjectBuilderTest {
 
 	@Before
 	public void initialize() {
-		List<Integer> cases = new ArrayList<Integer>();
-		cases.add(1);
+		List<CaseInfo> cases = new ArrayList<CaseInfo>();
+		CaseInfo c = new CaseInfo(1, "test");
+		cases.add(c);
 		builder = new CaseObjectBuilder(cases);
 	}
 	

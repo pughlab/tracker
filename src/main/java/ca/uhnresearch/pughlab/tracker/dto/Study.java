@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class Study {
 
@@ -9,6 +10,8 @@ public class Study {
     private Integer id;
 
     private String name;
+    
+    private JsonNode options;
 
 	@JsonProperty
     public String getDescription() {
@@ -37,5 +40,19 @@ public class Study {
         this.name = name;
     }
 
+	/**
+	 * @return the options
+	 */
+	@JsonProperty
+	public JsonNode getOptions() {
+		return options;
+	}
+
+	/**
+	 * @param options the options to set
+	 */
+	public void setOptions(JsonNode options) {
+		this.options = options;
+	}
 }
 
