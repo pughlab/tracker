@@ -17,6 +17,7 @@ import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
+import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
@@ -467,7 +468,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, CaseQuery query) {
+	private ListSubQuery<Tuple> getStudySubQueryCaseQuery(Study study, CaseQuery query) {
 		
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		
@@ -492,8 +493,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 		if (query.getLimit() != null) {
 			sq = sq.limit(query.getLimit());
 		}
-	
-		return sq.list(cases.id);
+			
+		return sq.list(cases.id, cases.state);
 	}
 			
 	/**
@@ -517,7 +518,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// separate queries for each primitive attribute type, and then assembling them in this
 		// method. This hugely reduces the complexity of the DSL here too. 
 		
-		ListSubQuery<Integer> caseQuery = getStudySubQueryCaseQuery(study, query);
+		ListSubQuery<Tuple> caseQuery = getStudySubQueryCaseQuery(study, query);
 		return cap.getJsonData(template, study, view, caseQuery);
 	}
 
@@ -537,9 +538,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudyCaseSubQuery(Study study, Integer caseId) {
+	private ListSubQuery<Tuple> getStudyCaseSubQuery(Study study, Integer caseId) {
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
-		return sq.list(cases.id);
+		return sq.list(cases.id, cases.state);
 	}
 	
 
@@ -548,8 +549,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
-		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseValue.getId());
-		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseQuery);
+		ListSubQuery<Tuple> caseInfoQuery = getStudyCaseSubQuery(study, caseValue.getId());
+		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseInfoQuery);
 		if (listData.size() == 1) {
 			return listData.get(0);
 		} else {

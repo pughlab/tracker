@@ -53,11 +53,11 @@ public class CaseAttributePersistence {
 		types.put(Double.class, QCaseAttributeNumbers.caseAttributes);
 	}
 	
-	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, final Study study, final View view, ListSubQuery<Integer> caseQuery) {
+	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, final Study study, final View view, ListSubQuery<Tuple> caseQuery) {
 		
-		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
-		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
-		CaseObjectBuilder builder = new CaseObjectBuilder(caseIds);
+		SQLQuery caseInfoQuery = template.newSqlQuery().from(caseQuery.as(cases));
+		List<CaseInfo> caseInfos = template.query(caseInfoQuery, new CaseInfoProjection(cases));
+		CaseObjectBuilder builder = new CaseObjectBuilder(caseInfos);
 
 		for(Class<?> cls : types.keySet()) {
 			

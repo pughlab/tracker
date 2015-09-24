@@ -129,6 +129,9 @@ public class MockStudyRepository implements StudyRepository {
 	private Cases mockCase(Integer id) {
 		Cases c = new Cases();
 		c.setId(id);
+		if (id == 3) {
+			c.setState("pending");
+		}
 		return c;
 	}
 	
@@ -286,7 +289,9 @@ public class MockStudyRepository implements StudyRepository {
 		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
 		for(Cases caseRecord : cases) {
 			if (! data.containsKey(caseRecord.getId())) {
-				data.put(caseRecord.getId(), new JsonObject());
+				JsonObject record = new JsonObject();
+				record.addProperty("$state", caseRecord.getState());
+				data.put(caseRecord.getId(), record);
 			}
 		}
 		for(MockCaseAttribute string : strings) {

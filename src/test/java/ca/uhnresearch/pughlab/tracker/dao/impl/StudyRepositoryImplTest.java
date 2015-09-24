@@ -417,6 +417,37 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testSingleCaseStateNull() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		Assert.assertNotNull(data);
+		
+		Assert.assertTrue(data.has("$state"));
+		Assert.assertTrue(data.get("$state").isNull());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseStatePending() {
+		Study study = studyRepository.getStudy("SECOND");
+		View view = studyRepository.getStudyView(study, "complete");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 21);
+		
+		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		Assert.assertNotNull(data);
+		
+		Assert.assertTrue(data.has("$state"));
+		Assert.assertTrue(data.get("$state").isTextual());
+		Assert.assertEquals("pending", data.get("$state").asText());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testSingleCaseNumberValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
