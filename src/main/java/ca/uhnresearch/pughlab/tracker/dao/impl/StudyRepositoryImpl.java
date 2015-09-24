@@ -82,7 +82,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		logger.debug("Looking for all studies");
 
     	SQLQuery sqlQuery = template.newSqlQuery().from(studies);
-    	List<Study> studyList = template.query(sqlQuery, studies);
+    	List<Study> studyList = template.query(sqlQuery, new StudyProjection(studies));
     	logger.debug("Got some studies: {}", studyList.toString());
 
     	return studyList;
@@ -96,7 +96,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public Study getStudy(String name) {
 		logger.debug("Looking for study by name: {}", name);
     	SQLQuery sqlQuery = template.newSqlQuery().from(studies).where(studies.name.eq(name));
-    	Study study = template.queryForObject(sqlQuery, studies);
+    	Study study = template.queryForObject(sqlQuery, new StudyProjection(studies));
     	
     	if (study != null) {
     		logger.debug("Got a study: {}", study.toString());
@@ -117,7 +117,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			logger.info("Saving new study: {}", study.getName());
 			Integer studyId = template.insertWithKey(studies, new SqlInsertWithKeyCallback<Integer>() { 
 				public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
-					return (int) sqlInsertClause.populate(study).execute();
+					return (int) sqlInsertClause.populate(study, new StudyMapper()).execute();
 				};
 			});
 			study.setId(studyId);
@@ -125,7 +125,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			logger.info("Updating existing study: {}", study.getName());
 			template.update(studies, new SqlUpdateCallback() { 
 				public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-					return sqlUpdateClause.where(studies.id.eq(study.getId())).populate(study).execute();
+					return sqlUpdateClause.where(studies.id.eq(study.getId())).populate(study, new StudyMapper()).execute();
 				};
 			});
 

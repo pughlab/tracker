@@ -1618,7 +1618,7 @@ public class StudyRepositoryImplTest {
 	public void testSetCaseState() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 15);
+		Cases caseValue = studyRepository.getStudyCase(study, view, 7);
 		
 		studyRepository.setStudyCaseState(study, view, caseValue, "morag", "pending");
 		
