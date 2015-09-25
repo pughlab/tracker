@@ -3,11 +3,15 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +31,20 @@ public class CaseObjectBuilder {
 	private Map<Integer, ObjectNode> table = new HashMap<Integer, ObjectNode>();
 
 	private List<ObjectNode> objects = new ArrayList<ObjectNode>();
+	
+	private boolean attributeNameFilter = false;
+	private Set<String> attributeNameSet = new HashSet<String>();
+	
+	public void setAttributeFilter(List<Attributes> attributes) {
+		for(Attributes attribute : attributes) {
+			attributeNameSet.add(attribute.getName());
+		}
+		attributeNameFilter = true;
+	}
+	
+	private boolean attributeNameIncluded(String name) {
+		return (! attributeNameFilter) || attributeNameSet.contains(name);
+	}
 
 	private JsonNode getNotAvailableValue() {
 		ObjectNode marked = jsonNodeFactory.objectNode();
@@ -68,6 +86,10 @@ public class CaseObjectBuilder {
 			
 			// Add the case identifier
 			obj.put("id", caseId);
+			
+			if (! attributeNameIncluded(attributeName)) {
+				continue;
+			}
 			
 			// Add the value
 			if (notAvailable != null && notAvailable) {
