@@ -41,7 +41,6 @@ public class ViewExtractor extends Extractor {
 		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
 		Boolean viewReadPermission = studyAdminPermission;
 		Boolean viewWritePermission = studyAdminPermission;
-		Boolean viewDownloadPermission = studyAdminPermission;
 		
 		if (studyAdminPermission) {
 			// Do nothing, as all permissions are already true
@@ -51,9 +50,6 @@ public class ViewExtractor extends Extractor {
 			
 			String viewWritePermissionString = study.getName() + ":write:" + view.getName();
 			viewWritePermission = currentUser.isPermitted(viewWritePermissionString);
-
-			String viewDownloadPermissionString = study.getName() + ":download:" + view.getName();
-			viewDownloadPermission = currentUser.isPermitted(viewDownloadPermissionString);
 		}
 		
 		// If we have permission to write, by default allow reading too
@@ -65,10 +61,6 @@ public class ViewExtractor extends Extractor {
 		if (! viewReadPermission) {
 			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
 		}
-		
-		request.getAttributes().put("viewReadAllowed", viewReadPermission);
-		request.getAttributes().put("viewWriteAllowed", viewWritePermission);
-		request.getAttributes().put("viewDownloadAllowed", viewDownloadPermission);
 	}
 
 	protected int beforeHandle(Request request, Response response) {

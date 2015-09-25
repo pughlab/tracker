@@ -31,9 +31,5 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
     	dto.setStudy(study);
     	dto.setView(view);
     	dto.setAttributes(attributes);
-
-    	dto.getPermissions().setReadAllowed((Boolean) getRequest().getAttributes().get("viewReadAllowed")); 
-    	dto.getPermissions().setWriteAllowed((Boolean) getRequest().getAttributes().get("viewWriteAllowed")); 
-    	dto.getPermissions().setDownloadAllowed((Boolean) getRequest().getAttributes().get("viewDownloadAllowed")); 
 	}
 }
