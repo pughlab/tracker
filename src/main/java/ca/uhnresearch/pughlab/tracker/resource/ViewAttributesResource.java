@@ -1,7 +1,10 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -24,12 +27,22 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
 	public void buildResponseDTO(ViewAttributesResponse dto) {
 		super.buildResponseDTO(dto);
 		    	
+		Subject currentUser = SecurityUtils.getSubject();
+
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	View view = RequestAttributes.getRequestView(getRequest());
     	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
+    	
+    	// Security should also apply here, and this requires a wee bit of fiddling
+    	List<ViewAttributes> readable = new ArrayList<ViewAttributes>();
+    	for(ViewAttributes va : attributes) {
+    		if (currentUser.isPermitted(study.getName() + ":attribute:read:" + va.getName())) {
+    			readable.add(va);
+    		}
+    	}
 
     	dto.setStudy(study);
     	dto.setView(view);
-    	dto.setAttributes(attributes);
+    	dto.setAttributes(readable);
 	}
 }

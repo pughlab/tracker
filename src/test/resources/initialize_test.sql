@@ -467,8 +467,8 @@ INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (5,  3, 'w
 INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (6,  3, 'attribute:*:*');
 INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (7,  4, 'view');
 INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (8,  4, 'read:track');
-INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (9,  4, 'attribute:read:dateEntered.patientId,consentDate,procedureDate,trackerDate,diagnosticsDate,study');
-INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (10, 4, 'attribute:write:dateEntered.patientId,consentDate');
+INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (9,  4, 'attribute:read:dateEntered,patientId,consentDate,procedureDate,trackerDate,diagnosticsDate,study');
+INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (10, 4, 'attribute:write:dateEntered,patientId,consentDate');
 INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (11, 5, '*');
 INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (12, 5, 'attribute:*:*');
 INSERT INTO "ROLE_PERMISSIONS" ("ID", "ROLE_ID", "PERMISSION") VALUES (13, 6, 'view');

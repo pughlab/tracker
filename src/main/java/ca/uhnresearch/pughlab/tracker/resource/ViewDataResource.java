@@ -11,6 +11,8 @@ import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.resource.Get;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,6 +26,8 @@ import ca.uhnresearch.pughlab.tracker.services.Writer;
 
 public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> {
 	
+	private final Logger logger = LoggerFactory.getLogger(ViewDataResource.class);
+
 	private Writer excelWriter;
 
 	@Get("json")

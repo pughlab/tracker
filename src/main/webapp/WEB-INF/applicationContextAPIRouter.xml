@@ -153,7 +153,11 @@
 
     <bean id="attributeExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.AttributeExtractor">
         <property name="repository" ref="studyRepository"/>
-        <property name="next" ref="entityFieldResource"/>
+        <property name="next">
+            <bean class="org.restlet.ext.spring.SpringFinder">
+                <lookup-method name="create" bean="entityFieldResource" />
+            </bean>
+        </property>
     </bean>
 
 	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
