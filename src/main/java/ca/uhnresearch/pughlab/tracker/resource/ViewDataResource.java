@@ -66,7 +66,7 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
     	
     	List<ViewAttributes> readable = new ArrayList<ViewAttributes>();
     	for(ViewAttributes va : attributes) {
-    		if (currentUser.isPermitted("attribute:read:" + va.getName())) {
+    		if (currentUser.isPermitted(study.getName() + ":attribute:read:" + va.getName())) {
     			readable.add(va);
     		}
     	}

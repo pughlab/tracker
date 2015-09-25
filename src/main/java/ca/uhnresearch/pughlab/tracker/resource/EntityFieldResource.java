@@ -47,8 +47,8 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     		throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
     	}
     	
-    	boolean writeUser = currentUser.isPermitted(study.getName() + ":write");
-    	if (! writeUser) {
+    	if (! currentUser.isPermitted(study.getName() + ":write") ||
+    		! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
@@ -92,10 +92,17 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 	public void buildResponseDTO(EntityValueResponse dto) {
 		super.buildResponseDTO(dto);
 
+		Subject currentUser = SecurityUtils.getSubject();
+
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	View view = RequestAttributes.getRequestView(getRequest());
     	Cases caseValue = RequestAttributes.getRequestEntity(getRequest());
     	Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
+    	
+    	// Add support for the permissions. It's very simple here
+    	if (! currentUser.isPermitted(study.getName() + ":attribute:read:" + attribute.getName())) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
     	
     	// Get the value and build an appropriate response
     	JsonNode val = getRepository().getCaseAttributeValue(study, view, caseValue, attribute);

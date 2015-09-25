@@ -49,7 +49,7 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
     	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
     	List<Attributes> readable = new ArrayList<Attributes>();
     	for(ViewAttributes va : attributes) {
-    		if (currentUser.isPermitted("attribute:read:" + va.getName())) {
+    		if (currentUser.isPermitted(study.getName() + ":attribute:read:" + va.getName())) {
     			readable.add(va);
     		}
     	}
