@@ -61,7 +61,7 @@ public class StudyResourceTest extends AbstractShiroTest {
         setSubject(subjectUnderTest);
         
         Study testStudy = repository.getStudy("DEMO");
-		studyResource.getRequest().getAttributes().put("study", testStudy);
+		RequestAttributes.setRequestStudy(studyResource.getRequest(), testStudy);
 		
 		Representation result = studyResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
@@ -97,7 +97,7 @@ public class StudyResourceTest extends AbstractShiroTest {
         setSubject(subjectUnderTest);
         
         Study testStudy = repository.getStudy("DEMO");
-		studyResource.getRequest().getAttributes().put("study", testStudy);
+		RequestAttributes.setRequestStudy(studyResource.getRequest(), testStudy);
 		
 		Representation result = studyResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

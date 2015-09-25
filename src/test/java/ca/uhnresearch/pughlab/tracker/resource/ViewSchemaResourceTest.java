@@ -70,8 +70,8 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
         
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		resource.getRequest().getAttributes().put("study", testStudy);
-		resource.getRequest().getAttributes().put("view", testView);
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
 		
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
@@ -106,8 +106,8 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
         
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		resource.getRequest().getAttributes().put("study", testStudy);
-		resource.getRequest().getAttributes().put("view", testView);
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
 		
 		Representation readResult = resource.getResource();
 		
@@ -153,8 +153,8 @@ public class ViewSchemaResourceTest extends AbstractShiroTest{
         
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		resource.getRequest().getAttributes().put("study", testStudy);
-		resource.getRequest().getAttributes().put("view", testView);
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
 				
 		thrown.expect(ResourceException.class);
 		thrown.expectMessage(containsString("Forbidden"));

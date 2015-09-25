@@ -53,7 +53,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	logger.debug("Called putResource() in EntityFieldResource", input);
     	
     	Subject currentUser = SecurityUtils.getSubject();
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
 
     	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
@@ -95,7 +95,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
 	public void buildResponseDTO(StudySchemaResponse dto) throws ResourceException {
 		super.buildResponseDTO(dto);
 		
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	Subject currentUser = SecurityUtils.getSubject();
     	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");

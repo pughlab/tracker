@@ -19,6 +19,7 @@ import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
 public class EntityExtractorTest {
 
@@ -46,13 +47,13 @@ public class EntityExtractorTest {
 		Response response = new Response(request);
 		
 		Study study = repository.getStudy("DEMO");
-		request.getAttributes().put("study", study);
 		View view = repository.getStudyView(study, "complete");
-		request.getAttributes().put("view", view);
+		RequestAttributes.setRequestStudy(request, study);
+		RequestAttributes.setRequestView(request, view);
 		request.getAttributes().put("entityId", "5");
 
 		extractor.handle(request, response);
-		Cases caseValue = (Cases) request.getAttributes().get("entity");
+		Cases caseValue = RequestAttributes.getRequestEntity(request);
 		assertNotNull(caseValue);
 		assertEquals(5, caseValue.getId().intValue());
 	}
@@ -68,9 +69,9 @@ public class EntityExtractorTest {
 		Response response = new Response(request);
 		
 		Study study = repository.getStudy("DEMO");
-		request.getAttributes().put("study", study);
 		View view = repository.getStudyView(study, "complete");
-		request.getAttributes().put("view", view);
+		RequestAttributes.setRequestStudy(request, study);
+		RequestAttributes.setRequestView(request, view);
 		request.getAttributes().put("entityId", "12");
 
 		thrown.expect(ResourceException.class);
@@ -87,9 +88,9 @@ public class EntityExtractorTest {
 		Response response = new Response(request);
 		
 		Study study = repository.getStudy("DEMO");
-		request.getAttributes().put("study", study);
 		View view = repository.getStudyView(study, "complete");
-		request.getAttributes().put("view", view);
+		RequestAttributes.setRequestStudy(request, study);
+		RequestAttributes.setRequestView(request, view);
 		request.getAttributes().put("entityId", "");
 
 		thrown.expect(ResourceException.class);

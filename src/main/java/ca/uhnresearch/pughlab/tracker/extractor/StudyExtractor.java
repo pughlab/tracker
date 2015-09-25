@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
 public class StudyExtractor extends Extractor {
 	
@@ -54,7 +55,7 @@ public class StudyExtractor extends Extractor {
     	}
     	
     	logger.debug("OK, continuing with the study: {}", s.getName());
-		request.getAttributes().put("study", s);
+    	RequestAttributes.setRequestStudy(request, s);
 		
 		return CONTINUE;
 	}

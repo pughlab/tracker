@@ -15,6 +15,7 @@ import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
 public class RoleExtractor extends Extractor {
 
@@ -33,7 +34,7 @@ public class RoleExtractor extends Extractor {
 
 	protected int beforeHandle(Request request, Response response) {
 
-		Study study = (Study) request.getAttributes().get("study");
+		Study study = RequestAttributes.getRequestStudy(request);
 		
 		// No study => send a 400 error
 		if (study == null) {
@@ -67,7 +68,7 @@ public class RoleExtractor extends Extractor {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 		
-		request.getAttributes().put("role", role);
+		RequestAttributes.setRequestRole(request, role);
 		
 		return CONTINUE;
 

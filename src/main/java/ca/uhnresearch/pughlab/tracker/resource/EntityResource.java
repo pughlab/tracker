@@ -30,9 +30,9 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 		
     	logger.debug("Called getResource() in EntityResource");
 
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
+    	Cases caseValue = RequestAttributes.getRequestEntity(getRequest());
     	
     	ObjectNode caseData = getRepository().getCaseData(study, view, caseValue);
     	

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Required;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
 public class ViewExtractor extends Extractor {
 	
@@ -72,7 +73,7 @@ public class ViewExtractor extends Extractor {
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		Study study = (Study) request.getAttributes().get("study");
+		Study study = RequestAttributes.getRequestStudy(request);
 		String value = (String) request.getAttributes().get("viewName");
 		logger.debug("Called ViewExtractor beforeHandle: {}", value);
 		
@@ -95,7 +96,7 @@ public class ViewExtractor extends Extractor {
 		checkPermissions(request, study, v, currentUser);
 		
 		logger.debug("OK, continuing with the view: {}", v.getName());
-		request.getAttributes().put("view", v);
+		RequestAttributes.setRequestView(request, v);
 		
 		return CONTINUE;
 	}

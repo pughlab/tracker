@@ -340,7 +340,7 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getData
 	 */
-	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
+	public List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query) {
 		
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
@@ -403,6 +403,11 @@ public class MockStudyRepository implements StudyRepository {
 
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
+		return getCaseData(study, view, null, caseValue);
+	}
+
+	@Override
+	public ObjectNode getCaseData(Study study, View view, List<Attributes> attributes, Cases caseValue) {
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
 		if (! data.containsKey(caseValue.getId())) {
@@ -412,14 +417,14 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute) {
+	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute) {
 		
 		ObjectNode caseData = getCaseData(study, view, caseValue);
-		return caseData.get(attribute);
+		return caseData.get(attribute.getName());
 	}
 
 	@Override
-	public void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) {
+	public void setCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute, String userName, JsonNode value) {
 		
 		// Well, yes, in theory we can just write in a new value, but this is all mocked
 		// and it's actually a mirror of the correct value. Strictly, here, we need to 

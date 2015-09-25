@@ -24,8 +24,8 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
 	public void buildResponseDTO(ViewAttributesResponse dto) {
 		super.buildResponseDTO(dto);
 		    	
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
     	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
 
     	dto.setStudy(study);

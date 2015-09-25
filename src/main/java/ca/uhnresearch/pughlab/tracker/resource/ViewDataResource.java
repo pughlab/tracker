@@ -47,10 +47,10 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	public void buildResponseDTO(ViewDataResponse dto) {
 		super.buildResponseDTO(dto);
 		
-    	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
+    	CaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
 
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
     	dto.setStudy(study);
     	dto.setView(view);
     	

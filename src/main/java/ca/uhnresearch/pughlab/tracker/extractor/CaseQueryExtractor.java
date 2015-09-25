@@ -7,6 +7,7 @@ import org.restlet.Response;
 import org.restlet.routing.Extractor;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
 /**
  * Extracts all the parameters for a limit and an offset, and any other case query 
@@ -35,7 +36,7 @@ public class CaseQueryExtractor extends Extractor {
 			query.setLimit(new Integer((String) attributes.get("limit")));
 		}
 
-		attributes.put("query", query);
+		RequestAttributes.setRequestCaseQuery(request, query);
 
 		return CONTINUE;
 	}

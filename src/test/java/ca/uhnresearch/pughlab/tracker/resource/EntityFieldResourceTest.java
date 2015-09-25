@@ -33,6 +33,7 @@ import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
@@ -78,10 +79,11 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
 		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
-		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
-		entityFieldResource.getRequest().getAttributes().put("view", testView);
-		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
-		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
+		Attributes testAttribute = repository.getStudyAttribute(testStudy, "patientId");
+		RequestAttributes.setRequestStudy(entityFieldResource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(entityFieldResource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(entityFieldResource.getRequest(), testCase);
+		RequestAttributes.setRequestAttribute(entityFieldResource.getRequest(), testAttribute);
 
 		Representation result = entityFieldResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
@@ -119,10 +121,11 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
 		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
-		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
-		entityFieldResource.getRequest().getAttributes().put("view", testView);
-		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
-		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
+		Attributes testAttribute = repository.getStudyAttribute(testStudy, "patientId");
+		RequestAttributes.setRequestStudy(entityFieldResource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(entityFieldResource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(entityFieldResource.getRequest(), testCase);
+		RequestAttributes.setRequestAttribute(entityFieldResource.getRequest(), testAttribute);
 		
 		// This time, we need an entity value to put
 		String s = "{\"value\":\"DEMO-XX\"}";
@@ -143,10 +146,6 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		assertEquals( "complete", view.get("name").getAsString() );		
 		
 		assertTrue( data.get("value").isJsonPrimitive() );
-		
-		// We're currently using a mocked repo here, so we can't really assume we get back
-		// the right value.
-		//assertEquals( "DEMO-XX", data.get("value").getAsString() );
 	}
 
 	/**
@@ -169,10 +168,11 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
 		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
-		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
-		entityFieldResource.getRequest().getAttributes().put("view", testView);
-		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
-		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
+		Attributes testAttribute = repository.getStudyAttribute(testStudy, "patientId");
+		RequestAttributes.setRequestStudy(entityFieldResource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(entityFieldResource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(entityFieldResource.getRequest(), testCase);
+		RequestAttributes.setRequestAttribute(entityFieldResource.getRequest(), testAttribute);
 		
 		// This time, we need an entity value to put
 		String s = "{\"$notAvailable\":true}";
@@ -193,10 +193,6 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		assertEquals( "complete", view.get("name").getAsString() );		
 		
 		assertTrue( data.get("value").isJsonPrimitive() );
-		
-		// We're currently using a mocked repo here, so we can't really assume we get back
-		// the right value.
-		//assertEquals( "DEMO-XX", data.get("value").getAsString() );
 	}
 
 	@Rule
@@ -224,13 +220,46 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
 		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
-		entityFieldResource.getRequest().getAttributes().put("study", testStudy);
-		entityFieldResource.getRequest().getAttributes().put("view", testView);
-		entityFieldResource.getRequest().getAttributes().put("entity", testCase);
-		entityFieldResource.getRequest().getAttributes().put("entityField", "patientId");
+		Attributes testAttribute = repository.getStudyAttribute(testStudy, "patientId");
+		RequestAttributes.setRequestStudy(entityFieldResource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(entityFieldResource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(entityFieldResource.getRequest(), testCase);
+		RequestAttributes.setRequestAttribute(entityFieldResource.getRequest(), testAttribute);
 		
 		thrown.expect(ResourceException.class);
 		thrown.expectMessage(containsString("Forbidden"));
+
+		entityFieldResource.putResource(new StringRepresentation("", APPLICATION_JSON));
+		return;
+	}
+
+	/**
+	 * Tests that writing to a entity field with only read access permitted fails
+	 * appropriately. 
+	 * @throws IOException
+	 */
+	@Test
+	public void resourcePutTestMissing() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		RequestAttributes.setRequestStudy(entityFieldResource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(entityFieldResource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(entityFieldResource.getRequest(), testCase);
+		
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Server Error"));
 
 		entityFieldResource.putResource(new StringRepresentation("", APPLICATION_JSON));
 		return;

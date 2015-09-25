@@ -12,7 +12,7 @@ import ca.uhnresearch.pughlab.tracker.dto.AbstractResponse;
 import ca.uhnresearch.pughlab.tracker.dto.User;
 
 public abstract class StudyRepositoryResource<T extends AbstractResponse> extends ServerResource {
-
+	
 	private StudyRepository repository;
 
 	@Required

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -38,13 +39,13 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	// Permissions -- write permission is needed to create a new record
     	Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
     	boolean writeUser = currentUser.isPermitted(study.getName() + ":write");
     	if (! writeUser) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
-    	View view = (View) getRequest().getAttributes().get("view");
+    	View view = RequestAttributes.getRequestView(getRequest());
 
     	// First of all, we should try to deserialize what we have as an input.
     	// The interesting part is the entity field, which should contain the 
@@ -68,10 +69,13 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			Iterator<Map.Entry<String,JsonNode>> fieldIterator = attributes.fields();
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
-				getRepository().setCaseAttributeValue(study, view, newCase, field.getKey(), user, field.getValue());
+				String attributeName = field.getKey();
+				JsonNode attributeValue = field.getValue();
+				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
+				getRepository().setCaseAttributeValue(study, view, newCase, attribute, user, attributeValue);
 			}
 			
-			getRequest().getAttributes().put("entity", newCase);
+			RequestAttributes.setRequestEntity(getRequest(), newCase);
 
     	} catch (NotFoundException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
@@ -96,9 +100,9 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 		
     	logger.debug("Called getResource() in EntityResource");
 
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
+    	Cases caseValue = RequestAttributes.getRequestEntity(getRequest());
     	
     	ObjectNode caseData = getRepository().getCaseData(study, view, caseValue);
     	

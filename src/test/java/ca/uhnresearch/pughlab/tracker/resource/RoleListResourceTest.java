@@ -93,8 +93,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
 		replay(mock);
 
-        resource.getRequest().getAttributes().put("query", new CaseQuery());
-        resource.getRequest().getAttributes().put("study", study);
+        RequestAttributes.setRequestCaseQuery(resource.getRequest(), new CaseQuery());
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
         resource.setRepository(mock);
 		
 		Representation result = resource.getResource();
@@ -144,8 +144,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
 		replay(mock);
 
-        resource.getRequest().getAttributes().put("query", new CaseQuery());
-        resource.getRequest().getAttributes().put("study", study);
+        RequestAttributes.setRequestCaseQuery(resource.getRequest(), new CaseQuery());
+        RequestAttributes.setRequestStudy(resource.getRequest(), study);
         resource.setRepository(mock);
         
 		thrown.expect(ResourceException.class);
@@ -184,8 +184,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
 		replay(mock);
 		
-		resource.getRequest().getAttributes().put("study", study);
-        resource.getRequest().getAttributes().put("query", new CaseQuery());
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
+        RequestAttributes.setRequestCaseQuery(resource.getRequest(), new CaseQuery());
         resource.setRepository(mock);
         
 		Representation result = resource.getResource();
@@ -235,8 +235,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
 		replay(mock);
 
-		resource.getRequest().getAttributes().put("study", study);
-        resource.getRequest().getAttributes().put("query", new CaseQuery());
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
+        RequestAttributes.setRequestCaseQuery(resource.getRequest(), new CaseQuery());
         resource.setRepository(mock);
         
 		thrown.expect(ResourceException.class);
@@ -282,7 +282,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 
         resource.setRepository(mock);
 
-		resource.getRequest().getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
 
 		Representation readResult = resource.getResource();
 		
@@ -329,7 +329,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		replay(mock);
 		
         resource.setRepository(mock);
-		resource.getRequest().getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
 
 		thrown.expect(ResourceException.class);
 		thrown.expectMessage(containsString("Forbidden"));
@@ -362,7 +362,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		replay(mock);
 		
         resource.setRepository(mock);
-		resource.getRequest().getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
 
 		thrown.expect(ResourceException.class);
 		thrown.expectMessage(containsString("Bad Request"));
@@ -407,7 +407,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 
         resource.setRepository(mock);
 
-		resource.getRequest().getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
 
 		Representation writeRepresentation = new StringRepresentation("{\"roles\":[]}", APPLICATION_JSON);   
 		Representation writeResult = resource.putResource(writeRepresentation);
@@ -455,7 +455,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 
         resource.setRepository(mock);
 
-		resource.getRequest().getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
 
 		Representation readResult = resource.getResource();
 		
@@ -515,7 +515,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 
         resource.setRepository(mock);
 
-		resource.getRequest().getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
 
 		Representation readResult = resource.getResource();
 		
@@ -577,7 +577,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 
         resource.setRepository(mock);
 
-		resource.getRequest().getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
 
 		Representation writeRepresentation = new FileRepresentation("/dev/null", MediaType.APPLICATION_JSON);   
 		
@@ -622,7 +622,7 @@ public class RoleListResourceTest extends AbstractShiroTest {
 
         resource.setRepository(mock);
 
-		resource.getRequest().getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
 
 		Representation writeRepresentation = new StringRepresentation("{\"roles\":[]}", APPLICATION_JSON);   
 		

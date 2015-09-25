@@ -27,7 +27,7 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
 		super.buildResponseDTO(dto);
 		
     	// Query the database for studies
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
     	dto.setStudy(study);
     	
     	Subject currentUser = SecurityUtils.getSubject();

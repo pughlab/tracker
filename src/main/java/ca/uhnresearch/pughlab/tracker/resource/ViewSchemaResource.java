@@ -50,8 +50,8 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	
     	Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
 
     	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
@@ -90,8 +90,8 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
 	public void buildResponseDTO(ViewSchemaResponse dto) throws ResourceException {
 		super.buildResponseDTO(dto);
 		
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
 
     	Subject currentUser = SecurityUtils.getSubject();
 

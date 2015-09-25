@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -511,7 +512,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param attributes
 	 * @param query
 	 */
-	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
+	public List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query) {
 		// This method retrieves the attributes we needed. In most implementations, we've done 
 		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
 		// since UNIONs generally aren't indexable, we are probably genuinely better off running
@@ -519,7 +520,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// method. This hugely reduces the complexity of the DSL here too. 
 		
 		ListSubQuery<Tuple> caseQuery = getStudySubQueryCaseQuery(study, query);
-		return cap.getJsonData(template, study, view, caseQuery);
+		return cap.getJsonData(template, study, view, attributes, caseQuery);
 	}
 
 	/**
@@ -543,6 +544,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 		return sq.list(cases.id, cases.state);
 	}
 	
+	private ObjectNode getFirst(List<ObjectNode> listData) {
+		if (listData.size() > 0) {
+			return listData.get(0);
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * Returns the case data for a single study entity, in JSON format.
@@ -551,11 +559,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
 		ListSubQuery<Tuple> caseInfoQuery = getStudyCaseSubQuery(study, caseValue.getId());
 		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseInfoQuery);
-		if (listData.size() == 1) {
-			return listData.get(0);
-		} else {
-			return null;
-		}
+		return getFirst(listData);
+	}
+	
+	@Override
+	public ObjectNode getCaseData(Study study, View view, List<Attributes> attributes, Cases caseValue) {
+		ListSubQuery<Tuple> caseInfoQuery = getStudyCaseSubQuery(study, caseValue.getId());
+		List<ObjectNode> listData = cap.getJsonData(template, study, view, attributes, caseInfoQuery);
+		return getFirst(listData);
 	}
 	
 	@Override
@@ -630,11 +641,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * and are to some extent equivalent. One interpretation us that a set to null is actually a deletion. 
 	 */
 	@Override
-	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute) {
-		JsonNode caseData = getCaseData(study, view, caseValue);
-		return caseData.get(attribute);
+	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute) {
+		
+		List<Attributes> attributeList = new ArrayList<Attributes>();
+		attributeList.add(attribute);
+		JsonNode caseData = getCaseData(study, view, attributeList, caseValue);
+		return caseData.get(attribute.getName());
 	}
-	
 	
 	private JsonNode getJsonValue(Object value) {
 		if (value == null) {
@@ -656,14 +669,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	
 	@Override
-	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
+	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final Attributes attribute, final String userName, JsonNode value) throws RepositoryException {
 		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
     	    .innerJoin(views).on(views.id.eq(viewAttributes.viewId))
     	    .where(attributes.studyId.eq(study.getId())
     	    .and(views.id.eq(view.getId()))
-    	    .and(attributes.name.eq(attribute)));
+    	    .and(attributes.name.eq(attribute.getName())));
     	ViewAttributes a = template.queryForObject(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
     	
     	// If there isn't an attribute, we should probably throw an error.
@@ -673,7 +686,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     	
     	ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
     	WritableValue writable = validator.validate(a, value);
-    	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute, writable.getValueClass());
+    	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute.getName(), writable.getValueClass());
     	
     	cap.writeCaseAttributeValue(template, study, view, caseValue, attribute, writable);
     	
@@ -683,7 +696,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		final JsonNodeFactory factory = JsonNodeFactory.instance;
 		ObjectNode parameters = factory.objectNode();
-		parameters.put("field", attribute);
+		parameters.put("field", attribute.getName());
 		parameters.put("case_id", caseValue.getId());
 		parameters.put("study_id", study.getId());
 		parameters.put("study", study.getName());

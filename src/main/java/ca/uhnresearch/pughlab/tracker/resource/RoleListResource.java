@@ -42,7 +42,7 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     public Representation putResource(Representation input)  {
     	
     	Subject currentUser = SecurityUtils.getSubject();
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
@@ -139,13 +139,13 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     	dto.setUser(user);
     	dto.setServiceUrl(url);
     	
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
-    	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
+    	CaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	
     	Long roleCount = getRepository().getStudyRoleCount(study, query);
     	dto.getCounts().setTotal(roleCount);

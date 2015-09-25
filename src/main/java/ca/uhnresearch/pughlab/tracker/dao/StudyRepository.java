@@ -95,7 +95,7 @@ public interface StudyRepository {
 	 * Retrieves the record-level data for a view and study from the repository
 	 * @return list of JSON nodes
 	 */
-	List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query);
+	List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query);
 	
 	/**
 	 * Retrieves a single specified case for a study and view from the repository
@@ -132,17 +132,18 @@ public interface StudyRepository {
 	 * @return JSON object
 	 */
 	ObjectNode getCaseData(Study study, View view, Cases caseValue);
+	ObjectNode getCaseData(Study study, View view, List<Attributes> attributes, Cases caseValue);
 	
 	/**
 	 * Retrieves the attribute value for a given case, view, study, and attribute from the repository
 	 * @return JSON node
 	 */
-	JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute);
+	JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute);
 
 	/**
 	 * Writes the attribute value for a given case, view, study, and attribute to the repository
 	 */
-	void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
+	void setCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute, String userName, JsonNode value) throws RepositoryException;
 
 	void setEventHandler(EventHandler manager);
 }

@@ -63,9 +63,9 @@ public class EntityResourceTest extends AbstractShiroTest {
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
 		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
-		resource.getRequest().getAttributes().put("study", testStudy);
-		resource.getRequest().getAttributes().put("view", testView);
-		resource.getRequest().getAttributes().put("entity", testCase);
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(resource.getRequest(), testCase);
 
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

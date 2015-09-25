@@ -60,12 +60,12 @@ public class ViewAttributesResourceTest extends AbstractShiroTest {
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		viewResource.getRequest().getAttributes().put("study", testStudy);
-		viewResource.getRequest().getAttributes().put("view", testView);
+		RequestAttributes.setRequestStudy(viewResource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(viewResource.getRequest(), testView);
 		CaseQuery query = new CaseQuery();
 		query.setLimit(5);
 		query.setOffset(0);
-		viewResource.getRequest().getAttributes().put("query", query);
+        RequestAttributes.setRequestCaseQuery(viewResource.getRequest(), query);
 
 		Representation result = viewResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

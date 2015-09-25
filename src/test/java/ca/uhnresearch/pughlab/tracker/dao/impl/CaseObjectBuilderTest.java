@@ -13,8 +13,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.Tuple;
 import com.mysema.query.types.QTuple;
@@ -221,11 +219,9 @@ public class CaseObjectBuilderTest {
 		values.add(stringTuple.newInstance(1, "test1", "value1", false, null));
 		values.add(stringTuple.newInstance(1, "test2", "value2", false, null));
 		
-		List<Attributes> attributes = new ArrayList<Attributes>();
-		Attributes filter = new Attributes();
-		filter.setName("test1");
-		attributes.add(filter);
-		builder.setAttributeFilter(attributes);
+		List<String> attributes = new ArrayList<String>();
+		attributes.add("test1");
+		builder.setAttributeNameFilter(attributes);
 		
 		builder.addTupleAttributes(values);
 		

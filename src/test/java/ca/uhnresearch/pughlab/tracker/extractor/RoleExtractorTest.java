@@ -23,6 +23,7 @@ import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 public class RoleExtractorTest extends AbstractShiroTest {
@@ -97,7 +98,7 @@ public class RoleExtractorTest extends AbstractShiroTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 
-		request.getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(request, study);
 		request.getAttributes().put("roleName", "ROLE_CAT_HERDER");
 		
 		thrown.expect(ResourceException.class);
@@ -131,7 +132,7 @@ public class RoleExtractorTest extends AbstractShiroTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 
-		request.getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(request, study);
 		request.getAttributes().put("roleName", "ROLE_CAT_HERDER");
 		
 		thrown.expect(ResourceException.class);
@@ -167,12 +168,12 @@ public class RoleExtractorTest extends AbstractShiroTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 
-		request.getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(request, study);
 		request.getAttributes().put("roleName", "ROLE_CAT_HERDER");
 		
 		extractor.handle(request, response);
 
-		Role result = (Role) request.getAttributes().get("role");
+		Role result = RequestAttributes.getRequestRole(request);
 		assertNotNull(role);
 		
 		Assert.assertEquals(role, result);

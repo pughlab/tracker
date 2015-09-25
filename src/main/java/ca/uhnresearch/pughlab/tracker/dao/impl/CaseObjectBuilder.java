@@ -11,8 +11,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -35,9 +33,9 @@ public class CaseObjectBuilder {
 	private boolean attributeNameFilter = false;
 	private Set<String> attributeNameSet = new HashSet<String>();
 	
-	public void setAttributeFilter(List<Attributes> attributes) {
-		for(Attributes attribute : attributes) {
-			attributeNameSet.add(attribute.getName());
+	public void setAttributeNameFilter(List<String> attributeNames) {
+		for(String attribute : attributeNames) {
+			attributeNameSet.add(attribute);
 		}
 		attributeNameFilter = true;
 	}

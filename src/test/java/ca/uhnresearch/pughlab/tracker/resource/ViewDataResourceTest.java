@@ -84,12 +84,12 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		resource.getRequest().getAttributes().put("study", testStudy);
-		resource.getRequest().getAttributes().put("view", testView);
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
 		CaseQuery query = new CaseQuery();
 		query.setLimit(5);
 		query.setOffset(0);
-		resource.getRequest().getAttributes().put("query", query);
+        RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
 
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
@@ -124,12 +124,12 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		resource.getRequest().getAttributes().put("study", testStudy);
-		resource.getRequest().getAttributes().put("view", testView);
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
 		CaseQuery query = new CaseQuery();
 		query.setLimit(5);
 		query.setOffset(0);
-		resource.getRequest().getAttributes().put("query", query);
+        RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);			
