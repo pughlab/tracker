@@ -132,7 +132,7 @@ public interface StudyRepository {
 	 * @return JSON object
 	 */
 	ObjectNode getCaseData(Study study, View view, Cases caseValue);
-	ObjectNode getCaseData(Study study, View view, List<Attributes> attributes, Cases caseValue);
+	ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue);
 	
 	/**
 	 * Retrieves the attribute value for a given case, view, study, and attribute from the repository

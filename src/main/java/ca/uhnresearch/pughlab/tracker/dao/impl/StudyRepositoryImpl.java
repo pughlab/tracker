@@ -563,7 +563,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 	@Override
-	public ObjectNode getCaseData(Study study, View view, List<Attributes> attributes, Cases caseValue) {
+	public ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue) {
 		ListSubQuery<Tuple> caseInfoQuery = getStudyCaseSubQuery(study, caseValue.getId());
 		List<ObjectNode> listData = cap.getJsonData(template, study, view, attributes, caseInfoQuery);
 		return getFirst(listData);

@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -345,6 +347,11 @@ public class MockStudyRepository implements StudyRepository {
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
 		
+		Set<String> includedAttributes = new HashSet<String>();
+		for(Attributes a : attributes) {
+			includedAttributes.add(a.getName());
+		}
+		
 		JsonArray result = new JsonArray();
 		List<Integer> keys = new ArrayList<Integer>(data.keySet());
 		Collections.sort(keys);
@@ -366,7 +373,15 @@ public class MockStudyRepository implements StudyRepository {
 		try {
 			Iterator<JsonNode> i = mapper.readTree(text).elements();
 			while(i.hasNext()) {
-				returnable.add((ObjectNode) i.next());
+				ObjectNode entry = (ObjectNode) i.next();
+				ObjectNode copy = entry.deepCopy();
+				Iterator<String> fields = entry.fieldNames();
+				while(fields.hasNext()) {
+					if (! includedAttributes.contains(fields.next())) {
+						copy.remove(fields.next());
+					}
+				}
+				returnable.add(copy);
 			}
 		} catch (JsonProcessingException e) {
 			logger.error("Internal test error: {}", e.getMessage());
@@ -407,7 +422,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public ObjectNode getCaseData(Study study, View view, List<Attributes> attributes, Cases caseValue) {
+	public ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue) {
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
 		if (! data.containsKey(caseValue.getId())) {

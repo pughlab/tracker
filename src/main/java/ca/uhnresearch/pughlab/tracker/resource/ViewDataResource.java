@@ -1,7 +1,10 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
 import org.restlet.ext.jackson.JacksonRepresentation;
@@ -47,6 +50,8 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	public void buildResponseDTO(ViewDataResponse dto) {
 		super.buildResponseDTO(dto);
 		
+		Subject currentUser = SecurityUtils.getSubject();
+
     	CaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
 
     	Study study = RequestAttributes.getRequestStudy(getRequest());
@@ -55,12 +60,22 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
     	dto.setView(view);
     	
 		List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
-		dto.setAttributes(attributes);
 		
-    	List<ObjectNode> records = getRepository().getData(study, view, attributes, query);
+    	// Security is now an issue here. We need to check read permission for the 
+    	// view attributes. 
+    	
+    	List<ViewAttributes> readable = new ArrayList<ViewAttributes>();
+    	for(ViewAttributes va : attributes) {
+    		if (currentUser.isPermitted("attribute:read:" + va.getName())) {
+    			readable.add(va);
+    		}
+    	}
+
+		dto.setAttributes(readable);
+		
+    	List<ObjectNode> records = getRepository().getData(study, view, readable, query);
     	dto.setRecords(records);
     	dto.getCounts().setTotal(getRepository().getRecordCount(study, view));
-
 	}
 
 	/**

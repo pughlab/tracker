@@ -54,9 +54,7 @@ public class EntityResourceTest extends AbstractShiroTest {
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
-        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted(anyObject(String.class))).andStubReturn(true);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -82,4 +80,40 @@ public class EntityResourceTest extends AbstractShiroTest {
 		assertEquals( "DEMO-03", data.get("entity").getAsJsonObject().get("patientId").getAsString() );
 	}
 
+	@Test
+	public void resourceTestProtected() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("morag", "test"));
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("attribute:read:dateEntered")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("attribute:read:patientId")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("attribute:read:specimenAvailable")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "track");
+		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(resource.getRequest(), testCase);
+
+		Representation result = resource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		
+		JsonObject view = data.get("view").getAsJsonObject();
+		assertEquals( "track", view.get("name").getAsString() );		
+		
+		assertTrue( data.get("entity").isJsonObject() );
+		
+		assertEquals( "DEMO-03", data.get("entity").getAsJsonObject().get("patientId").getAsString() );
+	}
 }

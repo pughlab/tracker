@@ -371,6 +371,31 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals(5, list.size());
 	}
 	
+	/**
+	 * Checks that when an attribute filter is applied, only the specified attributes are returned. 
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetDataFiltered() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> filteredAttributes = attributes.subList(0, 3);
+		
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(null);
+		List<ObjectNode> list = studyRepository.getData(study, view, filteredAttributes, query);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(20, list.size());
+		for(int i = 0; i < 5; i++) {
+			Assert.assertFalse(list.get(i).has("physician"));
+			Assert.assertFalse(list.get(i).has("tissueSite"));
+			Assert.assertFalse(list.get(i).has("specimenAvailable"));
+		}
+	}
+	
 	@Test
 	@Transactional
 	@Rollback(true)
@@ -503,6 +528,27 @@ public class StudyRepositoryImplTest {
 		Assert.assertTrue(consentDateLocked.isBoolean());
 		Assert.assertTrue(consentDateLocked.asBoolean());
 	}
+
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseValuesFiltered() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> filteredAttributes = attributes.subList(0, 3);
+
+		JsonNode data = studyRepository.getCaseData(study, view, filteredAttributes, caseValue);
+		Assert.assertNotNull(data);
+		
+		for(ViewAttributes va : attributes) {
+			Boolean filtered = filteredAttributes.contains(va);
+			Assert.assertEquals(filtered, data.has(va.getName()));
+		}
+	}
+
 
 	@Test
 	@Transactional
@@ -909,7 +955,6 @@ public class StudyRepositoryImplTest {
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		Assert.assertNotNull(auditEntries);
 		Assert.assertEquals(1, auditEntries.size());
-		
 		
 		// Poke at the first audit log entry
 		JsonNode entry = auditEntries.get(0);
