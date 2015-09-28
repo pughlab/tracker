@@ -52,20 +52,18 @@ public class ViewAttributesResourceTest extends AbstractShiroTest {
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
-        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted(anyObject(String.class))).andStubReturn(true);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
-		viewResource.getRequest().getAttributes().put("study", testStudy);
-		viewResource.getRequest().getAttributes().put("view", testView);
+		RequestAttributes.setRequestStudy(viewResource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(viewResource.getRequest(), testView);
 		CaseQuery query = new CaseQuery();
 		query.setLimit(5);
 		query.setOffset(0);
-		viewResource.getRequest().getAttributes().put("query", query);
+        RequestAttributes.setRequestCaseQuery(viewResource.getRequest(), query);
 
 		Representation result = viewResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

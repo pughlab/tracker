@@ -13,6 +13,7 @@ import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
 public class EntityExtractor extends Extractor {
 
@@ -27,8 +28,8 @@ public class EntityExtractor extends Extractor {
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		Study study = (Study) request.getAttributes().get("study");
-		View view = (View) request.getAttributes().get("view");
+		Study study = RequestAttributes.getRequestStudy(request);
+		View view = RequestAttributes.getRequestView(request);
 		String idValue = (String) request.getAttributes().get("entityId");
 		
 		Integer caseId = null;

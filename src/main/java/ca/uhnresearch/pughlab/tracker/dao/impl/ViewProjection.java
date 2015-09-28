@@ -19,7 +19,7 @@ public class ViewProjection extends MappingProjection<View> {
 	
 	private static final long serialVersionUID = -7719818879048907767L;
 	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(ViewProjection.class);
 
 	private static ObjectMapper mapper = new ObjectMapper();
 

@@ -54,18 +54,16 @@ public class EntityResourceTest extends AbstractShiroTest {
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
-        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted(anyObject(String.class))).andStubReturn(true);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
         Study testStudy = repository.getStudy("DEMO");		
 		View testView = repository.getStudyView(testStudy, "complete");
 		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
-		resource.getRequest().getAttributes().put("study", testStudy);
-		resource.getRequest().getAttributes().put("view", testView);
-		resource.getRequest().getAttributes().put("entity", testCase);
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(resource.getRequest(), testCase);
 
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
@@ -81,5 +79,4 @@ public class EntityResourceTest extends AbstractShiroTest {
 		
 		assertEquals( "DEMO-03", data.get("entity").getAsJsonObject().get("patientId").getAsString() );
 	}
-
 }

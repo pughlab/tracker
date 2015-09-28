@@ -22,6 +22,7 @@ import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
 public class ViewExtractorTest extends AbstractShiroTest {
@@ -59,11 +60,11 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 		Study study = repository.getStudy("DEMO");
-		request.getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(request, study);
 		request.getAttributes().put("viewName", "complete");
 		extractor.handle(request, response);
 		
-		View view = (View) request.getAttributes().get("view");
+		View view = RequestAttributes.getRequestView(request);
 		assertNotNull(view);
 		
 		assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -92,7 +93,7 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 		Study study = repository.getStudy("DEMO");
-		request.getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(request, study);
 		request.getAttributes().put("viewName", "complete");
 		
 		thrown.expect(ResourceException.class);
@@ -119,7 +120,7 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 		Study study = repository.getStudy("DEMO");
-		request.getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(request, study);
 		request.getAttributes().put("viewName", "missing");
 		
 		thrown.expect(ResourceException.class);
@@ -148,12 +149,12 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 		Study study = repository.getStudy("DEMO");
-		request.getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(request, study);
 		request.getAttributes().put("viewName", "complete");
 		
 		extractor.handle(request, response);
 		
-		View view = (View) request.getAttributes().get("view");
+		View view = RequestAttributes.getRequestView(request);
 		assertNotNull(view);
 		
 		assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -180,12 +181,12 @@ public class ViewExtractorTest extends AbstractShiroTest {
 		Request request = new Request(Method.GET, reference);
 		Response response = new Response(request);
 		Study study = repository.getStudy("DEMO");
-		request.getAttributes().put("study", study);
+		RequestAttributes.setRequestStudy(request, study);
 		request.getAttributes().put("viewName", "complete");
 		
 		extractor.handle(request, response);
 		
-		View view = (View) request.getAttributes().get("view");
+		View view = RequestAttributes.getRequestView(request);
 		assertNotNull(view);
 		
 		assertEquals(Status.SUCCESS_OK, response.getStatus());

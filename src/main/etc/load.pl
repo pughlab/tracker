@@ -517,15 +517,6 @@ sub write_data {
     $attribute_ids->{$attribute} = $attribute_record->{id};
   }
 
-  ## Let's see if we can guess which is an identifier
-  my $identifier_attribute_id = undef;
-  for my $attribute (@$headers) {
-    if ($attribute eq $cfg->{identifier_attribute} || $attribute =~ m{id|identifier}) {
-      $identifier_attribute_id = $attribute_ids->{$attribute};
-      last;
-    }
-  }
-
   ## And now let's add the values.
   $logger->info("Writing cases");
   my $value_index = 0;

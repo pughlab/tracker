@@ -1,13 +1,18 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.resource.Get;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -21,6 +26,8 @@ import ca.uhnresearch.pughlab.tracker.services.Writer;
 
 public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> {
 	
+	private final Logger logger = LoggerFactory.getLogger(ViewDataResource.class);
+
 	private Writer excelWriter;
 
 	@Get("json")
@@ -47,20 +54,32 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	public void buildResponseDTO(ViewDataResponse dto) {
 		super.buildResponseDTO(dto);
 		
-    	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
+		Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
+    	CaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
     	dto.setStudy(study);
     	dto.setView(view);
     	
 		List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
-		dto.setAttributes(attributes);
 		
-    	List<ObjectNode> records = getRepository().getData(study, view, attributes, query);
+    	// Security is now an issue here. We need to check read permission for the 
+    	// view attributes. 
+    	
+    	List<ViewAttributes> readable = new ArrayList<ViewAttributes>();
+    	for(ViewAttributes va : attributes) {
+    		if (currentUser.isPermitted(study.getName() + ":attribute:read:" + va.getName())) {
+    			readable.add(va);
+    		}
+    	}
+
+		dto.setAttributes(readable);
+		
+    	List<ObjectNode> records = getRepository().getData(study, view, readable, query);
     	dto.setRecords(records);
     	dto.getCounts().setTotal(getRepository().getRecordCount(study, view));
-
 	}
 
 	/**

@@ -3,8 +3,10 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,20 @@ public class CaseObjectBuilder {
 	private Map<Integer, ObjectNode> table = new HashMap<Integer, ObjectNode>();
 
 	private List<ObjectNode> objects = new ArrayList<ObjectNode>();
+	
+	private boolean attributeNameFilter = false;
+	private Set<String> attributeNameSet = new HashSet<String>();
+	
+	public void setAttributeNameFilter(List<String> attributeNames) {
+		for(String attribute : attributeNames) {
+			attributeNameSet.add(attribute);
+		}
+		attributeNameFilter = true;
+	}
+	
+	private boolean attributeNameIncluded(String name) {
+		return (! attributeNameFilter) || attributeNameSet.contains(name);
+	}
 
 	private JsonNode getNotAvailableValue() {
 		ObjectNode marked = jsonNodeFactory.objectNode();
@@ -34,14 +50,15 @@ public class CaseObjectBuilder {
 		return marked;
 	}
 	
-	public CaseObjectBuilder(List<Integer> caseIds) {
+	public CaseObjectBuilder(List<CaseInfo> caseInfos) {
 		objects.clear();
 		
 		Integer index = 0;
-		for(Integer id : caseIds) {
+		for(CaseInfo info : caseInfos) {
 			ObjectNode obj = jsonNodeFactory.objectNode();
+			obj.put("$state", info.getState());
 			objects.add(index++, obj);
-			table.put(id, obj);
+			table.put(info.getId(), obj);
 		}
 	}
 	
@@ -67,6 +84,10 @@ public class CaseObjectBuilder {
 			
 			// Add the case identifier
 			obj.put("id", caseId);
+			
+			if (! attributeNameIncluded(attributeName)) {
+				continue;
+			}
 			
 			// Add the value
 			if (notAvailable != null && notAvailable) {

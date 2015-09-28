@@ -36,17 +36,18 @@ angular
         $scope.currentUsers = []
 
     socket.on 'welcome', (event) ->
+      $scope.currentUsers.push event.data.user
       $scope.$broadcast 'socket:welcome', event
 
     socket.on 'field', (event) ->
       event.data.userNumber = $scope.currentUsers.indexOf(event.data.user)
-      if event.data.userNumber != -1
+      if event.data.userNumber > 0
         event.data.editingClasses = "editedCellText editedCellUser-#{event.data.userNumber}"
       $scope.$broadcast 'socket:field', event
 
     socket.on 'record', (event) ->
       event.data.userNumber = $scope.currentUsers.indexOf(event.data.user)
-      if event.data.userNumber != -1
+      if event.data.userNumber > 0
         event.data.editingClasses = "editedCellText editedCellUser-#{event.data.userNumber}"
       $scope.$broadcast 'socket:record', event
 

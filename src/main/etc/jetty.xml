@@ -37,5 +37,10 @@
         <Arg type="boolean">true</Arg> 
     </New>
     
-    
+    <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
+        <Arg>trackerScript</Arg> 
+        <Arg type="java.lang.String"><SystemProperty name="jetty.home" default="file:src/test/resources"/>/tracker.js</Arg> 
+        <Arg type="boolean">true</Arg> 
+    </New>
+        
 </Configure>

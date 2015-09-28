@@ -48,7 +48,6 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
@@ -79,6 +78,20 @@ public class StudyRepositoryImplTest {
 		Study s = studyRepository.getStudy("DEMO");
 		Assert.assertNotNull(s);
 		Assert.assertEquals("DEMO", s.getName());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetStudyOptions() {
+		Study s = studyRepository.getStudy("DEMO");
+		Assert.assertNotNull(s);
+		Assert.assertNotNull(s.getOptions());
+		Assert.assertTrue(s.getOptions().has("stateLabels"));
+		Assert.assertTrue(s.getOptions().get("stateLabels").isObject());
+		Assert.assertTrue(s.getOptions().get("stateLabels").has("pending"));
+		Assert.assertTrue(s.getOptions().get("stateLabels").get("pending").isTextual());
+		Assert.assertEquals("label1", s.getOptions().get("stateLabels").get("pending").asText());
 	}
 	
 	@Test
@@ -358,6 +371,31 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals(5, list.size());
 	}
 	
+	/**
+	 * Checks that when an attribute filter is applied, only the specified attributes are returned. 
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetDataFiltered() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> filteredAttributes = attributes.subList(0, 3);
+		
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(null);
+		List<ObjectNode> list = studyRepository.getData(study, view, filteredAttributes, query);
+		Assert.assertNotNull(list);
+		Assert.assertEquals(20, list.size());
+		for(int i = 0; i < 5; i++) {
+			Assert.assertFalse(list.get(i).has("physician"));
+			Assert.assertFalse(list.get(i).has("tissueSite"));
+			Assert.assertFalse(list.get(i).has("specimenAvailable"));
+		}
+	}
+	
 	@Test
 	@Transactional
 	@Rollback(true)
@@ -418,6 +456,37 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testSingleCaseStateNull() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		
+		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		Assert.assertNotNull(data);
+		
+		Assert.assertTrue(data.has("$state"));
+		Assert.assertTrue(data.get("$state").isNull());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseStatePending() {
+		Study study = studyRepository.getStudy("SECOND");
+		View view = studyRepository.getStudyView(study, "complete");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 21);
+		
+		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		Assert.assertNotNull(data);
+		
+		Assert.assertTrue(data.has("$state"));
+		Assert.assertTrue(data.get("$state").isTextual());
+		Assert.assertEquals("pending", data.get("$state").asText());
+	}
+
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testSingleCaseNumberValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
@@ -460,6 +529,27 @@ public class StudyRepositoryImplTest {
 		Assert.assertTrue(consentDateLocked.asBoolean());
 	}
 
+
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseValuesFiltered() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
+		List<ViewAttributes> filteredAttributes = attributes.subList(0, 3);
+
+		JsonNode data = studyRepository.getCaseData(study, view, filteredAttributes, caseValue);
+		Assert.assertNotNull(data);
+		
+		for(ViewAttributes va : attributes) {
+			Boolean filtered = filteredAttributes.contains(va);
+			Assert.assertEquals(filtered, data.has(va.getName()));
+		}
+	}
+
+
 	@Test
 	@Transactional
 	@Rollback(true)
@@ -467,8 +557,9 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEntered");
 		
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "dateEntered");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertEquals("2014-08-20", data.asText());
 	}
@@ -480,8 +571,9 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 2);
+		Attributes attribute = studyRepository.getStudyAttribute(study, "trackerDate");
 		
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "trackerDate");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.isObject());
 		Assert.assertTrue(data.has("$notAvailable"));
@@ -495,8 +587,9 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		Attributes attribute = studyRepository.getStudyAttribute(study, "bloodCollDate");
 		
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "bloodCollDate");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNull(data);
 	}
 	
@@ -605,9 +698,10 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEntered");
+
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", jsonNodeFactory.nullNode());
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", jsonNodeFactory.nullNode());
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -626,12 +720,12 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("dateEntered", entry.get("attribute").asText());
 		Assert.assertEquals("2014-08-20", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isNull());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isNull());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "dateEntered");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.isNull());
 	}
@@ -643,10 +737,11 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 6);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "procedureDate");
+
 		try {
 			JsonNode dateValue = jsonNodeFactory.textNode("2014-02-03");
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "procedureDate", "stuart", dateValue);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", dateValue);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -665,12 +760,12 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("procedureDate", entry.get("attribute").asText());
 		Assert.assertTrue(entry.get("eventArgs").get("old").isNull());
-		Assert.assertEquals("2014-02-03", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("2014-02-03", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "procedureDate");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertEquals("2014-02-03", data.asText());
 	}
@@ -682,10 +777,11 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "patientId");
+
 		try {
 			JsonNode stringValue = jsonNodeFactory.textNode("DEMO-XX");
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "patientId", "stuart", stringValue);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -704,12 +800,12 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("patientId", entry.get("attribute").asText());
 		Assert.assertEquals("DEMO-01", entry.get("eventArgs").get("old").asText());
-		Assert.assertEquals("DEMO-XX", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("DEMO-XX", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "patientId");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertFalse(data.isNull());
 		Assert.assertEquals("DEMO-XX", data.asText());
@@ -722,10 +818,11 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 10);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenNo");
+
 		try {
 			JsonNode stringValue = jsonNodeFactory.textNode("SMP-XX");
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenNo", "stuart", stringValue);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -744,12 +841,12 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenNo", entry.get("attribute").asText());
 		Assert.assertTrue(entry.get("eventArgs").get("old").isNull());
-		Assert.assertEquals("SMP-XX", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("SMP-XX", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenNo");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertFalse(data.isNull());
 		Assert.assertEquals("SMP-XX", data.asText());
@@ -762,9 +859,10 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "patientId");
+
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "patientId", "stuart", jsonNodeFactory.nullNode());
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", jsonNodeFactory.nullNode());
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -783,12 +881,12 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("patientId", entry.get("attribute").asText());
 		Assert.assertEquals("DEMO-01", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isNull());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isNull());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "patientId");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.isNull());
 	}
@@ -800,10 +898,11 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "sampleAvailable");
+
 		try {
 			JsonNode stringValue = jsonNodeFactory.textNode("St. Michaels");
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "sampleAvailable", "stuart", stringValue);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -822,12 +921,12 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("sampleAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("LMP", entry.get("eventArgs").get("old").asText());
-		Assert.assertEquals("St. Michaels", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("St. Michaels", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "sampleAvailable");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertFalse(data.isNull());
 		Assert.assertEquals("St. Michaels", data.asText());
@@ -840,10 +939,11 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
+
 		try {
 			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", booleanValue);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -856,18 +956,17 @@ public class StudyRepositoryImplTest {
 		Assert.assertNotNull(auditEntries);
 		Assert.assertEquals(1, auditEntries.size());
 		
-		
 		// Poke at the first audit log entry
 		JsonNode entry = auditEntries.get(0);
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("true", entry.get("eventArgs").get("old").asText());
-		Assert.assertEquals("false", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("false", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenAvailable");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.isBoolean());
 		Assert.assertEquals("false", data.asText());
@@ -883,12 +982,13 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
+
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid boolean"));
 
 		JsonNode stringValue = jsonNodeFactory.textNode("BAD");
-		studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", stringValue);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
 	}
 
 	@Test
@@ -898,12 +998,13 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "patientId");
+
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid string"));
 
 		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-		studyRepository.setCaseAttributeValue(study, view, caseValue, "patientId", "stuart", booleanValue);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
 	}
 
 	@Test
@@ -913,12 +1014,13 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEntered");
+
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid date"));
 
 		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-		studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", booleanValue);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
 	}
 
 	@Test
@@ -928,12 +1030,13 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEntered");
+
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid date"));
 
 		JsonNode stringValue = jsonNodeFactory.textNode("2015-02-XX");
-		studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEntered", "stuart", stringValue);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
 	}
 
 	@Test
@@ -943,12 +1046,13 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "sampleAvailable");
+
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid string"));
 
 		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-		studyRepository.setCaseAttributeValue(study, view, caseValue, "sampleAvailable", "stuart", booleanValue);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
 	}
 
 	@Test
@@ -958,12 +1062,13 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "sampleAvailable");
+
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid string"));
 
 		JsonNode stringValue = jsonNodeFactory.textNode("BAD");
-		studyRepository.setCaseAttributeValue(study, view, caseValue, "sampleAvailable", "stuart", stringValue);
+		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
 	}
 
 	// Regression test for #6 -- check that multiple writes are handled correctly. 
@@ -974,17 +1079,18 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
+
 		try {
 			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", booleanValue);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		try {
 			JsonNode booleanValue = jsonNodeFactory.booleanNode(true);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", booleanValue);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -1003,12 +1109,12 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("false", entry.get("eventArgs").get("old").asText());
-		Assert.assertEquals("true", entry.get("eventArgs").get("value").asText());
+		Assert.assertEquals("true", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenAvailable");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.isBoolean());
 		Assert.assertEquals("true", data.asText());
@@ -1022,11 +1128,12 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
+
 		try {
 			ObjectNode notAvailable = objectMapper.createObjectNode();
 			notAvailable.put("$notAvailable", true);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", notAvailable);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", notAvailable);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -1045,13 +1152,13 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("true", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isObject());
-		Assert.assertEquals(true, entry.get("eventArgs").get("value").get("$notAvailable").asBoolean());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isObject());
+		Assert.assertEquals(true, entry.get("eventArgs").get("new").get("$notAvailable").asBoolean());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenAvailable");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.isObject());
 		Assert.assertEquals(true, data.get("$notAvailable").asBoolean());
@@ -1064,9 +1171,10 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
+
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", jsonNodeFactory.nullNode());
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", jsonNodeFactory.nullNode());
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -1085,12 +1193,12 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("true", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isNull());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isNull());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenAvailable");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.isNull());
 	}
@@ -1102,11 +1210,12 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 15);
-		
+		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
+
 		try {
 			ObjectNode notAvailable = objectMapper.createObjectNode();
 			notAvailable.put("$notAvailable", true);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, "specimenAvailable", "stuart", notAvailable);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", notAvailable);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
@@ -1125,13 +1234,13 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
 		Assert.assertEquals("null", entry.get("eventArgs").get("old").asText());
-		Assert.assertTrue(entry.get("eventArgs").get("value").isObject());
-		Assert.assertEquals(true, entry.get("eventArgs").get("value").get("$notAvailable").asBoolean());
+		Assert.assertTrue(entry.get("eventArgs").get("new").isObject());
+		Assert.assertEquals(true, entry.get("eventArgs").get("new").get("$notAvailable").asBoolean());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, "specimenAvailable");
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.isObject());
 		Assert.assertEquals(true, data.get("$notAvailable").asBoolean());
@@ -1142,13 +1251,9 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteMissingAttribute() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-
-		thrown.expect(NotFoundException.class);
-		thrown.expectMessage(containsString("Can't find attribute"));
-	
-		studyRepository.setCaseAttributeValue(study, view, caseValue, "dateEnteredX", "stuart", null);
+		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEnteredX");
+		
+		Assert.assertNull(attribute);
 	}
 
 	/**
@@ -1568,37 +1673,6 @@ public class StudyRepositoryImplTest {
 	}
 
 	/**
-	 * Simple test of adding a number of attributes as well as deleting.
-	 */
-	@Test
-	@Transactional
-	@Rollback(true)
-	public void testNewCaseWithoutManager() throws RepositoryException {
-		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
-		
-		EventService oldService = studyRepository.getUpdateEventService();
-		studyRepository.setEventService(null);
-		
-		Cases newCase = null;
-		try {
-			newCase = studyRepository.newStudyCase(study, view, "test");
-		} finally {
-			studyRepository.setEventService(oldService);
-		}
-		
-		Assert.assertNotNull(newCase);
-		Assert.assertNotNull(newCase.getId());
-		Assert.assertNotNull(newCase.getStudyId());
-		
-		// And now let's dig out the new case -- mainly to check that we can actually
-		// follow this identifier.
-		Cases caseValue = studyRepository.getStudyCase(study, view, newCase.getId());
-		Assert.assertNotNull(caseValue);
-		Assert.assertEquals(newCase.getId(), caseValue.getId());
-	}
-
-	/**
 	 * Simple test of writing the exact same attributes back into the view. After
 	 * we do this, a second call should retrieve the exact same data.
 	 */
@@ -1611,5 +1685,33 @@ public class StudyRepositoryImplTest {
 		
 		Assert.assertEquals("patientId", attributes.getName());
 		Assert.assertEquals("Patient ID", attributes.getLabel());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetCaseState() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 7);
+		
+		studyRepository.setStudyCaseState(study, view, caseValue, "morag", "pending");
+		
+		// Check we now have an audit log entry
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(5);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
+		Assert.assertNotNull(auditEntries);
+		Assert.assertEquals(1, auditEntries.size());
+		
+		JsonNode entry = auditEntries.get(0);
+		Assert.assertEquals("morag", entry.get("eventUser").asText());
+		Assert.assertTrue(entry.get("eventArgs").get("old_state").isNull());
+		Assert.assertEquals("pending", entry.get("eventArgs").get("state").asText());
+		
+		// Check a re-read gets the new state
+		Cases foundValue = studyRepository.getStudyCase(study, view, 15);
+		Assert.assertEquals("pending", foundValue.getState());
 	}
 }

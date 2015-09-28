@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
+import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
@@ -26,7 +28,6 @@ import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
 
-import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
@@ -34,13 +35,13 @@ import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.Event;
-import ca.uhnresearch.pughlab.tracker.events.EventService;
+import ca.uhnresearch.pughlab.tracker.events.EventHandler;
+import ca.uhnresearch.pughlab.tracker.events.RedactedJsonNode;
 import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
@@ -58,11 +59,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 		
-	private EventService manager;
+	private EventHandler eventHandler;
 
 	private QueryDslJdbcTemplate template;
-	
-	private AuditLogRepository auditLogRepository;
 	
 	private CaseAttributePersistence cap = new CaseAttributePersistence();
 
@@ -84,7 +83,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		logger.debug("Looking for all studies");
 
     	SQLQuery sqlQuery = template.newSqlQuery().from(studies);
-    	List<Study> studyList = template.query(sqlQuery, studies);
+    	List<Study> studyList = template.query(sqlQuery, new StudyProjection(studies));
     	logger.debug("Got some studies: {}", studyList.toString());
 
     	return studyList;
@@ -98,7 +97,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	public Study getStudy(String name) {
 		logger.debug("Looking for study by name: {}", name);
     	SQLQuery sqlQuery = template.newSqlQuery().from(studies).where(studies.name.eq(name));
-    	Study study = template.queryForObject(sqlQuery, studies);
+    	Study study = template.queryForObject(sqlQuery, new StudyProjection(studies));
     	
     	if (study != null) {
     		logger.debug("Got a study: {}", study.toString());
@@ -119,7 +118,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			logger.info("Saving new study: {}", study.getName());
 			Integer studyId = template.insertWithKey(studies, new SqlInsertWithKeyCallback<Integer>() { 
 				public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
-					return (int) sqlInsertClause.populate(study).execute();
+					return (int) sqlInsertClause.populate(study, new StudyMapper()).execute();
 				};
 			});
 			study.setId(studyId);
@@ -127,7 +126,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 			logger.info("Updating existing study: {}", study.getName());
 			template.update(studies, new SqlUpdateCallback() { 
 				public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-					return sqlUpdateClause.where(studies.id.eq(study.getId())).populate(study).execute();
+					return sqlUpdateClause.where(studies.id.eq(study.getId())).populate(study, new StudyMapper()).execute();
 				};
 			});
 
@@ -470,7 +469,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudySubQueryCaseQuery(Study study, CaseQuery query) {
+	private ListSubQuery<Tuple> getStudySubQueryCaseQuery(Study study, CaseQuery query) {
 		
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		
@@ -495,8 +494,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 		if (query.getLimit() != null) {
 			sq = sq.limit(query.getLimit());
 		}
-	
-		return sq.list(cases.id);
+			
+		return sq.list(cases.id, cases.state);
 	}
 			
 	/**
@@ -513,15 +512,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param attributes
 	 * @param query
 	 */
-	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
+	public List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query) {
 		// This method retrieves the attributes we needed. In most implementations, we've done 
 		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
 		// since UNIONs generally aren't indexable, we are probably genuinely better off running
 		// separate queries for each primitive attribute type, and then assembling them in this
 		// method. This hugely reduces the complexity of the DSL here too. 
 		
-		ListSubQuery<Integer> caseQuery = getStudySubQueryCaseQuery(study, query);
-		return cap.getJsonData(template, study, view, caseQuery);
+		ListSubQuery<Tuple> caseQuery = getStudySubQueryCaseQuery(study, query);
+		return cap.getJsonData(template, study, view, attributes, caseQuery);
 	}
 
 	/**
@@ -540,24 +539,34 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param query
 	 * @return
 	 */
-	private ListSubQuery<Integer> getStudyCaseSubQuery(Study study, Integer caseId) {
+	private ListSubQuery<Tuple> getStudyCaseSubQuery(Study study, Integer caseId) {
 		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
-		return sq.list(cases.id);
+		return sq.list(cases.id, cases.state);
 	}
 	
+	private ObjectNode getFirst(List<ObjectNode> listData) {
+		if (listData.size() > 0) {
+			return listData.get(0);
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * Returns the case data for a single study entity, in JSON format.
 	 */
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
-		ListSubQuery<Integer> caseQuery = getStudyCaseSubQuery(study, caseValue.getId());
-		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseQuery);
-		if (listData.size() == 1) {
-			return listData.get(0);
-		} else {
-			return null;
-		}
+		ListSubQuery<Tuple> caseInfoQuery = getStudyCaseSubQuery(study, caseValue.getId());
+		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseInfoQuery);
+		return getFirst(listData);
+	}
+	
+	@Override
+	public ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue) {
+		ListSubQuery<Tuple> caseInfoQuery = getStudyCaseSubQuery(study, caseValue.getId());
+		List<ObjectNode> listData = cap.getJsonData(template, study, view, attributes, caseInfoQuery);
+		return getFirst(listData);
 	}
 	
 	@Override
@@ -576,16 +585,69 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
+	 * Changes a case state. This is a something that's easy to listen for, and can be set 
+	 * simply by a listener. States are often mapped to display classes for row-level 
+	 * highlighting. States are also handy for modelling workflows, as they can be
+	 * triggered by other changes, and generate notifications.
+	 * 
+	 * @param study
+	 * @param view
+	 * @param cases
+	 * @param state
+	 */
+	@Override
+	public void setStudyCaseState(final Study study, final View view, final Cases c, final String userName, final String state) {
+		logger.debug("Updating a case: {}", c.getId());
+		
+		String oldState = c.getState();
+		
+		template.update(cases, new SqlUpdateCallback() { 
+			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+				return sqlUpdateClause.where(cases.id.eq(c.getId()).and(cases.studyId.eq(study.getId())))
+						.set(cases.state, state)
+						.execute();
+			};
+		});
+		
+		// This merits a new event, too, but it's not an attribute event, it's a state change
+		// event. That way it gets audited and can be sent through a websocket connection
+		// to a listening client. 
+
+		Event event = new Event(Event.EVENT_STATE);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+		parameters.put("study_id", study.getId());
+		parameters.put("study", study.getName());
+		parameters.put("view", view.getName());
+		parameters.put("case_id", c.getId());
+		parameters.put("old_state", oldState);
+		parameters.put("state", state);
+		event.getData().setParameters(parameters);
+
+    	EventHandler manager = getEventHandler();
+    	manager.sendMessage(event, event.getData().getScope());
+    	
+    	c.setState(state);
+
+    	return;
+	}
+
+	/**
 	 * Retrieves a single value from a case attribute. There is a subtle but important issue here: what is the return value for a
 	 * missing attribute. There is a Java null (when it isn't there) and a JSON null, which is there, but is null. Both can happen,
 	 * and are to some extent equivalent. One interpretation us that a set to null is actually a deletion. 
 	 */
 	@Override
-	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute) {
-		JsonNode caseData = getCaseData(study, view, caseValue);
-		return caseData.get(attribute);
+	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute) {
+		
+		List<Attributes> attributeList = new ArrayList<Attributes>();
+		attributeList.add(attribute);
+		JsonNode caseData = getCaseData(study, view, attributeList, caseValue);
+		return caseData.get(attribute.getName());
 	}
-	
 	
 	private JsonNode getJsonValue(Object value) {
 		if (value == null) {
@@ -606,32 +668,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 	
-	protected void writeAuditLogRecord(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode oldValue, JsonNode value) {
-		
-    	final ObjectNode auditLogValues = jsonNodeFactory.objectNode();
-    	auditLogValues.replace("old", oldValue);
-		auditLogValues.replace("value", value);
-
-		AuditLogRecord record = new AuditLogRecord();
-		record.setStudyId(study.getId());
-		record.setCaseId(caseValue.getId());
-		record.setAttribute(attribute);
-		record.setEventType("set_value");
-		record.setEventUser(userName);
-		record.setEventArgs(auditLogValues.toString());
-		auditLogRepository.writeAuditLogRecord(record);
-	}
-	
-	
 	@Override
-	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final String attribute, final String userName, JsonNode value) throws RepositoryException {
+	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final Attributes attribute, final String userName, JsonNode value) throws RepositoryException {
 		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
     	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
     	    .innerJoin(views).on(views.id.eq(viewAttributes.viewId))
     	    .where(attributes.studyId.eq(study.getId())
     	    .and(views.id.eq(view.getId()))
-    	    .and(attributes.name.eq(attribute)));
+    	    .and(attributes.name.eq(attribute.getName())));
     	ViewAttributes a = template.queryForObject(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
     	
     	// If there isn't an attribute, we should probably throw an error.
@@ -641,49 +686,45 @@ public class StudyRepositoryImpl implements StudyRepository {
     	
     	ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
     	WritableValue writable = validator.validate(a, value);
-    	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute, writable.getValueClass());
+    	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute.getName(), writable.getValueClass());
     	
-    	writeAuditLogRecord(study, view, caseValue, attribute, userName, getJsonValue(oldValue), value);
     	cap.writeCaseAttributeValue(template, study, view, caseValue, attribute, writable);
+    	
+		Event event = new Event(Event.EVENT_SET_FIELD);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+		parameters.put("field", attribute.getName());
+		parameters.put("case_id", caseValue.getId());
+		parameters.put("study_id", study.getId());
+		parameters.put("study", study.getName());
+		parameters.put("view", view.getName());
+		parameters.replace("old", new RedactedJsonNode(getJsonValue(oldValue)));
+		parameters.replace("new", new RedactedJsonNode(value));
+		event.getData().setParameters(parameters);
     	
     	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
     	// this if we have an UpdateEventService set. 
-    	
-    	sendUpdateEvent(study, view, caseValue, attribute, userName);
-	}
-	
-	
-	private void sendUpdateEvent(final Study study, final View view, final Cases caseValue, final String attribute, final String userName) {
-    	EventService manager = getUpdateEventService();
-    	if (manager != null) {
-    		Event event = new Event(Event.EVENT_SET_FIELD);
-    		event.getData().setScope(study.getName());
-    		event.getData().setUser(userName);
-    		
-    		final JsonNodeFactory factory = JsonNodeFactory.instance;
-    		ObjectNode parameters = factory.objectNode();
-    		parameters.put("field", attribute);
-    		parameters.put("case", caseValue.getId());
-    		
-    		event.getData().setParameters(parameters);
-
-    		manager.sendMessage(event);
-    	}
-	}
-	
+		
+		EventHandler handler = getEventHandler();
+    	handler.sendMessage(event, event.getData().getScope());
+   	}
+		
 	/**
 	 * Getter for an update event manager. 
 	 */
-	public EventService getUpdateEventService() {
-		return manager;
+	public EventHandler getEventHandler() {
+		return eventHandler;
 	}
 
 	/**
 	 * Setter for an update event manager, allowing events to be triggered from the repository.
 	 * @param manager
 	 */
-	public void setEventService(EventService manager) {
-		this.manager = manager;
+	public void setEventHandler(EventHandler manager) {
+		this.eventHandler = manager;
 	}
 
 	@Override
@@ -736,28 +777,20 @@ public class StudyRepositoryImpl implements StudyRepository {
 		newCase.setStudyId(study.getId());
 		newCase.setId(caseId);
 
-    	EventService manager = getUpdateEventService();
-    	if (manager != null) {
-    		Event event = new Event(Event.EVENT_NEW_RECORD);
-    		event.getData().setScope(study.getName());
-    		event.getData().setUser(userName);
-    		
-    		final JsonNodeFactory factory = JsonNodeFactory.instance;
-    		ObjectNode parameters = factory.objectNode();
-    		parameters.put("case", newCase.getId());
-    		
-    		event.getData().setParameters(parameters);
+		Event event = new Event(Event.EVENT_NEW_RECORD);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+		parameters.put("study_id", study.getId());
+		parameters.put("case_id", newCase.getId());
+		event.getData().setParameters(parameters);
 
-    		manager.sendMessage(event);
-    	}
+    	EventHandler manager = getEventHandler();
+    	manager.sendMessage(event, event.getData().getScope());
     	
 		return newCase;
 	}
-
-	@Override
-	public void setAuditLogRepository(AuditLogRepository repository) {
-		auditLogRepository = repository;
-	}
-
 }
 

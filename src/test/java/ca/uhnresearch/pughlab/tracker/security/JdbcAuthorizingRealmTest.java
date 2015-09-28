@@ -72,6 +72,6 @@ public class JdbcAuthorizingRealmTest {
 		Assert.assertTrue(info.getStringPermissions().contains("DEMO:read:track"));
 		Assert.assertTrue(info.getStringPermissions().contains("SECOND:view"));
 		Assert.assertTrue(info.getStringPermissions().contains("SECOND:read:*"));
-		Assert.assertEquals(4, info.getStringPermissions().size());
+		Assert.assertEquals(7, info.getStringPermissions().size());
 	}
 }

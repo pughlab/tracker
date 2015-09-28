@@ -23,17 +23,33 @@
     </bean>
     
     <bean id="scheduledJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-	    <property name="targetObject" ref="scheduledJob"/>
+	    <property name="targetObject" ref="scriptManager"/>
 	    <property name="targetMethod" value="execute"/>
 	    <property name="concurrent" value="false"/>
 	</bean>
 	
-	<bean id="scheduledJob" class="ca.uhnresearch.pughlab.tracker.scheduling.ScheduledJob">
+	<bean id="scriptManager" class="ca.uhnresearch.pughlab.tracker.scripting.ScriptManager">
         <constructor-arg>
-            <bean class="org.springframework.core.io.FileSystemResource">
-                <constructor-arg value="${script.source:src/test/resources/tracker.js}" />
+            <bean class="org.springframework.jndi.JndiObjectFactoryBean">
+                <property name="jndiName" value="java:comp/env/trackerScript" />
             </bean>
         </constructor-arg>
+        <constructor-arg>
+            <map>
+                <entry key="console" value-ref="scriptLogger" />
+                <entry key="events" value-ref="scriptEventHandlerRoot" />
+                <entry key="repository" value-ref="studyRepository" />
+            </map>
+        </constructor-arg>
 	</bean>
+    
+    <bean id="scriptEventHandler" class="ca.uhnresearch.pughlab.tracker.scripting.ScriptEventHandler">
+        <property name="scriptManager" ref="scriptManager" />
+        <property name="handlerRoot" ref="scriptEventHandlerRoot" />
+    </bean>
+    
+    <bean id="scriptEventHandlerRoot" class="ca.uhnresearch.pughlab.tracker.scripting.JSEventHandlerRoot"></bean>
+    
+    <bean id="scriptLogger" class="ca.uhnresearch.pughlab.tracker.scripting.JSLogger"></bean>
     
 </beans>

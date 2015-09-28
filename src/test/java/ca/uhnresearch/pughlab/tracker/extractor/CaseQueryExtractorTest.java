@@ -11,6 +11,7 @@ import org.restlet.data.Method;
 import org.restlet.data.Reference;
 
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
 public class CaseQueryExtractorTest {
 	
@@ -38,7 +39,7 @@ public class CaseQueryExtractorTest {
 		Response response = new Response(request);
 		extractor.handle(request, response);
 		
-		CaseQuery query = (CaseQuery) request.getAttributes().get("query");
+		CaseQuery query = RequestAttributes.getRequestCaseQuery(request);
 		assertNotNull(query);
 		
 		assertNotNull(query.getLimit());
@@ -56,7 +57,7 @@ public class CaseQueryExtractorTest {
 		Response response = new Response(request);
 		extractor.handle(request, response);
 		
-		CaseQuery query = (CaseQuery) request.getAttributes().get("query");
+		CaseQuery query = RequestAttributes.getRequestCaseQuery(request);
 		assertNotNull(query);
 		
 		assertNull(query.getLimit());

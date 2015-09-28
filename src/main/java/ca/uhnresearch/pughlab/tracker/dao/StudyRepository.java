@@ -10,7 +10,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventService;
+import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 
 public interface StudyRepository {
 
@@ -95,13 +95,27 @@ public interface StudyRepository {
 	 * Retrieves the record-level data for a view and study from the repository
 	 * @return list of JSON nodes
 	 */
-	List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query);
+	List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query);
 	
 	/**
 	 * Retrieves a single specified case for a study and view from the repository
 	 * @return a case
 	 */
 	Cases getStudyCase(Study study, View view, Integer caseId);
+	
+	/**
+	 * /**
+	 * Changes a case state. This is a something that's easy to listen for, and can be set 
+	 * simply by a listener. States are often mapped to display classes for row-level 
+	 * highlighting. States are also handy for modelling workflows, as they can be
+	 * triggered by other changes, and generate notifications. 
+	 * 
+	 * @param study
+	 * @param view
+	 * @param cases
+	 * @param state
+	 */
+	void setStudyCaseState(Study study, View view, Cases cases, String userName, String state);
 	
 	/**
 	 * Makes a new, empty, case. If an afterCase is passed, the new case will be added after that case
@@ -118,22 +132,18 @@ public interface StudyRepository {
 	 * @return JSON object
 	 */
 	ObjectNode getCaseData(Study study, View view, Cases caseValue);
+	ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue);
 	
 	/**
 	 * Retrieves the attribute value for a given case, view, study, and attribute from the repository
 	 * @return JSON node
 	 */
-	JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute);
+	JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute);
 
 	/**
 	 * Writes the attribute value for a given case, view, study, and attribute to the repository
 	 */
-	void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) throws RepositoryException;
+	void setCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute, String userName, JsonNode value) throws RepositoryException;
 
-	void setEventService(EventService manager);
-	
-	/**
-	 * Setter for the reference to the authorization repository, which we use for the audit logging
-	 */
-	void setAuditLogRepository(AuditLogRepository repository);
+	void setEventHandler(EventHandler manager);
 }

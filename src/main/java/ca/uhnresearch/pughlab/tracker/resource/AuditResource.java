@@ -30,7 +30,7 @@ public class AuditResource extends AuditLogRepositoryResource<AuditLogResponse> 
 		super.buildResponseDTO(dto);
 		
     	// Query the database for studies
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	Subject currentUser = SecurityUtils.getSubject();
     	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
@@ -41,7 +41,7 @@ public class AuditResource extends AuditLogRepositoryResource<AuditLogResponse> 
     	}
  
     	// Get the data from the repository
-    	CaseQuery query = (CaseQuery) getRequest().getAttributes().get("query");
+    	CaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	List<JsonNode> auditData = getRepository().getAuditData(study, query);
 
     	// Build the response

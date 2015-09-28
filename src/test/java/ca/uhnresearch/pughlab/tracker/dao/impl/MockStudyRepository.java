@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,7 +23,6 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
@@ -31,7 +32,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventService;
+import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 
 public class MockStudyRepository implements StudyRepository {
 
@@ -130,6 +131,9 @@ public class MockStudyRepository implements StudyRepository {
 	private Cases mockCase(Integer id) {
 		Cases c = new Cases();
 		c.setId(id);
+		if (id == 3) {
+			c.setState("pending");
+		}
 		return c;
 	}
 	
@@ -287,7 +291,9 @@ public class MockStudyRepository implements StudyRepository {
 		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
 		for(Cases caseRecord : cases) {
 			if (! data.containsKey(caseRecord.getId())) {
-				data.put(caseRecord.getId(), new JsonObject());
+				JsonObject record = new JsonObject();
+				record.addProperty("$state", caseRecord.getState());
+				data.put(caseRecord.getId(), record);
 			}
 		}
 		for(MockCaseAttribute string : strings) {
@@ -336,10 +342,15 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getData
 	 */
-	public List<ObjectNode> getData(Study study, View view, List<ViewAttributes> attributes, CaseQuery query) {
+	public List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query) {
 		
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
+		
+		Set<String> includedAttributes = new HashSet<String>();
+		for(Attributes a : attributes) {
+			includedAttributes.add(a.getName());
+		}
 		
 		JsonArray result = new JsonArray();
 		List<Integer> keys = new ArrayList<Integer>(data.keySet());
@@ -362,7 +373,15 @@ public class MockStudyRepository implements StudyRepository {
 		try {
 			Iterator<JsonNode> i = mapper.readTree(text).elements();
 			while(i.hasNext()) {
-				returnable.add((ObjectNode) i.next());
+				ObjectNode entry = (ObjectNode) i.next();
+				ObjectNode copy = entry.deepCopy();
+				Iterator<String> fields = entry.fieldNames();
+				while(fields.hasNext()) {
+					if (! includedAttributes.contains(fields.next())) {
+						copy.remove(fields.next());
+					}
+				}
+				returnable.add(copy);
 			}
 		} catch (JsonProcessingException e) {
 			logger.error("Internal test error: {}", e.getMessage());
@@ -391,8 +410,19 @@ public class MockStudyRepository implements StudyRepository {
 		return result;		
 	}
 	
+
+	@Override
+	public void setStudyCaseState(Study study, View view, Cases cases, String userName, String state) {
+		cases.setState(state);		
+	}
+
 	@Override
 	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
+		return getCaseData(study, view, null, caseValue);
+	}
+
+	@Override
+	public ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue) {
 		// We build all the data in Gson, because it's easier
 		Map<Integer, JsonObject> data = getAllData(study, view);
 		if (! data.containsKey(caseValue.getId())) {
@@ -402,14 +432,14 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, String attribute) {
+	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute) {
 		
 		ObjectNode caseData = getCaseData(study, view, caseValue);
-		return caseData.get(attribute);
+		return caseData.get(attribute.getName());
 	}
 
 	@Override
-	public void setCaseAttributeValue(Study study, View view, Cases caseValue, String attribute, String userName, JsonNode value) {
+	public void setCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute, String userName, JsonNode value) {
 		
 		// Well, yes, in theory we can just write in a new value, but this is all mocked
 		// and it's actually a mirror of the correct value. Strictly, here, we need to 
@@ -433,7 +463,7 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * Mocked setter for an update event manager
 	 */
-	public void setEventService(EventService manager) {
+	public void setEventHandler(EventHandler manager) {
 		// Do nothing
 	}
 
@@ -451,11 +481,6 @@ public class MockStudyRepository implements StudyRepository {
 		}
 		cases.add(newCase);
 		return newCase;
-	}
-
-	@Override
-	public void setAuditLogRepository(AuditLogRepository repository) {
-		// Auto-generated method stub
 	}
 
 	@Override

@@ -80,7 +80,7 @@ public class RoleResourceTest extends AbstractShiroTest {
 		role.setPermissions(new ArrayList<String>());
 		role.getPermissions().add("*:*");
 
-		resource.getRequest().getAttributes().put("role", role);
+		RequestAttributes.setRequestRole(resource.getRequest(), role);
 
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
 		replay(mock);
@@ -130,7 +130,7 @@ public class RoleResourceTest extends AbstractShiroTest {
 		role.getUsers().add("user2");
 		role.setPermissions(new ArrayList<String>());
 		role.getPermissions().add("*:*");
-		resource.getRequest().getAttributes().put("role", role);
+		RequestAttributes.setRequestRole(resource.getRequest(), role);
 
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
 		replay(mock);
@@ -170,8 +170,8 @@ public class RoleResourceTest extends AbstractShiroTest {
 		role.getUsers().add("user2");
 		role.setPermissions(new ArrayList<String>());
 		role.getPermissions().add("*:*");
-		resource.getRequest().getAttributes().put("study", study);
-		resource.getRequest().getAttributes().put("role", role);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
+		RequestAttributes.setRequestRole(resource.getRequest(), role);
 
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
 		replay(mock);
@@ -226,8 +226,8 @@ public class RoleResourceTest extends AbstractShiroTest {
 		role.getUsers().add("user2");
 		role.setPermissions(new ArrayList<String>());
 		role.getPermissions().add("*:*");
-		resource.getRequest().getAttributes().put("study", study);
-		resource.getRequest().getAttributes().put("role", role);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
+		RequestAttributes.setRequestRole(resource.getRequest(), role);
 
 		AuthorizationRepository mock = createMock(AuthorizationRepository.class);
 		replay(mock);
@@ -260,8 +260,8 @@ public class RoleResourceTest extends AbstractShiroTest {
 
 		Role role = makeRole("ROLE_CAT_HERDER", 1234);
 		
-		resource.getRequest().getAttributes().put("study", study);
-		resource.getRequest().getAttributes().put("role", role);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
+		RequestAttributes.setRequestRole(resource.getRequest(), role);
 
 		Role renamed = makeRole("X", 1234);
 		
@@ -308,8 +308,8 @@ public class RoleResourceTest extends AbstractShiroTest {
 
 		Role role = makeRole("ROLE_CAT_HERDER", 1234);
 		
-		resource.getRequest().getAttributes().put("study", study);
-		resource.getRequest().getAttributes().put("role", role);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
+		RequestAttributes.setRequestRole(resource.getRequest(), role);
 
 		Role renamed = makeRole("X", 1234);
 		

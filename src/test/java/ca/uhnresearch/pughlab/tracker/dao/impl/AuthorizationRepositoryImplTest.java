@@ -379,7 +379,7 @@ public class AuthorizationRepositoryImplTest {
 		Role role = authorizationRepository.getStudyRole(study, "ROLE_DEMO_TRACK");
 		List<String> list = role.getPermissions();
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());		
+		Assert.assertEquals(4, list.size());		
 		Assert.assertTrue(list.contains("view"));
 		Assert.assertTrue(list.contains("read:track"));
 		Assert.assertTrue(list.contains("write:track"));

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ca.uhnresearch.pughlab.tracker.events.Event;
+import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * event context for the whole application, and should be used as a singleton for the
  * application. 
  */
-public class SocketEventHandler {
+public class SocketEventHandler implements EventHandler {
 	private final Logger logger = LoggerFactory.getLogger(SocketEventHandler.class);
 
 	private Map<String, AtmosphereResource> resources = new HashMap<String, AtmosphereResource>();
@@ -95,7 +96,7 @@ public class SocketEventHandler {
 			for (String uuid : new ArrayList<String>(resourceKeys)) {
 				try {
 					AtmosphereResource r = resources.get(uuid);
-					logger.info("Checking: " + uuid + ", " + r);
+					logger.debug("Checking: " + uuid + ", " + r);
 					checkResource(uuid, r);
 					sendMessage(event, r);
 				} catch (SocketException e) {
@@ -123,8 +124,6 @@ public class SocketEventHandler {
         	// We're joining a study, add that to our associations
         	String resourceKey = r.uuid();
         	String scope = message.getData().getScope();
-        	
-        	logger.debug("Connecting to scope: {}", scope);
         	
         	// If we're already watching a scope, we should remove all the scope watching.
         	

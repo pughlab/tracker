@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Required;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
 public class ViewExtractor extends Extractor {
 	
@@ -40,7 +41,6 @@ public class ViewExtractor extends Extractor {
 		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
 		Boolean viewReadPermission = studyAdminPermission;
 		Boolean viewWritePermission = studyAdminPermission;
-		Boolean viewDownloadPermission = studyAdminPermission;
 		
 		if (studyAdminPermission) {
 			// Do nothing, as all permissions are already true
@@ -50,9 +50,6 @@ public class ViewExtractor extends Extractor {
 			
 			String viewWritePermissionString = study.getName() + ":write:" + view.getName();
 			viewWritePermission = currentUser.isPermitted(viewWritePermissionString);
-
-			String viewDownloadPermissionString = study.getName() + ":download:" + view.getName();
-			viewDownloadPermission = currentUser.isPermitted(viewDownloadPermissionString);
 		}
 		
 		// If we have permission to write, by default allow reading too
@@ -64,15 +61,11 @@ public class ViewExtractor extends Extractor {
 		if (! viewReadPermission) {
 			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
 		}
-		
-		request.getAttributes().put("viewReadAllowed", viewReadPermission);
-		request.getAttributes().put("viewWriteAllowed", viewWritePermission);
-		request.getAttributes().put("viewDownloadAllowed", viewDownloadPermission);
 	}
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		Study study = (Study) request.getAttributes().get("study");
+		Study study = RequestAttributes.getRequestStudy(request);
 		String value = (String) request.getAttributes().get("viewName");
 		logger.debug("Called ViewExtractor beforeHandle: {}", value);
 		
@@ -95,7 +88,7 @@ public class ViewExtractor extends Extractor {
 		checkPermissions(request, study, v, currentUser);
 		
 		logger.debug("OK, continuing with the view: {}", v.getName());
-		request.getAttributes().put("view", v);
+		RequestAttributes.setRequestView(request, v);
 		
 		return CONTINUE;
 	}

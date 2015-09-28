@@ -38,7 +38,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     public Representation putResource(Representation input)  {
     	logger.debug("Got an update", input);
     	
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	try {
     		RoleResponse data = converter.toObject(input, RoleResponse.class, this);
@@ -52,7 +52,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
 			// This ensures we have an identifier. See #14
 			role = getRepository().getStudyRole(study, role.getName());
 						
-			getRequest().getAttributes().put("role", role);
+			RequestAttributes.setRequestRole(getRequest(), role);
 			
 		} catch (IOException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -89,7 +89,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
 
 	public void buildResponseDTO(RoleResponse dto) {
     	Subject currentUser = SecurityUtils.getSubject();
-    	Study study = (Study) getRequest().getAttributes().get("study");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
@@ -101,7 +101,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     	dto.setUser(user);
     	dto.setServiceUrl(url);
     	
-    	Role role = (Role) getRequest().getAttributes().get("role");
+    	Role role = RequestAttributes.getRequestRole(getRequest());
     	dto.setRole(role);
 	};
 }

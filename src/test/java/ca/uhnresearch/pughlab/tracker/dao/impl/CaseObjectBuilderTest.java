@@ -41,8 +41,9 @@ public class CaseObjectBuilderTest {
 
 	@Before
 	public void initialize() {
-		List<Integer> cases = new ArrayList<Integer>();
-		cases.add(1);
+		List<CaseInfo> cases = new ArrayList<CaseInfo>();
+		CaseInfo c = new CaseInfo(1, "test");
+		cases.add(c);
 		builder = new CaseObjectBuilder(cases);
 	}
 	
@@ -212,4 +213,24 @@ public class CaseObjectBuilderTest {
 		assertEquals("testNote", result.get(0).get("$notes").get("test2").get("note").asText());
 	}
 
+	@Test
+	public void testAddFilteredTuples() {
+		List<Tuple> values = new ArrayList<Tuple>();
+		values.add(stringTuple.newInstance(1, "test1", "value1", false, null));
+		values.add(stringTuple.newInstance(1, "test2", "value2", false, null));
+		
+		List<String> attributes = new ArrayList<String>();
+		attributes.add("test1");
+		builder.setAttributeNameFilter(attributes);
+		
+		builder.addTupleAttributes(values);
+		
+		List<ObjectNode> result = builder.getCaseObjects();
+		assertEquals(1, result.size());
+		
+		assertTrue(result.get(0).has("id"));
+		assertEquals(1, result.get(0).get("id").asInt());
+		assertEquals("value1", result.get(0).get("test1").asText());
+		assertTrue(! result.get(0).has("test2"));
+	}
 }

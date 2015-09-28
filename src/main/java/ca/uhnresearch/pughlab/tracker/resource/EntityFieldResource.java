@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityValueResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -37,13 +38,17 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     	logger.debug("Called putResource() in EntityFieldResource", input);
     	Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
-    	String attribute = (String) getRequest().getAttributes().get("entityField");
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
+    	Cases caseValue = RequestAttributes.getRequestEntity(getRequest());
+    	Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
     	
-    	boolean writeUser = currentUser.isPermitted(study.getName() + ":write");
-    	if (! writeUser) {
+    	if (study == null || view == null || caseValue == null || attribute == null) {
+    		throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+    	}
+    	
+    	if (! currentUser.isPermitted(study.getName() + ":write") ||
+    		! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
@@ -87,10 +92,17 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 	public void buildResponseDTO(EntityValueResponse dto) {
 		super.buildResponseDTO(dto);
 
-    	Study study = (Study) getRequest().getAttributes().get("study");
-    	View view = (View) getRequest().getAttributes().get("view");
-    	Cases caseValue = (Cases) getRequest().getAttributes().get("entity");
-    	String attribute = (String) getRequest().getAttributes().get("entityField");
+		Subject currentUser = SecurityUtils.getSubject();
+
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	View view = RequestAttributes.getRequestView(getRequest());
+    	Cases caseValue = RequestAttributes.getRequestEntity(getRequest());
+    	Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
+    	
+    	// Add support for the permissions. It's very simple here
+    	if (! currentUser.isPermitted(study.getName() + ":attribute:read:" + attribute.getName())) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
     	
     	// Get the value and build an appropriate response
     	JsonNode val = getRepository().getCaseAttributeValue(study, view, caseValue, attribute);
