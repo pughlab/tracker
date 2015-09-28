@@ -380,7 +380,7 @@ angular
             })
 
             handsonTable.trackerData = {
-              stateLabels: scope.trackerStudy.options.stateLabels
+              stateLabels: scope.trackerStudy.options?.stateLabels || {}
             }
 
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
