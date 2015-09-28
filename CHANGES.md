@@ -1,6 +1,15 @@
 ## Revision history
 
 
+### Version 2.0.1-RC5 - September 28th 2015
+
+ * Connected users now includes the current user. See #79
+ * Added error handling for unsupported browsers. See #77
+ * Added multiple selection copy/paste. See #70
+ * Support for field-specific permissions. See #65
+ * Improved support for coloured labels. See #66
+
+
 ### Version 2.0.1-RC4 - September 22nd 2015
 
  * Fixed a number of websocket issues. See #76
