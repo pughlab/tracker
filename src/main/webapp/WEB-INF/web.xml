@@ -5,32 +5,32 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
                              http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-	<display-name>Tracker Application</display-name>
+    <display-name>Tracker Application</display-name>
 
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
     
     <context-param>
         <param-name>spring.profiles.default</param-name>
         <param-value>default,database_authentication</param-value>
     </context-param>
     
-	<context-param>
-		<param-name>org.restlet.component</param-name>
-		<param-value>trackerComponent</param-value>
-	</context-param>
+    <context-param>
+        <param-name>org.restlet.component</param-name>
+        <param-value>trackerComponent</param-value>
+    </context-param>
     
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>
-			WEB-INF/applicationContext.xml
-			WEB-INF/applicationContextDatabase.xml
-			WEB-INF/applicationContextAPIRouter.xml
-			WEB-INF/applicationContextScripting.xml
-			WEB-INF/applicationContextSecurity.xml
-		</param-value>
-	</context-param>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            WEB-INF/applicationContext.xml
+            WEB-INF/applicationContextDatabase.xml
+            WEB-INF/applicationContextAPIRouter.xml
+            WEB-INF/applicationContextScripting.xml
+            WEB-INF/applicationContextSecurity.xml
+        </param-value>
+    </context-param>
     
     <context-param>
         <param-name>propertiesLocation</param-name>
