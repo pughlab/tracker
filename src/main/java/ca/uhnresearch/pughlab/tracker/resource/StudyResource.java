@@ -39,9 +39,10 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
     	// Now translate into DTOs
     	for(View v : viewList) {
     		
-    		// Add the view if we have a read permission
-    		String permission = study.getName() + ":read:" + v.getName();
-    		if (adminUser || currentUser.isPermitted(permission)) {
+    		// Add the view if we have a read permission, or a write permission. See #64
+    		if (adminUser || 
+    				currentUser.isPermitted(study.getName() + ":read:" + v.getName()) ||
+    				currentUser.isPermitted(study.getName() + ":write:" + v.getName())) {
     			dto.getViews().add(v);
     		}
     	}

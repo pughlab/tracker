@@ -92,6 +92,8 @@ public class StudyResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("DEMO:read:track")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:read:secondary")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:secondary")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -113,5 +115,44 @@ public class StudyResourceTest extends AbstractShiroTest {
 
 		assertEquals( 1, data.get("views").getAsJsonArray().size());
 		assertEquals( "track", data.getAsJsonArray("views").get(0).getAsJsonObject().get("name").getAsString());
+	}
+
+	/**
+	 * Checks that write access by a non-admin user implies read access to the same view. 
+	 * @throws IOException
+	 */
+	@Test
+	public void permissionsWriteTest() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read:track")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:track")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:read:secondary")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:secondary")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        Study testStudy = repository.getStudy("DEMO");
+		RequestAttributes.setRequestStudy(studyResource.getRequest(), testStudy);
+		
+		Representation result = studyResource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
+		JsonObject study = data.get("study").getAsJsonObject();
+		
+		assertEquals( "DEMO", study.get("name").getAsString() );
+		assertEquals( "A demo clinical genomics study", study.get("description").getAsString() );
+
+		assertEquals( 1, data.get("views").getAsJsonArray().size());
+		assertEquals( "complete", data.getAsJsonArray("views").get(0).getAsJsonObject().get("name").getAsString());
 	}
 }

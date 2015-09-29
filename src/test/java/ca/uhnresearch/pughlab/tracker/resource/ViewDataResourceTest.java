@@ -143,4 +143,77 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		
 		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>", data);
 	}
+	
+	@Test
+	public void resourceTestPermissionsFull() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted(anyObject(String.class))).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+		CaseQuery query = new CaseQuery();
+		query.setLimit(5);
+		query.setOffset(0);
+        RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
+
+		Representation result = resource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		JsonObject permissions = data.get("permissions").getAsJsonObject();
+		
+		assertEquals(false, permissions.get("adminAllowed").getAsBoolean());
+		assertEquals(true, permissions.get("readAllowed").getAsBoolean());
+		assertEquals(true, permissions.get("writeAllowed").getAsBoolean());
+		assertEquals(true, permissions.get("downloadAllowed").getAsBoolean());
+	}
+
+	@Test
+	public void resourceTestPermissionsImplied() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:read:dateEntered")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:read:patientId")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:read:mrn")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:read:consentDate")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:read:specimenAvailable")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:download:complete")).andStubReturn(false);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+		CaseQuery query = new CaseQuery();
+		query.setLimit(5);
+		query.setOffset(0);
+        RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
+
+		Representation result = resource.getResource();
+		assertEquals("application/json", result.getMediaType().toString());
+		
+		Gson gson = new Gson();
+		JsonObject data = gson.fromJson(result.getText(), JsonObject.class);
+		
+		JsonObject permissions = data.get("permissions").getAsJsonObject();
+		
+		assertEquals(false, permissions.get("adminAllowed").getAsBoolean());
+		assertEquals(true, permissions.get("readAllowed").getAsBoolean());
+		assertEquals(true, permissions.get("writeAllowed").getAsBoolean());
+		assertEquals(false, permissions.get("downloadAllowed").getAsBoolean());
+	}
 }

@@ -44,5 +44,16 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
     	dto.setStudy(study);
     	dto.setView(view);
     	dto.setAttributes(readable);
+    	
+    	Boolean readPermitted = currentUser.isPermitted(study.getName() + ":read:" + view.getName());
+    	Boolean writePermitted = currentUser.isPermitted(study.getName() + ":write:" + view.getName());
+    	Boolean downloadPermitted = currentUser.isPermitted(study.getName() + ":download:" + view.getName());
+    	
+    	readPermitted = readPermitted || writePermitted;
+    	
+    	dto.getPermissions().setReadAllowed(readPermitted); 
+    	dto.getPermissions().setWriteAllowed(writePermitted); 
+    	dto.getPermissions().setDownloadAllowed(downloadPermitted); 
+
 	}
 }

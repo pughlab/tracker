@@ -1,6 +1,11 @@
 ## Revision history
 
 
+### Version 2.0.1-RC6 - September 29th 2015
+
+ * Fixed write permissions access from the front end. See #85, #64
+
+
 ### Version 2.0.1-RC5 - September 28th 2015
 
  * Connected users now includes the current user. See #79
