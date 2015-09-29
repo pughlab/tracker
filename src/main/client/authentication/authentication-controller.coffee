@@ -18,9 +18,6 @@ angular
     $scope.clearMessage = () ->
       $scope.message = ""
 
-    $scope.$on 'event:loginDenied', (evt, data) ->
-      $scope.message = data.message
-
     $scope.ok = (data) ->
       data = if $scope.challenge == 'oidc'
         {redirect: true, client_name: 'uhn'}
@@ -33,6 +30,12 @@ angular
     $scope.cancel = () ->
       $scope.clearMessage()
       $scope.$emit "event:loginCancelled"
+
+    $scope.$on 'event:loginDenied', (evt, data, status) ->
+      if status == 403
+        $scope.message = "Sorry, couldn't verify this username and password"
+      else
+        $scope.message = data.message
 
 
   .controller 'AuthenticationController', Array '$scope', '$state', ($scope, $state) ->
