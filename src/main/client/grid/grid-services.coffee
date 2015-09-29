@@ -5,6 +5,17 @@ angular
   ## useful for us directly. This service formats it into HTML that can be rendered
   ## in a tooltip. That means we can do formatting niceness.
 
+  .factory 'searchInTable', () ->
+    result =
+      search: (table, query) ->
+        result = table.search.query query
+        table.render()
+
+        if result.length > 0
+          [first, rest...] = result
+          table.selectCell first.row, first.col, first.row, first.col, true
+
+
   .factory 'renderHistory', () ->
 
     return (history) ->

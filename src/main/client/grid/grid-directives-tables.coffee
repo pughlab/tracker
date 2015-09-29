@@ -7,19 +7,24 @@ angular
     result =
       restrict: "A"
       replace: false
+      require: 'ngModel'
+      scope:
+        ngModel: '='
       link: (scope, iElement, iAttrs) ->
 
         button = angular.element("<a role='button' class='clear-button' aria-label='Clear'><span class='glyphicon glyphicon-remove-circle'></span></a>")
         iElement.after button
 
         button.on 'click', (e) ->
-          iElement.val("")
+          scope.$apply () ->
+            scope.ngModel = ""
+          iElement.trigger 'submit'
 
 
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$http', '$timeout', ($http, $timeout) ->
+  .directive 'trackerTable', Array '$http', '$timeout', 'searchInTable', ($http, $timeout, searchInTable) ->
 
     highlightElement = (element, editingClasses) ->
 
@@ -195,12 +200,7 @@ angular
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
-          result = handsonTable.search.query query
-          handsonTable.render()
-
-          if result.length > 0
-            [first, rest...] = result
-            handsonTable.selectCell first.row, first.col, first.row, first.col, true
+          searchInTable.search(handsonTable, query)
 
 
         scope.$on 'socket:welcome', (evt, data) ->
