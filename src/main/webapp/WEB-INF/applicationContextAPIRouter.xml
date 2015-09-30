@@ -172,6 +172,7 @@
  	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewDataResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 		<property name="excelWriter" ref="excelWriter"/>
+        <property name="htmlWriter" ref="htmlWriter"/>
 	</bean>
  	<bean id="viewSchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewSchemaResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
@@ -197,6 +198,10 @@
 		<property name="documentBuilderFactory" ref="documentBuilderFactory" />
 	</bean>
 	
+    <bean id="htmlWriter" class="ca.uhnresearch.pughlab.tracker.services.impl.HtmlWriterImpl">
+        <property name="documentBuilderFactory" ref="documentBuilderFactory" />
+    </bean>
+
 	<bean id="documentBuilderFactory" class="javax.xml.parsers.DocumentBuilderFactory" factory-method="newInstance" />
 	
 	

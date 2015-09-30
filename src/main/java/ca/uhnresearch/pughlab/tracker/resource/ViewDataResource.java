@@ -30,6 +30,8 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 
 	private Writer excelWriter;
 
+	private Writer htmlWriter;
+
 	@Get("json")
     public Representation getResource()  {
 		ViewDataResponse response = new ViewDataResponse();
@@ -45,6 +47,19 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 		Representation result = new DomRepresentation(MediaType.APPLICATION_EXCEL, xmlDocument);
 		Disposition disposition = new Disposition();
 		disposition.setFilename("report.xls");
+		disposition.setType(Disposition.TYPE_ATTACHMENT);
+		result.setDisposition(disposition);
+		return result;
+	}
+	
+	@Get("html")
+    public Representation getHtmlResource()  {
+		ViewDataResponse response = new ViewDataResponse();
+		buildResponseDTO(response);
+		Document xmlDocument = htmlWriter.getXMLDocument(response);
+		Representation result = new DomRepresentation(MediaType.APPLICATION_EXCEL, xmlDocument);
+		Disposition disposition = new Disposition();
+		disposition.setFilename("report.htm");
 		disposition.setType(Disposition.TYPE_ATTACHMENT);
 		result.setDisposition(disposition);
 		return result;
