@@ -31,6 +31,19 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	private Writer excelWriter;
 
 	private Writer htmlWriter;
+	
+	private Representation getFormatted(Writer writer, String filename) {
+		logger.info("Writing data to {}", filename);
+		ViewDataResponse response = new ViewDataResponse();
+		buildResponseDTO(response);
+		Document xmlDocument = writer.getXMLDocument(response);
+		Representation result = new DomRepresentation(MediaType.APPLICATION_EXCEL, xmlDocument);
+		Disposition disposition = new Disposition();
+		disposition.setFilename(filename);
+		disposition.setType(Disposition.TYPE_ATTACHMENT);
+		result.setDisposition(disposition);
+		return result;
+	}
 
 	@Get("json")
     public Representation getResource()  {
@@ -41,28 +54,12 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	
 	@Get("xml")
     public Representation getXmlResource()  {
-		ViewDataResponse response = new ViewDataResponse();
-		buildResponseDTO(response);
-		Document xmlDocument = excelWriter.getXMLDocument(response);
-		Representation result = new DomRepresentation(MediaType.APPLICATION_EXCEL, xmlDocument);
-		Disposition disposition = new Disposition();
-		disposition.setFilename("report.xls");
-		disposition.setType(Disposition.TYPE_ATTACHMENT);
-		result.setDisposition(disposition);
-		return result;
+		return getFormatted(excelWriter, "report.xls");
 	}
 	
 	@Get("html")
     public Representation getHtmlResource()  {
-		ViewDataResponse response = new ViewDataResponse();
-		buildResponseDTO(response);
-		Document xmlDocument = htmlWriter.getXMLDocument(response);
-		Representation result = new DomRepresentation(MediaType.APPLICATION_EXCEL, xmlDocument);
-		Disposition disposition = new Disposition();
-		disposition.setFilename("report.htm");
-		disposition.setType(Disposition.TYPE_ATTACHMENT);
-		result.setDisposition(disposition);
-		return result;
+		return getFormatted(htmlWriter, "report.htm");
 	}
 	
 	@Override
