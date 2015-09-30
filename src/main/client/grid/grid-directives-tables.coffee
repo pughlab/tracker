@@ -223,19 +223,17 @@ angular
             ## value. Note that the value is never transmitted over the socket.
 
             scope.$on 'socket:field', (evt, original) ->
-              console.log "Got socket:field", evt, original
 
               ## If we get a cell editing event, we need to identify the cell element, and then update
               ## the right stuff. We might need to do something similar for a row, too.
 
               if handsonTable != undefined and original.data.userNumber > 0
-                handleEditCell original.data.parameters.case, original.data.parameters.field, original.data.editingClasses
+                handleEditCell original.data.parameters.case_id, original.data.parameters.field, original.data.editingClasses
 
 
             scope.$on 'socket:record', (evt, original) ->
-              console.log "Got socket:record", evt, original
               if handsonTable != undefined and original.data.userNumber > 0
-                handleAddRecord original.data.parameters.case, original.data.editingClasses
+                handleAddRecord original.data.parameters.case_id, original.data.editingClasses
 
 
             ## Needs to find the case identifier, which requires a bit of poking around
