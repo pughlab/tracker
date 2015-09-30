@@ -1,7 +1,9 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -27,11 +29,9 @@ import ca.uhnresearch.pughlab.tracker.services.Writer;
 public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> {
 	
 	private final Logger logger = LoggerFactory.getLogger(ViewDataResource.class);
-
-	private Writer excelWriter;
-
-	private Writer htmlWriter;
 	
+	private Map<String, Writer> writers = new HashMap<String, Writer>();
+
 	private Representation getFormatted(Writer writer, String filename) {
 		logger.info("Writing data to {}", filename);
 		ViewDataResponse response = new ViewDataResponse();
@@ -54,12 +54,12 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	
 	@Get("xml")
     public Representation getXmlResource()  {
-		return getFormatted(excelWriter, "report.xls");
+		return getFormatted(getWriter("xml"), "report.xls");
 	}
 	
 	@Get("html")
     public Representation getHtmlResource()  {
-		return getFormatted(htmlWriter, "report.htm");
+		return getFormatted(getWriter("html"), "report.htm");
 	}
 	
 	@Override
@@ -105,16 +105,23 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 	}
 
 	/**
-	 * @return the excelWriter
+	 * @return the writers
 	 */
-	public Writer getExcelWriter() {
-		return excelWriter;
+	public Map<String, Writer> getWriters() {
+		return writers;
 	}
 
 	/**
-	 * @param excelWriter the excelWriter to set
+	 * @param writers the writers to set
 	 */
-	public void setExcelWriter(Writer excelWriter) {
-		this.excelWriter = excelWriter;
+	public void setWriters(Map<String, Writer> writers) {
+		this.writers = writers;
+	}
+	
+	public Writer getWriter(String type) {
+		if (! writers.containsKey(type)) {
+			throw new RuntimeException("Can't get writer for type: " + type);
+		}
+		return writers.get(type);
 	}
 }

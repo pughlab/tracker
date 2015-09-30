@@ -171,8 +171,12 @@
 	</bean>
  	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewDataResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
-		<property name="excelWriter" ref="excelWriter"/>
-        <property name="htmlWriter" ref="htmlWriter"/>
+        <property name="writers">
+            <map>
+                <entry key="xml" value-ref="excelWriter" />
+                <entry key="html" value-ref="htmlWriter" />
+            </map>
+        </property>
 	</bean>
  	<bean id="viewSchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewSchemaResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>

@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 import static org.easymock.EasyMock.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -61,13 +63,13 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 	@Test
 	public void resourceAccessors() {
 		
-        Writer oldWriter = resource.getExcelWriter();
+		Map<String, Writer> oldWriters = resource.getWriters();
+		
+        Map<String, Writer> mockWriters = new HashMap<String, Writer>();
+        resource.setWriters(mockWriters);
         
-        Writer mockWriter = createMock(Writer.class);
-        resource.setExcelWriter(mockWriter);
-        
-        assertEquals(mockWriter, resource.getExcelWriter());
-        resource.setExcelWriter(oldWriter);
+        assertEquals(mockWriters, resource.getWriters());
+        resource.setWriters(oldWriters);
 	}
 
 	@Test
@@ -135,7 +137,9 @@ public class ViewDataResourceTest extends AbstractShiroTest {
         Writer mockWriter = createMock(Writer.class);
         expect(mockWriter.getXMLDocument(anyObject(ViewDataResponse.class))).andStubReturn(doc);
         replay(mockWriter);
-        resource.setExcelWriter(mockWriter);
+        Map<String, Writer> mockWriters = new HashMap<String, Writer>();
+        mockWriters.put("xml", mockWriter);
+        resource.setWriters(mockWriters);
 
         Representation result = resource.getXmlResource();
 		assertEquals("application/vnd.ms-excel", result.getMediaType().toString());
