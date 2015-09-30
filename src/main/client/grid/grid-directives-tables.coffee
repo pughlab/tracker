@@ -148,6 +148,15 @@ angular
               highlightElement rowElement, editingClasses
 
 
+        handleStateCell = (entityIdentifier, state, editingClasses) ->
+          rowIndex = entityRowTable[entityIdentifier]
+          return if !rowIndex
+
+          ## Tha labels are applied to the whole entity, so we need to update
+          ## a complete row.
+
+          handsonTable.setDataAtRowProp(rowIndex, '$state', state, 'socketEvent')
+
         handleEditCell = (entityIdentifier, field, editingClasses) ->
           $http
             .get getStudyUrl(scope.trackerStudy, scope.trackerView) + "/entities/#{entityIdentifier}", {}
@@ -221,6 +230,10 @@ angular
             ## Here we are notified of a property change, and should locate the cell,
             ## highlight it in some way, and arrange for a request for a more up-to-date
             ## value. Note that the value is never transmitted over the socket.
+
+            scope.$on 'socket:state', (evt, original) ->
+              if handsonTable != undefined
+                handleStateCell original.data.parameters.case_id, original.data.parameters.state, original.data.editingClasses
 
             scope.$on 'socket:field', (evt, original) ->
 
