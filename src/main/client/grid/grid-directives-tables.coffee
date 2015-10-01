@@ -362,18 +362,24 @@ angular
               else
                 otherAttributes.push attribute
 
+            rowHeaderLabel = (x) ->
+              if x == 0
+                "Filter"
+              else
+                "#{x}"
+
             orderedAttributes = pinnedAttributes.concat(otherAttributes)
 
             handsonTable = new Handsontable(iElement[0], {
               minSpareRows: 1
               colWidths: (getColWidth(a) for a in orderedAttributes)
               colHeaders: (a.label for a in orderedAttributes)
-              rowHeaders: true
+              rowHeaders: rowHeaderLabel
               columns: (convertColumn(a) for a in orderedAttributes)
               contextMenu: false
               multiSelect: true
               startCols: orderedAttributes.length
-              fixedRowsTop: 0
+              fixedRowsTop: 1
               fixedColumnsLeft: pinnedAttributes.length
               columnSorting: false
               trackerColumnSorting: true
@@ -440,7 +446,9 @@ angular
             $http
               .get getStudyUrl(scope.trackerStudy, scope.trackerView)
               .success (response) ->
-                handsonTable.loadData(response.records)
+                modified = [{id: 0, study: 'tets'}].concat(response.records)
+                console.log modified
+                handsonTable.loadData(modified)
 
                 ## We should really keep a track of the row information here, i.e., the association
                 ## between identifier and row number. We can then use this to locate cells.
@@ -452,9 +460,9 @@ angular
                 entityRowTable = {}
                 attributeColumnTable = {}
                 for entity, i in response.records
-                  entityRowTable[entity.id] = i
+                  entityRowTable[entity.id] = i + 1
                 for attribute, i in response.attributes
-                  attributeColumnTable[attribute.name] = i
+                  attributeColumnTable[attribute.name] = i + 1
 
                 updateContextMenu()
 
