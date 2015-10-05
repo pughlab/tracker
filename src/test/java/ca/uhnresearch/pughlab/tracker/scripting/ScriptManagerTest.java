@@ -78,4 +78,28 @@ public class ScriptManagerTest {
 		ScriptManager manager = new ScriptManager(resource, bindings);
 		Assert.assertNotNull(manager);
 	}
+	
+	/**
+	 * Checks successful instantiation
+	 * @throws IOException
+	 */
+	@Test
+	public void testBindings() throws IOException {
+		
+		String inputString = "test = test + 1; console.log('Value should be 123:', test);";
+		
+		InputStream input = new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8));
+		
+		Resource resource = createMock(Resource.class);
+		expect(resource.getInputStream()).andStubReturn(input);
+		expect(resource.getURL()).andStubReturn(new URL("file:///"));
+		replay(resource);
+		
+		Map<String, Object> bindings = new HashMap<String, Object>();
+		bindings.put("test", 122);
+		bindings.put("console", new JSLogger());
+		
+		ScriptManager manager = new ScriptManager(resource, bindings);
+		Assert.assertNotNull(manager);
+	}
 }
