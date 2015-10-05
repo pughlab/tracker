@@ -1,6 +1,15 @@
 ## Revision history
 
 
+### Version 2.0.1-RC7 - October 5th 2015
+
+ * Added support for HTML writing into the data resource. See #73
+ * Fixed date button CSS. See #75
+ * Added timeout  to automatically logout after 15 minutes. See #80
+ * Case states are now displayed. See #82
+ * Improved client-side authentication failure message. See #84
+
+
 ### Version 2.0.1-RC6 - September 29th 2015
 
  * Fixed write permissions access from the front end. See #85, #64

@@ -4,7 +4,7 @@
     "/dist/tracker.min.js",
     "/dist/tracker.min.css"
   ],
-  "version": "2.0.1-RC6",
+  "version": "2.0.1-RC7",
   "description": "A generic tracking system designed for easy and secure data recording within large distributed research projects.",
   "authors": [
     "TODO"
