@@ -7,19 +7,24 @@ angular
     result =
       restrict: "A"
       replace: false
+      require: 'ngModel'
+      scope:
+        ngModel: '='
       link: (scope, iElement, iAttrs) ->
 
         button = angular.element("<a role='button' class='clear-button' aria-label='Clear'><span class='glyphicon glyphicon-remove-circle'></span></a>")
         iElement.after button
 
         button.on 'click', (e) ->
-          iElement.val("")
+          scope.$apply () ->
+            scope.ngModel = ""
+          iElement.trigger 'submit'
 
 
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$http', '$timeout', ($http, $timeout) ->
+  .directive 'trackerTable', Array '$http', '$timeout', 'searchInTable', ($http, $timeout, searchInTable) ->
 
     highlightElement = (element, editingClasses) ->
 
@@ -143,6 +148,15 @@ angular
               highlightElement rowElement, editingClasses
 
 
+        handleStateCell = (entityIdentifier, state, editingClasses) ->
+          rowIndex = entityRowTable[entityIdentifier]
+          return if !rowIndex
+
+          ## Tha labels are applied to the whole entity, so we need to update
+          ## a complete row.
+
+          handsonTable.setDataAtRowProp(rowIndex, '$state', state, 'socketEvent')
+
         handleEditCell = (entityIdentifier, field, editingClasses) ->
           $http
             .get getStudyUrl(scope.trackerStudy, scope.trackerView) + "/entities/#{entityIdentifier}", {}
@@ -195,12 +209,7 @@ angular
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
-          result = handsonTable.search.query query
-          handsonTable.render()
-
-          if result.length > 0
-            [first, rest...] = result
-            handsonTable.selectCell first.row, first.col, first.row, first.col, true
+          searchInTable.search(handsonTable, query)
 
 
         scope.$on 'socket:welcome', (evt, data) ->
@@ -222,20 +231,22 @@ angular
             ## highlight it in some way, and arrange for a request for a more up-to-date
             ## value. Note that the value is never transmitted over the socket.
 
+            scope.$on 'socket:state', (evt, original) ->
+              if handsonTable != undefined
+                handleStateCell original.data.parameters.case_id, original.data.parameters.state, original.data.editingClasses
+
             scope.$on 'socket:field', (evt, original) ->
-              console.log "Got socket:field", evt, original
 
               ## If we get a cell editing event, we need to identify the cell element, and then update
               ## the right stuff. We might need to do something similar for a row, too.
 
               if handsonTable != undefined and original.data.userNumber > 0
-                handleEditCell original.data.parameters.case, original.data.parameters.field, original.data.editingClasses
+                handleEditCell original.data.parameters.case_id, original.data.parameters.field, original.data.editingClasses
 
 
             scope.$on 'socket:record', (evt, original) ->
-              console.log "Got socket:record", evt, original
               if handsonTable != undefined and original.data.userNumber > 0
-                handleAddRecord original.data.parameters.case, original.data.editingClasses
+                handleAddRecord original.data.parameters.case_id, original.data.editingClasses
 
 
             ## Needs to find the case identifier, which requires a bit of poking around

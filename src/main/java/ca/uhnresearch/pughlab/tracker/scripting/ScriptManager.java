@@ -16,16 +16,13 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.quartz.JobExecutionException;
 
-public class ScriptManager  {
+public class ScriptManager {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private Map<String, Object> initialBindings = new HashMap<String, Object>();
-	
-	private String fileUrl = null;
-	
+		
 	private ScriptContext context;
 	
 	ScriptManager(Resource scriptResource, Map<String, Object> initialBindings) {
@@ -55,7 +52,7 @@ public class ScriptManager  {
 			engine.eval(reader, context);
 			
 		} catch (ScriptException e) {
-			e.printStackTrace();
+			logger.error("Syntax error in script: " + e.getLocalizedMessage());
 		}
 	}
 	
@@ -65,38 +62,5 @@ public class ScriptManager  {
 			bindings.put(e.getKey(), e.getValue());
 		}
 		return bindings;
-	}
-	
-    protected void execute() throws JobExecutionException {
-        // logger.debug("Scheduled ping");
-    }
-    
-
-	/**
-	 * @return the fileUrl
-	 */
-	public String getFileUrl() {
-		return fileUrl;
-	}
-
-	/**
-	 * @param fileUrl the fileUrl to set
-	 */
-	public void setFileUrl(String fileUrl) {
-		this.fileUrl = fileUrl;
-	}
-
-	/**
-	 * @return the initialBindings
-	 */
-	public Map<String, Object> getInitialBindings() {
-		return initialBindings;
-	}
-
-	/**
-	 * @param initialBindings the initialBindings to set
-	 */
-	public void setInitialBindings(Map<String, Object> initialBindings) {
-		this.initialBindings = initialBindings;
 	}
 }

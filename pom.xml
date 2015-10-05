@@ -11,7 +11,7 @@
 	distributed research projects.
 	</description>
 	<inceptionYear>2014</inceptionYear>
-	<version>2.0.1-RC6</version>
+	<version>2.0.1-RC7</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,6 +25,9 @@
 		<quartz.version>2.2.1</quartz.version>
 		<jackson.version>2.4.4</jackson.version>
         <apache-ldap-api.version>1.0.0-M31</apache-ldap-api.version>
+        
+        <node.version>v0.12.7</node.version>
+        <npm.version>3.3.6</npm.version>
 	</properties>
 
 	<licenses>
@@ -575,8 +578,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v0.10.38</nodeVersion>
-                            <npmVersion>1.4.28</npmVersion>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
                         </configuration>
                     </execution>
 
@@ -590,7 +593,7 @@
                         </configuration>
                     </execution>
 
-										<execution>
+					<execution>
                         <id>bower install</id>
                         <goals>
                             <goal>bower</goal>

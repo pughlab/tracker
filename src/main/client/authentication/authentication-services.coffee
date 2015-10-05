@@ -23,7 +23,7 @@ angular
             targetScope.$emit 'event:loginConfirmed', response.user
 
           .error (response, status) ->
-            targetScope.$broadcast 'event:loginDenied', response
+            targetScope.$broadcast 'event:loginDenied', response, status
 
       logout: () ->
         $http

@@ -101,6 +101,29 @@ angular
     $httpProvider.defaults.useXDomain = true
 
 
+
+  .run Array '$rootScope', '$interval', '$document', (scope, $interval, $document) ->
+
+    IDLE_TIMEOUT = 15 * 60
+    idleSecondsTimer = null
+    idleSecondsCounter = 0
+
+    resetCounter = () ->
+      idleSecondsCounter = 0
+
+    $document.on 'click', resetCounter
+    $document.on 'mousemove', resetCounter
+    $document.on 'keypress', resetCounter
+
+    checkIdleTime = () ->
+      idleSecondsCounter++
+      if idleSecondsCounter > IDLE_TIMEOUT
+        $interval.cancel idleSecondsTimer
+        scope.$broadcast 'timeout:logout'
+
+    idleSecondsTimer = $interval checkIdleTime, 1000
+
+
   .run Array '$rootScope', '$http', '$timeout', '$state', 'authenticationService', (scope, $http, $timeout, $state, authenticationService) ->
 
     class User
@@ -138,6 +161,10 @@ angular
       $state.go 'home'
 
     scope.$on 'event:logoutRequest', (evt) ->
+      authenticationService.logout()
+      $state.go 'logout'
+
+    scope.$on 'timeout:logout', (evt) ->
       authenticationService.logout()
       $state.go 'logout'
 
