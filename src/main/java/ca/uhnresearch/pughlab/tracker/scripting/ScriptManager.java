@@ -13,6 +13,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -63,4 +64,11 @@ public class ScriptManager {
 		}
 		return bindings;
 	}
+
+	/**
+	 * Called periodically by a scheduled task
+	 */
+    protected void execute() throws JobExecutionException {
+    	// Currently does nothing
+    }
 }
