@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.quartz.JobExecutionException;
 import org.springframework.core.io.Resource;
 
 public class ScriptManagerTest {
@@ -101,5 +102,30 @@ public class ScriptManagerTest {
 		
 		ScriptManager manager = new ScriptManager(resource, bindings);
 		Assert.assertNotNull(manager);
+	}
+
+	/**
+	 * Checks successful instantiation
+	 * @throws IOException
+	 * @throws JobExecutionException 
+	 */
+	@Test
+	public void testExecute() throws IOException, JobExecutionException {
+		
+		String inputString = "";
+		
+		InputStream input = new ByteArrayInputStream(inputString.getBytes(StandardCharsets.UTF_8));
+		
+		Resource resource = createMock(Resource.class);
+		expect(resource.getInputStream()).andStubReturn(input);
+		expect(resource.getURL()).andStubReturn(new URL("file:///"));
+		replay(resource);
+		
+		Map<String, Object> bindings = new HashMap<String, Object>();
+		bindings.put("test", 122);
+		bindings.put("console", new JSLogger());
+		
+		ScriptManager manager = new ScriptManager(resource, bindings);
+		manager.execute();
 	}
 }
