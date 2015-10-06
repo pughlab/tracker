@@ -294,8 +294,6 @@ angular
                   .put "#{baseUrl}/entities/#{encodeURIComponent(caseIdentifier)}/#{encodeURIComponent(fieldName)}", payload
                   .success (response) ->
 
-                    console.log "Got PUT response", response
-
                     ## We should also get back an updated set of notes, and we need to make sure that general tags and
                     ## field-specific notes are mirrored locally.
 
@@ -394,6 +392,12 @@ angular
               currentRowClassName: 'currentRow'
               currentColClassName: 'currentCol'
               readOnly: ! (scope.trackerEditingStatus or false)
+              cells: (row, col, prop) ->
+                cellProperties = {}
+                if row == 0
+                  cellProperties.renderer = Handsontable.TrackerFilterRenderer
+                  cellProperties.editor = 'text'
+                cellProperties
             })
 
             handsonTable.trackerData = {
@@ -410,8 +414,7 @@ angular
             $http
               .get getStudyUrl(scope.trackerStudy, scope.trackerView)
               .success (response) ->
-                modified = [{id: 0, study: 'tets'}].concat(response.records)
-                console.log modified
+                modified = [{id: -1, _filter_row: true}].concat(response.records)
                 handsonTable.loadData(modified)
 
                 ## We should really keep a track of the row information here, i.e., the association

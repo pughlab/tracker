@@ -181,10 +181,10 @@ TrackerHandsontableColumnSorting = () ->
 
   defaultSort = (sortOrder)  ->
     return (a, b) ->
-      console.log "Sorting", a, b
-      return -1 if a[2] == 0
-      return 1 if b[2] == 0
-      return 0 if a[2] == 0 and b[2] == 0
+      if a[2] == -1
+        return if b[2] == -1 then 0 else -1
+      else if b[2] == -1
+        return 1
       value = compareStrings a[1], b[1], sortOrder
       value = compareIdentifiers a[2], b[2] if value == 0
       value
@@ -192,9 +192,10 @@ TrackerHandsontableColumnSorting = () ->
 
   dateSort = (sortOrder) ->
     return (a, b) ->
-      return -1 if a == 0
-      return 1 if b == 0
-      return 0 if a == 0 and b == 0
+      if a[2] == -1
+        return if b[2] == -1 then 0 else -1
+      else if b[2] == -1
+        return 1
       value = compareDates a[1], b[1], sortOrder
       value = compareIdentifiers a[2], b[2] if value == 0
       value
@@ -202,9 +203,10 @@ TrackerHandsontableColumnSorting = () ->
 
   numberSort = (sortOrder) ->
     return (a, b) ->
-      return -1 if a == 0
-      return 1 if b == 0
-      return 0 if a == 0 and b == 0
+      if a[2] == -1
+        return if b[2] == -1 then 0 else -1
+      else if b[2] == -1
+        return 1
       value = compareNumbers a[1], b[1], sortOrder
       value = compareIdentifiers a[2], b[2] if value == 0
       value
