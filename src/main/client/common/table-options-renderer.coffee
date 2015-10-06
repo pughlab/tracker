@@ -15,6 +15,7 @@ wrapTdContentWithWrapper = (TD, WRAPPER) ->
 
 
 annotateCells = (cellProperties, instance, TD, row, col, prop) ->
+  row = instance.sortIndex?[row]?[0] or row
   rowData = instance.getSourceDataAtRow(row)
   fieldName = prop()
   tags = rowData['$notes']?[fieldName]?.tags or []

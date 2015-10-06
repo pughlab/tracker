@@ -15,7 +15,6 @@ public class AuditLogEventHandler implements EventHandler {
 
 	@Override
 	public void sendMessage(Event event, String scope) {
-		// TODO Auto-generated method stub
 		
 		ObjectNode parameters = event.getData().getParameters().deepCopy();
 		JsonNode oldValue = parameters.get("old");

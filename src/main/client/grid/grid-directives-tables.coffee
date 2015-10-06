@@ -403,42 +403,6 @@ angular
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
               {"$value": value, "$source": source}
 
-            ## If we have a "status" attribute, we should add a context handler, with options
-            ## for the different values, all of which modify the record value with that particular
-            ## value. We need to poke around in the data for that.
-
-            addStatusContext = undefined
-            for attribute in attributes
-              if attribute.name == 'status' and attribute.type == 'option'
-                addStatusContext = attribute
-                break
-
-            handleStatusChange = (instance, row, status) ->
-              instance.setDataAtCell row, attributeColumnTable['status'], status
-
-            updateContextMenu = () ->
-              attribute = attributeColumnTable?['status']?
-              if attribute?
-                attribute = attributes[attributeColumnTable?['status']]
-              if attribute and attribute.type == 'option'
-
-                options = {}
-                for value in attribute.options.values
-                  options[value] = "Mark record as #{value}"
-
-                contextMenu =  {
-                  callback: (key, options) ->
-                    self = @
-                    handler = () -> handleStatusChange self, options.start.row, key
-                    setTimeout handler, 100
-                  items: options
-                }
-
-                handsonTable.updateSettings { contextMenu: (if scope.editing then contextMenu else false) }
-
-              else
-                handsonTable.updateSettings { contextMenu: false }
-
             # Can actually cancel the change by returning false, or true to accept it
             # Of course, this doesn't use a callback, so it's somewhat less helpful for
             # asynchronous validation.
@@ -464,15 +428,16 @@ angular
                 for attribute, i in response.attributes
                   attributeColumnTable[attribute.name] = i + 1
 
-                updateContextMenu()
-
                 ## This is where we have the initial load. Let's initiate a scroll down, but carefully
                 scope.$emit 'table:positionAtEnd'
 
 
         scope.$watch 'trackerEditingStatus', (editing, old) ->
           if handsonTable
-            handsonTable.updateSettings {readOnly: ! editing, contextMenu: (if editing then contextMenu else false)}
+            handsonTable.updateSettings {
+              readOnly: ! editing,
+              contextMenu: if editing then ['row_above', 'row_below'] else false
+            }
 
 
         rtime = undefined
