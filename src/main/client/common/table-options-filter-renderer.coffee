@@ -3,6 +3,8 @@
 
 filterAction = (evt) ->
   console.log "Clicked", evt
+  button = evt.detail.element
+  dropdown = $(button).filterdropdown('showWidget')
 
 
 TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
@@ -10,7 +12,7 @@ TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
   button = document.createElement('button')
   button.style.float = "right"
   button.setAttribute "type", "button"
-  button.classList.add("btn", "btn-default", "tracker-filter-button")
+  button.classList.add("btn", "btn-default", "active", "tracker-filter-button")
 
   icon = document.createElement('span')
   icon.classList.add("glyphicon", "glyphicon-filter")
