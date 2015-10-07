@@ -2,9 +2,9 @@
 ## filter information back into the system.
 
 filterAction = (evt) ->
-  console.log "Clicked", evt
   button = evt.detail.element
-  dropdown = $(button).filterdropdown('showWidget')
+  $(button).filterdropdown({filter: evt.detail})
+  $(button).filterdropdown('showWidget')
 
 
 TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
@@ -20,8 +20,11 @@ TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
 
   button.appendChild icon
 
+  propertyName = prop()
+  headerName = instance.getColHeader(col)
+  columnType = instance.trackerData?.typeTable?[col]
   button.addEventListener "click", (evt) ->
-    myEvent = new evt.view.CustomEvent("filter", {detail: {property: prop(), element: button}})
+    myEvent = new evt.view.CustomEvent("filter", {detail: {property: propertyName, element: button, header: headerName, type: columnType}})
     filterAction myEvent
 
   while TD.firstChild

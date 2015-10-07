@@ -4,7 +4,7 @@ FilterDropdown = (element, options) ->
     this.isOpen = options.isOpen
     this.orientation = options.orientation
     this.container = options.container
-    this.readonly = options.readonly
+    this.filter = options.filter
     @_init()
     @
 
@@ -14,7 +14,6 @@ FilterDropdown = (element, options) ->
 
     _init: () ->
       self = @
-      console.log "Called _init"
       @.$element.on {
         'click.filterdropdown': $.proxy(@showWidget, @)
         'blur.filterdropdown': $.proxy(@blurElement, @)
@@ -38,11 +37,14 @@ FilterDropdown = (element, options) ->
       @update()
 
     getTemplate: () ->
-      console.log "Called getTemplate"
-      additionalAttributes = ''
-      if @.readonly
-        additionalAttributes = ' readonly '
-      "<div class='bootstrap-filterdropdown-widget dropdown-menu'><textarea class='bootstrap-filterdropdown-body' #{additionalAttributes}></textarea></div>"
+      "<div class='bootstrap-filterdropdown-widget dropdown-menu'>" +
+      "<form class='form-inline' onsubmit='return false;'>" +
+      "<div class='form-group form-group-sm'>" +
+      "<label for='filter-input'>#{@filter.header} matches: </label>" +
+      "<input type='text' class='form-control' name='filter' id='filter-input'>" +
+      "</div>" +
+      "</form>" +
+      "</div>"
 
     getText: () ->
       @text

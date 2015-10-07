@@ -402,6 +402,7 @@ angular
 
             handsonTable.trackerData = {
               stateLabels: scope.trackerStudy.options?.stateLabels || {}
+              typeTable: (attribute.type for attribute in orderedAttributes)
             }
 
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
