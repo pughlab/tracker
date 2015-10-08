@@ -1120,6 +1120,55 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("true", data.asText());
 	}
 
+	// Regression test for #6 -- check that multiple writes are handled correctly. 
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSingleCaseAttributeWriteSameValueBooleanTwice() {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
+
+		try {
+			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+		} catch (RepositoryException e) {
+			Assert.fail();
+		}
+		
+		try {
+			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
+			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+		} catch (RepositoryException e) {
+			Assert.fail();
+		}
+
+		// Check we now have an audit log entry
+		CaseQuery query = new CaseQuery();
+		query.setOffset(0);
+		query.setLimit(5);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
+		Assert.assertNotNull(auditEntries);
+		Assert.assertEquals(2, auditEntries.size());
+		
+		
+		// Poke at the first audit log entry
+		JsonNode entry = auditEntries.get(0);
+		Assert.assertEquals("stuart", entry.get("eventUser").asText());
+		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
+		Assert.assertEquals("false", entry.get("eventArgs").get("old").asText());
+		Assert.assertEquals("false", entry.get("eventArgs").get("new").asText());
+		
+		// And now, we ought to be able to see the new audit entry in the database, and
+		// the value should be correct too. Note that as we have set null, we get back a 
+		// JSON null, not a Java one. 
+		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.isBoolean());
+		Assert.assertEquals("false", data.asText());
+	}
+
 	// Regression test for #7 -- check that N/A writes are handled correctly. 
 	@Test
 	@Transactional

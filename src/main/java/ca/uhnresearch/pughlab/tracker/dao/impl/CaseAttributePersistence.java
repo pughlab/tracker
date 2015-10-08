@@ -147,6 +147,7 @@ public class CaseAttributePersistence {
 			throw new RuntimeException("Invalid attribute: " + attribute);
 		}
 
+		// First try to update
 		long updateCount = template.update(atts, new SqlUpdateCallback() { 
 			@SuppressWarnings("unchecked")
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
@@ -157,7 +158,7 @@ public class CaseAttributePersistence {
 				return sqlUpdate.execute();
 			};
 		});
-		if (updateCount == 1) return;
+		if (updateCount >= 1) return;
 		template.insert(atts, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(atts.caseId, atts.attributeId, atts.getValuePath(cls), atts.notAvailable)
@@ -197,5 +198,4 @@ public class CaseAttributePersistence {
     		return oldRawValue;
     	}
 	}
-
 }

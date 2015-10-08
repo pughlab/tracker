@@ -386,6 +386,9 @@ INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES
 -- =============================================================================================
 -- Now for the audit log
 
+-- Note, there's no referential integrity here, so we can delete stuff without 
+-- removing the audits.
+
 CREATE TABLE "AUDIT_LOG" (
   "ID" INTEGER AUTO_INCREMENT PRIMARY KEY,
   "STUDY_ID" INTEGER,
