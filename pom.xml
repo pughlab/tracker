@@ -28,6 +28,11 @@
         
         <node.version>v0.12.7</node.version>
         <npm.version>3.3.6</npm.version>
+        
+        <test.db.driverClassName>org.hsqldb.jdbc.JDBCDriver</test.db.driverClassName>
+        <test.db.url>jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</test.db.url>
+        <test.db.username>sa</test.db.username>
+        <test.db.password></test.db.password>
 	</properties>
 
 	<licenses>
@@ -460,6 +465,13 @@
 	</dependencyManagement>
 
 	<build>
+    
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
 
 		<plugins>
 

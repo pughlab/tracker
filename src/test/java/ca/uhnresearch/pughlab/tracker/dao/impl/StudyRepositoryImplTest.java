@@ -50,7 +50,7 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
+@ContextConfiguration(locations = { "classpath:**/testContextDatabase.xml" })
 public class StudyRepositoryImplTest {
 	
 	@SuppressWarnings("unused")
