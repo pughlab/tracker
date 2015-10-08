@@ -33,6 +33,8 @@
         <test.db.url>jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</test.db.url>
         <test.db.username>sa</test.db.username>
         <test.db.password></test.db.password>
+        
+        <test.db.init>src/test/resources/initialize_test.sql</test.db.init>
 	</properties>
 
 	<licenses>
@@ -655,10 +657,10 @@
 					</dependency>
 				</dependencies>
 				<configuration>
-					<driver>org.hsqldb.jdbc.JDBCDriver</driver>
-					<url>jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</url>
-					<username>sa</username>
-					<password></password>
+					<driver>${test.db.driverClassName}</driver>
+					<url>${test.db.url}</url>
+					<username>${test.db.username}</username>
+					<password>${test.db.password}</password>
 				</configuration>
 				<executions>
 					<execution>
@@ -670,7 +672,7 @@
 							<fileset>
 								<basedir>${basedir}</basedir>
 								<includes>
-									<include>src/test/resources/initialize_test.sql</include>
+									<include>${test.db.init}</include>
 								</includes>
 							</fileset>
 						</configuration>
@@ -862,17 +864,47 @@
 			<name>Public online Restlet repository</name>
 			<url>http://maven.restlet.com</url>
 		</repository>
-<!--             <repository>
-            <id>oss.sonatype.org</id>
-            <name>OSS Sonatype Release Repository</name>
-            <url>http://oss.sonatype.org/content/repositories/releases</url>
-        </repository>
- --><!--         <repository>
-            <id>oss.sonatype.org.snapshots</id>
-            <name>OSS Sonatype Snapshot Repository</name>
-            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-            <snapshots/>
-        </repository>
- -->
 	</repositories>
+    
+    <profiles>
+    
+        <!-- A profile that can be used to test against MySQL -->
+        <profile>
+            <id>test-mysql</id>
+            <properties>
+                <test.db.driverClassName>com.mysql.jdbc.Driver</test.db.driverClassName>
+                <test.db.url>jdbc:mysql://localhost:3306/tracker?sessionVariables=sql_mode=ansi</test.db.url>
+                <test.db.username>tracker</test.db.username>
+                <test.db.password>tracker</test.db.password>
+                
+                <test.db.init>src/main/etc/initialize_mysql.sql</test.db.init>
+            </properties>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>5.1.16</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>sql-maven-plugin</artifactId>
+                        <version>1.5</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>mysql</groupId>
+                                <artifactId>mysql-connector-java</artifactId>
+                                <version>5.1.16</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
