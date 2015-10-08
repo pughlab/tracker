@@ -484,9 +484,6 @@ sub write_data {
     $logger->info("Overwrite selected: deleting views");
     $dbh->do(qq{DELETE FROM views WHERE study_id = ?}, {}, $study_ref->{id});
 
-    $logger->info("Overwrite selected: deleting attributes");
-    $dbh->do(qq{DELETE FROM attributes WHERE study_id = ?}, {}, $study_ref->{id});
-
     $logger->info("Overwrite selected: deleting case values");
     $dbh->do(qq{DELETE FROM case_attribute_strings WHERE case_id IN (select id FROM cases WHERE study_id = ?)}, {}, $study_ref->{id});
     $dbh->do(qq{DELETE FROM case_attribute_dates WHERE case_id IN (select id FROM cases WHERE study_id = ?)}, {}, $study_ref->{id});
@@ -494,6 +491,9 @@ sub write_data {
 
     $logger->info("Overwrite selected: deleting cases");
     $dbh->do(qq{DELETE FROM cases WHERE study_id = ?}, {}, $study_ref->{id});
+
+    $logger->info("Overwrite selected: deleting attributes");
+    $dbh->do(qq{DELETE FROM attributes WHERE study_id = ?}, {}, $study_ref->{id});
   }
 
   my $headers = $context->{all_headers};
