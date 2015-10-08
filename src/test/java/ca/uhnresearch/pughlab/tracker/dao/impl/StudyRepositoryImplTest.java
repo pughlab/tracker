@@ -1150,14 +1150,14 @@ public class StudyRepositoryImplTest {
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		Assert.assertNotNull(auditEntries);
-		Assert.assertEquals(2, auditEntries.size());
+		Assert.assertEquals(1, auditEntries.size());
 		
 		
 		// Poke at the first audit log entry
 		JsonNode entry = auditEntries.get(0);
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
 		Assert.assertEquals("specimenAvailable", entry.get("attribute").asText());
-		Assert.assertEquals("false", entry.get("eventArgs").get("old").asText());
+		Assert.assertEquals("true", entry.get("eventArgs").get("old").asText());
 		Assert.assertEquals("false", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and

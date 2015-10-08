@@ -688,6 +688,14 @@ public class StudyRepositoryImpl implements StudyRepository {
     	ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
     	WritableValue writable = validator.validate(a, value);
     	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute.getName(), writable.getValueClass());
+    	JsonNode oldValueJson = getJsonValue(oldValue);
+    	
+    	// If we're going to write the same value, we should know that here, and not bother either
+    	// writing or auditing. 
+    	
+    	if (oldValueJson.equals(value)) {
+    		return;
+    	}
     	
     	cap.writeCaseAttributeValue(template, study, view, caseValue, attribute, writable);
     	
@@ -702,7 +710,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		parameters.put("study_id", study.getId());
 		parameters.put("study", study.getName());
 		parameters.put("view", view.getName());
-		parameters.replace("old", new RedactedJsonNode(getJsonValue(oldValue)));
+		parameters.replace("old", new RedactedJsonNode(oldValueJson));
 		parameters.replace("new", new RedactedJsonNode(value));
 		event.getData().setParameters(parameters);
     	
