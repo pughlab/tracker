@@ -270,14 +270,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void deleteView(final View v) {
-		template.delete(views, new SqlDeleteCallback() { 
-			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
-				return sqlDeleteClause.where(views.id.eq(v.getId())).execute();
-			};
-		});
 		template.delete(viewAttributes, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
 				return sqlDeleteClause.where(viewAttributes.viewId.eq(v.getId())).execute();
+			};
+		});
+		template.delete(views, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(views.id.eq(v.getId())).execute();
 			};
 		});
 	}
@@ -299,14 +299,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void deleteAttribute(final Attributes a) {
-		template.delete(attributes, new SqlDeleteCallback() { 
-			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
-				return sqlDeleteClause.where(attributes.id.eq(a.getId())).execute();
-			};
-		});
+		cap.deleteAllAttributes(template, a);
 		template.delete(viewAttributes, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
 				return sqlDeleteClause.where(viewAttributes.attributeId.eq(a.getId())).execute();
+			};
+		});
+		template.delete(attributes, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(attributes.id.eq(a.getId())).execute();
 			};
 		});
 	}

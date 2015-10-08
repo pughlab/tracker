@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
+import org.springframework.data.jdbc.query.SqlDeleteCallback;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
+import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.Path;
@@ -105,6 +107,20 @@ public class CaseAttributePersistence {
 		builder.setAttributeNameFilter(filter);
 		addCaseTuples(template, builder, study, view, caseQuery);
 		return builder.getCaseObjects();
+	}
+	
+	/**
+	 * Removes all attribute values associated with a given attribute.
+	 */
+	public void deleteAllAttributes(QueryDslJdbcTemplate template, final Attributes attribute) {
+		for(Class<?> cls : types.keySet()) {
+			final QCaseAttributeBase<?> atts = types.get(cls);
+			template.delete(atts, new SqlDeleteCallback() { 
+				public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+					return sqlDeleteClause.where(atts.attributeId.eq(attribute.getId())).execute();
+				};
+			});
+		}
 	}
 	
 	/**
