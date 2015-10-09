@@ -19,7 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml", "file:src/test/resources/testContextSecurity.xml" })
+@ContextConfiguration(locations = { "classpath:**/testContextDatabase.xml", "classpath:**/testContextSecurity.xml" })
 public class JdbcAuthorizingRealmTest {
 
 	@Autowired

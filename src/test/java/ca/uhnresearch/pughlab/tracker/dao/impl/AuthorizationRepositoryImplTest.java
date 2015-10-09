@@ -33,7 +33,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "file:src/test/resources/testContextDatabase.xml" })
+@ContextConfiguration(locations = { "classpath:**/testContextDatabase.xml" })
 public class AuthorizationRepositoryImplTest {
 
 	@SuppressWarnings("unused")

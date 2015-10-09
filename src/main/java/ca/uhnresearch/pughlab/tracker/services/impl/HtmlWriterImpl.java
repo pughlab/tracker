@@ -3,14 +3,22 @@ package ca.uhnresearch.pughlab.tracker.services.impl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 import ca.uhnresearch.pughlab.tracker.services.Writer;
 
 public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 
+	@Override
+	protected void labelCell(Document doc, Element cell, String label) {
+		if (label == null) {
+			return;
+		}
+		if (cell.hasAttribute("class")) {
+			label = cell.getAttribute("class") + " " + label;
+		}
+		cell.setAttribute("class", label);
+	}
+	
 	@Override
 	protected void write(Document doc, ViewDataResponse data) {
 		Element rootElement = doc.createElement("html");
@@ -23,81 +31,86 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 		Element bodyElement = doc.createElement("body");
 		rootElement.appendChild(bodyElement);
 		
-		writeWorksheets(doc, bodyElement, data);
+		writeData(doc, bodyElement, data);
 	}
 
-	private void writeWorksheets(Document doc, Element parent, ViewDataResponse data) {
+	@Override
+	protected void writeData(Document doc, Element parent, ViewDataResponse data) {
 		Element table = doc.createElement("table");
 		parent.appendChild(table);
 		
 		writeTableBody(doc, table, data);
 	}
 
-	private void writeTableBody(Document doc, Element parent, ViewDataResponse data) {
+	@Override
+	protected Element makeRowElement(Document doc, Element parent) {
 		Element start = doc.createElement("tr");
 		parent.appendChild(start);
-		for (Attributes column : data.getAttributes()) {
-			writeHeaderCell(doc, start, column.getLabel());
-		}
-		
-		for (JsonNode row : data.getRecords()) {
-			Element rowElement = doc.createElement("tr");
-			parent.appendChild(rowElement);
-			for (Attributes column : data.getAttributes()) {
-				JsonNode value = row.get(column.getName());
-				if (value == null || value.isMissingNode() || value.isNull()) {
-					writeEmptyCell(doc, rowElement);
-				} else if (value.isObject() && value.has("$notAvailable")) {
-					writeNotAvailableCell(doc, rowElement);
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING) ||
-						   column.getType().equals(Attributes.ATTRIBUTE_TYPE_OPTION)) {
-					writeStringCell(doc, rowElement, value.asText());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
-					writeBooleanCell(doc, rowElement, value.asBoolean());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
-					writeDateCell(doc, rowElement, value.asText());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_NUMBER)) {
-					writeNumberCell(doc, rowElement, value.numberValue());
-				} else {
-					throw new RuntimeException("Invalid type: " + column.getType());
-				}
-			}
-		}
+		return start;
 	}
 	
-	private void writeHeaderCell(Document doc, Element parent, String data) {
-		Element body = doc.createElement("th");
-		body.appendChild(doc.createTextNode(data));
-		parent.appendChild(body);
+	@Override
+	protected Element makeCellElement(Document doc, Element parent) {
+		Element start = doc.createElement("td");
+		parent.appendChild(start);
+		return start;
+
+	}
+	
+	@Override
+	protected Element makeHeaderCellElement(Document doc, Element parent) {
+		Element start = doc.createElement("th");
+		parent.appendChild(start);
+		return start;
+
 	}
 
-	private void writeStringCell(Document doc, Element parent, String data) {
-		Element body = doc.createElement("td");
-		body.appendChild(doc.createTextNode(data));
-		parent.appendChild(body);
+	@Override
+	protected void writeStringCell(Document doc, Element cell, String data) {
+		cell.appendChild(doc.createTextNode(data));
 	}
 	
-	private void writeDateCell(Document doc, Element parent, String value) {
+	@Override
+	protected void writeDateCell(Document doc, Element parent, String value) {
 		writeStringCell(doc, parent, value);
 	}
 	
-	private void writeBooleanCell(Document doc, Element parent, Boolean data) {
+	@Override
+	protected void writeBooleanCell(Document doc, Element parent, Boolean data) {
 		writeStringCell(doc, parent, data ? "Yes" : "No");
 	}
 	
-	private void writeNumberCell(Document doc, Element parent, Number data) {
+	@Override
+	protected void writeNumberCell(Document doc, Element parent, Number data) {
 		writeStringCell(doc, parent, data.toString());
 	}
 	
-	private void writeNotAvailableCell(Document doc, Element parent) {
+	@Override
+	protected void writeNotAvailableCell(Document doc, Element parent) {
 		writeStringCell(doc, parent, "#N/A");
 	}
 	
-	private void writeEmptyCell(Document doc, Element parent) {
+	@Override
+	protected void writeEmptyCell(Document doc, Element parent) {
 		writeStringCell(doc, parent, "");
 	}
 	
-	private void writeStyles(Document doc, Element parent) {
-		return;
+	@Override
+	protected void writeStyles(Document doc, Element parent) {
+		Element styles = doc.createElement("style");
+		styles.setAttribute("type", "text/css");
+		
+		// Now let's add some CSS code for the styles
+		styles.appendChild(doc.createTextNode(".label0 { background-color: inherit; }\n"));
+		styles.appendChild(doc.createTextNode(".label1 { background-color: #CBD5E8; }\n"));
+		styles.appendChild(doc.createTextNode(".label2 { background-color: #B3E2CD; }\n"));
+		styles.appendChild(doc.createTextNode(".label3 { background-color: #FDCDAC; }\n"));
+		styles.appendChild(doc.createTextNode(".label4 { background-color: #E6F5C9; }\n"));
+		styles.appendChild(doc.createTextNode(".label5 { background-color: #F4CAE4; }\n"));
+		styles.appendChild(doc.createTextNode(".label6 { background-color: #FFF2AE; }\n"));
+		styles.appendChild(doc.createTextNode(".label7 { background-color: #F1E2CC; }\n"));
+		styles.appendChild(doc.createTextNode(".label8 { background-color: #CCCCCC; }\n"));
+		
+		parent.appendChild(styles);
 	}
 }

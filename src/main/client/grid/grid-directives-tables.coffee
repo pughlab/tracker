@@ -99,7 +99,6 @@ angular
       link: (scope, iElement, iAttrs) ->
 
         getStudyUrl = (study, view) ->
-          console.log 'deriving study url', study, view
           "/api/studies/#{study.name}/views/#{view.name}"
 
         handsonTable = undefined
@@ -289,7 +288,15 @@ angular
                     callback false
 
               else
-                payload = JSON.stringify {value : fieldData[fieldName]}
+                oldValue = @instance.getSourceDataAtRow(@row)[fieldName]
+                oldValue = null if oldValue == undefined
+                value = fieldData[fieldName]
+                value = null if value == undefined
+
+                if angular.equals value, oldValue
+                  return callback true
+
+                payload = JSON.stringify {value : fieldData[fieldName], oldValue: oldValue}
                 $http
                   .put "#{baseUrl}/entities/#{encodeURIComponent(caseIdentifier)}/#{encodeURIComponent(fieldName)}", payload
                   .success (response) ->
