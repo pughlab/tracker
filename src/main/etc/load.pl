@@ -323,7 +323,7 @@ sub extract_workbook {
         $logger->error("No type for field: ", $mapped);
       }
 
-      $data->{$mapped} = $value;
+      $data->{$mapped} //= $value;
     }
 
     ## Now we might have accumulated some additional crap to drop in a notes field. If so, we
