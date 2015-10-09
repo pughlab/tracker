@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,8 @@ public class MockStudyRepository implements StudyRepository {
 	List<MockCaseAttribute> strings = new ArrayList<MockCaseAttribute>();
 	List<MockCaseAttribute> dates = new ArrayList<MockCaseAttribute>();
 	List<MockCaseAttribute> booleans = new ArrayList<MockCaseAttribute>();
+	
+	Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
 
 	public MockStudyRepository() {
 		
@@ -108,26 +112,62 @@ public class MockStudyRepository implements StudyRepository {
 		for(Integer i = 0; i < caseCount; i++) {
 			Calendar date = Calendar.getInstance();
 			date.set(2014, 8, i + 10);
-			dates.add(new MockCaseAttribute(i, "dateEntered", new Date(date.getTimeInMillis())));
-			dates.add(new MockCaseAttribute(i, "consentDate", new Date(date.getTimeInMillis())));
-			strings.add(new MockCaseAttribute(i, "patientId", String.format("DEMO-%02d", i)));
+			setDataAttribute(i, "dateEntered", new Date(date.getTimeInMillis()));
+			setDataAttribute(i, "consentDate", new Date(date.getTimeInMillis()));
+			setDataAttribute(i, "patientId", String.format("DEMO-%02d", i));
 		}
 		
-		strings.add(new MockCaseAttribute(0, "mrn", "0101010"));
-		strings.add(new MockCaseAttribute(1, "mrn", "0202020"));
-		strings.add(new MockCaseAttribute(2, "mrn", "0303030"));
-		strings.add(new MockCaseAttribute(3, "mrn", "0404040"));
-		strings.add(new MockCaseAttribute(4, "mrn", "0505050"));
+		setDataAttribute(0, "mrn", "0101010");
+		setDataAttribute(1, "mrn", "0202020");
+		setDataAttribute(2, "mrn", "0303030");
+		setDataAttribute(3, "mrn", "0404040");
+		setDataAttribute(4, "mrn", "0505050");
 
-		booleans.add(new MockCaseAttribute(0, "specimenAvailable", true));
-		booleans.add(new MockCaseAttribute(1, "specimenAvailable", false));
-		booleans.add(new MockCaseAttribute(2, "specimenAvailable", true));
-		MockCaseAttribute bv = new MockCaseAttribute(3, "specimenAvailable", null);
-		bv.setNotAvailable(true);
-		booleans.add(bv);
-		booleans.add(new MockCaseAttribute(4, "specimenAvailable", false));
+		setDataAttribute(0, "specimenAvailable", true);
+		setDataAttribute(1, "specimenAvailable", false);
+		setDataAttribute(2, "specimenAvailable", true);
+		setDataAttributeNotAvailable(3, "specimenAvailable");
+		setDataAttribute(4, "specimenAvailable", false);
+		
+		JsonObject notes = new JsonObject();
+		notes.addProperty("locked", true);
+		JsonArray tagArray = new JsonArray();
+		tagArray.add(new JsonPrimitive("label3"));
+		notes.add("tags", tagArray);
+		
+		setDataAttributeNotes(4, "consentDate", notes);
 	}
 	
+	private JsonObject getDataObject(Integer caseId) {
+		if (! data.containsKey(caseId)) {
+			data.put(caseId, new JsonObject());
+		}
+		return data.get(caseId);
+	}
+	
+	private void setDataAttribute(Integer caseId, String property, String value) {
+		getDataObject(caseId).addProperty(property, value);
+	}
+	
+	private void setDataAttribute(Integer caseId, String property, Date value) {
+		getDataObject(caseId).addProperty(property, value.toString());
+	}
+	
+	private void setDataAttribute(Integer caseId, String property, Boolean value) {
+		getDataObject(caseId).addProperty(property, value);
+	}
+	
+	private void setDataAttributeNotes(Integer caseId, String property, JsonElement value) {
+		JsonObject obj = getDataObject(caseId);
+		if (! obj.has("$notes"))
+			obj.add("$notes", new JsonObject());
+		obj.getAsJsonObject("$notes").add(property, value);
+	}
+
+	private void setDataAttributeNotAvailable(Integer caseId, String property) {
+		getDataObject(caseId).add(property, getNotAvailableValue());
+	}
+
 	private Cases mockCase(Integer id) {
 		Cases c = new Cases();
 		c.setId(id);
@@ -287,49 +327,6 @@ public class MockStudyRepository implements StudyRepository {
 	 * @return
 	 */
 	private Map<Integer, JsonObject> getAllData(Study study, View view) {
-		
-		Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
-		for(Cases caseRecord : cases) {
-			if (! data.containsKey(caseRecord.getId())) {
-				JsonObject record = new JsonObject();
-				record.addProperty("$state", caseRecord.getState());
-				data.put(caseRecord.getId(), record);
-			}
-		}
-		for(MockCaseAttribute string : strings) {
-			Integer caseId = string.getCaseId();
-			if (! data.containsKey(caseId)) {
-				data.put(caseId, new JsonObject());
-			}
-			if (string.getNotAvailable()) {
-				data.get(caseId).add(string.getAttribute(), getNotAvailableValue());
-			} else {
-				data.get(caseId).addProperty(string.getAttribute(), (String) string.getValue());
-			}
-		}
-		for(MockCaseAttribute date : dates) {
-			Integer caseId = date.getCaseId();
-			if (! data.containsKey(caseId)) {
-				data.put(caseId, new JsonObject());
-			}
-			if (date.getNotAvailable()) {
-				data.get(caseId).add(date.getAttribute(), getNotAvailableValue());
-			} else {
-				data.get(caseId).addProperty(date.getAttribute(), date.getValue().toString());
-			}
-		}
-		for(MockCaseAttribute bool : booleans) {
-			Integer caseId = bool.getCaseId();
-			if (! data.containsKey(caseId)) {
-				data.put(caseId, new JsonObject());
-			}
-			if (bool.getNotAvailable()) {
-				data.get(caseId).add(bool.getAttribute(), getNotAvailableValue());
-			} else {
-				data.get(caseId).addProperty(bool.getAttribute(), (Boolean) bool.getValue());
-			}
-		}
-		
 		return data;
 	}
 	
@@ -377,8 +374,9 @@ public class MockStudyRepository implements StudyRepository {
 				ObjectNode copy = entry.deepCopy();
 				Iterator<String> fields = entry.fieldNames();
 				while(fields.hasNext()) {
-					if (! includedAttributes.contains(fields.next())) {
-						copy.remove(fields.next());
+					String nextField = fields.next();
+					if (! includedAttributes.contains(nextField) && ! nextField.equals("$notes")) {
+						copy.remove(nextField);
 					}
 				}
 				returnable.add(copy);
