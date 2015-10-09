@@ -9,6 +9,17 @@ import ca.uhnresearch.pughlab.tracker.services.Writer;
 public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 
 	@Override
+	protected void labelCell(Document doc, Element cell, String label) {
+		if (label == null) {
+			return;
+		}
+		if (cell.hasAttribute("class")) {
+			label = cell.getAttribute("class") + " " + label;
+		}
+		cell.setAttribute("class", label);
+	}
+	
+	@Override
 	protected void write(Document doc, ViewDataResponse data) {
 		Element rootElement = doc.createElement("html");
 		doc.appendChild(rootElement);
@@ -20,10 +31,11 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 		Element bodyElement = doc.createElement("body");
 		rootElement.appendChild(bodyElement);
 		
-		writeWorksheets(doc, bodyElement, data);
+		writeData(doc, bodyElement, data);
 	}
 
-	private void writeWorksheets(Document doc, Element parent, ViewDataResponse data) {
+	@Override
+	protected void writeData(Document doc, Element parent, ViewDataResponse data) {
 		Element table = doc.createElement("table");
 		parent.appendChild(table);
 		
@@ -38,17 +50,24 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 	}
 	
 	@Override
-	protected void writeHeaderCell(Document doc, Element parent, String data) {
-		Element body = doc.createElement("th");
-		body.appendChild(doc.createTextNode(data));
-		parent.appendChild(body);
+	protected Element makeCellElement(Document doc, Element parent) {
+		Element start = doc.createElement("td");
+		parent.appendChild(start);
+		return start;
+
+	}
+	
+	@Override
+	protected Element makeHeaderCellElement(Document doc, Element parent) {
+		Element start = doc.createElement("th");
+		parent.appendChild(start);
+		return start;
+
 	}
 
 	@Override
-	protected void writeStringCell(Document doc, Element parent, String data) {
-		Element body = doc.createElement("td");
-		body.appendChild(doc.createTextNode(data));
-		parent.appendChild(body);
+	protected void writeStringCell(Document doc, Element cell, String data) {
+		cell.appendChild(doc.createTextNode(data));
 	}
 	
 	@Override
@@ -76,7 +95,22 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 		writeStringCell(doc, parent, "");
 	}
 	
+	@Override
 	protected void writeStyles(Document doc, Element parent) {
-		return;
+		Element styles = doc.createElement("style");
+		styles.setAttribute("type", "text/css");
+		
+		// Now let's add some CSS code for the styles
+		styles.appendChild(doc.createTextNode(".label0 { background-color: inherit; }\n"));
+		styles.appendChild(doc.createTextNode(".label1 { background-color: #CBD5E8; }\n"));
+		styles.appendChild(doc.createTextNode(".label2 { background-color: #B3E2CD; }\n"));
+		styles.appendChild(doc.createTextNode(".label3 { background-color: #FDCDAC; }\n"));
+		styles.appendChild(doc.createTextNode(".label4 { background-color: #E6F5C9; }\n"));
+		styles.appendChild(doc.createTextNode(".label5 { background-color: #F4CAE4; }\n"));
+		styles.appendChild(doc.createTextNode(".label6 { background-color: #FFF2AE; }\n"));
+		styles.appendChild(doc.createTextNode(".label7 { background-color: #F1E2CC; }\n"));
+		styles.appendChild(doc.createTextNode(".label8 { background-color: #CCCCCC; }\n"));
+		
+		parent.appendChild(styles);
 	}
 }

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -129,6 +128,8 @@ public class MockStudyRepository implements StudyRepository {
 		setDataAttributeNotAvailable(3, "specimenAvailable");
 		setDataAttribute(4, "specimenAvailable", false);
 		
+		setDataState(3, "pending");
+		
 		JsonObject notes = new JsonObject();
 		notes.addProperty("locked", true);
 		JsonArray tagArray = new JsonArray();
@@ -157,6 +158,10 @@ public class MockStudyRepository implements StudyRepository {
 		getDataObject(caseId).addProperty(property, value);
 	}
 	
+	private void setDataState(Integer caseId, String state) {
+		setDataAttribute(caseId, "$state", state);
+	}
+
 	private void setDataAttributeNotes(Integer caseId, String property, JsonElement value) {
 		JsonObject obj = getDataObject(caseId);
 		if (! obj.has("$notes"))
@@ -194,6 +199,14 @@ public class MockStudyRepository implements StudyRepository {
 		study.setId(id);
 		study.setName(name);
 		study.setDescription(description);
+
+		try {
+			String optionsString = "{\"stateLabels\":{\"pending\":\"label1\",\"returnPending\":\"label2\"}}";
+			study.setOptions(mapper.readTree(optionsString));
+		} catch (Exception e) {
+			throw new RuntimeException("Test error: " + e.getMessage());
+		}
+		
 		return study;
 	}
 
@@ -375,7 +388,7 @@ public class MockStudyRepository implements StudyRepository {
 				Iterator<String> fields = entry.fieldNames();
 				while(fields.hasNext()) {
 					String nextField = fields.next();
-					if (! includedAttributes.contains(nextField) && ! nextField.equals("$notes")) {
+					if (! includedAttributes.contains(nextField) && ! nextField.startsWith("$")) {
 						copy.remove(nextField);
 					}
 				}
