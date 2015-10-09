@@ -3,15 +3,19 @@ package ca.uhnresearch.pughlab.tracker.services.impl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 import ca.uhnresearch.pughlab.tracker.services.Writer;
 
 public class ExcelWriterImpl extends AbstractXMLWriter implements Writer {
 	
 	private final String EXCEL_NAMESPACE = "urn:schemas-microsoft-com:office:spreadsheet";
+	
+	@Override
+	protected Element makeRowElement(Document doc, Element parent) {
+		Element start = doc.createElement("ss:Row");
+		parent.appendChild(start);
+		return start;
+	}
 	
 	@Override
 	protected void write(Document doc, ViewDataResponse data) {
@@ -48,39 +52,7 @@ public class ExcelWriterImpl extends AbstractXMLWriter implements Writer {
 		style.appendChild(format);
 	}
 	
-	private void writeTableBody(Document doc, Element parent, ViewDataResponse data) {
-		Element start = doc.createElement("ss:Row");
-		parent.appendChild(start);
-		for (Attributes column : data.getAttributes()) {
-			writeHeaderCell(doc, start, column.getLabel());
-		}
-		
-		for (JsonNode row : data.getRecords()) {
-			Element rowElement = doc.createElement("ss:Row");
-			parent.appendChild(rowElement);
-			for (Attributes column : data.getAttributes()) {
-				JsonNode value = row.get(column.getName());
-				if (value == null || value.isMissingNode() || value.isNull()) {
-					writeEmptyCell(doc, rowElement);
-				} else if (value.isObject() && value.has("$notAvailable")) {
-					writeNotAvailableCell(doc, rowElement);
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING) ||
-						   column.getType().equals(Attributes.ATTRIBUTE_TYPE_OPTION)) {
-					writeStringCell(doc, rowElement, value.asText());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
-					writeBooleanCell(doc, rowElement, value.asBoolean());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
-					writeDateCell(doc, rowElement, value.asText());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_NUMBER)) {
-					writeNumberCell(doc, rowElement, value.numberValue());
-				} else {
-					throw new RuntimeException("Invalid type: " + column.getType());
-				}
-			}
-		}
-	}
-	
-	private void writeDateCell(Document doc, Element parent, String date) {
+	protected void writeDateCell(Document doc, Element parent, String date) {
 		Element cell = doc.createElement("ss:Cell");
 		cell.setAttribute("ss:StyleID", "date1");
 		parent.appendChild(cell);
@@ -93,7 +65,8 @@ public class ExcelWriterImpl extends AbstractXMLWriter implements Writer {
 	}
 	
 
-	private void writeBooleanCell(Document doc, Element parent, Boolean data) {
+	@Override
+	protected void writeBooleanCell(Document doc, Element parent, Boolean data) {
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 		
@@ -104,7 +77,8 @@ public class ExcelWriterImpl extends AbstractXMLWriter implements Writer {
 		cell.appendChild(body);
 	}
 	
-	private void writeNumberCell(Document doc, Element parent, Number data) {
+	@Override
+	protected void writeNumberCell(Document doc, Element parent, Number data) {
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 		
@@ -115,12 +89,14 @@ public class ExcelWriterImpl extends AbstractXMLWriter implements Writer {
 		cell.appendChild(body);
 	}
 	
-	private void writeEmptyCell(Document doc, Element parent) {
+	@Override
+	protected void writeEmptyCell(Document doc, Element parent) {
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 	}
 	
-	private void writeNotAvailableCell(Document doc, Element parent) {
+	@Override
+	protected void writeNotAvailableCell(Document doc, Element parent) {
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 
@@ -131,11 +107,13 @@ public class ExcelWriterImpl extends AbstractXMLWriter implements Writer {
 		cell.appendChild(body);
 	}
 	
-	private void writeHeaderCell(Document doc, Element parent, String data) {
+	@Override
+	protected void writeHeaderCell(Document doc, Element parent, String data) {
 		writeStringCell(doc, parent, data);
 	}
 
-	private void writeStringCell(Document doc, Element parent, String data) {
+	@Override
+	protected void writeStringCell(Document doc, Element parent, String data) {
 		Element cell = doc.createElement("ss:Cell");
 		parent.appendChild(cell);
 		

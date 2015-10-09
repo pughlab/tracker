@@ -3,9 +3,6 @@ package ca.uhnresearch.pughlab.tracker.services.impl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 import ca.uhnresearch.pughlab.tracker.services.Writer;
 
@@ -33,71 +30,53 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 		writeTableBody(doc, table, data);
 	}
 
-	private void writeTableBody(Document doc, Element parent, ViewDataResponse data) {
+	@Override
+	protected Element makeRowElement(Document doc, Element parent) {
 		Element start = doc.createElement("tr");
 		parent.appendChild(start);
-		for (Attributes column : data.getAttributes()) {
-			writeHeaderCell(doc, start, column.getLabel());
-		}
-		
-		for (JsonNode row : data.getRecords()) {
-			Element rowElement = doc.createElement("tr");
-			parent.appendChild(rowElement);
-			for (Attributes column : data.getAttributes()) {
-				JsonNode value = row.get(column.getName());
-				if (value == null || value.isMissingNode() || value.isNull()) {
-					writeEmptyCell(doc, rowElement);
-				} else if (value.isObject() && value.has("$notAvailable")) {
-					writeNotAvailableCell(doc, rowElement);
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_STRING) ||
-						   column.getType().equals(Attributes.ATTRIBUTE_TYPE_OPTION)) {
-					writeStringCell(doc, rowElement, value.asText());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_BOOLEAN)) {
-					writeBooleanCell(doc, rowElement, value.asBoolean());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_DATE)) {
-					writeDateCell(doc, rowElement, value.asText());
-				} else if (column.getType().equals(Attributes.ATTRIBUTE_TYPE_NUMBER)) {
-					writeNumberCell(doc, rowElement, value.numberValue());
-				} else {
-					throw new RuntimeException("Invalid type: " + column.getType());
-				}
-			}
-		}
+		return start;
 	}
 	
-	private void writeHeaderCell(Document doc, Element parent, String data) {
+	@Override
+	protected void writeHeaderCell(Document doc, Element parent, String data) {
 		Element body = doc.createElement("th");
 		body.appendChild(doc.createTextNode(data));
 		parent.appendChild(body);
 	}
 
-	private void writeStringCell(Document doc, Element parent, String data) {
+	@Override
+	protected void writeStringCell(Document doc, Element parent, String data) {
 		Element body = doc.createElement("td");
 		body.appendChild(doc.createTextNode(data));
 		parent.appendChild(body);
 	}
 	
-	private void writeDateCell(Document doc, Element parent, String value) {
+	@Override
+	protected void writeDateCell(Document doc, Element parent, String value) {
 		writeStringCell(doc, parent, value);
 	}
 	
-	private void writeBooleanCell(Document doc, Element parent, Boolean data) {
+	@Override
+	protected void writeBooleanCell(Document doc, Element parent, Boolean data) {
 		writeStringCell(doc, parent, data ? "Yes" : "No");
 	}
 	
-	private void writeNumberCell(Document doc, Element parent, Number data) {
+	@Override
+	protected void writeNumberCell(Document doc, Element parent, Number data) {
 		writeStringCell(doc, parent, data.toString());
 	}
 	
-	private void writeNotAvailableCell(Document doc, Element parent) {
+	@Override
+	protected void writeNotAvailableCell(Document doc, Element parent) {
 		writeStringCell(doc, parent, "#N/A");
 	}
 	
-	private void writeEmptyCell(Document doc, Element parent) {
+	@Override
+	protected void writeEmptyCell(Document doc, Element parent) {
 		writeStringCell(doc, parent, "");
 	}
 	
-	private void writeStyles(Document doc, Element parent) {
+	protected void writeStyles(Document doc, Element parent) {
 		return;
 	}
 }
