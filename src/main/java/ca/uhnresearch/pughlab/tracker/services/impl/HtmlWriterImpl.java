@@ -65,34 +65,39 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 
 	}
 
-	@Override
-	protected void writeStringCell(Document doc, Element cell, String data) {
+	private void writeRawStringCell(Document doc, Element cell, String data) {
 		cell.appendChild(doc.createTextNode(data));
 	}
 	
 	@Override
+	protected void writeStringCell(Document doc, Element cell, String data) {
+		String newlinedData = data.replace("\n", "<br>\n");
+		writeRawStringCell(doc, cell, newlinedData);
+	}
+	
+	@Override
 	protected void writeDateCell(Document doc, Element parent, String value) {
-		writeStringCell(doc, parent, value);
+		writeRawStringCell(doc, parent, value);
 	}
 	
 	@Override
 	protected void writeBooleanCell(Document doc, Element parent, Boolean data) {
-		writeStringCell(doc, parent, data ? "Yes" : "No");
+		writeRawStringCell(doc, parent, data ? "Yes" : "No");
 	}
 	
 	@Override
 	protected void writeNumberCell(Document doc, Element parent, Number data) {
-		writeStringCell(doc, parent, data.toString());
+		writeRawStringCell(doc, parent, data.toString());
 	}
 	
 	@Override
 	protected void writeNotAvailableCell(Document doc, Element parent) {
-		writeStringCell(doc, parent, "#N/A");
+		writeRawStringCell(doc, parent, "#N/A");
 	}
 	
 	@Override
 	protected void writeEmptyCell(Document doc, Element parent) {
-		writeStringCell(doc, parent, "");
+		writeRawStringCell(doc, parent, "");
 	}
 	
 	@Override

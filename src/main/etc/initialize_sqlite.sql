@@ -66,7 +66,7 @@ INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VAL
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (14, 14, 1, 'biobankReason', 'Reason Tissue Not Banked', 'string');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (15, 15, 1, 'requestDate', 'Date Request Processed', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (16, 16, 1, 'LMPComments', 'LMP Comments', 'string');
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (17, 17, 1, 'blockLocation', 'Current Block Location', 'string');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (17, 17, 1, 'geneMutation', 'Gene >> Mutation (Frequency, Class)', 'string');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (18, 18, 1, 'numberCores', 'Number of cores', 'number');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (19, 19, 1, 'specimenBiobankDate', 'Date Specimen went to Biobank', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (20, 20, 1, 'specimenType', 'Specimen Type Collected by CSP (block/slides)', 'string');
@@ -347,6 +347,11 @@ INSERT INTO "CASE_ATTRIBUTE_BOOLEANS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUE
 INSERT INTO "CASE_ATTRIBUTE_BOOLEANS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (2, 12, 0);
 INSERT INTO "CASE_ATTRIBUTE_BOOLEANS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (3, 12, 0);
 INSERT INTO "CASE_ATTRIBUTE_BOOLEANS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (5, 12, 0);
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (1, 17, 'KRAS >> G12C (37%)');
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (2, 17, 'No mutations');
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (3, 17, 'No mutations');
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (4, 17, 'EGFR >> L747_S752del (3%)');
+INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (5, 17, 'BRAF >> V600E (73%)\nPIK3CA >> E545G (31%)');
 INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (1, 26, 'This is an extremely long note, which should be able to wrap around and which ought to be clipped properly in the grid');
 INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (1, 27, 'primary');
 INSERT INTO "CASE_ATTRIBUTE_STRINGS" ("CASE_ID", "ATTRIBUTE_ID", "VALUE") VALUES (2, 27, 'primary');
