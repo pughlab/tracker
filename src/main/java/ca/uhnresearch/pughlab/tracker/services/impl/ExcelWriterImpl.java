@@ -158,7 +158,9 @@ public class ExcelWriterImpl extends AbstractXMLWriter implements Writer {
 	protected void writeStringCell(Document doc, Element cell, String data) {
 		Element body = doc.createElement("ss:Data");
 		body.setAttribute("ss:Type", "String");
-		body.appendChild(doc.createTextNode(data));
+		
+		String newlinedData = data.replace("\n", "\r");
+		body.appendChild(doc.createTextNode(newlinedData));
 		
 		cell.appendChild(body);
 	}
