@@ -20,7 +20,7 @@ FilterDropdown = (element, options) ->
       }
 
       @.$widget = $(@getTemplate()).on('click', $.proxy(@widgetClick, @))
-      @.$widget.find('textarea').each () ->
+      @.$widget.find('input').each () ->
         $(@).on {
           'click.filterdropdown': () -> $(@).select()
           'keyup.filterdropdown': $.proxy(self.widgetKeyup, self)
