@@ -27,6 +27,12 @@
                 <Set name="url">jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</Set>
                 <Set name="username">sa</Set>
                 <Set name="password"></Set>
+                <Set name="connectionInitSqls">
+                    <New class="java.util.ArrayList">
+                        <Call name="add"><Arg class="java.lang.String">SET DATABASE TRANSACTION CONTROL MVCC</Arg></Call>
+                        <Call name="add"><Arg class="java.lang.String">SET DATABASE DEFAULT ISOLATION LEVEL READ COMMITTED</Arg></Call>
+                    </New>
+                </Set>
             </New>
         </Arg>
     </New>
