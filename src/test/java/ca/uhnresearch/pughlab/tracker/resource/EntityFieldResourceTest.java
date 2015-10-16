@@ -153,7 +153,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:read:patientId")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
@@ -201,9 +201,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:read:patientId")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
         replay(subjectUnderTest);
@@ -251,9 +249,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -284,9 +280,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -318,9 +312,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -350,9 +342,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -392,9 +382,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -434,9 +422,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
