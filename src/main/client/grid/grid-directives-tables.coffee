@@ -2,7 +2,7 @@ angular
   .module 'tracker.grid'
 
 
-  .directive 'trackerSearchButton', () ->
+  .directive 'clearableButton', () ->
 
     result =
       restrict: "A"

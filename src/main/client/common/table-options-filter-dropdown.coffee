@@ -42,6 +42,7 @@ FilterDropdown = (element, options) ->
       "<div class='form-group form-group-sm'>" +
       "<label for='filter-input'>#{@filter.header} matches: </label>" +
       "<input type='text' class='form-control' name='filter' id='filter-input'>" +
+      "<a role='button' class='clear-button' aria-label='Clear'><span class='glyphicon glyphicon-remove-circle'></span></a>" +
       "</div>" +
       "</form>" +
       "</div>"
@@ -143,16 +144,22 @@ FilterDropdown = (element, options) ->
       $(document).on 'mousedown.filterdropdown, touchend.filterdropdown', (e) ->
         self.hideWidget() if !(self.$element.parent().find(e.target).length || self.$widget.is(e.target) || self.$widget.find(e.target).length)
 
-      @.$element.trigger {
+      @$widget.find(".clear-button").on 'mousedown.filterdropdown, touchend.filterdropdown', (e) ->
+        e.stopPropagation()
+        e.preventDefault()
+        self.$widget.find("input").val("")
+        self.$widget.find("input").focus()
+
+      @$element.trigger {
         'type': 'show.filterdropdown',
         'text': @getText()
       }
 
       @place()
-      @.$element.blur()
+      @$element.blur()
 
-      @.$widget.addClass('open') if @isOpen == false
-      @.$widget.find("input").focus()
+      @$widget.addClass('open') if @isOpen == false
+      @$widget.find("input").focus()
       @isOpen = true
 
     update: (ignoreWidget) ->
@@ -191,6 +198,7 @@ FilterDropdown = (element, options) ->
 
     widgetKeyup: (e) ->
       @updateFromWidgetInputs()
+      console.log "Sending event", @$element, 'keyup.filterdropdown'
       @.$element.trigger {
         'type': 'keyup.filterdropdown',
         'text': @getText(),
