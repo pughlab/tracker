@@ -32,7 +32,7 @@ FilterDropdown = (element, options) ->
       @updateFromElementVal()
 
     clear: () ->
-      @$widget.find('input').val('')
+      @$element.val('')
 
     elementKeydown: (e) ->
       @update()
