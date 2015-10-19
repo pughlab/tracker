@@ -14,16 +14,17 @@ FilterDropdown = (element, options) ->
 
     _init: () ->
       self = @
-      @.$element.on {
+      @$element.on {
         'click.filterdropdown': $.proxy(@showWidget, @)
         'blur.filterdropdown': $.proxy(@blurElement, @)
       }
 
-      @.$widget = $(@getTemplate()).on('click', $.proxy(@widgetClick, @))
-      @.$widget.find('input').each () ->
+      @$widget = $(@getTemplate()).on('click', $.proxy(@widgetClick, @))
+      @$widget.find('input').each () ->
         $(@).on {
           'click.filterdropdown': () -> $(@).select()
           'keyup.filterdropdown': $.proxy(self.widgetKeyup, self)
+          'keydown.filterdropdown': $.proxy(self.widgetKeydown, self)
         }
 
     blurElement: () ->
@@ -195,6 +196,11 @@ FilterDropdown = (element, options) ->
       if action
         @[action]()
       @update()
+
+
+    ## Stop keydown events propagating, as these go through to the grid
+    widgetKeydown: (e) ->
+      e.stopPropagation()
 
     widgetKeyup: (e) ->
       @updateFromWidgetInputs()
