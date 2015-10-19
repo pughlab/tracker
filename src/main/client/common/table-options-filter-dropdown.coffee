@@ -138,7 +138,6 @@ FilterDropdown = (element, options) ->
       return if @isOpen
       return if @.$element.is(':disabled')
 
-
       @.$widget.appendTo(@container)
       self = @;
       $(document).on 'mousedown.filterdropdown, touchend.filterdropdown', (e) ->

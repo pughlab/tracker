@@ -5,6 +5,9 @@ filterAction = (evt) ->
   button = evt.detail.element
   $(button).filterdropdown({filter: evt.detail})
   $(button).filterdropdown('showWidget')
+  $(button).on 'keyup.filterdropdown', (e) ->
+    if e.originalEvent.keyCode == 27
+      $(button).filterdropdown('hideWidget')
 
 
 TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
