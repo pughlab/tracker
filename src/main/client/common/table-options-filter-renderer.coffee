@@ -13,10 +13,16 @@ filterAction = (evt) ->
 
     ## Enter key, apply the filter
     if e.originalEvent.keyCode == 13
+      cell = evt.detail.cell
+      cell.textContent = $(button).filterdropdown('getText')
+
       $(button).filterdropdown('hideWidget')
 
 
 TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
+
+  text = document.createElement("div")
+  text.classList.add("tracker-filter-value")
 
   button = document.createElement('button')
   button.style.float = "right"
@@ -32,13 +38,15 @@ TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
   propertyName = prop()
   headerName = instance.getColHeader(col)
   columnType = instance.trackerData?.typeTable?[col]
+
   button.addEventListener "click", (evt) ->
-    myEvent = new evt.view.CustomEvent("filter", {detail: {property: propertyName, element: button, header: headerName, type: columnType}})
+    myEvent = new evt.view.CustomEvent("filter", {detail: {instance: instance, cell: text, property: propertyName, element: button, header: headerName, type: columnType}})
     filterAction myEvent
 
   while TD.firstChild
     TD.removeChild TD.firstChild
   TD.appendChild(button)
+  TD.appendChild(text)
 
 
 Handsontable.TrackerFilterRenderer = TrackerFilterRenderer

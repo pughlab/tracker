@@ -135,7 +135,6 @@ FilterDropdown = (element, options) ->
       @update(ignoreWidget)
 
     showWidget: (e) ->
-      console.log "Called showWidget"
       e.preventDefault() if e?
       return if @isOpen
       return if @$element.is(':disabled')
