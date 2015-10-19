@@ -47,7 +47,7 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     		throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
     	}
     	
-    	if (! currentUser.isPermitted(study.getName() + ":write") ||
+    	if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName()) ||
     		! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}

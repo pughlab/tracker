@@ -40,8 +40,8 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	Subject currentUser = SecurityUtils.getSubject();
 
     	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	boolean writeUser = currentUser.isPermitted(study.getName() + ":write");
-    	if (! writeUser) {
+    	boolean createUser = currentUser.isPermitted(study.getName() + ":create");
+    	if (! createUser) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
@@ -56,6 +56,20 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     		EntityResponse caseData = converter.toObject(input, EntityResponse.class, this);
 			logger.debug("Got new case data {}", caseData);
 			
+			ObjectNode attributes = caseData.getEntity();
+			Iterator<Map.Entry<String,JsonNode>> fieldIterator = attributes.fields();
+
+			// Check permissions before we create a new case
+			while(fieldIterator.hasNext()) {
+				Map.Entry<String,JsonNode> field = fieldIterator.next();
+				String attributeName = field.getKey();
+				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
+		    	if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName()) ||
+	        		! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
+	        		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+	        	}
+			}
+			
 			PrincipalCollection principals = currentUser.getPrincipals();
 			String user = principals.getPrimaryPrincipal().toString();
 			Cases newCase = getRepository().newStudyCase(study, view, user);
@@ -65,13 +79,12 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			
 			// And now we should write any attributes we have into the new
 			// case. 
-			ObjectNode attributes = caseData.getEntity();
-			Iterator<Map.Entry<String,JsonNode>> fieldIterator = attributes.fields();
+			fieldIterator = attributes.fields();
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
 				String attributeName = field.getKey();
 				JsonNode attributeValue = field.getValue();
-				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
+				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);				
 				getRepository().setCaseAttributeValue(study, view, newCase, attribute, user, attributeValue);
 			}
 			

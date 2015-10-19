@@ -28,9 +28,13 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
+import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
@@ -149,7 +153,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:read:patientId")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
@@ -197,9 +201,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:read:patientId")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
         replay(subjectUnderTest);
@@ -247,9 +249,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -280,9 +280,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -314,9 +312,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:read")).andStubReturn(true);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("OTHER:read")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -331,5 +327,127 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		thrown.expectMessage(containsString("Server Error"));
 
 		resource.putResource(new StringRepresentation("", APPLICATION_JSON));
+	}
+
+	/**
+	 * Tests that writing to a entity field with only read access permitted fails
+	 * appropriately. 
+	 * @throws IOException
+	 * @throws RepositoryException 
+	 */
+	@Test
+	public void resourcePutTestInvalidValueException() throws IOException, RepositoryException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		Attributes testAttribute = repository.getStudyAttribute(testStudy, "patientId");
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(resource.getRequest(), testCase);
+		RequestAttributes.setRequestAttribute(resource.getRequest(), testAttribute);
+		
+		StudyRepository repository = createMock(StudyRepository.class);
+		repository.setCaseAttributeValue(eq(testStudy), eq(testView), eq(testCase), eq(testAttribute), eq("stuart"), anyObject(JsonNode.class));
+		expectLastCall().andThrow(new InvalidValueException("Invalid value"));
+		replay(repository);
+		
+		resource.setRepository(repository);
+		
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Bad Request"));
+
+		resource.putResource(new StringRepresentation("{\"value\":\"TST-001\"}", APPLICATION_JSON));
+	}
+
+	/**
+	 * Tests that writing to a entity field with only read access permitted fails
+	 * appropriately. 
+	 * @throws IOException
+	 * @throws RepositoryException 
+	 */
+	@Test
+	public void resourcePutTestNotFoundException() throws IOException, RepositoryException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		Attributes testAttribute = repository.getStudyAttribute(testStudy, "patientId");
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(resource.getRequest(), testCase);
+		RequestAttributes.setRequestAttribute(resource.getRequest(), testAttribute);
+		
+		StudyRepository repository = createMock(StudyRepository.class);
+		repository.setCaseAttributeValue(eq(testStudy), eq(testView), eq(testCase), eq(testAttribute), eq("stuart"), anyObject(JsonNode.class));
+		expectLastCall().andThrow(new NotFoundException("Not Found"));
+		replay(repository);
+		
+		resource.setRepository(repository);
+		
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Not Found"));
+
+		resource.putResource(new StringRepresentation("{\"value\":\"TST-001\"}", APPLICATION_JSON));
+	}
+
+	/**
+	 * Tests that writing to a entity field with only read access permitted fails
+	 * appropriately. 
+	 * @throws IOException
+	 * @throws RepositoryException 
+	 */
+	@Test
+	public void resourcePutTestRepositoryException() throws IOException, RepositoryException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		Cases testCase = repository.getStudyCase(testStudy, testView, 3);
+		Attributes testAttribute = repository.getStudyAttribute(testStudy, "patientId");
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+		RequestAttributes.setRequestEntity(resource.getRequest(), testCase);
+		RequestAttributes.setRequestAttribute(resource.getRequest(), testAttribute);
+		
+		RepositoryException error = createMock(RepositoryException.class);
+		replay(error);
+		StudyRepository repository = createMock(StudyRepository.class);
+		repository.setCaseAttributeValue(eq(testStudy), eq(testView), eq(testCase), eq(testAttribute), eq("stuart"), anyObject(JsonNode.class));
+		expectLastCall().andThrow(error);
+		replay(repository);
+		
+		resource.setRepository(repository);
+		
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Internal Server Error"));
+
+		resource.putResource(new StringRepresentation("{\"value\":\"TST-001\"}", APPLICATION_JSON));
 	}
 }

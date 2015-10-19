@@ -5,7 +5,7 @@ import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttribut
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +41,7 @@ import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 
 public class CaseAttributePersistence {
 	
-	public Map<Class<?>, QCaseAttributeBase<?>> types = new HashMap<Class<?>, QCaseAttributeBase<?>>();
+	public Map<Class<?>, QCaseAttributeBase<?>> types = new LinkedHashMap<Class<?>, QCaseAttributeBase<?>>();
 	
 	private QCaseAttributeBase<?> getCaseAttribute(Class<?> cls) {
 		if (! types.containsKey(cls)) {
