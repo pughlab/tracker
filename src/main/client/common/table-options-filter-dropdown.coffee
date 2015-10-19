@@ -5,6 +5,7 @@ FilterDropdown = (element, options) ->
     this.orientation = options.orientation
     this.container = options.container
     this.filter = options.filter
+    this.value = options.value
     @_init()
     @
 
@@ -21,6 +22,7 @@ FilterDropdown = (element, options) ->
 
       @$widget = $(@getTemplate()).on('click', $.proxy(@widgetClick, @))
       @$widget.find('input').each () ->
+        $(@).val(self.filter.value)
         $(@).on {
           'click.filterdropdown': () -> $(@).select()
           'keyup.filterdropdown': $.proxy(self.widgetKeyup, self)

@@ -2,9 +2,12 @@
 ## filter information back into the system.
 
 filterAction = (evt) ->
-  button = evt.detail.element
+  button = evt.detail.button
   $(button).filterdropdown({filter: evt.detail})
   $(button).filterdropdown('showWidget')
+
+  text = evt.detail.text
+
   $(button).on 'keyup.filterdropdown', (e) ->
 
     ## Escape key, close the filter
@@ -42,7 +45,7 @@ TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
   columnType = instance.trackerData?.typeTable?[col]
 
   button.addEventListener "click", (evt) ->
-    myEvent = new evt.view.CustomEvent("filter", {detail: {instance: instance, cell: text, property: propertyName, element: button, header: headerName, type: columnType}})
+    myEvent = new evt.view.CustomEvent("filter", {value: value, detail: {instance: instance, text: text, value: value, property: propertyName, button: button, header: headerName, type: columnType}})
     filterAction myEvent
 
   while TD.firstChild
