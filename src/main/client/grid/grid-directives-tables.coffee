@@ -405,6 +405,12 @@ angular
                   cellProperties.renderer = Handsontable.TrackerFilterRenderer
                   cellProperties.editor = 'text'
                 cellProperties
+              afterChange: (changes, source) ->
+                return unless changes?
+                for change in changes
+                  if change? and change[0] == 0
+                    console.log "New filter value", change[1], change[3]
+                    return
             })
 
             handsonTable.trackerData = {

@@ -13,8 +13,9 @@ filterAction = (evt) ->
 
     ## Enter key, apply the filter
     if e.originalEvent.keyCode == 13
-      cell = evt.detail.cell
-      cell.textContent = $(button).filterdropdown('getText')
+      instance = evt.detail.instance
+      value = $(button).filterdropdown('getText')
+      instance.setDataAtRowProp 0, evt.detail.property, value, "filter"
 
       $(button).filterdropdown('hideWidget')
 
@@ -23,6 +24,7 @@ TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
 
   text = document.createElement("div")
   text.classList.add("tracker-filter-value")
+  text.textContent = value
 
   button = document.createElement('button')
   button.style.float = "right"
