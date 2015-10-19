@@ -153,7 +153,7 @@ FilterDropdown = (element, options) ->
       @.$element.blur()
 
       @.$widget.addClass('open') if @isOpen == false
-      @.$widget.find("textarea").focus()
+      @.$widget.find("input").focus()
       @isOpen = true
 
     update: (ignoreWidget) ->
