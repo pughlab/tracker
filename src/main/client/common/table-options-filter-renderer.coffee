@@ -6,7 +6,13 @@ filterAction = (evt) ->
   $(button).filterdropdown({filter: evt.detail})
   $(button).filterdropdown('showWidget')
   $(button).on 'keyup.filterdropdown', (e) ->
+
+    ## Escape key, close the filter
     if e.originalEvent.keyCode == 27
+      $(button).filterdropdown('hideWidget')
+
+    ## Enter key, apply the filter
+    if e.originalEvent.keyCode == 13
       $(button).filterdropdown('hideWidget')
 
 

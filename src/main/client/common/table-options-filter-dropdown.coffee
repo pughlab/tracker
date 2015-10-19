@@ -32,7 +32,7 @@ FilterDropdown = (element, options) ->
       @updateFromElementVal()
 
     clear: () ->
-      @.$element.val('')
+      @$widget.find('input').val('')
 
     elementKeydown: (e) ->
       @update()
@@ -49,48 +49,48 @@ FilterDropdown = (element, options) ->
       "</div>"
 
     getText: () ->
-      @text
+      @$widget.find('input').val()
 
     hideWidget: () ->
       return if @isOpen == false
 
-      @.$element.trigger {
+      @$element.trigger {
         'type': 'hide.filterdropdown'
         'text': @getText()
       }
 
-      @.$widget.removeClass('open')
+      @$widget.removeClass('open')
 
       $(document).off('mousedown.filterdropdown, touchend.filterdropdown')
 
       @isOpen = false
-      @.$widget.detach()
+      @$widget.detach()
 
     place : () ->
       return if @isInline
 
-      widgetWidth = @.$widget.outerWidth()
-      widgetHeight = @.$widget.outerHeight()
+      widgetWidth = @$widget.outerWidth()
+      widgetHeight = @$widget.outerHeight()
       visualPadding = 10
       windowWidth = $(window).width()
       windowHeight = $(window).height()
       scrollTop = $(window).scrollTop()
 
-      zIndex = parseInt(@.$element.parents().first().css('z-index'), 10) + 10
-      offset = if @component then @.omponent.parent().offset() else @.$element.offset()
-      height = if @component then @component.outerHeight(true) else @.$element.outerHeight(false)
-      width = if @component then @component.outerWidth(true) else @.$element.outerWidth(false)
+      zIndex = parseInt(@$element.parents().first().css('z-index'), 10) + 10
+      offset = if @component then @.omponent.parent().offset() else @$element.offset()
+      height = if @component then @component.outerHeight(true) else @$element.outerHeight(false)
+      width = if @component then @component.outerWidth(true) else @$element.outerWidth(false)
       left = offset.left
       top = offset.top
 
-      @.$widget.removeClass('filterdropdown-orient-top filterdropdown-orient-bottom filterdropdown-orient-right filterdropdown-orient-left')
+      @$widget.removeClass('filterdropdown-orient-top filterdropdown-orient-bottom filterdropdown-orient-right filterdropdown-orient-left')
 
       if @orientation.x != 'auto'
         @picker.addClass('filterdropdown-orient-' + @orientation.x)
         if @orientation.x == 'right'
           left -= widgetWidth - width
       else
-        @.$widget.addClass('filterdropdown-orient-left')
+        @$widget.addClass('filterdropdown-orient-left')
         if offset.left < 0
           left -= offset.left - visualPadding
         else if offset.left + widgetWidth > windowWidth
@@ -108,13 +108,13 @@ FilterDropdown = (element, options) ->
         else
           yorient = 'bottom'
 
-      @.$widget.addClass('filterdropdown-orient-' + yorient)
+      @$widget.addClass('filterdropdown-orient-' + yorient)
       if yorient == 'top'
         top += height
       else
-        top -= widgetHeight + parseInt(@.$widget.css('padding-top'), 10)
+        top -= widgetHeight + parseInt(@$widget.css('padding-top'), 10)
 
-      @.$widget.css {
+      @$widget.css {
         top : top
         left : left
         zIndex : zIndex
@@ -122,9 +122,9 @@ FilterDropdown = (element, options) ->
 
     remove: () ->
       $('document').off('.filterdropdown')
-      if @.$widget
-        @.$widget.remove()
-      delete @.$element.data().filterdropdown
+      if @$widget
+        @$widget.remove()
+      delete @$element.data().filterdropdown
 
     setText: (text, ignoreWidget) ->
       if !text
@@ -138,9 +138,9 @@ FilterDropdown = (element, options) ->
       console.log "Called showWidget"
       e.preventDefault() if e?
       return if @isOpen
-      return if @.$element.is(':disabled')
+      return if @$element.is(':disabled')
 
-      @.$widget.appendTo(@container)
+      @$widget.appendTo(@container)
       self = @;
       $(document).on 'mousedown.filterdropdown, touchend.filterdropdown', (e) ->
         self.hideWidget() if !(self.$element.parent().find(e.target).length || self.$widget.is(e.target) || self.$widget.find(e.target).length)
@@ -169,21 +169,21 @@ FilterDropdown = (element, options) ->
 
     updateElement: () ->
       value = @getText()
-      @.$element.val(value).trigger('change')
+      @$element.val(value).trigger('change')
 
     updateFromElementVal: () ->
-      @setText(@.$element.val())
+      @setText(@$element.val())
 
     updateWidget: () ->
-      return if (@.$widget == false)
+      return if (@$widget == false)
 
       text = @text;
-      @.$widget.find('.bootstrap-filterdropdown-body').val(text)
+      @$widget.find('.bootstrap-filterdropdown-body').val(text)
 
     updateFromWidgetInputs: () ->
-      return if @.$widget == false
+      return if @$widget == false
 
-      t = @.$widget.find('.bootstrap-filterdropdown-body').val()
+      t = @$widget.find('.bootstrap-filterdropdown-body').val()
       @setText(t, true)
 
     widgetClick: (e) ->
@@ -197,15 +197,13 @@ FilterDropdown = (element, options) ->
         @[action]()
       @update()
 
-
     ## Stop keydown events propagating, as these go through to the grid
     widgetKeydown: (e) ->
       e.stopPropagation()
 
     widgetKeyup: (e) ->
       @updateFromWidgetInputs()
-      console.log "Sending event", @$element, 'keyup.filterdropdown'
-      @.$element.trigger {
+      @$element.trigger {
         'type': 'keyup.filterdropdown',
         'text': @getText(),
         'originalEvent': e.originalEvent
@@ -215,6 +213,8 @@ FilterDropdown = (element, options) ->
   $.fn.filterdropdown = (option) ->
     args = Array.apply(null, arguments)
     args.shift()
+    result = undefined
+
     @each () ->
       $this = $(@)
       data = $this.data('filterdropdown')
@@ -225,7 +225,9 @@ FilterDropdown = (element, options) ->
         $this.data('filterdropdown', data)
 
       if typeof option == 'string'
-        data[option].apply(data, args)
+        result = data[option].apply(data, args)
+
+    result
 
 
   $.fn.filterdropdown.defaults =
