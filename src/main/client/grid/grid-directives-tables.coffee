@@ -24,8 +24,8 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$http', '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'editTableCell', 'validateTableValue', \
-                                   ($http, $timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, editTableCell, validateTableValue) ->
+  .directive 'trackerTable', Array '$http', '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'editTableCell', 'validateTableValue', 'reloadTable', \
+                                   ($http, $timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, editTableCell, validateTableValue, reloadTable) ->
     result =
       restrict: "A"
       replace: true
@@ -35,12 +35,12 @@ angular
         trackerAttributes: '='
         trackerEditingStatus: '='
       template: '<div class="handsontable tracker-table-hidden" style="width: 800px; height: 500px; overflow: hidden;"></div>'
+
       link: (scope, iElement, iAttrs) ->
 
         scope.filters = {}
 
         scope.getStudyUrl = (scope) ->
-          console.log "getStudyUrl", scope
           "/api/studies/#{scope.trackerStudy.name}/views/#{scope.trackerView.name}"
 
         handsonTable = undefined
@@ -58,8 +58,23 @@ angular
 
           handsonTable.setDataAtRowProp(rowIndex, '$state', state, 'socketEvent')
 
-        scope.$on 'table:positionAtEnd', (e) ->
 
+        ## Reloads the table data. This can be fired when the filters change,
+        ## as well as when the initial table has been constructed.
+
+        scope.$on 'table:reload', (e) ->
+          console.log "Requesting reload", scope.filters
+          e.stopPropagation()
+          reloadTable scope, handsonTable
+
+
+        scope.$watchCollection 'filters', (newValue, oldValue) ->
+          if oldValue != newValue
+            scope.$emit 'table:reload', newValue
+
+
+        scope.$on 'table:positionAtEnd', (e) ->
+          e.stopPropagation()
           offset = Handsontable.Dom.offset(iElement[0])
           availableWidth = Handsontable.Dom.innerWidth(document.body) - offset.left + window.scrollX - 46
           availableHeight = Handsontable.Dom.innerHeight(document.body) - offset.top + window.scrollY - 100
@@ -77,16 +92,19 @@ angular
 
           iElement.removeClass("tracker-table-hidden")
 
+
         ## Basic search function. When we get a result, we can choose how to handle it, either
         ## as a selection or as a display. We should somehow make it easy to scroll right to
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
+          e.stopPropagation()
           searchInTable.search(handsonTable, query)
 
 
-        scope.$on 'socket:welcome', (evt, data) ->
-          userControllerScope = evt.targetScope
+        scope.$on 'socket:welcome', (e, data) ->
+          console.log "Called socket:welcome", e
+          userControllerScope = e.targetScope
           if scope.trackerStudy
             userControllerScope.$emit 'socket:join', { "scope": scope.trackerStudy.name, "time" : (new Date()).valueOf() }
 
@@ -108,14 +126,12 @@ angular
               if handsonTable != undefined
                 handleStateCell original.data.parameters.case_id, original.data.parameters.state, original.data.editingClasses
 
+            ## If we get a cell editing event, we need to identify the cell element, and then update
+            ## the right stuff. We might need to do something similar for a row, too.
+
             scope.$on 'socket:field', (evt, original) ->
-
-              ## If we get a cell editing event, we need to identify the cell element, and then update
-              ## the right stuff. We might need to do something similar for a row, too.
-
               if handsonTable != undefined and original.data.userNumber > 0
                 editTableCell scope, handsonTable, original.data.parameters.case_id, original.data.parameters.field, original.data.editingClasses
-
 
             scope.$on 'socket:record', (evt, original) ->
               if handsonTable != undefined and original.data.userNumber > 0
@@ -221,7 +237,11 @@ angular
                 return unless changes?
                 for change in changes
                   if change? and change[0] == 0
-                    console.log "New filter value", change[1], change[3]
+                    scope.$apply () ->
+                      if typeof change[3] == 'undefined'
+                        delete scope.filters[change[1]]
+                      else
+                        scope.filters[change[1]] = change[3]
                     return
             })
 
@@ -233,33 +253,8 @@ angular
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
               {"$value": value, "$source": source}
 
-            # Can actually cancel the change by returning false, or true to accept it
-            # Of course, this doesn't use a callback, so it's somewhat less helpful for
-            # asynchronous validation.
-
-            $http
-              .get scope.getStudyUrl(scope)
-              .success (response) ->
-                modified = [{id: -1, _filter_row: true}].concat(response.records)
-                handsonTable.loadData(modified)
-
-                ## We should really keep a track of the row information here, i.e., the association
-                ## between identifier and row number. We can then use this to locate cells.
-                ##
-                ## Note, however, that these are virtual rows not real rows, and they can be translated
-                ## to a different offset by the sorting system. Although that requires some access to that
-                ## part of the API.
-
-                entityRowTable = {}
-                attributeColumnTable = {}
-                for entity, i in response.records
-                  entityRowTable[entity.id] = i + 1
-                for attribute, i in response.attributes
-                  attributeColumnTable[attribute.name] = i + 1
-
-                ## This is where we have the initial load. Let's initiate a scroll down, but carefully
-                scope.$emit 'table:positionAtEnd'
-
+            ## Notify to load the initial table data
+            scope.$emit 'table:reload'
 
         scope.$watch 'trackerEditingStatus', (editing, old) ->
           if handsonTable

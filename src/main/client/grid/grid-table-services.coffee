@@ -203,3 +203,32 @@ angular
             callback true
           .error (response) ->
             callback false
+
+
+
+  ## When reloading, we need to pass back any filters to the server, as these should be
+  ## used to limit the data we get back. 
+  .factory 'reloadTable', Array '$http', ($http) ->
+    return (scope, handsonTable) ->
+      $http
+        .get scope.getStudyUrl(scope)
+        .success (response) ->
+          modified = [{id: -1, _filter_row: true}].concat(response.records)
+          handsonTable.loadData(modified)
+
+          ## We should really keep a track of the row information here, i.e., the association
+          ## between identifier and row number. We can then use this to locate cells.
+          ##
+          ## Note, however, that these are virtual rows not real rows, and they can be translated
+          ## to a different offset by the sorting system. Although that requires some access to that
+          ## part of the API.
+
+          entityRowTable = {}
+          attributeColumnTable = {}
+          for entity, i in response.records
+            entityRowTable[entity.id] = i + 1
+          for attribute, i in response.attributes
+            attributeColumnTable[attribute.name] = i + 1
+
+          ## This is where we have the initial load. Let's initiate a scroll down, but carefully
+          scope.$emit 'table:positionAtEnd'
