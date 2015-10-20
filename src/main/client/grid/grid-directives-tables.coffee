@@ -24,69 +24,8 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$http', '$timeout', 'searchInTable', ($http, $timeout, searchInTable) ->
-
-    highlightElement = (element, editingClasses) ->
-
-      classes = editingClasses.split(' ')
-
-      highlightOn = () ->
-        for cls in classes
-          Handsontable.Dom.addClass element, cls
-
-        highlightOff = () ->
-          for cls in classes
-            Handsontable.Dom.removeClass element, cls
-
-        $timeout highlightOff, 3000
-
-      if element
-        $timeout highlightOn, 100
-
-
-    booleanValueManager = (name) ->
-      (row, value) ->
-        if !row?
-          name
-        else if value?
-          row[name] =
-            switch value
-              when "" then null
-              when "N/A" then {"$notAvailable": true}
-              when "Yes" then true
-              when "No" then false
-        else
-          current = row[name]
-          if current == null or current == undefined
-            ""
-          else if current.hasOwnProperty('$notAvailable')
-            "N/A"
-          else if current == false
-            "No"
-          else
-            "Yes"
-
-
-    valueManager = (name) ->
-      (row, value) ->
-        if !row?
-          name
-        else if value?
-          row[name] =
-            switch value
-              when "" then null
-              when "N/A" then {"$notAvailable": true}
-              else value
-        else
-          current = row[name]
-          if current == null or current == undefined
-            ""
-          else if current.hasOwnProperty('$notAvailable')
-            "N/A"
-          else
-            current
-
-
+  .directive 'trackerTable', Array '$http', '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'highlightElement', \
+                                   ($http, $timeout, searchInTable, valueManager, booleanValueManager, highlightElement) ->
     result =
       restrict: "A"
       replace: true
@@ -97,6 +36,8 @@ angular
         trackerEditingStatus: '='
       template: '<div class="handsontable tracker-table-hidden" style="width: 800px; height: 500px; overflow: hidden;"></div>'
       link: (scope, iElement, iAttrs) ->
+
+        scope.filters = {}
 
         getStudyUrl = (study, view) ->
           "/api/studies/#{study.name}/views/#{view.name}"
@@ -175,7 +116,7 @@ angular
               ## We should actually set to the converted value, not the internal value.
               ## Because that seems to be what's needed to make it all work.
 
-              handsonTable.setDataAtCell(rowIndex, columnIndex, renderedValue, 'socketEvent');
+              handsonTable.setDataAtCell(rowIndex, columnIndex, renderedValue, 'socketEvent')
 
               cellElement = handsonTable.getCell rowIndex, columnIndex
               highlightElement cellElement, editingClasses
