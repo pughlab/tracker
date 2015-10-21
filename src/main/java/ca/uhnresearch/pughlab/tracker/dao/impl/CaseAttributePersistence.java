@@ -138,7 +138,7 @@ public class CaseAttributePersistence {
 				.from(attributes)
 				.where(attributes.studyId.eq(study.getId()));
 		
-		List<Attributes> atts = template.query(sqlQuery, attributes);
+		List<Attributes> atts = template.query(sqlQuery, new AttributeProjection(attributes));
 		List<Attributes> filteredAtts = new ArrayList<Attributes>();
 		
 		for(Attributes a : atts) {
@@ -159,7 +159,7 @@ public class CaseAttributePersistence {
 				String name = a.getName();
 				JsonNode oldValue = oldCase.get(name);
 				JsonNode newValue = values.get(name);
-				if (oldValue.equals(newValue)) continue;
+				if (oldValue != null && oldValue.equals(newValue)) continue;
 				
 				newCase.replace(name, oldValue);
 				
