@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
@@ -89,6 +90,11 @@ public class ViewExtractor extends Extractor {
 		
 		logger.debug("OK, continuing with the view: {}", v.getName());
 		RequestAttributes.setRequestView(request, v);
+		
+		// And add the view into the StudyCaseQuery
+		StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(request);
+		query = repository.addViewCaseMatcher(query, v);
+		RequestAttributes.setRequestCaseQuery(request, query);
 		
 		return CONTINUE;
 	}

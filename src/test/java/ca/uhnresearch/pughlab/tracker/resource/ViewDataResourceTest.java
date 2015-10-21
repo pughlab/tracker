@@ -22,7 +22,8 @@ import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 import org.w3c.dom.Document;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -86,10 +87,16 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
 		RequestAttributes.setRequestView(resource.getRequest(), testView);
-		CaseQuery query = new CaseQuery();
-		query.setLimit(5);
-		query.setOffset(0);
-        RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
+		CasePager pager = new CasePager();
+		pager.setLimit(5);
+		pager.setOffset(0);
+		RequestAttributes.setRequestCasePager(resource.getRequest(), pager);
+
+		resource.getRequest().getAttributes().put("pager", pager);
+		
+		StudyCaseQuery query = repository.newStudyCaseQuery(testStudy);
+		query = repository.addViewCaseMatcher(query, testView);
+		RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
 
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
@@ -124,10 +131,14 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
 		RequestAttributes.setRequestView(resource.getRequest(), testView);
-		CaseQuery query = new CaseQuery();
-		query.setLimit(5);
-		query.setOffset(0);
-        RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
+		CasePager pager = new CasePager();
+		pager.setLimit(5);
+		pager.setOffset(0);
+		RequestAttributes.setRequestCasePager(resource.getRequest(), pager);
+		
+		StudyCaseQuery query = repository.newStudyCaseQuery(testStudy);
+		query = repository.addViewCaseMatcher(query, testView);
+		RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		documentBuilderFactory.setNamespaceAware(true);			
@@ -162,10 +173,14 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
 		RequestAttributes.setRequestView(resource.getRequest(), testView);
-		CaseQuery query = new CaseQuery();
-		query.setLimit(5);
-		query.setOffset(0);
-        RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
+		CasePager pager = new CasePager();
+		pager.setLimit(5);
+		pager.setOffset(0);
+        RequestAttributes.setRequestCasePager(resource.getRequest(), pager);
+
+		StudyCaseQuery query = repository.newStudyCaseQuery(testStudy);
+		query = repository.addViewCaseMatcher(query, testView);
+		RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
 
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());
@@ -202,10 +217,14 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
 		RequestAttributes.setRequestView(resource.getRequest(), testView);
-		CaseQuery query = new CaseQuery();
-		query.setLimit(5);
-		query.setOffset(0);
-        RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
+		CasePager pager = new CasePager();
+		pager.setLimit(5);
+		pager.setOffset(0);
+        RequestAttributes.setRequestCasePager(resource.getRequest(), pager);
+
+		StudyCaseQuery query = repository.newStudyCaseQuery(testStudy);
+		query = repository.addViewCaseMatcher(query, testView);
+		RequestAttributes.setRequestCaseQuery(resource.getRequest(), query);
 
 		Representation result = resource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

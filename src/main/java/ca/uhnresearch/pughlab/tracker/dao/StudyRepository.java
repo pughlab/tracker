@@ -2,7 +2,6 @@ package ca.uhnresearch.pughlab.tracker.dao;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
@@ -90,13 +89,65 @@ public interface StudyRepository {
 	 * @return number of records
 	 */
 	Long getRecordCount(Study study, View view);
-	
+		
 	/**
 	 * Retrieves the record-level data for a view and study from the repository
 	 * @return list of JSON nodes
 	 */
-	List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query);
+	List<ObjectNode> getCaseData(StudyCaseQuery query, View view);
 	
+	/**
+	 * Builds a new study case query, which can be transformed into a set of cases.
+	 * This is always initialized to a single study. 
+	 * @return
+	 */
+	StudyCaseQuery newStudyCaseQuery(Study study);
+
+	/**
+	 * Adds a view to the case matcher, which might filter out a bunch of data that should not
+	 * be visible. These will typically be row filters, as cases are being selected by the
+	 * case query, not attributes. 
+	 * @return
+	 */
+	StudyCaseQuery addViewCaseMatcher(StudyCaseQuery query, View view);
+
+	/**
+	 * Adds a new matching element to a study case filter. Only string values 
+	 * are typically allowed here, currently. A new study case query is returned
+	 * and can be used later.
+	 * @param attribute
+	 * @param value
+	 * @return
+	 */
+	StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value);
+	
+	/**
+	 * Adds a new matching element to a study case filter. Only string values 
+	 * are typically allowed here, currently. A new study case query is returned
+	 * and can be used later.
+	 * @param attribute
+	 * @param value
+	 * @return
+	 */
+	StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId);
+
+	/**
+	 * Returns subcases for a StudyCaseQuery, and returns a new study case query in the
+	 * process.
+	 * @param query
+	 * @param attribute
+	 * @return
+	 */
+	StudyCaseQuery subcases(StudyCaseQuery query, String attribute);
+	
+	/**
+	 * Applies a CasePager to a query, returning a new query.
+	 * @param query
+	 * @param pager
+	 * @return
+	 */
+	StudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager);
+
 	/**
 	 * Retrieves a single specified case for a study and view from the repository
 	 * @return a case
@@ -126,24 +177,8 @@ public interface StudyRepository {
 	 */
 	Cases newStudyCase(Study study, View view, String userName, Cases afterCase) throws RepositoryException;
 	Cases newStudyCase(Study study, View view, String userName) throws RepositoryException;
-
-	/**
-	 * Retrieves the record-level data for a given case, view and study from the repository
-	 * @return JSON object
-	 */
-	ObjectNode getCaseData(Study study, View view, Cases caseValue);
-	ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue);
 	
-	/**
-	 * Retrieves the attribute value for a given case, view, study, and attribute from the repository
-	 * @return JSON node
-	 */
-	JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute);
-
-	/**
-	 * Writes the attribute value for a given case, view, study, and attribute to the repository
-	 */
-	void setCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute, String userName, JsonNode value) throws RepositoryException;
-
+	ObjectNode setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException;
+	
 	void setEventHandler(EventHandler manager);
 }

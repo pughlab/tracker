@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -20,11 +21,14 @@ import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.EntityValueResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class EntityFieldResource extends StudyRepositoryResource<EntityValueResponse> {
 	
@@ -32,6 +36,8 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 	
 	private JacksonConverter converter = new JacksonConverter();
 	
+	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
+
     @Put("json")
     public Representation putResource(Representation input) {
     	
@@ -40,10 +46,10 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	View view = RequestAttributes.getRequestView(getRequest());
-    	Cases caseValue = RequestAttributes.getRequestEntity(getRequest());
     	Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
+    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	
-    	if (study == null || view == null || caseValue == null || attribute == null) {
+    	if (study == null || view == null || attribute == null) {
     		throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
     	}
     	
@@ -67,7 +73,9 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 		String user = principals.getPrimaryPrincipal().toString();
     	
     	try {
-			getRepository().setCaseAttributeValue(study, view, caseValue, attribute, user, data.get("value"));
+    		ObjectNode values = jsonNodeFactory.objectNode();
+    		values.replace(attribute.getName(), data.get("value"));
+			getRepository().setQueryAttributes(query, user, values);
 		} catch (InvalidValueException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} catch (NotFoundException e) {
@@ -96,16 +104,23 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	View view = RequestAttributes.getRequestView(getRequest());
-    	Cases caseValue = RequestAttributes.getRequestEntity(getRequest());
     	Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
-    	
+    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+
     	// Add support for the permissions. It's very simple here
     	if (! currentUser.isPermitted(study.getName() + ":attribute:read:" + attribute.getName())) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
+
+    	List<ObjectNode> cases = getRepository().getCaseData(query, view);
+    	if (cases.isEmpty()) {
+    		throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+    	}
+    	
+    	ObjectNode result = cases.get(0);
     	
     	// Get the value and build an appropriate response
-    	JsonNode val = getRepository().getCaseAttributeValue(study, view, caseValue, attribute);
+    	JsonNode val = result.get(attribute.getName());
     	
     	dto.setStudy(study);
     	dto.setView(view);

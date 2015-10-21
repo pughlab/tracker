@@ -14,7 +14,7 @@ public interface AuditLogRepository {
 	 * some reformatting of identifiers to match the tagging within the repository itself. 
 	 * @return list of JSON nodes
 	 */
-	List<JsonNode> getAuditData(Study study, CaseQuery query);
+	List<JsonNode> getAuditData(Study study, CasePager query);
 	
 	/**
 	 * Writes an audit log entry

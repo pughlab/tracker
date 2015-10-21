@@ -10,11 +10,11 @@
 	                    
 	<bean id="apiRouter" class="ca.uhnresearch.pughlab.tracker.restlets.CustomSpringSessionAuthenticator">
 		<constructor-arg ref="router" />
-		<property name="next" ref="caseQueryExtractor"/>
+		<property name="next" ref="casePagerExtractor"/>
 	</bean>
 
 	<!-- Always extract a case query, as it can be used everywhere -->
-	<bean id="caseQueryExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.CaseQueryExtractor">
+	<bean id="casePagerExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.CasePagerExtractor">
 		<property name="next" ref="apiRoot"/>
 	</bean>
 

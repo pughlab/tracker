@@ -2,6 +2,7 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
@@ -17,11 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -32,6 +35,8 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private JacksonConverter converter = new JacksonConverter();
+
+	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 
     @Post("json")
     public Representation postResource(Representation input) {
@@ -46,6 +51,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	}
     	
     	View view = RequestAttributes.getRequestView(getRequest());
+    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
 
     	// First of all, we should try to deserialize what we have as an input.
     	// The interesting part is the entity field, which should contain the 
@@ -78,14 +84,15 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			}
 			
 			// And now we should write any attributes we have into the new
-			// case. 
+			// case. This should probably be done as a single operation to the
+			// repository.
+			attributes = caseData.getEntity();
 			fieldIterator = attributes.fields();
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
-				String attributeName = field.getKey();
-				JsonNode attributeValue = field.getValue();
-				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);				
-				getRepository().setCaseAttributeValue(study, view, newCase, attribute, user, attributeValue);
+				ObjectNode values = jsonNodeFactory.objectNode();
+				values.replace(field.getKey(), field.getValue());
+				getRepository().setQueryAttributes(query, user, values);
 			}
 			
 			RequestAttributes.setRequestEntity(getRequest(), newCase);
@@ -115,12 +122,15 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	View view = RequestAttributes.getRequestView(getRequest());
-    	Cases caseValue = RequestAttributes.getRequestEntity(getRequest());
+    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	
-    	ObjectNode caseData = getRepository().getCaseData(study, view, caseValue);
+    	List<ObjectNode> cases = getRepository().getCaseData(query, view);
+    	if (cases.isEmpty()) {
+    		throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+    	}
     	
     	dto.setStudy(study);
     	dto.setView(view);
-    	dto.setEntity(caseData);
+    	dto.setEntity(cases.get(0));
 	}
 }

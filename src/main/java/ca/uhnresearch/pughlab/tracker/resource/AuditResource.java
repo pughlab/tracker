@@ -12,7 +12,7 @@ import org.restlet.resource.ResourceException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogResponse;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 
@@ -41,7 +41,7 @@ public class AuditResource extends AuditLogRepositoryResource<AuditLogResponse> 
     	}
  
     	// Get the data from the repository
-    	CaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+		CasePager query = RequestAttributes.getRequestCasePager(getRequest());
     	List<JsonNode> auditData = getRepository().getAuditData(study, query);
 
     	// Build the response

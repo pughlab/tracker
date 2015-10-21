@@ -15,7 +15,7 @@ import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.representation.Representation;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -60,10 +60,10 @@ public class ViewAttributesResourceTest extends AbstractShiroTest {
 		View testView = repository.getStudyView(testStudy, "complete");
 		RequestAttributes.setRequestStudy(viewResource.getRequest(), testStudy);
 		RequestAttributes.setRequestView(viewResource.getRequest(), testView);
-		CaseQuery query = new CaseQuery();
-		query.setLimit(5);
-		query.setOffset(0);
-        RequestAttributes.setRequestCaseQuery(viewResource.getRequest(), query);
+		CasePager pager = new CasePager();
+		pager.setLimit(5);
+		pager.setOffset(0);
+        RequestAttributes.setRequestCasePager(viewResource.getRequest(), pager);
 
 		Representation result = viewResource.getResource();
 		assertEquals("application/json", result.getMediaType().toString());

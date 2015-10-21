@@ -1,11 +1,9 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -18,20 +16,19 @@ import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
-import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
 import com.mysema.query.sql.dml.SQLInsertClause;
 import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.OrderSpecifier;
-import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.domain.*;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
@@ -41,9 +38,6 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.EventHandler;
-import ca.uhnresearch.pughlab.tracker.events.RedactedJsonNode;
-import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
-import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
@@ -57,8 +51,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	private final Logger logger = LoggerFactory.getLogger(StudyRepositoryImpl.class);
 	
-	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
-		
 	private EventHandler eventHandler;
 
 	private QueryDslJdbcTemplate template;
@@ -129,7 +121,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 					return sqlUpdateClause.where(studies.id.eq(study.getId())).populate(study, new StudyMapper()).execute();
 				};
 			});
-
 		}
 		return study;
 	}
@@ -252,6 +243,25 @@ public class StudyRepositoryImpl implements StudyRepository {
 
     	return template.queryForObject(sqlQuery, new AttributeProjection(attributes));
 	}
+	
+	/**
+	 * Returns a single study case.
+	 */
+	@Override
+	public Cases getStudyCase(Study study, View view, Integer caseId) {
+		logger.debug("Looking for case by identifier: {}", caseId);
+    	SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
+    	Cases caseValue = template.queryForObject(sqlQuery, cases);
+    	
+    	if (caseValue != null) {
+    		logger.debug("Got a case: {}", caseValue.toString());
+    	} else {
+    		logger.debug("No case found");
+    	}
+    	
+    	return caseValue;
+	}
+	
 
 	private void insertView(final View v) {
 		template.insert(views, new SqlInsertCallback() { 
@@ -465,124 +475,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
-	 * Generates an SQLQuery on cases from a CaseQuery object. This can then be incorporated
-	 * into the queries that are used to access data.
-	 * @param query
-	 * @return
-	 */
-	private ListSubQuery<Tuple> getStudySubQueryCaseQuery(Study study, CaseQuery query) {
-		
-		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
-		
-		// If we have an ordering, use a left join to get the attribute, and order it later
-		if (query.getOrderField() != null) {
-			NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()
-					.from(attributes)
-					.where(attributes.name.eq(query.getOrderField()).and(attributes.studyId.eq(study.getId())))
-					.unique(attributes.id);
-			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
-			sq = sq.leftJoin(c).on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
-			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(query.getOrderDirection() == CaseQuery.OrderDirection.ASC);
-			sq = sq.orderBy(ordering);
-		}
-		
-		// And then order by the natural case order
-		sq = sq.orderBy(cases.order.asc());
-		
-		if (query.getOffset() != null) {
-			sq = sq.offset(query.getOffset());
-		}
-		if (query.getLimit() != null) {
-			sq = sq.limit(query.getLimit());
-		}
-			
-		return sq.list(cases.id, cases.state);
-	}
-			
-	/**
-	 * Main method for extracting record-level case data into something that can be returned. Here
-	 * the logic is very schemaless, so this method returns a list of Jackson JsonNode instances,
-	 * rather than anything more structured. This can typically be sent straight back to the client
-	 * as a response, without needing DTO mediation. 
-	 * 
-	 * Perhaps most interesting is the CaseQuery, which is a structured version of offsets, limits,
-	 * filters, sort orders, and so on.
-	 * 
-	 * @param study
-	 * @param view
-	 * @param attributes
-	 * @param query
-	 */
-	public List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query) {
-		// This method retrieves the attributes we needed. In most implementations, we've done 
-		// this as a UNION in SQL and accepted dynamic types. We probably can't assume this, and
-		// since UNIONs generally aren't indexable, we are probably genuinely better off running
-		// separate queries for each primitive attribute type, and then assembling them in this
-		// method. This hugely reduces the complexity of the DSL here too. 
-		
-		ListSubQuery<Tuple> caseQuery = getStudySubQueryCaseQuery(study, query);
-		return cap.getJsonData(template, study, view, attributes, caseQuery);
-	}
-
-	/**
 	 * Returns the record count for a study).
 	 */
 	@Override
 	public Long getRecordCount(Study study, View view) {
 		SQLQuery recordQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		return template.count(recordQuery);
-	}
-
-	/**
-	 * Generates an SQLQuery on cases from a single case identifier. This can then be incorporated
-	 * into the queries that are used to access data. Note that even for a single case this returns a
-	 * list, because that way we can re-use the tuple data management. 
-	 * @param query
-	 * @return
-	 */
-	private ListSubQuery<Tuple> getStudyCaseSubQuery(Study study, Integer caseId) {
-		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
-		return sq.list(cases.id, cases.state);
-	}
-	
-	private ObjectNode getFirst(List<ObjectNode> listData) {
-		if (listData.size() > 0) {
-			return listData.get(0);
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Returns the case data for a single study entity, in JSON format.
-	 */
-	@Override
-	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
-		ListSubQuery<Tuple> caseInfoQuery = getStudyCaseSubQuery(study, caseValue.getId());
-		List<ObjectNode> listData = cap.getJsonData(template, study, view, caseInfoQuery);
-		return getFirst(listData);
-	}
-	
-	@Override
-	public ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue) {
-		ListSubQuery<Tuple> caseInfoQuery = getStudyCaseSubQuery(study, caseValue.getId());
-		List<ObjectNode> listData = cap.getJsonData(template, study, view, attributes, caseInfoQuery);
-		return getFirst(listData);
-	}
-	
-	@Override
-	public Cases getStudyCase(Study study, View view, Integer caseId) {
-		logger.debug("Looking for case by identifier: {}", caseId);
-    	SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
-    	Cases caseValue = template.queryForObject(sqlQuery, cases);
-    	
-    	if (caseValue != null) {
-    		logger.debug("Got a case: {}", caseValue.toString());
-    	} else {
-    		logger.debug("No case found");
-    	}
-    	
-    	return caseValue;
 	}
 
 	/**
@@ -637,90 +535,15 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	/**
-	 * Retrieves a single value from a case attribute. There is a subtle but important issue here: what is the return value for a
-	 * missing attribute. There is a Java null (when it isn't there) and a JSON null, which is there, but is null. Both can happen,
-	 * and are to some extent equivalent. One interpretation us that a set to null is actually a deletion. 
+	 * Writing data into a StudyCaseQuery is a little more complex. We will end up with 
+	 * a case selection, which we can then use to make the insert/updates that we need to do. 
+	 * Much of the logic should be delegated to the CaseAttributePersistence layer.
 	 */
 	@Override
-	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute) {
-		
-		List<Attributes> attributeList = new ArrayList<Attributes>();
-		attributeList.add(attribute);
-		JsonNode caseData = getCaseData(study, view, attributeList, caseValue);
-		return caseData.get(attribute.getName());
+	public ObjectNode setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException {
+		throw new RuntimeException("Not yet implemented");
 	}
-	
-	private JsonNode getJsonValue(Object value) {
-		if (value == null) {
-			return jsonNodeFactory.nullNode();
-		} else if (value instanceof JsonNode) {
-			return (JsonNode) value;
-		} else if (value instanceof String) {
-			return jsonNodeFactory.textNode((String) value);
-		} else if (value instanceof Boolean) {
-			return jsonNodeFactory.booleanNode((Boolean) value);
-		} else if (value instanceof java.sql.Date) {
-			return jsonNodeFactory.textNode((String) value.toString());
-		} else if (value instanceof Number) {
-			return jsonNodeFactory.numberNode(((Number) value).doubleValue());
-		} else {
-			throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
-		}
-	}
-	
-	
-	@Override
-	public void setCaseAttributeValue(final Study study, final View view, final Cases caseValue, final Attributes attribute, final String userName, JsonNode value) throws RepositoryException {
-		
-		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
-    	    .innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
-    	    .innerJoin(views).on(views.id.eq(viewAttributes.viewId))
-    	    .where(attributes.studyId.eq(study.getId())
-    	    .and(views.id.eq(view.getId()))
-    	    .and(attributes.name.eq(attribute.getName())));
-    	ViewAttributes a = template.queryForObject(sqlQuery, new ViewAttributeProjection(attributes, viewAttributes));
-    	
-    	// If there isn't an attribute, we should probably throw an error.
-    	if (a == null) {
-    		throw new NotFoundException("Can't find attribute: " + attribute);
-    	}
-    	
-    	ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
-    	WritableValue writable = validator.validate(a, value);
-    	Object oldValue = cap.getOldCaseAttributeValue(template, study, view, caseValue, attribute.getName(), writable.getValueClass());
-    	JsonNode oldValueJson = getJsonValue(oldValue);
-    	
-    	// If we're going to write the same value, we should know that here, and not bother either
-    	// writing or auditing. 
-    	
-    	if (oldValueJson.equals(value)) {
-    		return;
-    	}
-    	
-    	cap.writeCaseAttributeValue(template, study, view, caseValue, attribute, writable);
-    	
-		Event event = new Event(Event.EVENT_SET_FIELD);
-		event.getData().setScope(study.getName());
-		event.getData().setUser(userName);
-		
-		final JsonNodeFactory factory = JsonNodeFactory.instance;
-		ObjectNode parameters = factory.objectNode();
-		parameters.put("field", attribute.getName());
-		parameters.put("case_id", caseValue.getId());
-		parameters.put("study_id", study.getId());
-		parameters.put("study", study.getName());
-		parameters.put("view", view.getName());
-		parameters.replace("old", new RedactedJsonNode(oldValueJson));
-		parameters.replace("new", new RedactedJsonNode(value));
-		event.getData().setParameters(parameters);
-    	
-    	// Assuming we got here OK, it's reasonable to generate an update event. We only need to do 
-    	// this if we have an UpdateEventService set. 
-		
-		EventHandler handler = getEventHandler();
-    	handler.sendMessage(event, event.getData().getScope());
-   	}
-		
+
 	/**
 	 * Getter for an update event manager. 
 	 */
@@ -801,5 +624,100 @@ public class StudyRepositoryImpl implements StudyRepository {
     	
 		return newCase;
 	}
+
+	@Override
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+
+		return cap.getJsonData(template, (QueryStudyCaseQuery) query, getViewAttributes(query.getStudy(), view));
+	}
+
+
+	@Override
+	public QueryStudyCaseQuery newStudyCaseQuery(Study study) {
+		SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
+		return new QueryStudyCaseQuery(study, sq);
+	}
+	
+	// TODO Add row filtering into view handling
+	@Override
+	public StudyCaseQuery addViewCaseMatcher(StudyCaseQuery query, View view) {		
+		return query;
+	}
+
+	/**
+	 * Applies a pager to the query inside a QueryStudyCaseQuery, which isn't intended to 
+	 * be exposed externally. 
+	 * @param query
+	 * @param pager
+	 * @return
+	 */
+	@Override
+	public QueryStudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager) {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+
+		QueryStudyCaseQuery scq = (QueryStudyCaseQuery) query;
+		
+		SQLSubQuery sq = scq.getQuery();
+		
+		// If we have an ordering, use a left join to get the attribute, and order it later
+		if (pager.getOrderField() != null) {
+			NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()
+					.from(attributes)
+					.where(attributes.name.eq(pager.getOrderField()).and(attributes.studyId.eq(cases.studyId)))
+					.unique(attributes.id);
+			QCaseAttributeStrings c = new QCaseAttributeStrings("c");
+			sq = sq.leftJoin(c)
+					.on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
+			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(pager.getOrderDirection() == CasePager.OrderDirection.ASC);
+			sq = sq.orderBy(ordering);
+		}
+		
+		if (pager.hasOffset()) {
+			sq = sq.offset(pager.getOffset().longValue());
+		}
+		if (pager.hasLimit()) {
+			sq = sq.limit(pager.getLimit().longValue());
+		}
+		return new QueryStudyCaseQuery(scq.getStudy(), sq);
+	}
+
+	/**
+	 * Only applies to string values (for now) this applies a filter into the case query
+	 * matcher. 
+	 */
+	@Override
+	public StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+
+	/** 
+	 * Refines a query to a single case, which can be found by identifier. This can then be incorporated
+	 * into the queries that are used to access data. 
+	 * @param query
+	 * @return
+	 */
+	@Override
+	public StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId) {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+
+		QueryStudyCaseQuery scq = (QueryStudyCaseQuery) query;
+		SQLSubQuery sq = scq.getQuery();
+		sq = sq.where(cases.id.eq(caseId));
+		return new QueryStudyCaseQuery(scq.getStudy(), sq);
+	}
+
+	@Override
+	public StudyCaseQuery subcases(StudyCaseQuery query, String attribute) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
 }
 

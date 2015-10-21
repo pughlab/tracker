@@ -26,7 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -67,7 +67,7 @@ public class AuditResourceTest extends AbstractShiroTest{
 		
 		List<JsonNode> auditRecords = new ArrayList<JsonNode>();
 		
-		expect(auditLogRepository.getAuditData(anyObject(Study.class), anyObject(CaseQuery.class))).andReturn(auditRecords);
+		expect(auditLogRepository.getAuditData(anyObject(Study.class), anyObject(CasePager.class))).andReturn(auditRecords);
 		replay(auditLogRepository);
 		
         Subject subjectUnderTest = createMock(Subject.class);

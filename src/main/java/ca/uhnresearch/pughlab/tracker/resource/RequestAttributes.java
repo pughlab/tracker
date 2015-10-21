@@ -2,7 +2,8 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import org.restlet.Request;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
@@ -18,6 +19,8 @@ public class RequestAttributes {
 	private static final String ROLE_ATTRIBUTE = "role";
 
 	private static final String QUERY_ATTRIBUTE = "query";
+
+	private static final String PAGER_ATTRIBUTE = "pager";
 
 	private static final String ENTITY_ATTRIBUTE = "entity";
 
@@ -82,8 +85,8 @@ public class RequestAttributes {
 	 * @param request
 	 * @return
 	 */
-	public static CaseQuery getRequestCaseQuery(Request request) {
-		return (CaseQuery) request.getAttributes().get(RequestAttributes.QUERY_ATTRIBUTE);
+	public static StudyCaseQuery getRequestCaseQuery(Request request) {
+		return (StudyCaseQuery) request.getAttributes().get(RequestAttributes.QUERY_ATTRIBUTE);
 	}
 
 	/**
@@ -91,8 +94,26 @@ public class RequestAttributes {
 	 * @param request
 	 * @param s
 	 */
-	public static void setRequestCaseQuery(Request request, CaseQuery q) {
+	public static void setRequestCaseQuery(Request request, StudyCaseQuery q) {
 		request.getAttributes().put(RequestAttributes.QUERY_ATTRIBUTE, q);
+	}
+
+	/**
+	 * Helper method to read a pager from a request attribute
+	 * @param request
+	 * @return
+	 */
+	public static CasePager getRequestCasePager(Request request) {
+		return (CasePager) request.getAttributes().get(RequestAttributes.PAGER_ATTRIBUTE);
+	}
+
+	/**
+	 * Helper method to write a pager into a request attribute
+	 * @param request
+	 * @param s
+	 */
+	public static void setRequestCasePager(Request request, CasePager q) {
+		request.getAttributes().put(RequestAttributes.PAGER_ATTRIBUTE, q);
 	}
 
 	/**

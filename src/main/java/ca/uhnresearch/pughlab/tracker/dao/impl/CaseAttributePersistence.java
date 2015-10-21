@@ -1,7 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
-import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 
 import java.util.ArrayList;
@@ -34,9 +33,6 @@ import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeDates;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeNumbers;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
-import ca.uhnresearch.pughlab.tracker.dto.Cases;
-import ca.uhnresearch.pughlab.tracker.dto.Study;
-import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 
 public class CaseAttributePersistence {
@@ -67,15 +63,19 @@ public class CaseAttributePersistence {
 	 * @param caseQuery
 	 * @return
 	 */
-	private CaseObjectBuilder getJsonDataBuilder(QueryDslJdbcTemplate template, final Study study, final View view, ListSubQuery<Tuple> caseQuery) {
+	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, List<? extends Attributes> attributeFilter) {
 		
-		SQLQuery caseInfoQuery = template.newSqlQuery().from(caseQuery.as(cases));
+		SQLQuery caseInfoQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
 		List<CaseInfo> caseInfos = template.query(caseInfoQuery, new CaseInfoProjection(cases));
+		ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
 		CaseObjectBuilder builder = new CaseObjectBuilder(caseInfos);
-		return builder;
-	}
-	
-	private void addCaseTuples(QueryDslJdbcTemplate template, CaseObjectBuilder builder, final Study study, final View view, ListSubQuery<Tuple> caseQuery) {
+		
+		List<String> filter = new ArrayList<String>();
+		for(Attributes a : attributeFilter) {
+			filter.add(a.getName());
+		}
+		builder.setAttributeNameFilter(filter);
+
 		for(Class<?> cls : types.keySet()) {
 			
 			// We can use raw access to the map here, as we're iterating through the keys
@@ -84,28 +84,11 @@ public class CaseAttributePersistence {
 			SQLQuery sqlQuery = template.newSqlQuery()
 					.from(caseQuery.as(cases))
 					.innerJoin(atts).on(cases.id.eq(atts.caseId))
-					.innerJoin(attributes).on(atts.attributeId.eq(attributes.id))
-					.innerJoin(viewAttributes).on(attributes.id.eq(viewAttributes.attributeId))
-					.where(viewAttributes.viewId.eq(view.getId()));
+					.innerJoin(attributes).on(atts.attributeId.eq(attributes.id));
 			List<Tuple> values = template.query(sqlQuery, new QTuple(atts.caseId, attributes.name, atts.getValue(), atts.notAvailable, atts.notes));
 			builder.addTupleAttributes(values);
-		}		
-	}
-	
-	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, Study study, View view, ListSubQuery<Tuple> caseQuery) {
-		CaseObjectBuilder builder = getJsonDataBuilder(template, study, view, caseQuery);
-		addCaseTuples(template, builder, study, view, caseQuery);
-		return builder.getCaseObjects();
-	}
-	
-	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, Study study, View view, List<? extends Attributes> attributes, ListSubQuery<Tuple> caseQuery) {
-		CaseObjectBuilder builder = getJsonDataBuilder(template, study, view, caseQuery);
-		List<String> filter = new ArrayList<String>();
-		for(Attributes a : attributes) {
-			filter.add(a.getName());
 		}
-		builder.setAttributeNameFilter(filter);
-		addCaseTuples(template, builder, study, view, caseQuery);
+		
 		return builder.getCaseObjects();
 	}
 	
@@ -132,15 +115,25 @@ public class CaseAttributePersistence {
 	 * @param attribute
 	 * @param value
 	 */
-	public void writeCaseAttributeValue(QueryDslJdbcTemplate template, final Study study, final View view, final Cases caseValue, final Attributes attribute, final WritableValue value) {
+	public void writeCaseAttributeValue(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, final String attribute, final WritableValue value) {
 		final boolean notAvailable = value.getNotAvailable();
 		final Class<?> cls = value.getValueClass();
 		final Object storableValue = notAvailable ? null : value.getValue();
 		final QCaseAttributeBase<?> atts = getCaseAttribute(cls);
-
+		
+		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
+		
+		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
+		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
+		if (caseIds.isEmpty()) {
+			throw new RuntimeException("Missing case");
+		}
+		
+		final Integer caseId = caseIds.get(0);
+		
 		final SQLQuery attributeQuery = template.newSqlQuery()
 			.from(attributes)
-			.where(attributes.name.eq(attribute.getName()).and(attributes.studyId.eq(study.getId())));
+			.where(attributes.name.eq(attribute).and(attributes.studyId.eq(query.getStudy().getId())));
 		final Integer attributeId = template.queryForObject(attributeQuery, attributes.id);
 		
 		if (attributeId == null) {
@@ -152,20 +145,24 @@ public class CaseAttributePersistence {
 			@SuppressWarnings("unchecked")
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 
-				SQLUpdateClause sqlUpdate = sqlUpdateClause.where(atts.caseId.eq(caseValue.getId()).and(atts.attributeId.eq(attributeId)));
+				SQLUpdateClause sqlUpdate = sqlUpdateClause.where(atts.caseId.eq(caseId).and(atts.attributeId.eq(attributeId)));
 				sqlUpdate = sqlUpdate.set(atts.notAvailable, notAvailable);
 				sqlUpdate = sqlUpdate.set((Path<Object>)atts.getValuePath(cls), (Object)storableValue);
 				return sqlUpdate.execute();
 			};
 		});
 		if (updateCount >= 1) return;
-		template.insert(atts, new SqlInsertCallback() { 
+		updateCount = template.insert(atts, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.columns(atts.caseId, atts.attributeId, atts.getValuePath(cls), atts.notAvailable)
-					.values(caseValue.getId(), attributeId, storableValue, notAvailable)
+					.values(caseId, attributeId, storableValue, notAvailable)
 					.execute();
 			};
 		});
+		if (updateCount == 1) return;
+		
+		// If we get here, all inserts and updates failed
+		throw new RuntimeException("Failed to write attribute value: " + attribute);
 	}
 	
 	/**
@@ -179,16 +176,17 @@ public class CaseAttributePersistence {
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public Object getOldCaseAttributeValue(QueryDslJdbcTemplate template, final Study study, final View view, final Cases caseValue, final String attribute, final Class<?> cls) throws RepositoryException {
+	public Object getOldCaseAttributeValue(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, final String attribute, final Class<?> cls) throws RepositoryException {
 		
 		final QCaseAttributeBase<?> atts = getCaseAttribute(cls);
 		NumberSubQuery<Integer> attributeQuery = new SQLSubQuery()
 			.from(attributes)
-			.where(attributes.name.eq(attribute).and(attributes.studyId.eq(study.getId())))
+			.where(attributes.name.eq(attribute).and(attributes.studyId.eq(query.getStudy().getId())))
 			.unique(attributes.id);
+		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
 
-		SQLQuery query = template.newSqlQuery().from(cases).innerJoin(atts).on(cases.id.eq(atts.caseId)).where(cases.id.eq(caseValue.getId()).and(atts.attributeId.eq(attributeQuery)));
-		Tuple oldValue = template.queryForObject(query, new QTuple(atts.getValue(), atts.notAvailable));
+		SQLQuery sq = template.newSqlQuery().from(cases).innerJoin(atts).on(cases.id.eq(atts.caseId)).where(cases.id.in(caseQuery).and(atts.attributeId.eq(attributeQuery)));
+		Tuple oldValue = template.queryForObject(sq, new QTuple(atts.getValue(), atts.notAvailable));
 		
     	Object oldRawValue = oldValue == null ? null : oldValue.get(0, cls);
     	Boolean oldNotAvailable = oldValue == null ? false : oldValue.get(1, Boolean.class);
