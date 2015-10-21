@@ -540,8 +540,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Much of the logic should be delegated to the CaseAttributePersistence layer.
 	 */
 	@Override
-	public ObjectNode setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException {
-		throw new RuntimeException("Not yet implemented");
+	public List<ObjectNode> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException {
+		
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+
+		return cap.setQueryAttributes(template, (QueryStudyCaseQuery) query, values);
 	}
 
 	/**

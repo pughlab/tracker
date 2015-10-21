@@ -512,13 +512,21 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public ObjectNode setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) {
+	public List<ObjectNode> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) {
+		
+		MockStudyCaseQuery caseQuery = (MockStudyCaseQuery) query;
+		List<Integer> caseIds = caseQuery.getCases();
 
 		// Well, yes, in theory we can just write in a new value, but this is all mocked
 		// and it's actually a mirror of the correct value. Strictly, here, we need to 
 		// get the type and then find and delete a real value. But hey, this is a mock
 		// so we don't really care. Yet.
 		
-		return null;
+		List<ObjectNode> result = new ArrayList<ObjectNode>();
+		for(@SuppressWarnings("unused") Integer caseId : caseIds) {
+			result.add(values);
+		}
+		
+		return result;
 	}
 }

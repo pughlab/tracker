@@ -13,6 +13,8 @@ import org.springframework.data.jdbc.query.SqlDeleteCallback;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
@@ -33,11 +35,15 @@ import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeDates;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeNumbers;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
+import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 
 public class CaseAttributePersistence {
 	
 	public Map<Class<?>, QCaseAttributeBase<?>> types = new LinkedHashMap<Class<?>, QCaseAttributeBase<?>>();
+	
+	private final JsonNodeFactory factory = JsonNodeFactory.instance;
 	
 	private QCaseAttributeBase<?> getCaseAttribute(Class<?> cls) {
 		if (! types.containsKey(cls)) {
@@ -107,6 +113,68 @@ public class CaseAttributePersistence {
 	}
 	
 	/**
+	 * Updates a set of objects, possibly for a set of values. This seems like a performance
+	 * issue, but the reality is not so, as the query will almost invariably be a single
+	 * case, and updating a single value. The result is a list of objects corresponding to
+	 * the query, but with modified values returned. If we get back a list of values where
+	 * there are no keys, nothing changed. 
+	 * 
+	 * @param template
+	 * @param query
+	 * @param values
+	 * @return
+	 */
+	public List<ObjectNode> setQueryAttributes(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, ObjectNode values) throws RepositoryException {
+		
+		// Because we need to insert or update per case, we need to map the query to a list of cases
+		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
+		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
+		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
+		
+		// For each case, we need to find the old values for each object
+		Study study = query.getStudy();
+		
+		SQLQuery sqlQuery = template.newSqlQuery()
+				.from(attributes)
+				.where(attributes.studyId.eq(study.getId()));
+		
+		List<Attributes> atts = template.query(sqlQuery, attributes);
+		List<Attributes> filteredAtts = new ArrayList<Attributes>();
+		
+		for(Attributes a : atts) {
+			if (values.has(a.getName())) filteredAtts.add(a);
+		}
+
+		List<ObjectNode> oldValues = getJsonData(template, query, filteredAtts);
+		List<ObjectNode> result = new ArrayList<ObjectNode>();
+		
+		// Right, now we can do an update and check to see what actually we wanted to change. This
+		// should do a check to see whether we need to update, first.
+		
+		for(Integer caseId : caseIds) {
+			ObjectNode oldCase = oldValues.remove(0);
+			ObjectNode newCase = factory.objectNode();
+			result.add(newCase);
+			for(Attributes a : filteredAtts) {
+				String name = a.getName();
+				JsonNode oldValue = oldCase.get(name);
+				JsonNode newValue = values.get(name);
+				if (oldValue.equals(newValue)) continue;
+				
+				newCase.replace(name, oldValue);
+				
+				ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
+				WritableValue value = validator.validate(a, newValue);
+				
+				// Now we can do the actual update...
+				writeCaseAttributeValue(template, study, caseId, name, value);
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
 	 * Handles generic writing of a case attribute value.
 	 * @param template
 	 * @param study
@@ -115,25 +183,15 @@ public class CaseAttributePersistence {
 	 * @param attribute
 	 * @param value
 	 */
-	public void writeCaseAttributeValue(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, final String attribute, final WritableValue value) {
+	private void writeCaseAttributeValue(QueryDslJdbcTemplate template, final Study study, final Integer caseId, final String attribute, final WritableValue value) {
 		final boolean notAvailable = value.getNotAvailable();
 		final Class<?> cls = value.getValueClass();
 		final Object storableValue = notAvailable ? null : value.getValue();
 		final QCaseAttributeBase<?> atts = getCaseAttribute(cls);
 		
-		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
-		
-		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
-		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
-		if (caseIds.isEmpty()) {
-			throw new RuntimeException("Missing case");
-		}
-		
-		final Integer caseId = caseIds.get(0);
-		
 		final SQLQuery attributeQuery = template.newSqlQuery()
 			.from(attributes)
-			.where(attributes.name.eq(attribute).and(attributes.studyId.eq(query.getStudy().getId())));
+			.where(attributes.name.eq(attribute).and(attributes.studyId.eq(study.getId())));
 		final Integer attributeId = template.queryForObject(attributeQuery, attributes.id);
 		
 		if (attributeId == null) {
