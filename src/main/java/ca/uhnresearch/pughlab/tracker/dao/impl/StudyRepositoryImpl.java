@@ -631,14 +631,18 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, List<? extends Attributes> attributes) {
 		if (! (query instanceof QueryStudyCaseQuery)) {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
 		}
 
-		return cap.getJsonData(template, (QueryStudyCaseQuery) query, getViewAttributes(query.getStudy(), view));
+		return cap.getJsonData(template, (QueryStudyCaseQuery) query, attributes);
 	}
 
+	@Override
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
+		return getCaseData(query, getViewAttributes(query.getStudy(), view));
+	}
 
 	@Override
 	public QueryStudyCaseQuery newStudyCaseQuery(Study study) {

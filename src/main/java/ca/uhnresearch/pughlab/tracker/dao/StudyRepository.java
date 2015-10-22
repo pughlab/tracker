@@ -95,6 +95,14 @@ public interface StudyRepository {
 	 * @return list of JSON nodes
 	 */
 	List<ObjectNode> getCaseData(StudyCaseQuery query, View view);
+
+	/**
+	 * Retrieves the record-level data for a view and study from the repository,
+	 * filtered by a list of allowed attributes
+	 * 
+	 * @return list of JSON nodes
+	 */
+	List<ObjectNode> getCaseData(StudyCaseQuery query, List<? extends Attributes> attributes);
 	
 	/**
 	 * Builds a new study case query, which can be transformed into a set of cases.

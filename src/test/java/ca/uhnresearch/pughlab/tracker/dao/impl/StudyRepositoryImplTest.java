@@ -583,7 +583,7 @@ public class StudyRepositoryImplTest {
 		query = studyRepository.addViewCaseMatcher(query, view);
 		query = studyRepository.addStudyCaseSelector(query, 1);
 		
-		List<ObjectNode> dataList = studyRepository.getCaseData(query, view);
+		List<ObjectNode> dataList = studyRepository.getCaseData(query, filteredAttributes);
 		Assert.assertEquals(1, dataList.size());
 		
 		ObjectNode data = dataList.get(0);
@@ -591,7 +591,7 @@ public class StudyRepositoryImplTest {
 		
 		for(ViewAttributes va : attributes) {
 			Boolean filtered = filteredAttributes.contains(va);
-			Assert.assertEquals(filtered, data.has(va.getName()));
+			Assert.assertEquals("Failed to filter attribute: " + va.getName(),filtered, data.has(va.getName()));
 		}
 	}
 	
@@ -768,7 +768,6 @@ public class StudyRepositoryImplTest {
 		Assert.assertNotNull(auditEntries);
 		Assert.assertEquals(1, auditEntries.size());
 		
-		
 		// Poke at the first audit log entry
 		JsonNode entry = auditEntries.get(0);
 		Assert.assertEquals("stuart", entry.get("eventUser").asText());
@@ -796,10 +795,10 @@ public class StudyRepositoryImplTest {
 			query = studyRepository.addViewCaseMatcher(query, view);
 			query = studyRepository.addStudyCaseSelector(query, 6);
 			ObjectNode values = jsonNodeFactory.objectNode();
-			values.replace("sampleAvailable", jsonNodeFactory.textNode("2014-02-03"));
-			studyRepository.setQueryAttributes(query, "procedureDate", values);
+			values.replace("procedureDate", jsonNodeFactory.textNode("2014-02-03"));
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
-			Assert.fail();
+			Assert.fail(e.getMessage());
 		}
 		
 		// Check we now have an audit log entry

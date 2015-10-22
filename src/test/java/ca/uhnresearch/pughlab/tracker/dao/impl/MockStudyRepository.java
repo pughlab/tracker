@@ -455,6 +455,11 @@ public class MockStudyRepository implements StudyRepository {
 	public Study saveStudy(Study study) {
 		return study;
 	}
+	
+	@Override
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, List<? extends Attributes> attributes) {
+		return getCaseData(query, (View) null);
+	}
 
 	@Override
 	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
