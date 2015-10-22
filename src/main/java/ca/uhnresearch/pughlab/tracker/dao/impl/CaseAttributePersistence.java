@@ -14,7 +14,6 @@ import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.Tuple;
 import com.mysema.query.sql.SQLQuery;
@@ -27,6 +26,7 @@ import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
 
+import ca.uhnresearch.pughlab.tracker.dao.CaseChangeInfo;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.SpecialValues;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeBase;
@@ -42,8 +42,6 @@ import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 public class CaseAttributePersistence {
 	
 	public Map<Class<?>, QCaseAttributeBase<?>> types = new LinkedHashMap<Class<?>, QCaseAttributeBase<?>>();
-	
-	private final JsonNodeFactory factory = JsonNodeFactory.instance;
 	
 	private QCaseAttributeBase<?> getCaseAttribute(Class<?> cls) {
 		if (! types.containsKey(cls)) {
@@ -124,7 +122,7 @@ public class CaseAttributePersistence {
 	 * @param values
 	 * @return
 	 */
-	public List<ObjectNode> setQueryAttributes(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, ObjectNode values) throws RepositoryException {
+	public List<CaseChangeInfo> setQueryAttributes(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, ObjectNode values) throws RepositoryException {
 		
 		// Because we need to insert or update per case, we need to map the query to a list of cases
 		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
@@ -146,22 +144,22 @@ public class CaseAttributePersistence {
 		}
 
 		List<ObjectNode> oldValues = getJsonData(template, query, filteredAtts);
-		List<ObjectNode> result = new ArrayList<ObjectNode>();
+		List<CaseChangeInfo> result = new ArrayList<CaseChangeInfo>();
 		
 		// Right, now we can do an update and check to see what actually we wanted to change. This
 		// should do a check to see whether we need to update, first.
 		
 		for(Integer caseId : caseIds) {
 			ObjectNode oldCase = oldValues.remove(0);
-			ObjectNode newCase = factory.objectNode();
-			result.add(newCase);
+			CaseChangeInfo newCaseChange = new CaseChangeInfo(caseId);
+			result.add(newCaseChange);
 			for(Attributes a : filteredAtts) {
 				String name = a.getName();
 				JsonNode oldValue = oldCase.get(name);
 				JsonNode newValue = values.get(name);
 				if (oldValue != null && oldValue.equals(newValue)) continue;
 				
-				newCase.replace(name, oldValue);
+				newCaseChange.addValueChange(name, oldValue, newValue);
 				
 				ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
 				WritableValue value = validator.validate(a, newValue);

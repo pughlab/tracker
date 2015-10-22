@@ -186,7 +186,7 @@ public interface StudyRepository {
 	Cases newStudyCase(Study study, View view, String userName, Cases afterCase) throws RepositoryException;
 	Cases newStudyCase(Study study, View view, String userName) throws RepositoryException;
 	
-	List<ObjectNode> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException;
+	List<CaseChangeInfo> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException;
 	
 	void setEventHandler(EventHandler manager);
 }

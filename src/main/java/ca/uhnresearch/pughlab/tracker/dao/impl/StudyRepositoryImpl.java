@@ -24,6 +24,7 @@ import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.query.NumberSubQuery;
 
+import ca.uhnresearch.pughlab.tracker.dao.CaseChangeInfo;
 import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
@@ -38,6 +39,7 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.EventHandler;
+import ca.uhnresearch.pughlab.tracker.events.RedactedJsonNode;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
@@ -540,13 +542,43 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Much of the logic should be delegated to the CaseAttributePersistence layer.
 	 */
 	@Override
-	public List<ObjectNode> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException {
+	public List<CaseChangeInfo> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException {
 		
 		if (! (query instanceof QueryStudyCaseQuery)) {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
 		}
+		
+		List<CaseChangeInfo> changes = cap.setQueryAttributes(template, (QueryStudyCaseQuery) query, values);
+		
+		Study study = query.getStudy();
 
-		return cap.setQueryAttributes(template, (QueryStudyCaseQuery) query, values);
+		EventHandler handler = getEventHandler();
+
+		for(CaseChangeInfo caseChanges : changes) {
+			for(String field : caseChanges.fields()) {
+				CaseChangeInfo.Change change = caseChanges.getChange(field);
+				
+				Event event = new Event(Event.EVENT_SET_FIELD);
+				event.getData().setScope(study.getName());
+				event.getData().setUser(userName);
+				
+				final JsonNodeFactory factory = JsonNodeFactory.instance;
+				ObjectNode parameters = factory.objectNode();
+
+				parameters.put("field", field);
+				parameters.put("case_id", caseChanges.getCaseId());
+				parameters.put("study_id", study.getId());
+				parameters.put("study", study.getName());
+				parameters.replace("old", new RedactedJsonNode(change.getOldValue()));
+				parameters.replace("new", new RedactedJsonNode(change.getNewValue()));
+				
+				event.getData().setParameters(parameters);
+
+		    	handler.sendMessage(event, event.getData().getScope());
+			}
+		}
+		
+		return changes;
 	}
 
 	/**

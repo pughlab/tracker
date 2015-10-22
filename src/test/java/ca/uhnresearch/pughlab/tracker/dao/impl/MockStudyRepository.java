@@ -24,6 +24,7 @@ import com.google.gson.JsonPrimitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ca.uhnresearch.pughlab.tracker.dao.CaseChangeInfo;
 import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
@@ -517,7 +518,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public List<ObjectNode> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) {
+	public List<CaseChangeInfo> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) {
 		
 		MockStudyCaseQuery caseQuery = (MockStudyCaseQuery) query;
 		List<Integer> caseIds = caseQuery.getCases();
@@ -527,9 +528,15 @@ public class MockStudyRepository implements StudyRepository {
 		// get the type and then find and delete a real value. But hey, this is a mock
 		// so we don't really care. Yet.
 		
-		List<ObjectNode> result = new ArrayList<ObjectNode>();
-		for(@SuppressWarnings("unused") Integer caseId : caseIds) {
-			result.add(values);
+		List<CaseChangeInfo> result = new ArrayList<CaseChangeInfo>();
+		for(Integer caseId : caseIds) {
+			CaseChangeInfo caseChange = new CaseChangeInfo(caseId);
+			Iterator<String> fields = values.fieldNames();
+			while(fields.hasNext()) {
+				String field = fields.next();
+				caseChange.addValueChange(field, null, values.get(field));
+			}
+			result.add(caseChange);			
 		}
 		
 		return result;
