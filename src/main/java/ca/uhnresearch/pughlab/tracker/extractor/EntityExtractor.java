@@ -4,25 +4,15 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
-import org.restlet.routing.Extractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
-import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
-public class EntityExtractor extends Extractor {
+public class EntityExtractor extends RepositoryAwareExtractor {
 
-	private StudyRepository repository;
-
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	@Required
-    public void setRepository(StudyRepository repository) {
-        this.repository = repository;
-    }
+	private final Logger logger = LoggerFactory.getLogger(EntityExtractor.class);
 
 	protected int beforeHandle(Request request, Response response) {
 		
@@ -40,10 +30,9 @@ public class EntityExtractor extends Extractor {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
 		
-		query = repository.addStudyCaseSelector(query, caseId);
-		request.getAttributes().put("query", query);
+		query = getRepository().addStudyCaseSelector(query, caseId);
+		RequestAttributes.setRequestCaseQuery(request, query);
 		
 		return CONTINUE;
-
 	}
 }
