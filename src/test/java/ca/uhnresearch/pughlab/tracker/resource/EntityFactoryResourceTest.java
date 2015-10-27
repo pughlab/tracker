@@ -64,7 +64,7 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:create")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -91,7 +91,7 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:create")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -118,7 +118,9 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
 		
         Subject subjectUnderTest = createMock(Subject.class);
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:write")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:create")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(true);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
@@ -128,6 +130,77 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
 		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
 		RequestAttributes.setRequestView(resource.getRequest(), testView);
 				
+		ObjectNode body = jsonNodeFactory.objectNode();
+		ObjectNode entity = jsonNodeFactory.objectNode();
+		entity.put("patientId", "DEMO-XX");
+		body.replace("entity", entity);
+		
+		String entityBody = body.toString();
+
+		Representation writeRepresentation = new StringRepresentation(entityBody, APPLICATION_JSON);   
+		resource.postResource(writeRepresentation);
+		return;
+	}
+	
+	/**
+	 * Checks that an empty entity POST request fails
+	 * @throws IOException
+	 */
+	@Test
+	public void resourceTestWriteForbiddenWriteView() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:create")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+				
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Forbidden"));
+
+		ObjectNode body = jsonNodeFactory.objectNode();
+		ObjectNode entity = jsonNodeFactory.objectNode();
+		entity.put("patientId", "DEMO-XX");
+		body.replace("entity", entity);
+		
+		String entityBody = body.toString();
+
+		Representation writeRepresentation = new StringRepresentation(entityBody, APPLICATION_JSON);   
+		resource.postResource(writeRepresentation);
+		return;
+	}
+
+	/**
+	 * Checks that an empty entity POST request fails
+	 * @throws IOException
+	 */
+	@Test
+	public void resourceTestWriteForbiddenWriteAttribute() throws IOException {
+		
+        Subject subjectUnderTest = createMock(Subject.class);
+        expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:create")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(false);
+        expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
+        replay(subjectUnderTest);
+        setSubject(subjectUnderTest);
+        
+        Study testStudy = repository.getStudy("DEMO");		
+		View testView = repository.getStudyView(testStudy, "complete");
+		RequestAttributes.setRequestStudy(resource.getRequest(), testStudy);
+		RequestAttributes.setRequestView(resource.getRequest(), testView);
+				
+		thrown.expect(ResourceException.class);
+		thrown.expectMessage(containsString("Forbidden"));
+
 		ObjectNode body = jsonNodeFactory.objectNode();
 		ObjectNode entity = jsonNodeFactory.objectNode();
 		entity.put("patientId", "DEMO-XX");

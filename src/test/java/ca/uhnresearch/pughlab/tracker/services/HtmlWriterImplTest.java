@@ -139,7 +139,7 @@ public class HtmlWriterImplTest {
     	List<ViewAttributes> newAttributes = new ArrayList<ViewAttributes>();
     	newAttributes.addAll(attributes);
     	newAttributes.remove(0);
-    	newAttributes.add(0,  first);
+    	newAttributes.add(0, first);
     	alternate.setAttributes(newAttributes);
 
 		thrown.expect(RuntimeException.class);

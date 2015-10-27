@@ -57,7 +57,7 @@ public class AuditLogRepositoryImpl implements AuditLogRepository {
 	@Override
 	public List<JsonNode> getAuditData(Study study, CaseQuery query) {
 		
-		SQLQuery sq = template.newSqlQuery().from(auditLog).where(auditLog.studyId.eq(study.getId())).orderBy(auditLog.eventTime.desc());
+		SQLQuery sq = template.newSqlQuery().from(auditLog).where(auditLog.studyId.eq(study.getId())).orderBy(auditLog.id.desc());
 		
 		if (query.getOffset() != null) {
 			sq = sq.offset(query.getOffset());

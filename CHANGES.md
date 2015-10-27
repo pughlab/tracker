@@ -1,6 +1,16 @@
 ## Revision history
 
 
+### Version 2.1.0-RC1 - October 27th 2015
+
+ * Resolved transaction deadlocks in HSQLDB. See #89, #93, #96, #98
+ * Fixed permissions for case record creation and writing. See #85, #97
+ * Newlines in cells are now supported. See #92
+ * No change to a value should not be audited. See #91
+ * Upgraded referential integrity to prevent bad imports. See #90
+ * Resolved appearance issues when sorting. See #88
+
+
 ### Version 2.0.1-RC7 - October 5th 2015
 
  * Added support for HTML writing into the data resource. See #73
