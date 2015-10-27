@@ -760,5 +760,10 @@ public class StudyRepositoryImpl implements StudyRepository {
 		throw new RuntimeException("Not yet implemented");
 	}
 
+	@Override
+	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, String attribute, String value) {
+		return query;
+	}
+
 }
 

@@ -541,4 +541,9 @@ public class MockStudyRepository implements StudyRepository {
 		
 		return result;
 	}
+	
+	@Override
+	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, String attribute, String value) {
+		return query;
+	}
 }

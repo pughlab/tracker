@@ -140,6 +140,16 @@ public interface StudyRepository {
 	StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId);
 
 	/**
+	 * Adds a new matching element to a study case filter. Only string values 
+	 * are typically allowed here, currently. A new study case query is returned
+	 * and can be used later.
+	 * @param attribute
+	 * @param value
+	 * @return
+	 */
+	StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, String attribute, String value);
+
+	/**
 	 * Returns subcases for a StudyCaseQuery, and returns a new study case query in the
 	 * process.
 	 * @param query
