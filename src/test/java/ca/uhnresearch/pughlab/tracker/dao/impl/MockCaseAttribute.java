@@ -1,12 +1,12 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-class MockCaseAttribute {
+public class MockCaseAttribute {
 	private Integer caseId;
 	private String attribute;
 	private Object value;
 	private Boolean notAvailable = false;
 	
-	MockCaseAttribute(Integer caseId, String attribute, Object value) {
+	public MockCaseAttribute(Integer caseId, String attribute, Object value) {
 		this.caseId = caseId;
 		this.attribute = attribute;
 		this.value = value;
