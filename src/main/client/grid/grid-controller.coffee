@@ -61,6 +61,3 @@ angular
 
     $scope.$on '$destroy', () ->
       socket.disconnect()
-
-    $scope.search = (q) ->
-      $scope.$broadcast 'table:search', q

@@ -2,25 +2,6 @@ angular
   .module 'tracker.grid'
 
 
-  .directive 'trackerSearchButton', () ->
-
-    result =
-      restrict: "A"
-      replace: false
-      require: 'ngModel'
-      scope:
-        ngModel: '='
-      link: (scope, iElement, iAttrs) ->
-
-        button = angular.element("<a role='button' class='clear-button' aria-label='Clear'><span class='glyphicon glyphicon-remove-circle'></span></a>")
-        iElement.after button
-
-        button.on 'click', (e) ->
-          scope.$apply () ->
-            scope.ngModel = ""
-          iElement.trigger 'submit'
-
-
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
