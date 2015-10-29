@@ -189,7 +189,10 @@ angular
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
-          searchInTable.search(handsonTable, query)
+          searchInTable.search handsonTable, query
+
+        scope.$on 'table:search-navigation', (e, direction) ->
+          searchInTable.navigation handsonTable, direction
 
 
         scope.$on 'socket:welcome', (evt, data) ->
@@ -376,6 +379,7 @@ angular
               currentRowClassName: 'currentRow'
               currentColClassName: 'currentCol'
               readOnly: ! (scope.trackerEditingStatus or false)
+              outsideClickDeselects: false
             })
 
             handsonTable.trackerData = {

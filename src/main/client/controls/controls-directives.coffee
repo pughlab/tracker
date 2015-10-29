@@ -7,16 +7,39 @@ angular
       restrict: "A"
       replace: false
       controller: Array '$scope', ($scope) ->
+
+        previousSearch = undefined
+
         $scope.search = (q) ->
           $scope.$broadcast 'table:search', q
+
+        $scope.searchNavigation = (direction) ->
+          $scope.$broadcast 'table:search-navigation', direction
+
       template: '<div>' +
                 '  <form class="form-inline pull-right" role="form" ng-submit="search(filterText)">' +
                 '    <div class="form-group form-group-sm">' +
                 '      <label for="search">Search: </label>' +
                 '      <input id="search" type="text" class="form-control input-sm" ng-model="filterText" search-button placeholder="Search text">' +
                 '    </div>' +
+                '    <div class="btn-group tracker-search-navigation" role="group" aria-label="search navigation">' +
+                '    <button type="button" class="btn btn-default btn-sm tracker-search-previous" aria-label="Previous match">' +
+                '      <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>' +
+                '    </button>' +
+                '    <button type="button" class="btn btn-default btn-sm tracker-search-next" aria-label="Next match">' +
+                '      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>' +
+                '    </button>' +
+                '    </div>' +
                 '  </form>' +
                 '</div>'
+      link: (scope, iElement, iAttrs) ->
+
+        jQuery(iElement).find(".tracker-search-previous").on 'click', (e) ->
+          scope.searchNavigation "previous"
+
+        jQuery(iElement).find(".tracker-search-next").on 'click', (e) ->
+          scope.searchNavigation "next"
+
 
 
   .directive 'searchButton', () ->
