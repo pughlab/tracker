@@ -29,7 +29,7 @@
             <img src="/statics/uhn_logo_small.png" style="max-width: 50%; margin-top: -5px; margin-right: 0.5em;"> Tracker
           </a>
         </div>
-        <div collapse="navCollapsed" class="navbar-collapse collapse" ng-controller="HeaderController">
+        <div uib-collapse="navCollapsed" class="navbar-collapse collapse" ng-controller="HeaderController">
           <ul class="nav navbar-nav">
             <li><a><span class="label label-info">Beta</span></a></li>
             <li ng-class="{ active: isActive('/')}"><a ui-sref="home">Home</a></li>
@@ -41,8 +41,8 @@
             <button type="button" class="btn btn-primary btn-sm">Sign in</button>
           </p>
           -->
-          <li ng-show="user" class="dropdown" dropdown>
-            <a href class="dropdown-toggle" dropdown-toggle><span ng-bind="user.displayName || user.username"></span><span class="caret"></span></a>
+          <li ng-show="user" class="dropdown" uib-dropdown>
+            <a href class="dropdown-toggle" uib-dropdown-toggle><span ng-bind="user.displayName || user.username"></span><span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
                 <li><a href ng-click="logout()">Logout</a></li>
               </ul>
