@@ -2,25 +2,6 @@ angular
   .module 'tracker.grid'
 
 
-  .directive 'clearableButton', () ->
-
-    result =
-      restrict: "A"
-      replace: false
-      require: 'ngModel'
-      scope:
-        ngModel: '='
-      link: (scope, iElement, iAttrs) ->
-
-        button = angular.element("<a role='button' class='clear-button' aria-label='Clear'><span class='glyphicon glyphicon-remove-circle'></span></a>")
-        iElement.after button
-
-        button.on 'click', (e) ->
-          scope.$apply () ->
-            scope.ngModel = ""
-          iElement.trigger 'submit'
-
-
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
@@ -98,8 +79,15 @@ angular
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
+<<<<<<< HEAD
           e.stopPropagation()
           searchInTable.search(handsonTable, query)
+=======
+          searchInTable.search handsonTable, query
+
+        scope.$on 'table:search-navigation', (e, direction) ->
+          searchInTable.navigation handsonTable, direction
+>>>>>>> develop
 
 
         scope.$on 'socket:welcome', (e, data) ->
@@ -227,6 +215,7 @@ angular
               currentRowClassName: 'currentRow'
               currentColClassName: 'currentCol'
               readOnly: ! (scope.trackerEditingStatus or false)
+<<<<<<< HEAD
               cells: (row, col, prop) ->
                 cellProperties = {}
                 if row == 0
@@ -243,6 +232,9 @@ angular
                       else
                         scope.filters[change[1]] = change[3]
                     return
+=======
+              outsideClickDeselects: false
+>>>>>>> develop
             })
 
             handsonTable.trackerData = {

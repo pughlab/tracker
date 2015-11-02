@@ -7,13 +7,65 @@ angular
 
   .factory 'searchInTable', () ->
     result =
-      search: (table, query) ->
-        result = table.search.query query
-        table.render()
 
-        if result.length > 0
-          [first, rest...] = result
+      ## handles the main search
+      search: (table, query) ->
+
+        searchResult = table.search.query query
+        table.render()
+        table.trackerLastSearchResult = searchResult
+
+        if searchResult.length > 0
+          [first, rest...] = searchResult
           table.selectCell first.row, first.col, first.row, first.col, true
+
+
+      ## handles the forwards and backwards navigation
+      navigation: (table, direction) ->
+
+        advanceCell = (obj, offset, rows, columns) ->
+          obj.col = obj.col + offset
+          if obj.col < 0 or obj.col >= columns
+            obj.col = if obj.col < 0 then columns - 1 else 0
+            obj.row = obj.row + offset
+            if obj.row < 0 or obj.row >= rows
+              obj.row = if obj.row < 0 then rows - 1 else 0
+          obj
+
+        equalsCell = (obj1, obj2) ->
+          return obj1.row == obj2.row and obj1.col == obj2.col
+
+        ## We should really use the htSearchResult and the "most recently selected"
+        ## cell. One of the issues we face is that as soon as we use a navigation
+        ## control we defocus the grid and erase the currently selected cell, so
+        ## we no longer know where to start.
+
+        offset = if direction == 'next' then 1 else -1
+
+        searchResults = table.trackerLastSearchResult
+        return if !searchResults == 'undefined' or searchResults.length == 0
+
+        ## We can't actually assume that we're on a selected cell, because that
+        ## would be far too easy.
+
+        rows = table.countRows()
+        columns = table.countCols()
+
+        return if rows == 0 or columns == 0
+
+        start = table.getSelected()
+        if typeof start == 'undefined'
+          start = {row: 0, col: 0}
+        else
+          start = {row: start[0], col: start[1]}
+          advanceCell start, offset, rows, columns
+
+        count = rows * columns
+        while count-- > 0
+          for cell in searchResults
+            if equalsCell start, cell
+              return table.selectCell cell.row, cell.col, cell.row, cell.col, true
+          advanceCell start, offset, rows, columns
 
 
   .factory 'renderHistory', () ->
