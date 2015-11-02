@@ -79,15 +79,11 @@ angular
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
-<<<<<<< HEAD
           e.stopPropagation()
-          searchInTable.search(handsonTable, query)
-=======
           searchInTable.search handsonTable, query
 
         scope.$on 'table:search-navigation', (e, direction) ->
           searchInTable.navigation handsonTable, direction
->>>>>>> develop
 
 
         scope.$on 'socket:welcome', (e, data) ->
@@ -215,7 +211,6 @@ angular
               currentRowClassName: 'currentRow'
               currentColClassName: 'currentCol'
               readOnly: ! (scope.trackerEditingStatus or false)
-<<<<<<< HEAD
               cells: (row, col, prop) ->
                 cellProperties = {}
                 if row == 0
@@ -232,9 +227,7 @@ angular
                       else
                         scope.filters[change[1]] = change[3]
                     return
-=======
               outsideClickDeselects: false
->>>>>>> develop
             })
 
             handsonTable.trackerData = {
