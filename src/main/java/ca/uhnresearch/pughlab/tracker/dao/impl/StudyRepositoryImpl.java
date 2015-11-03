@@ -761,9 +761,19 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, String attribute, String value) {
-		return query;
-	}
+	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode filter) {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
 
+		QueryStudyCaseQuery scq = (QueryStudyCaseQuery) query;
+		SQLSubQuery sq = cap.filterQuery(getTemplate(), scq, filter);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Using case filter: {}", sq.toString());
+		}
+		
+		return new QueryStudyCaseQuery(scq.getStudy(), sq);
+	}
 }
 

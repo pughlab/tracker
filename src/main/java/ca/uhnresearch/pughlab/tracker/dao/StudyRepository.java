@@ -147,7 +147,7 @@ public interface StudyRepository {
 	 * @param value
 	 * @return
 	 */
-	StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, String attribute, String value);
+	StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode filter);
 
 	/**
 	 * Returns subcases for a StudyCaseQuery, and returns a new study case query in the

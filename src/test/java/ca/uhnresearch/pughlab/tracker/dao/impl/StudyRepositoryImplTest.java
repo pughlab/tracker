@@ -1879,4 +1879,59 @@ public class StudyRepositoryImplTest {
 		Cases foundValue = studyRepository.getStudyCase(study, view, 15);
 		Assert.assertEquals("pending", foundValue.getState());
 	}
+	
+	/**
+	 * Checks that basic filtering works, with an exact match to a string
+	 * @throws RepositoryException
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFiltering() throws RepositoryException {
+		
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("DEMO-02"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+		
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-02", data.get("patientId").asText());
+	}
+
+	/**
+	 * Checks that basic filtering works, with an exact match to a string
+	 * failing to find any records at all.
+	 * @throws RepositoryException
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringMiss() throws RepositoryException {
+		
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("MISSING"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(0, dataList.size());
+	}
 }

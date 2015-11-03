@@ -543,7 +543,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 	
 	@Override
-	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, String attribute, String value) {
+	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode expression) {
 		return query;
 	}
 }
