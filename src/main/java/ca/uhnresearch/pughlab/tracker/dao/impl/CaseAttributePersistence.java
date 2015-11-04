@@ -3,8 +3,8 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,6 +30,7 @@ import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.ConstantImpl;
 import com.mysema.query.types.Expression;
 import com.mysema.query.types.Path;
+import com.mysema.query.types.Predicate;
 import com.mysema.query.types.QTuple;
 import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
@@ -45,6 +46,13 @@ import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeNumbers;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.query.InvalidTokenException;
+import ca.uhnresearch.pughlab.tracker.query.QueryNode;
+import ca.uhnresearch.pughlab.tracker.query.QueryParser;
+import ca.uhnresearch.pughlab.tracker.query.QueryParserFactory;
+import ca.uhnresearch.pughlab.tracker.query.QuotedStringToken;
+import ca.uhnresearch.pughlab.tracker.query.SimpleQueryParserFactory;
+import ca.uhnresearch.pughlab.tracker.query.ValueToken;
 import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.WritableValue;
 
@@ -55,7 +63,9 @@ public class CaseAttributePersistence {
 	public Map<Class<?>, QCaseAttributeBase<?>> types = new LinkedHashMap<Class<?>, QCaseAttributeBase<?>>();
 	
 	public Map<String, QCaseAttributeBase<?>> stringTypes = new LinkedHashMap<String, QCaseAttributeBase<?>>();
-
+	
+	private QueryParserFactory queryParserFactory = new SimpleQueryParserFactory();
+	
 	private QCaseAttributeBase<?> getCaseAttribute(Class<?> cls) {
 		if (! types.containsKey(cls)) {
 			throw new RuntimeException("Invalid attribute class: " + cls.getName());
@@ -167,9 +177,15 @@ public class CaseAttributePersistence {
 		for(Attributes attribute : getStudyAttributes(template, study)) {
 			if (filterMap.containsKey(attribute.getName())) {
 				JsonNode filterJson = filterMap.get(attribute.getName());
-				sq = addFilter(sq, attribute, filterJson, fIndex++);
+				try {
+					sq = addFilter(sq, attribute, filterJson, fIndex++);
+				} catch (ReflectiveOperationException e) {
+					logger.error("Internal error: " + e.getLocalizedMessage());
+				}
 			}
 		}
+		
+		logger.debug("Filter SQL: {}", sq.toString());
 		
 		return sq;
 	}
@@ -190,6 +206,12 @@ public class CaseAttributePersistence {
 		return template.query(sqlQuery, new AttributeProjection(attributes));
 	}
 	
+	private QCaseAttributeBase<?> newAlias(QCaseAttributeBase<?> ca, Integer fIndex) throws ReflectiveOperationException {
+		Class<?> caClass = ca.getClass();
+		Constructor<?> caConstructor = caClass.getConstructor(new Class[]{String.class});
+		return (QCaseAttributeBase<?>) caConstructor.newInstance("flv" + fIndex);
+	}
+	
 	/**
 	 * Adds an additional filter criterion to the subquery. Uses careful aliasing 
 	 * based on a passed fIndex value, so that each filter can be handled separately.
@@ -199,42 +221,104 @@ public class CaseAttributePersistence {
 	 * @param fIndex
 	 * @return
 	 */
-	private SQLSubQuery addFilter(SQLSubQuery sq, Attributes a, JsonNode filterJson, Integer fIndex) {
-
-		String filterValue = filterJson.asText();
+	private SQLSubQuery addFilter(SQLSubQuery sq, Attributes a, JsonNode filterJson, Integer fIndex) throws ReflectiveOperationException {
 		QCaseAttributeBase<?> ca = getStringCaseAttribute(a.getType());
-		Class<?> caClass = ca.getClass();
-		Constructor<?> caConstructor;
+		return getFilterExpression(sq, ca, a, filterJson, fIndex);
+	}
+	
+	/**
+	 * Returns a boolean expression that can be used in an attribute filter. The 
+	 * nature of the boolean expression is fairly open. 
+	 * 
+	 * @param cAlias
+	 * @param a
+	 * @param filterJson
+	 * @return
+	 */
+	private SQLSubQuery getFilterExpression(SQLSubQuery sq, QCaseAttributeBase<?> ca, Attributes a, JsonNode filterJson, Integer fIndex) throws ReflectiveOperationException {
+		
+		String filterValue = filterJson.asText();
+		
+		QueryParser parser = queryParserFactory.newQueryParser(filterValue);
+		QueryNode node;
 		try {
-			caConstructor = caClass.getConstructor(new Class[]{String.class});
-
-			QCaseAttributeBase<?> cAlias = (QCaseAttributeBase<?>) caConstructor.newInstance("flv" + fIndex);
-			
-			QAttributes attAlias = new QAttributes("flt" + fIndex);
-			
-			@SuppressWarnings({ "rawtypes", "unchecked" })
-			Expression<? super Comparable<?>> filterConstant = new ConstantImpl(caClass, filterValue);
-			
-			sq = sq.innerJoin(attAlias)
-						.on(attAlias.id.eq(a.getId()).and(attAlias.studyId.eq(cases.studyId)))
-						.innerJoin(cAlias)
-						.on(cAlias.attributeId.eq(attAlias.id).and(cAlias.caseId.eq(cases.id)).and(cAlias.getValue().eq(filterConstant)));
-
-		} catch (NoSuchMethodException e) {
-			logger.error("Internal error: {}", e.getLocalizedMessage());
-		} catch (SecurityException e) {
-			logger.error("Internal error: {}", e.getLocalizedMessage());
-		} catch (InstantiationException e) {
-			logger.error("Internal error: {}", e.getLocalizedMessage());
-		} catch (IllegalAccessException e) {
-			logger.error("Internal error: {}", e.getLocalizedMessage());
-		} catch (IllegalArgumentException e) {
-			logger.error("Internal error: {}", e.getLocalizedMessage());
-		} catch (InvocationTargetException e) {
-			logger.error("Internal error: {}", e.getLocalizedMessage());
+			node = parser.parse();
+		} catch (IOException e) {
+			logger.error(e.getLocalizedMessage());
+			return null;
+		} catch (InvalidTokenException e) {
+			logger.error(e.getLocalizedMessage());
+			return null;
 		}
 
-		return sq;
+		return getFilterExpression(sq, ca, a, node, fIndex);
+	}
+	
+	private Expression<? super Comparable<?>> getFilterConstant(Class<?> caClass, String filterValue) {
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		Expression<? super Comparable<?>> filterConstant = new ConstantImpl(caClass, filterValue);
+		return filterConstant;
+	}
+	
+	private SQLSubQuery getFilterExpression(SQLSubQuery sq, QCaseAttributeBase<?> ca, Attributes a, QueryNode filterNode, Integer fIndex) throws ReflectiveOperationException {
+		
+		QCaseAttributeBase<?> cAlias = newAlias(ca, fIndex);
+		QAttributes attAlias = new QAttributes("flt" + fIndex);
+		
+		return sq.innerJoin(attAlias)
+			.on(attAlias.id.eq(a.getId()).and(attAlias.studyId.eq(cases.studyId)))
+			.leftJoin(cAlias)
+			.on(cAlias.attributeId.eq(attAlias.id).and(cAlias.caseId.eq(cases.id)))
+			.where(getFilter(cAlias, filterNode));
+		
+	}
+	
+	private Predicate getFilter(QCaseAttributeBase<?> cAlias, QueryNode filterNode) {
+		if (filterNode instanceof ValueToken) {
+			return getValueFilter(cAlias, (ValueToken) filterNode);
+		} else if (filterNode instanceof QuotedStringToken) {
+			return getQuotedStringFilter(cAlias, (QuotedStringToken) filterNode);
+		} else {
+			throw new RuntimeException("Can't make filter");
+		}
+	}
+	
+	private Predicate getStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
+		if (filterValue.contains("*")) {
+			return getWildcardStringFilter(cAlias, filterValue);
+		} else {
+			return getExactStringFilter(cAlias, filterValue);
+		}
+	}
+	
+	private Predicate getExactStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
+		Class<?> caClass = cAlias.getClass();
+		return cAlias.getValue().eq(getFilterConstant(caClass, filterValue));
+	}
+	
+	private Predicate getWildcardStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
+		filterValue = filterValue.replaceAll("\\*", "%");
+		return cAlias.getValue().stringValue().like(filterValue);
+	}
+
+	private Predicate getValueFilter(QCaseAttributeBase<?> cAlias, ValueToken filterNode) {
+		String filterValue = filterNode.getValue();
+		if (filterValue.equals("N/A")) {
+			return cAlias.notAvailable.isTrue();
+		} else {
+			return getStringFilter(cAlias, filterValue);
+		}
+	}
+	
+	private Predicate getQuotedStringFilter(QCaseAttributeBase<?> cAlias, QuotedStringToken filterNode) {
+		String filterValue = filterNode.getValue();
+		Class<?> caClass = cAlias.getClass();
+		if (filterValue.equals("\"\"")) {
+			return cAlias.getValue().isNull().or(cAlias.getValue().eq(getFilterConstant(caClass, "")));
+		} else {
+			filterValue = filterValue.substring(1, filterValue.length() - 1);
+			return getStringFilter(cAlias, filterValue);
+		}
 	}
 	
 	/**
@@ -378,5 +462,19 @@ public class CaseAttributePersistence {
     	} else {
     		return oldRawValue;
     	}
+	}
+
+	/**
+	 * @return the queryParserFactory
+	 */
+	public QueryParserFactory getQueryParserFactory() {
+		return queryParserFactory;
+	}
+
+	/**
+	 * @param queryParserFactory the queryParserFactory to set
+	 */
+	public void setQueryParserFactory(QueryParserFactory queryParserFactory) {
+		this.queryParserFactory = queryParserFactory;
 	}
 }

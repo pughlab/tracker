@@ -1934,4 +1934,97 @@ public class StudyRepositoryImplTest {
 		Assert.assertNotNull(dataList);
 		Assert.assertEquals(0, dataList.size());
 	}
+	
+	/**
+	 * Blanks are a special case. They might be NULL or they might be an
+	 * empty string, so we need to check for both in the underlying 
+	 * query that we generate. 
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringBlank() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("mrn", jsonNodeFactory.textNode("\"\""));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(15, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-05", data.get("patientId").asText());
+	}
+
+	/**
+	 * N/A is a special case. The filter needs to check the missing
+	 * value field rather than the usual value field.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringNA() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("tissueSite", jsonNodeFactory.textNode("N/A"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-06", data.get("patientId").asText());
+	}
+	
+	/**
+	 * Wildcards are another filter option, and we should check both pre and
+	 * postfix values.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringWildcardPrefix() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("*-05"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-05", data.get("patientId").asText());
+	}
+
+
 }

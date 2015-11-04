@@ -10,7 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class ParserTest {
+public class SimpleQueryParserTest {
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -18,7 +18,7 @@ public class ParserTest {
 	@Test
 	public void testEmptyString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader(""));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader(""));
 		QueryNode node = parser.parse();
 		Assert.assertNull(node);
 	}
@@ -26,7 +26,7 @@ public class ParserTest {
 	@Test
 	public void testNAString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader("NA"));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader("NA"));
 		QueryNode node = parser.parse();
 		Assert.assertNotNull(node);
 		Assert.assertTrue(node instanceof ValueToken);
@@ -36,7 +36,7 @@ public class ParserTest {
 	@Test
 	public void testSimpleQueryString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader("KRAS"));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader("KRAS"));
 		QueryNode node = parser.parse();
 		Assert.assertNotNull(node);
 		Assert.assertTrue(node instanceof ValueToken);
@@ -46,7 +46,7 @@ public class ParserTest {
 	@Test
 	public void testWildcardQueryString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader("*KRAS*"));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader("*KRAS*"));
 		QueryNode node = parser.parse();
 		Assert.assertNotNull(node);
 		Assert.assertTrue(node instanceof ValueToken);
@@ -56,7 +56,7 @@ public class ParserTest {
 	@Test
 	public void testQuotedWildcardQueryString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader(" \"*KRAS*\" "));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader(" \"*KRAS*\" "));
 		QueryNode node = parser.parse();
 		Assert.assertNotNull(node);
 		Assert.assertTrue(node instanceof QuotedStringToken);
@@ -66,7 +66,7 @@ public class ParserTest {
 	@Test
 	public void testCommaExpressionQueryString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader(" KRAS, TP53 "));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader(" KRAS, TP53 "));
 		QueryNode node = parser.parse();
 		Assert.assertNotNull(node);
 		Assert.assertTrue(node instanceof ExpressionNode);
@@ -81,7 +81,7 @@ public class ParserTest {
 	@Test
 	public void testAndExpressionQueryString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader(" KRAS AND TP53 "));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader(" KRAS AND TP53 "));
 		QueryNode node = parser.parse();
 		Assert.assertNotNull(node);
 		Assert.assertTrue(node instanceof ExpressionNode);
@@ -96,7 +96,7 @@ public class ParserTest {
 	@Test
 	public void testAndExpressionParenthesesQueryString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader(" (KRAS AND TP53) "));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader(" (KRAS AND TP53) "));
 		QueryNode node = parser.parse();
 		Assert.assertNotNull(node);
 		Assert.assertTrue(node instanceof ExpressionNode);
@@ -111,7 +111,7 @@ public class ParserTest {
 	@Test
 	public void testAndExpressionParenthesesErrorQueryString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader(" (KRAS AND TP53 "));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader(" (KRAS AND TP53 "));
 		
 		thrown.expect(InvalidTokenException.class);
 		thrown.expectMessage(containsString("Missing right parenthesis"));
@@ -122,7 +122,7 @@ public class ParserTest {
 	@Test
 	public void testImpliedCommaExpressionQueryString() throws IOException, InvalidTokenException {
 		
-		Parser parser = new Parser(new StringReader(" KRAS TP53 "));
+		SimpleQueryParser parser = new SimpleQueryParser(new StringReader(" KRAS TP53 "));
 		QueryNode node = parser.parse();
 		Assert.assertNotNull(node);
 		Assert.assertTrue(node instanceof ExpressionNode);

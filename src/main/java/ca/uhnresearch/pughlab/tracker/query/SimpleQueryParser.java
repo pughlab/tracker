@@ -21,26 +21,26 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Precedence on operators is not implemented.
  */
-public class Parser {
+public class SimpleQueryParser implements QueryParser {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final Tokenizer input;
-
-	public Parser(Reader input) {
+	private Tokenizer reader = null;
+	
+	public SimpleQueryParser(Reader input) {
 		super();
-		this.input = new Tokenizer(input);
+		this.reader = new Tokenizer(input);
 	}
 	
 	private Token token;
 	
 	private void skipToken() throws IOException, InvalidTokenException {
-		logger.error("Currently on: {} - skipping", token);
-		token = input.getNextToken();
+		logger.trace("Currently on: {} - skipping", token);
+		token = reader.getNextToken();
 	}
 	
 	private Token getNextToken() {
-		logger.error("Next token: {}", token);
+		logger.trace("Next token: {}", token);
 		return token;
 	}
 	
@@ -51,7 +51,7 @@ public class Parser {
 	
 	public QueryNode parseQuery() throws IOException, InvalidTokenException {
 		
-		logger.error("> parseQuery");
+		logger.trace("> parseQuery");
 
 		QueryNode term = parseTerm();
 		
@@ -81,14 +81,14 @@ public class Parser {
 			}
 		}
 		
-		logger.error("< parseQuery");
+		logger.trace("< parseQuery");
 		
 		return term;
 	}
 
 	public QueryNode parseTerm() throws IOException, InvalidTokenException {
 
-		logger.error("> parseTerm");
+		logger.trace("> parseTerm");
 
 		QueryNode next = getNextToken();
 
@@ -112,8 +112,22 @@ public class Parser {
 			}
 		}
 		
-		logger.error("< parseTerm");
+		logger.trace("< parseTerm");
 		
 		return next;
+	}
+
+	/**
+	 * @return the reader
+	 */
+	public Tokenizer getReader() {
+		return reader;
+	}
+
+	/**
+	 * @param reader the reader to set
+	 */
+	public void setReader(Tokenizer reader) {
+		this.reader = reader;
 	}
 }
