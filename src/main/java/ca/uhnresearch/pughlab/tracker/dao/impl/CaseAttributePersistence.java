@@ -30,8 +30,8 @@ import com.mysema.query.sql.dml.SQLUpdateClause;
 import com.mysema.query.types.ConstantImpl;
 import com.mysema.query.types.Expression;
 import com.mysema.query.types.Path;
-import com.mysema.query.types.Predicate;
 import com.mysema.query.types.QTuple;
+import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
 
@@ -46,7 +46,9 @@ import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeNumbers;
 import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.query.ExpressionNode;
 import ca.uhnresearch.pughlab.tracker.query.InvalidTokenException;
+import ca.uhnresearch.pughlab.tracker.query.OperatorToken;
 import ca.uhnresearch.pughlab.tracker.query.QueryNode;
 import ca.uhnresearch.pughlab.tracker.query.QueryParser;
 import ca.uhnresearch.pughlab.tracker.query.QueryParserFactory;
@@ -273,17 +275,19 @@ public class CaseAttributePersistence {
 		
 	}
 	
-	private Predicate getFilter(QCaseAttributeBase<?> cAlias, QueryNode filterNode) {
+	private BooleanExpression getFilter(QCaseAttributeBase<?> cAlias, QueryNode filterNode) {
 		if (filterNode instanceof ValueToken) {
 			return getValueFilter(cAlias, (ValueToken) filterNode);
 		} else if (filterNode instanceof QuotedStringToken) {
 			return getQuotedStringFilter(cAlias, (QuotedStringToken) filterNode);
+		} else if (filterNode instanceof ExpressionNode) {
+			return getExpressionFilter(cAlias, (ExpressionNode) filterNode);
 		} else {
 			throw new RuntimeException("Can't make filter");
 		}
 	}
 	
-	private Predicate getStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
+	private BooleanExpression getStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
 		if (filterValue.contains("*")) {
 			return getWildcardStringFilter(cAlias, filterValue);
 		} else {
@@ -291,17 +295,26 @@ public class CaseAttributePersistence {
 		}
 	}
 	
-	private Predicate getExactStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
+	private BooleanExpression getExactStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
 		Class<?> caClass = cAlias.getClass();
 		return cAlias.getValue().eq(getFilterConstant(caClass, filterValue));
 	}
 	
-	private Predicate getWildcardStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
+	private BooleanExpression getWildcardStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
 		filterValue = filterValue.replaceAll("\\*", "%");
 		return cAlias.getValue().stringValue().like(filterValue);
 	}
+	
+	private BooleanExpression getExpressionFilter(QCaseAttributeBase<?> cAlias, ExpressionNode filterValue) {
+		if (filterValue.getOperator().equals(OperatorToken.OPERATOR_AND)) {
+			return getFilter(cAlias, filterValue.getOperandLeft()).and(getFilter(cAlias, filterValue.getOperandRight()));
+		} else {
+			return getFilter(cAlias, filterValue.getOperandLeft()).or(getFilter(cAlias, filterValue.getOperandRight()));
+		}
+	}
 
-	private Predicate getValueFilter(QCaseAttributeBase<?> cAlias, ValueToken filterNode) {
+
+	private BooleanExpression getValueFilter(QCaseAttributeBase<?> cAlias, ValueToken filterNode) {
 		String filterValue = filterNode.getValue();
 		if (filterValue.equals("N/A")) {
 			return cAlias.notAvailable.isTrue();
@@ -310,7 +323,7 @@ public class CaseAttributePersistence {
 		}
 	}
 	
-	private Predicate getQuotedStringFilter(QCaseAttributeBase<?> cAlias, QuotedStringToken filterNode) {
+	private BooleanExpression getQuotedStringFilter(QCaseAttributeBase<?> cAlias, QuotedStringToken filterNode) {
 		String filterValue = filterNode.getValue();
 		Class<?> caClass = cAlias.getClass();
 		if (filterValue.equals("\"\"")) {

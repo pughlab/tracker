@@ -2026,5 +2026,69 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("DEMO-05", data.get("patientId").asText());
 	}
 
+	
+	/**
+	 * Wildcards are another filter option, and we should check both pre and
+	 * postfix values.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringWildcardSuffix() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("DEMO-0*"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(10, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-01", data.get("patientId").asText());
+	}
+
+	/**
+	 * Wildcards are another filter option, and we should check both pre and
+	 * postfix values.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("tissueSite", jsonNodeFactory.textNode("N/A OR *lung*"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(2, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-03", data.get("patientId").asText());
+
+		data = dataList.get(1);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-06", data.get("patientId").asText());
+}
 
 }
