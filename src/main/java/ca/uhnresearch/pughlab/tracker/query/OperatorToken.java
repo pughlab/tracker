@@ -6,11 +6,23 @@ import java.util.Set;
 
 public class OperatorToken extends Token {
 	
-	public static final String OPERATOR_AND = "AND";
+	public static final OperatorToken OPERATOR_AND = new OperatorToken("AND");
 
-	public static final String OPERATOR_OR = "OR";
+	public static final OperatorToken OPERATOR_OR = new OperatorToken("OR");
 	
-	private static final String[] SET_VALUES = new String[] { OPERATOR_AND, OPERATOR_OR };
+	public static final OperatorToken OPERATOR_COMMA = new OperatorToken(",");
+	
+	public static final OperatorToken OPERATOR_LEFT_PARENTHESIS = new OperatorToken("(");
+
+	public static final OperatorToken OPERATOR_RIGHT_PARENTHESIS = new OperatorToken(")");
+
+	private static final String[] SET_VALUES = new String[] { 
+		OPERATOR_AND.getValue(), 
+		OPERATOR_OR.getValue(), 
+		OPERATOR_COMMA.getValue(), 
+		OPERATOR_LEFT_PARENTHESIS.getValue(), 
+		OPERATOR_RIGHT_PARENTHESIS.getValue()
+	};
 	
 	private static final Set<String> allOperators = new HashSet<String>(Arrays.asList(SET_VALUES));
 	
@@ -21,5 +33,4 @@ public class OperatorToken extends Token {
 	public OperatorToken(String value) {
 		super(value);
 	}
-	
 }

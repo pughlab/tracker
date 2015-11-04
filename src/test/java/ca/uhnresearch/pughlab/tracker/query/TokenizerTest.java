@@ -12,8 +12,6 @@ import org.junit.Test;
 import org.junit.Assert;
 import org.junit.rules.ExpectedException;
 
-import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
-
 public class TokenizerTest {
 
 	@Rule
@@ -43,6 +41,16 @@ public class TokenizerTest {
 		Assert.assertNotNull(token);
 		Assert.assertTrue(token instanceof OperatorToken);
 		Assert.assertEquals("(", token.getValue());
+	}
+
+	@Test
+	public void testNAToken() throws IOException, InvalidTokenException {
+		
+		Tokenizer tokenizer = new Tokenizer(new StringReader("NA"));
+		Token token = tokenizer.getNextToken();
+		Assert.assertNotNull(token);
+		Assert.assertTrue(token instanceof ValueToken);
+		Assert.assertEquals("NA", token.getValue());
 	}
 
 	@Test
@@ -128,5 +136,15 @@ public class TokenizerTest {
 		Assert.assertTrue(tokens.get(4) instanceof OperatorToken);
 		Assert.assertTrue(tokens.get(5) instanceof QuotedStringToken);
 		Assert.assertTrue(tokens.get(6) instanceof OperatorToken);
+	}
+	
+	@Test
+	public void testMultipleTokens4() throws IOException, InvalidTokenException {
+		Tokenizer tokenizer = new Tokenizer(new StringReader(" KRAS, TP53  "));
+		List<Token> tokens = getTokens(tokenizer);
+		Assert.assertEquals(3, tokens.size());
+		Assert.assertTrue(tokens.get(0) instanceof ValueToken);
+		Assert.assertTrue(tokens.get(1) instanceof OperatorToken);
+		Assert.assertTrue(tokens.get(2) instanceof ValueToken);
 	}
 }

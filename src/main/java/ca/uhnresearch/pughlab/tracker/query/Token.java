@@ -1,6 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.query;
 
-public abstract class Token {
+public abstract class Token extends QueryNode {
 	private String value;
 
 	public Token(String value) {
@@ -20,5 +20,14 @@ public abstract class Token {
 	 */
 	public void setValue(String value) {
 		this.value = value;
+	}
+	
+	public boolean equals(Object other) {
+		if (other instanceof Token) {
+			String otherValue = ((Token) other).getValue();
+			return getClass().equals(other.getClass()) && getValue().equals(otherValue);
+		} else {
+			return false;
+		}
 	}
 }

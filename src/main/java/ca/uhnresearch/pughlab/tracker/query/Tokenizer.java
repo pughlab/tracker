@@ -75,7 +75,7 @@ public class Tokenizer {
 				// Do nothing. We can skip to the next character and attempt to
 				// tokenize again
 				
-			} else if (tokenChar == '(' || tokenChar == ')') {
+			} else if (tokenChar == '(' || tokenChar == ')' || tokenChar == ',') {
 				
 				// Character operators
 				return new OperatorToken(Character.toString(tokenChar));
@@ -89,7 +89,7 @@ public class Tokenizer {
 				while(true) {
 					int constituent = getNextCharacter();
 					char constituentChar = (char) constituent;
-					if (constituent == -1 || constituentChar == '(' || constituentChar == ')' || Character.isWhitespace(constituentChar)) {
+					if (constituent == -1 || constituentChar == '(' || constituentChar == ')' || constituentChar == ',' || Character.isWhitespace(constituentChar)) {
 						
 						// At the end, so put back the thing we just found
 						ungetCharacter(constituent);
