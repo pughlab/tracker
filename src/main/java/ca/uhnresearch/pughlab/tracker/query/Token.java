@@ -30,4 +30,8 @@ public abstract class Token extends QueryNode {
 			return false;
 		}
 	}
+	
+	public String toString() {
+		return getValue();
+	}
 }
