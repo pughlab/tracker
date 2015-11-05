@@ -283,7 +283,8 @@ public class CaseAttributePersistence {
 		} else if (filterNode instanceof ExpressionNode) {
 			return getExpressionFilter(cAlias, (ExpressionNode) filterNode);
 		} else {
-			throw new RuntimeException("Can't make filter");
+			logger.error("Can't make filter for: {}", filterNode);
+			return BooleanExpression.anyOf();
 		}
 	}
 	
@@ -329,6 +330,8 @@ public class CaseAttributePersistence {
 		String filterValue = filterNode.getValue();
 		if (filterValue.equals("N/A")) {
 			return cAlias.notAvailable.isTrue();
+		} else if (filterValue.equals("")) {
+			return BooleanExpression.anyOf();
 		} else if (cAlias.getClass().equals(QCaseAttributeBooleans.class)) {
 			return getBooleanFilter(cAlias, filterValue);
 		} else {

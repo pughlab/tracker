@@ -2178,4 +2178,28 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("S12-3000", data.get("specimenNo").asText());
 	}
 
+	/**
+	 * Multiple filters with a blank value seem to be an issue, so let's test
+	 * that case too. 
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testMultipleFiltering2() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("physician", jsonNodeFactory.textNode(""));
+		filter.replace("patientId", jsonNodeFactory.textNode("DEMO-0*"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(10, dataList.size());
+	}
 }
