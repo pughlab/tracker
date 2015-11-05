@@ -348,9 +348,20 @@ public class CaseAttributePersistence {
 	
 	private BooleanExpression getQuotedStringFilter(QCaseAttributeBase<?> cAlias, QuotedStringToken filterNode) {
 		String filterValue = filterNode.getValue();
-		Class<?> caClass = cAlias.getClass();
+		
+		// Special case for an exact empty string. We allow the empty string only when
+		// the underlying representation allows empty strings. See #101
+		// If we are dealing with a boolean or a date, the empty string option
+		// isn't relevant. 
+		
 		if (filterValue.equals("\"\"")) {
-			return cAlias.getValue().isNull().or(cAlias.getValue().eq(getFilterConstant(caClass, "")));
+			
+			if (cAlias instanceof QCaseAttributeStrings) {
+				return cAlias.getValue().isNull().or(getExactStringFilter(cAlias, ""));
+			} else {
+				return cAlias.getValue().isNull();
+			}
+			
 		} else {
 			filterValue = filterValue.substring(1, filterValue.length() - 1);
 			return getStringFilter(cAlias, filterValue);

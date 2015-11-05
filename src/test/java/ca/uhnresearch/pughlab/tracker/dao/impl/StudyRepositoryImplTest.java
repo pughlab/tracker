@@ -2185,7 +2185,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testMultipleFiltering2() throws RepositoryException {
+	public void testMultipleFilteringBlankRegressionDate() throws RepositoryException {
 
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
@@ -2201,5 +2201,59 @@ public class StudyRepositoryImplTest {
 		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
 		Assert.assertNotNull(dataList);
 		Assert.assertEquals(10, dataList.size());
+	}
+
+	/**
+	 * Multiple filters with a blank value seem to be an issue, so let's test
+	 * that case too. 
+	 * <p>
+	 * Regression for #101 - error filtering by blank string for dates and booleans
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testMultipleFilteringBlankRegressionBoolean() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("sampleAvailable", jsonNodeFactory.textNode(""));
+		filter.replace("consentDate", jsonNodeFactory.textNode("\"\""));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(15, dataList.size());
+	}
+
+	/**
+	 * Multiple filters with a blank value seem to be an issue, so let's test
+	 * that case too. 
+	 * <p>
+	 * Regression for #101 - error filtering by blank string for dates and booleans
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testMultipleFiltering3() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("sampleAvailable", jsonNodeFactory.textNode(""));
+		filter.replace("specimenAvailable", jsonNodeFactory.textNode("\"\""));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(16, dataList.size());
 	}
 }
