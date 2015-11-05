@@ -1,6 +1,11 @@
 ## Revision history
 
 
+### Version 2.1.0-RC2 - November 5th 2015
+
+ * Incorporates a whole new filtering system. See #94, #101, #102
+
+
 ### Version 2.1.0-RC1 - October 27th 2015
 
  * Resolved transaction deadlocks in HSQLDB. See #89, #93, #96, #98
