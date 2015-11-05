@@ -57,11 +57,6 @@
     <module name="FileLength"/>
     <module name="JavadocPackage"/>
     
-    <module name="RegexpSingleline">
-        <property name="format" value="\s+$" />
-        <property name="message" value="Whitespace after the line" />
-    </module>
-    
     <module name="RegexpMultiline">
         <property name="format" value="System\.(out)|(err)\.print(ln)?\("/>
         <property name="message" value="Called System.out.print or System.err.print" />

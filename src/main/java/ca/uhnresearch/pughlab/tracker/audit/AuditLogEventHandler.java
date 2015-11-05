@@ -16,12 +16,12 @@ public class AuditLogEventHandler implements EventHandler {
 	@Override
 	public void sendMessage(Event event, String scope) {
 		
-		ObjectNode parameters = event.getData().getParameters().deepCopy();
-		JsonNode oldValue = parameters.get("old");
+		final ObjectNode parameters = event.getData().getParameters().deepCopy();
+		final JsonNode oldValue = parameters.get("old");
 		if (oldValue != null && oldValue instanceof RedactedJsonNode) {
 			parameters.replace("old", ((RedactedJsonNode) oldValue).getValue());
 		}
-		JsonNode newValue = parameters.get("new");
+		final JsonNode newValue = parameters.get("new");
 		if (newValue != null && newValue instanceof RedactedJsonNode) {
 			parameters.replace("new", ((RedactedJsonNode) newValue).getValue());
 		}
