@@ -27,8 +27,8 @@ import org.restlet.resource.ResourceException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
@@ -89,11 +89,11 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		replay(mock);
 
-        RequestAttributes.setRequestCaseQuery(resource.getRequest(), new CaseQuery());
+        RequestAttributes.setRequestCasePager(resource.getRequest(), new CasePager());
 		RequestAttributes.setRequestStudy(resource.getRequest(), study);
         resource.setRepository(mock);
 		
@@ -140,11 +140,11 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		replay(mock);
 
-        RequestAttributes.setRequestCaseQuery(resource.getRequest(), new CaseQuery());
+        RequestAttributes.setRequestCasePager(resource.getRequest(), new CasePager());
         RequestAttributes.setRequestStudy(resource.getRequest(), study);
         resource.setRepository(mock);
         
@@ -180,12 +180,12 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		replay(mock);
 		
 		RequestAttributes.setRequestStudy(resource.getRequest(), study);
-        RequestAttributes.setRequestCaseQuery(resource.getRequest(), new CaseQuery());
+        RequestAttributes.setRequestCasePager(resource.getRequest(), new CasePager());
         resource.setRepository(mock);
         
 		Representation result = resource.getResource();
@@ -231,12 +231,12 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setName("ROLE_CAT_HERDER");
 		role.setId(1234);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		replay(mock);
 
 		RequestAttributes.setRequestStudy(resource.getRequest(), study);
-        RequestAttributes.setRequestCaseQuery(resource.getRequest(), new CaseQuery());
+        RequestAttributes.setRequestCasePager(resource.getRequest(), new CasePager());
         resource.setRepository(mock);
         
 		thrown.expect(ResourceException.class);
@@ -274,8 +274,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setId(1234);
 		role.setStudyId(5);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		mock.saveStudyRole(eq(study), capture(capturedArgument));
 		expectLastCall();
 		replay(mock);
@@ -399,8 +399,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setId(1234);
 		role.setStudyId(5);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		mock.deleteStudyRole(eq(study), capture(capturedArgument));
 		expectLastCall();
 		replay(mock);
@@ -447,8 +447,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setId(1234);
 		role.setStudyId(5);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		mock.saveStudyRole(eq(study), capture(capturedArgument));
 		expectLastCall();
 		replay(mock);
@@ -505,8 +505,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setId(1234);
 		role.setStudyId(5);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		mock.saveStudyRole(eq(study), capture(capturedArgument1));
 		expectLastCall();
 		mock.saveStudyRole(eq(study), capture(capturedArgument2));
@@ -569,8 +569,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setId(1234);
 		role.setStudyId(5);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		mock.deleteStudyRole(eq(study), capture(capturedArgument));
 		expectLastCall();
 		replay(mock);
@@ -614,8 +614,8 @@ public class RoleListResourceTest extends AbstractShiroTest {
 		role.setId(1234);
 		role.setStudyId(5);
 		roles.add(role);
-		expect(mock.getStudyRoles(eq(study), anyObject(CaseQuery.class))).andStubReturn(roles);
-		expect(mock.getStudyRoleCount(eq(study), anyObject(CaseQuery.class))).andStubReturn(new Long(1));
+		expect(mock.getStudyRoles(eq(study), anyObject(CasePager.class))).andStubReturn(roles);
+		expect(mock.getStudyRoleCount(eq(study), anyObject(CasePager.class))).andStubReturn(new Long(1));
 		mock.deleteStudyRole(eq(study), anyObject(Role.class));
 		expectLastCall().andStubThrow(new InvalidValueException("Error"));
 		replay(mock);

@@ -1,14 +1,14 @@
 package ca.uhnresearch.pughlab.tracker.validation;
 
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
-import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class BooleanValueValidator extends AbstractValueValidator implements ValueValidator {
 
 	@Override
-	public WritableValue validate(ViewAttributes a, JsonNode value) throws InvalidValueException {
+	public WritableValue validate(Attributes a, JsonNode value) throws InvalidValueException {
 		
 		if (isNotAvailable(value)) {
 			return new WritableValue(Boolean.class, true, null);

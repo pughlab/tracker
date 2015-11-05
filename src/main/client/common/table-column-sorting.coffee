@@ -181,6 +181,10 @@ TrackerHandsontableColumnSorting = () ->
 
   defaultSort = (sortOrder)  ->
     return (a, b) ->
+      if a[2] == -1
+        return if b[2] == -1 then 0 else -1
+      else if b[2] == -1
+        return 1
       value = compareStrings a[1], b[1], sortOrder
       value = compareIdentifiers a[2], b[2] if value == 0
       value
@@ -188,6 +192,10 @@ TrackerHandsontableColumnSorting = () ->
 
   dateSort = (sortOrder) ->
     return (a, b) ->
+      if a[2] == -1
+        return if b[2] == -1 then 0 else -1
+      else if b[2] == -1
+        return 1
       value = compareDates a[1], b[1], sortOrder
       value = compareIdentifiers a[2], b[2] if value == 0
       value
@@ -195,6 +203,10 @@ TrackerHandsontableColumnSorting = () ->
 
   numberSort = (sortOrder) ->
     return (a, b) ->
+      if a[2] == -1
+        return if b[2] == -1 then 0 else -1
+      else if b[2] == -1
+        return 1
       value = compareNumbers a[1], b[1], sortOrder
       value = compareIdentifiers a[2], b[2] if value == 0
       value
@@ -209,6 +221,8 @@ TrackerHandsontableColumnSorting = () ->
     @sortIndex.splice(0, @sortIndex.length)
 
     colOffset = @colOffset()
+
+    console.log '@sort', @sortColumn, @sortIndex, colOffset
 
     columnData = @getDataAtCol(@sortColumn + colOffset)
     ilen = @countRows() - instance.getSettings()['minSpareRows']

@@ -1,9 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.services;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertNotNull;
 
@@ -30,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -73,10 +70,10 @@ public class HtmlWriterImplTest {
     	dto.setView(view);
 		dto.setAttributes(attributes);
 		
-		CaseQuery query = new CaseQuery();
-		query.setOffset(0);
-		query.setLimit(100000);
-    	List<ObjectNode> records = repository.getData(study, view, attributes, query);
+		StudyCaseQuery query = repository.newStudyCaseQuery(study);
+		query = repository.addViewCaseMatcher(query, view);
+
+		List<ObjectNode> records = repository.getCaseData(query, view);
     	dto.setRecords(records);
     	
     	dto.getCounts().setTotal(repository.getRecordCount(study, view));

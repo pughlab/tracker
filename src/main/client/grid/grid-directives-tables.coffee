@@ -5,69 +5,8 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$http', '$timeout', 'searchInTable', ($http, $timeout, searchInTable) ->
-
-    highlightElement = (element, editingClasses) ->
-
-      classes = editingClasses.split(' ')
-
-      highlightOn = () ->
-        for cls in classes
-          Handsontable.Dom.addClass element, cls
-
-        highlightOff = () ->
-          for cls in classes
-            Handsontable.Dom.removeClass element, cls
-
-        $timeout highlightOff, 3000
-
-      if element
-        $timeout highlightOn, 100
-
-
-    booleanValueManager = (name) ->
-      (row, value) ->
-        if !row?
-          name
-        else if value?
-          row[name] =
-            switch value
-              when "" then null
-              when "N/A" then {"$notAvailable": true}
-              when "Yes" then true
-              when "No" then false
-        else
-          current = row[name]
-          if current == null or current == undefined
-            ""
-          else if current.hasOwnProperty('$notAvailable')
-            "N/A"
-          else if current == false
-            "No"
-          else
-            "Yes"
-
-
-    valueManager = (name) ->
-      (row, value) ->
-        if !row?
-          name
-        else if value?
-          row[name] =
-            switch value
-              when "" then null
-              when "N/A" then {"$notAvailable": true}
-              else value
-        else
-          current = row[name]
-          if current == null or current == undefined
-            ""
-          else if current.hasOwnProperty('$notAvailable')
-            "N/A"
-          else
-            current
-
-
+  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'editTableCell', 'validateTableValue', 'reloadTable', \
+                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, editTableCell, validateTableValue, reloadTable) ->
     result =
       restrict: "A"
       replace: true
@@ -77,56 +16,19 @@ angular
         trackerAttributes: '='
         trackerEditingStatus: '='
       template: '<div class="handsontable tracker-table-hidden" style="width: 800px; height: 500px; overflow: hidden;"></div>'
+
       link: (scope, iElement, iAttrs) ->
 
-        getStudyUrl = (study, view) ->
-          "/api/studies/#{study.name}/views/#{view.name}"
+        scope.filters = {}
+
+        scope.getStudyUrl = (scope) ->
+          "/api/studies/#{scope.trackerStudy.name}/views/#{scope.trackerView.name}"
 
         handsonTable = undefined
         entityRowTable = undefined
         attributeColumnTable = undefined
         contextMenu = false
         userControllerScope = false
-
-        handleAddRecord = (entityIdentifier, editingClasses) ->
-          $http
-            .get getStudyUrl(scope.trackerStudy, scope.trackerView) + "/entities/#{entityIdentifier}", {}
-            .success (response) ->
-
-              ## We don't have a row index, but we need to find the last (but one) row
-              ## and insert after it. We'll also have to manage inserting all that data
-              ## nicely. We'll also want to do a highlight trick on the row.
-
-              record = response.entity
-
-              ## Add in a new row
-              totalRows = handsonTable.countRows()
-              lastRow = totalRows - 2
-              lastRow = 0 if lastRow < 0
-              newRow = lastRow + 1
-
-              totalCols = handsonTable.countCols()
-              changes = []
-              for i in [0..totalCols - 1]
-                colData = handsonTable.getCellMeta(newRow, i)
-                fieldName = colData.prop()
-                holder = {}
-                holder[fieldName] = record[fieldName]
-                renderedValue = colData.prop(holder)
-                changes.push [newRow, i, renderedValue]
-
-              ## We can't really use populateFromArray, as it doesn't actually work when the
-              ## grid is marked readOnly. So build a change set and use that instead.
-              handsonTable.setDataAtCell changes, 'socketEvent'
-
-              ## We also need to make sure that this row has the identifier set, which might
-              ## not happen otherwise.
-              handsonTable.getSourceDataAtRow(newRow).id = entityIdentifier
-
-              cellElement = handsonTable.getCell newRow, 0
-              rowElement = cellElement.parentNode
-              highlightElement rowElement, editingClasses
-
 
         handleStateCell = (entityIdentifier, state, editingClasses) ->
           rowIndex = entityRowTable[entityIdentifier]
@@ -137,36 +39,23 @@ angular
 
           handsonTable.setDataAtRowProp(rowIndex, '$state', state, 'socketEvent')
 
-        handleEditCell = (entityIdentifier, field, editingClasses) ->
-          $http
-            .get getStudyUrl(scope.trackerStudy, scope.trackerView) + "/entities/#{entityIdentifier}", {}
-            .success (response) ->
-              columnIndex = attributeColumnTable[field]
-              rowIndex = entityRowTable[entityIdentifier]
-              return if !columnIndex or !rowIndex
 
-              value = response.entity[field]
-              colData = handsonTable.getCellMeta(rowIndex, columnIndex)
+        ## Reloads the table data. This can be fired when the filters change,
+        ## as well as when the initial table has been constructed.
 
-              holder = {}
-              fieldName = colData.prop()
-              holder[fieldName] = value
-              renderedValue = colData.prop(holder)
+        scope.$on 'table:reload', (e) ->
+          console.log "Requesting reload", scope.filters
+          e.stopPropagation()
+          reloadTable scope, handsonTable
 
-              ## We should actually set to the converted value, not the internal value.
-              ## Because that seems to be what's needed to make it all work.
 
-              handsonTable.setDataAtCell(rowIndex, columnIndex, renderedValue, 'socketEvent');
-
-              cellElement = handsonTable.getCell rowIndex, columnIndex
-              highlightElement cellElement, editingClasses
-
-            .error (response) ->
-              console.log "Error", response
+        scope.$watchCollection 'filters', (newValue, oldValue) ->
+          if oldValue != newValue
+            scope.$emit 'table:reload', newValue
 
 
         scope.$on 'table:positionAtEnd', (e) ->
-
+          e.stopPropagation()
           offset = Handsontable.Dom.offset(iElement[0])
           availableWidth = Handsontable.Dom.innerWidth(document.body) - offset.left + window.scrollX - 46
           availableHeight = Handsontable.Dom.innerHeight(document.body) - offset.top + window.scrollY - 100
@@ -184,19 +73,22 @@ angular
 
           iElement.removeClass("tracker-table-hidden")
 
+
         ## Basic search function. When we get a result, we can choose how to handle it, either
         ## as a selection or as a display. We should somehow make it easy to scroll right to
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
+          e.stopPropagation()
           searchInTable.search handsonTable, query
 
         scope.$on 'table:search-navigation', (e, direction) ->
           searchInTable.navigation handsonTable, direction
 
 
-        scope.$on 'socket:welcome', (evt, data) ->
-          userControllerScope = evt.targetScope
+        scope.$on 'socket:welcome', (e, data) ->
+          console.log "Called socket:welcome", e
+          userControllerScope = e.targetScope
           if scope.trackerStudy
             userControllerScope.$emit 'socket:join', { "scope": scope.trackerStudy.name, "time" : (new Date()).valueOf() }
 
@@ -218,89 +110,23 @@ angular
               if handsonTable != undefined
                 handleStateCell original.data.parameters.case_id, original.data.parameters.state, original.data.editingClasses
 
+            ## If we get a cell editing event, we need to identify the cell element, and then update
+            ## the right stuff. We might need to do something similar for a row, too.
+
             scope.$on 'socket:field', (evt, original) ->
-
-              ## If we get a cell editing event, we need to identify the cell element, and then update
-              ## the right stuff. We might need to do something similar for a row, too.
-
               if handsonTable != undefined and original.data.userNumber > 0
-                handleEditCell original.data.parameters.case_id, original.data.parameters.field, original.data.editingClasses
-
+                editTableCell scope, handsonTable, original.data.parameters.case_id, original.data.parameters.field, original.data.editingClasses
 
             scope.$on 'socket:record', (evt, original) ->
               if handsonTable != undefined and original.data.userNumber > 0
-                handleAddRecord original.data.parameters.case_id, original.data.editingClasses
-
-
-            ## Needs to find the case identifier, which requires a bit of poking around
-            ## inside the raw data. Note that the validator is called before the writing
-            ## logic, so the value manager (prop field) should be used to generate a real
-            ## sendable value.
-
-            validator = (value, callback) ->
-              changeValue = value['$value']
-              changeSource = value['$source']
-
-              if changeSource == 'socketEvent'
-                return callback true
-
-              ## If the row doesn't have an id field, we're basically creating a new case, and
-              ## let's just go ahead and do that. This probably best means dropping the requirement
-              ## for an identifier, and for uniqueness of values, but then values are attached to
-              ## values not directly to cases. Difference is, if we do a POST then we might get back
-              ## an id, and we need to add that to the row data for future hackery.
-
-              caseRecord = @instance.getSourceDataAtRow(@row)
-              fieldFunction = @instance.getCellMeta(@row, @col).prop
-              fieldName = fieldFunction()
-              fieldData = {}
-              fieldFunction fieldData, changeValue
-
-              caseIdentifier = caseRecord.id
-              baseUrl = getStudyUrl(scope.trackerStudy, scope.trackerView)
-
-              if ! caseIdentifier
-                payload = {}
-                payload[fieldName] = fieldData[fieldName]
-                $http
-                  .post "#{baseUrl}/entities", JSON.stringify {entity: payload}
-                  .success (response) =>
-                    id = response.entity.id
-                    @instance.getSourceDataAtRow(@row).id = id
-                    callback true
-                  .error (response) ->
-                    callback false
-
-              else
-                oldValue = @instance.getSourceDataAtRow(@row)[fieldName]
-                oldValue = null if oldValue == undefined
-                value = fieldData[fieldName]
-                value = null if value == undefined
-
-                if angular.equals value, oldValue
-                  return callback true
-
-                payload = JSON.stringify {value : fieldData[fieldName], oldValue: oldValue}
-                $http
-                  .put "#{baseUrl}/entities/#{encodeURIComponent(caseIdentifier)}/#{encodeURIComponent(fieldName)}", payload
-                  .success (response) ->
-
-                    console.log "Got PUT response", response
-
-                    ## We should also get back an updated set of notes, and we need to make sure that general tags and
-                    ## field-specific notes are mirrored locally.
-
-                    ## caseRecord['$notes'] = response.records[0]['$notes']
-
-                    callback true
-                  .error (response) ->
-                    callback false
+                addTableRecord scope, handsonTable, original.data.parameters.case_id, original.data.editingClasses
 
 
             convertColumn = (attribute) ->
               result = {}
               result.data = valueManager(attribute.name)
-              result.validator = validator
+              result.validator = (value, callback) ->
+                validateTableValue(scope, @instance, @col, @row, value, callback)
               result.renderer = Handsontable.TrackerStringRenderer
               switch attribute.type
                 when 'number'
@@ -353,18 +179,24 @@ angular
               else
                 otherAttributes.push attribute
 
+            rowHeaderLabel = (x) ->
+              if x == 0
+                "Filter"
+              else
+                "#{x}"
+
             orderedAttributes = pinnedAttributes.concat(otherAttributes)
 
             handsonTable = new Handsontable(iElement[0], {
               minSpareRows: 1
               colWidths: (getColWidth(a) for a in orderedAttributes)
               colHeaders: (a.label for a in orderedAttributes)
-              rowHeaders: true
+              rowHeaders: rowHeaderLabel
               columns: (convertColumn(a) for a in orderedAttributes)
               contextMenu: false
               multiSelect: true
               startCols: orderedAttributes.length
-              fixedRowsTop: 0
+              fixedRowsTop: 1
               fixedColumnsLeft: pinnedAttributes.length
               columnSorting: false
               trackerColumnSorting: true
@@ -379,42 +211,35 @@ angular
               currentRowClassName: 'currentRow'
               currentColClassName: 'currentCol'
               readOnly: ! (scope.trackerEditingStatus or false)
+              cells: (row, col, prop) ->
+                cellProperties = {}
+                if row == 0
+                  cellProperties.renderer = Handsontable.TrackerFilterRenderer
+                  cellProperties.editor = 'text'
+                cellProperties
+              afterChange: (changes, source) ->
+                return unless changes?
+                for change in changes
+                  if change? and change[0] == 0
+                    scope.$apply () ->
+                      if typeof change[3] == 'undefined'
+                        delete scope.filters[change[1]]
+                      else
+                        scope.filters[change[1]] = change[3]
+                    return
               outsideClickDeselects: false
             })
 
             handsonTable.trackerData = {
               stateLabels: scope.trackerStudy.options?.stateLabels || {}
+              typeTable: (attribute.type for attribute in orderedAttributes)
             }
 
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
               {"$value": value, "$source": source}
 
-            # Can actually cancel the change by returning false, or true to accept it
-            # Of course, this doesn't use a callback, so it's somewhat less helpful for
-            # asynchronous validation.
-
-            $http
-              .get getStudyUrl(scope.trackerStudy, scope.trackerView)
-              .success (response) ->
-                handsonTable.loadData(response.records)
-
-                ## We should really keep a track of the row information here, i.e., the association
-                ## between identifier and row number. We can then use this to locate cells.
-                ##
-                ## Note, however, that these are virtual rows not real rows, and they can be translated
-                ## to a different offset by the sorting system. Although that requires some access to that
-                ## part of the API.
-
-                entityRowTable = {}
-                attributeColumnTable = {}
-                for entity, i in response.records
-                  entityRowTable[entity.id] = i
-                for attribute, i in response.attributes
-                  attributeColumnTable[attribute.name] = i
-
-                ## This is where we have the initial load. Let's initiate a scroll down, but carefully
-                scope.$emit 'table:positionAtEnd'
-
+            ## Notify to load the initial table data
+            scope.$emit 'table:reload'
 
         scope.$watch 'trackerEditingStatus', (editing, old) ->
           if handsonTable

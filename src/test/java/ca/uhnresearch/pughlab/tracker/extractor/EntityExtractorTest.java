@@ -15,8 +15,8 @@ import org.restlet.data.Reference;
 import org.restlet.resource.ResourceException;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
+import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.impl.MockStudyRepository;
-import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
@@ -29,6 +29,9 @@ public class EntityExtractorTest {
 
 	private EntityExtractor extractor;
 	private StudyRepository repository = new MockStudyRepository();
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void initialize() {
@@ -53,31 +56,11 @@ public class EntityExtractorTest {
 		request.getAttributes().put("entityId", "5");
 
 		extractor.handle(request, response);
-		Cases caseValue = RequestAttributes.getRequestEntity(request);
-		assertNotNull(caseValue);
-		assertEquals(5, caseValue.getId().intValue());
-	}
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
-	@Test
-	public void testMissingExtraction() {
 		
-		Reference reference = new Reference();
-		Request request = new Request(Method.GET, reference);
-		Response response = new Response(request);
+		MockStudyCaseQuery query = (MockStudyCaseQuery) RequestAttributes.getRequestCaseQuery(request);
 		
-		Study study = repository.getStudy("DEMO");
-		View view = repository.getStudyView(study, "complete");
-		RequestAttributes.setRequestStudy(request, study);
-		RequestAttributes.setRequestView(request, view);
-		request.getAttributes().put("entityId", "12");
-
-		thrown.expect(ResourceException.class);
-		thrown.expectMessage(containsString("Not Found"));
-
-		extractor.handle(request, response);
+		assertEquals(1, query.getCases().size());
+		assertEquals(5, query.getCases().get(0).intValue());
 	}
 
 	@Test

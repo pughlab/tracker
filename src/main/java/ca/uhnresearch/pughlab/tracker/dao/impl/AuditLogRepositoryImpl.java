@@ -13,7 +13,7 @@ import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 
@@ -55,7 +55,7 @@ public class AuditLogRepositoryImpl implements AuditLogRepository {
 	}
 	
 	@Override
-	public List<JsonNode> getAuditData(Study study, CaseQuery query) {
+	public List<JsonNode> getAuditData(Study study, CasePager query) {
 		
 		SQLQuery sq = template.newSqlQuery().from(auditLog).where(auditLog.studyId.eq(study.getId())).orderBy(auditLog.id.desc());
 		

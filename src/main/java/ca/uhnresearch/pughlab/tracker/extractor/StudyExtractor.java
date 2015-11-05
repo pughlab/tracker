@@ -7,32 +7,23 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
-import org.restlet.routing.Extractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 
-import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
-public class StudyExtractor extends Extractor {
+public class StudyExtractor extends RepositoryAwareExtractor {
 	
-	private StudyRepository repository;
-
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	@Required
-    public void setRepository(StudyRepository repository) {
-        this.repository = repository;
-    }
+	private final Logger logger = LoggerFactory.getLogger(StudyExtractor.class);
 
 	protected int beforeHandle(Request request, Response response) {
 		
 		String value = (String) request.getAttributes().get("studyName");
 		
 		// Now we can extract the study and write it as a new attribute
-		Study s = repository.getStudy(value);
+		Study s = getRepository().getStudy(value);
 		
 		// If we don't find a value, we can fail at this stage.
 		if (s == null) {
@@ -57,6 +48,13 @@ public class StudyExtractor extends Extractor {
     	logger.debug("OK, continuing with the study: {}", s.getName());
     	RequestAttributes.setRequestStudy(request, s);
 		
+		// Now, as well as extracting the study, we can start to build a query
+		// that can be used to pull out the data. Store this as a query
+		// attribute. 
+		
+		StudyCaseQuery query = getRepository().newStudyCaseQuery(s);
+		request.getAttributes().put("query", query);
+				
 		return CONTINUE;
 	}
 }
