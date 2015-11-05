@@ -2092,8 +2092,7 @@ public class StudyRepositoryImplTest {
 	}
 
 	/**
-	 * Wildcards are another filter option, and we should check both pre and
-	 * postfix values.
+	 * Booleans are another filter option,
 	 */
 	@Test
 	@Transactional
@@ -2113,6 +2112,34 @@ public class StudyRepositoryImplTest {
 		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
 		Assert.assertNotNull(dataList);
 		Assert.assertEquals(3, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-02", data.get("patientId").asText());
+	}
+
+	/**
+	 * Dates are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicDateFilteringExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("consentDate", jsonNodeFactory.textNode("2014-08-18"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
 	
 		JsonNode data = dataList.get(0);
 		Assert.assertNotNull(data);
