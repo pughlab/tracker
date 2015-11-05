@@ -2098,6 +2098,35 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testBasicBooleanFilteringExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("specimenAvailable", jsonNodeFactory.textNode("No"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(3, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-02", data.get("patientId").asText());
+	}
+
+	/**
+	 * Wildcards are another filter option, and we should check both pre and
+	 * postfix values.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testMultipleFiltering1() throws RepositoryException {
 
 		Study study = studyRepository.getStudy("DEMO");

@@ -295,6 +295,17 @@ public class CaseAttributePersistence {
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private BooleanExpression getBooleanFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
+		if (filterValue.toLowerCase().equals("yes")) {
+			return cAlias.getValue().eq(new ConstantImpl(Integer.class, 1));
+		} else if (filterValue.toLowerCase().equals("no")) {
+			return cAlias.getValue().eq(new ConstantImpl(Integer.class, 0));
+		} else {
+			return BooleanExpression.anyOf();
+		}
+	}
+	
 	private BooleanExpression getExactStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
 		Class<?> caClass = cAlias.getClass();
 		return cAlias.getValue().eq(getFilterConstant(caClass, filterValue));
@@ -318,6 +329,8 @@ public class CaseAttributePersistence {
 		String filterValue = filterNode.getValue();
 		if (filterValue.equals("N/A")) {
 			return cAlias.notAvailable.isTrue();
+		} else if (cAlias.getClass().equals(QCaseAttributeBooleans.class)) {
+			return getBooleanFilter(cAlias, filterValue);
 		} else {
 			return getStringFilter(cAlias, filterValue);
 		}
