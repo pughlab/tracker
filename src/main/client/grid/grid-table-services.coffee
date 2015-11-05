@@ -207,13 +207,24 @@ angular
 
 
   ## When reloading, we need to pass back any filters to the server, as these should be
-  ## used to limit the data we get back. 
+  ## used to limit the data we get back.
   .factory 'reloadTable', Array '$http', ($http) ->
     return (scope, handsonTable) ->
+      requestUrl = scope.getStudyUrl(scope)
+      if scope.filters? and typeof scope.filters == 'object' and Object.keys(scope.filters).length > 0
+        filters = encodeURIComponent(JSON.stringify(scope.filters))
+        requestUrl = requestUrl + "?q=#{filters}"
+
+      ## We don't want to remove the old filters, so we need to install them as new
+      ## filters.
+
       $http
-        .get scope.getStudyUrl(scope)
+        .get requestUrl
         .success (response) ->
-          modified = [{id: -1, _filter_row: true}].concat(response.records)
+          newFilterRow = {id: -1, _filter_row: true}
+          for own k, v of scope.filters
+            newFilterRow[k] = v
+          modified = [newFilterRow].concat(response.records)
           handsonTable.loadData(modified)
 
           ## We should really keep a track of the row information here, i.e., the association

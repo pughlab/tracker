@@ -12,14 +12,17 @@ filterAction = (evt) ->
 
     ## Escape key, close the filter
     if e.originalEvent.keyCode == 27
+      e.preventDefault()
+      e.stopPropagation()
       $(button).filterdropdown('hideWidget')
 
     ## Enter key, apply the filter
     if e.originalEvent.keyCode == 13
+      e.preventDefault()
+      e.stopPropagation()
       instance = evt.detail.instance
       value = $(button).filterdropdown('getText')
       instance.setDataAtRowProp 0, evt.detail.property, value, "filter"
-
       $(button).filterdropdown('hideWidget')
 
 

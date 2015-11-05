@@ -5,8 +5,8 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$http', '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'editTableCell', 'validateTableValue', 'reloadTable', \
-                                   ($http, $timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, editTableCell, validateTableValue, reloadTable) ->
+  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'editTableCell', 'validateTableValue', 'reloadTable', \
+                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, editTableCell, validateTableValue, reloadTable) ->
     result =
       restrict: "A"
       replace: true
