@@ -179,6 +179,13 @@ public class CaseAttributePersistence {
 		for(Attributes attribute : getStudyAttributes(template, study)) {
 			if (filterMap.containsKey(attribute.getName())) {
 				JsonNode filterJson = filterMap.get(attribute.getName());
+				
+				// If it's an empty string, completely, (not \"\") then skip the filter
+				// Resolves #102
+				if (filterJson.isTextual() && filterJson.asText().length() == 0) {
+					continue;
+				}
+				
 				try {
 					sq = addFilter(sq, attribute, filterJson, fIndex++);
 				} catch (ReflectiveOperationException e) {
