@@ -14,6 +14,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.Assert;
+
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -36,10 +37,11 @@ import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.types.Expression;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.InvalidValueException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.domain.QAuditLog;
 import ca.uhnresearch.pughlab.tracker.domain.QCases;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
@@ -53,6 +55,9 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 @ContextConfiguration(locations = { "classpath:**/testContextDatabase.xml" })
 public class StudyRepositoryImplTest {
 	
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 		
@@ -295,11 +300,12 @@ public class StudyRepositoryImplTest {
 	public void testGetData() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
-		query.setOffset(0);
-		query.setLimit(10);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(10);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(10, list.size());
 	}
@@ -314,11 +320,12 @@ public class StudyRepositoryImplTest {
 	public void testGetDataSecurity() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
-		query.setOffset(0);
-		query.setLimit(10);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(10);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(10, list.size());
 		Assert.assertFalse(list.get(0).has("mrn"));
@@ -330,11 +337,12 @@ public class StudyRepositoryImplTest {
 	public void testGetDataNoLimit() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
-		query.setOffset(0);
-		query.setLimit(null);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(null);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(20, list.size());
 	}
@@ -345,11 +353,12 @@ public class StudyRepositoryImplTest {
 	public void testGetDataNoOffset() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
-		query.setOffset(null);
-		query.setLimit(5);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(null);
+		pager.setLimit(5);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(5, list.size());
 	}
@@ -360,13 +369,14 @@ public class StudyRepositoryImplTest {
 	public void testGetDataOrdered() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
-		CaseQuery query = new CaseQuery();
-		query.setOffset(0);
-		query.setLimit(5);
-		query.setOrderField("consentDate");
-		query.setOrderDirection(CaseQuery.OrderDirection.DESC);
-		List<ObjectNode> list = studyRepository.getData(study, view, attributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(5);
+		pager.setOrderField("consentDate");
+		pager.setOrderDirection(CasePager.OrderDirection.DESC);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		List<ObjectNode> list = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(5, list.size());
 	}
@@ -383,10 +393,14 @@ public class StudyRepositoryImplTest {
 		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
 		List<ViewAttributes> filteredAttributes = attributes.subList(0, 3);
 		
-		CaseQuery query = new CaseQuery();
-		query.setOffset(0);
-		query.setLimit(null);
-		List<ObjectNode> list = studyRepository.getData(study, view, filteredAttributes, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(null);
+		
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.applyPager(query, pager);
+		
+		List<ObjectNode> list = studyRepository.getCaseData(query, filteredAttributes);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(20, list.size());
 		for(int i = 0; i < 5; i++) {
@@ -443,12 +457,16 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
-		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		List<ObjectNode> data = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(data);
+		Assert.assertEquals(1,  data.size());
 		
-		String date = data.get("dateEntered").asText();
+		ObjectNode single = data.get(0);
+		
+		String date = single.get("dateEntered").asText();
 		Assert.assertNotNull(date);
 		Assert.assertEquals("2014-08-20", date);
 	}
@@ -459,11 +477,18 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseStateNull() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
-		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(query, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+		
+		JsonNode data = dataList.get(0);
 		Assert.assertNotNull(data);
-		
+
 		Assert.assertTrue(data.has("$state"));
 		Assert.assertTrue(data.get("$state").isNull());
 	}
@@ -474,9 +499,16 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseStatePending() {
 		Study study = studyRepository.getStudy("SECOND");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 21);
 		
-		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 21);
+
+		List<ObjectNode> dataList = studyRepository.getCaseData(query, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+
+		JsonNode data = dataList.get(0);
 		Assert.assertNotNull(data);
 		
 		Assert.assertTrue(data.has("$state"));
@@ -490,13 +522,18 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseNumberValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
-		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		
+		List<ObjectNode> data = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(data);
+		Assert.assertEquals(1,  data.size());
 		
-		Assert.assertTrue(data.has("numberCores"));
-		Double cores = data.get("numberCores").asDouble();
+		ObjectNode single = data.get(0);
+
+		Assert.assertTrue(single.has("numberCores"));
+		Double cores = single.get("numberCores").asDouble();
 		Assert.assertNotNull(cores);
 		Assert.assertTrue(Math.abs(cores - 2.0) < 0.00000001);
 	}
@@ -508,12 +545,17 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseValuesNotes() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		
-		JsonNode data = studyRepository.getCaseData(study, view, caseValue);
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+
+		List<ObjectNode> data = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(data);
+		Assert.assertEquals(1,  data.size());
 		
-		JsonNode notes = data.get("$notes");
+		ObjectNode single = data.get(0);
+
+		JsonNode notes = single.get("$notes");
 		Assert.assertNotNull(notes);
 		
 		// No notes here
@@ -536,17 +578,34 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseValuesFiltered() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
 		List<ViewAttributes> attributes = studyRepository.getViewAttributes(study, view);
 		List<ViewAttributes> filteredAttributes = attributes.subList(0, 3);
-
-		JsonNode data = studyRepository.getCaseData(study, view, filteredAttributes, caseValue);
+		
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(query, filteredAttributes);
+		Assert.assertEquals(1, dataList.size());
+		
+		ObjectNode data = dataList.get(0);
 		Assert.assertNotNull(data);
 		
 		for(ViewAttributes va : attributes) {
 			Boolean filtered = filteredAttributes.contains(va);
-			Assert.assertEquals(filtered, data.has(va.getName()));
+			Assert.assertEquals("Failed to filter attribute: " + va.getName(),filtered, data.has(va.getName()));
 		}
+	}
+	
+	private ObjectNode getCaseAttributeValue(Study study, View view, Integer caseId) {
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, caseId);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(query, view);
+		Assert.assertEquals(1, dataList.size());
+		
+		return dataList.get(0);
 	}
 
 
@@ -556,12 +615,10 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeValues() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEntered");
 		
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		ObjectNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertEquals("2014-08-20", data.asText());
+		Assert.assertEquals("2014-08-20", data.get("dateEntered").asText());
 	}
 
 	@Test
@@ -570,14 +627,11 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeValuesNotAvailable() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 2);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "trackerDate");
 		
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
-		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isObject());
-		Assert.assertTrue(data.has("$notAvailable"));
-		Assert.assertEquals("true", data.get("$notAvailable").asText());
+		ObjectNode data = getCaseAttributeValue(study, view, 2);
+		Assert.assertTrue(data.get("trackerDate").isObject());
+		Assert.assertTrue(data.get("trackerDate").has("$notAvailable"));
+		Assert.assertEquals("true", data.get("trackerDate").get("$notAvailable").asText());
 	}
 
 	@Test
@@ -586,11 +640,10 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeMissing() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "bloodCollDate");
 		
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
-		Assert.assertNull(data);
+		ObjectNode data = getCaseAttributeValue(study, view, 1);
+		Assert.assertNotNull(data);
+		Assert.assertFalse(data.has("bloodCollDate"));
 	}
 	
 	@Test
@@ -599,7 +652,7 @@ public class StudyRepositoryImplTest {
 	public void testAuditLog() {
 		Study study = studyRepository.getStudy("DEMO");
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -614,7 +667,7 @@ public class StudyRepositoryImplTest {
 	public void testAuditLogWithNoLimits() {
 		Study study = studyRepository.getStudy("DEMO");
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(null);
 		query.setLimit(null);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -629,7 +682,7 @@ public class StudyRepositoryImplTest {
 	public void testAuditLogWithBadData() {
 		Study study = studyRepository.getStudy("DEMO");
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(null);
 		query.setLimit(null);
 		
@@ -663,7 +716,7 @@ public class StudyRepositoryImplTest {
 	public void testAuditLogWithGoodData() {
 		Study study = studyRepository.getStudy("DEMO");
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(null);
 		query.setLimit(null);
 		
@@ -697,23 +750,25 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueDate() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEntered");
 
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", jsonNodeFactory.nullNode());
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("dateEntered", jsonNodeFactory.nullNode());
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		Assert.assertNotNull(auditEntries);
 		Assert.assertEquals(1, auditEntries.size());
-		
 		
 		// Poke at the first audit log entry
 		JsonNode entry = auditEntries.get(0);
@@ -725,9 +780,9 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
-		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isNull());
+		ObjectNode data = getCaseAttributeValue(study, view, 1);
+		Assert.assertTrue(data.has("dateEntered"));
+		Assert.assertTrue(data.get("dateEntered").isNull());
 	}
 
 	@Test
@@ -736,24 +791,25 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueDateInsert() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 6);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "procedureDate");
 
 		try {
-			JsonNode dateValue = jsonNodeFactory.textNode("2014-02-03");
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", dateValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 6);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("procedureDate", jsonNodeFactory.textNode("2014-02-03"));
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
-			Assert.fail();
+			Assert.fail(e.getMessage());
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
 		Assert.assertNotNull(auditEntries);
 		Assert.assertEquals(1, auditEntries.size());
-		
 		
 		// Poke at the first audit log entry
 		JsonNode entry = auditEntries.get(0);
@@ -763,11 +819,11 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("2014-02-03", entry.get("eventArgs").get("new").asText());
 		
 		// And now, we ought to be able to see the new audit entry in the database, and
-		// the value should be correct too. Note that as we have set null, we get back a 
-		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
-		Assert.assertNotNull(data);
-		Assert.assertEquals("2014-02-03", data.asText());
+		// the value should be correct too. 
+		
+		ObjectNode data = getCaseAttributeValue(study, view, 6);
+		Assert.assertTrue(data.has("procedureDate"));
+		Assert.assertEquals("2014-02-03", data.get("procedureDate").asText());
 	}
 
 	@Test
@@ -776,18 +832,20 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueString() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "patientId");
 
 		try {
-			JsonNode stringValue = jsonNodeFactory.textNode("DEMO-XX");
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("patientId", jsonNodeFactory.textNode("DEMO-XX"));
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -805,10 +863,10 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertFalse(data.isNull());
-		Assert.assertEquals("DEMO-XX", data.asText());
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-XX", data.get("patientId").asText());
 	}
 
 	@Test
@@ -817,18 +875,20 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueStringInsert() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 10);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenNo");
 
 		try {
-			JsonNode stringValue = jsonNodeFactory.textNode("SMP-XX");
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 10);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("specimenNo", jsonNodeFactory.textNode("SMP-XX"));
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -846,10 +906,10 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 10);
 		Assert.assertNotNull(data);
-		Assert.assertFalse(data.isNull());
-		Assert.assertEquals("SMP-XX", data.asText());
+		Assert.assertTrue(data.has("specimenNo"));
+		Assert.assertEquals("SMP-XX", data.get("specimenNo").asText());
 	}
 
 	@Test
@@ -858,17 +918,20 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueStringNull() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "patientId");
 
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", jsonNodeFactory.nullNode());
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("patientId", jsonNodeFactory.nullNode());
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -886,9 +949,10 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isNull());
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertTrue(data.get("patientId").isNull());
 	}
 
 	@Test
@@ -897,18 +961,20 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueOption() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "sampleAvailable");
 
 		try {
-			JsonNode stringValue = jsonNodeFactory.textNode("St. Michaels");
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.put("sampleAvailable", "St. Michaels");
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -926,10 +992,10 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertFalse(data.isNull());
-		Assert.assertEquals("St. Michaels", data.asText());
+		Assert.assertTrue(data.has("sampleAvailable"));
+		Assert.assertEquals("St. Michaels", data.get("sampleAvailable").asText());
 	}
 
 	@Test
@@ -938,18 +1004,20 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueBoolean() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
 
 		try {
-			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.put("specimenAvailable", false);
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -966,29 +1034,31 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isBoolean());
-		Assert.assertEquals("false", data.asText());
+		Assert.assertTrue(data.has("specimenAvailable"));
+		Assert.assertTrue(data.get("specimenAvailable").isBoolean());
+		Assert.assertEquals("false", data.get("specimenAvailable").asText());
 	}
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
+	
 	@Test
 	@Transactional
 	@Rollback(true)
 	public void testSingleCaseAttributeWriteValueBooleanValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
 
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		ObjectNode values = jsonNodeFactory.objectNode();
+		values.replace("specimenAvailable", jsonNodeFactory.textNode("BAD"));
+		
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid boolean"));
-
-		JsonNode stringValue = jsonNodeFactory.textNode("BAD");
-		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
+		
+		studyRepository.setQueryAttributes(query, "stuart", values);
 	}
 
 	@Test
@@ -997,14 +1067,17 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueStringValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "patientId");
 
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		ObjectNode values = jsonNodeFactory.objectNode();
+		values.replace("patientId", jsonNodeFactory.booleanNode(false));
+		
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid string"));
 
-		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+		studyRepository.setQueryAttributes(query, "stuart", values);
 	}
 
 	@Test
@@ -1013,14 +1086,17 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueDateValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEntered");
 
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		ObjectNode values = jsonNodeFactory.objectNode();
+		values.replace("dateEntered", jsonNodeFactory.booleanNode(false));
+		
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid date"));
 
-		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+		studyRepository.setQueryAttributes(query, "stuart", values);
 	}
 
 	@Test
@@ -1029,14 +1105,17 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueDateValueFormatError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "dateEntered");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		ObjectNode values = jsonNodeFactory.objectNode();
+		values.replace("dateEntered", jsonNodeFactory.textNode("2015-02-XX"));
 
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid date"));
 
-		JsonNode stringValue = jsonNodeFactory.textNode("2015-02-XX");
-		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
+		studyRepository.setQueryAttributes(query, "stuart", values);
 	}
 
 	@Test
@@ -1045,14 +1124,17 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueOptionValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "sampleAvailable");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		ObjectNode values = jsonNodeFactory.objectNode();
+		values.replace("sampleAvailable", jsonNodeFactory.booleanNode(false));
 
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid string"));
 
-		JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+		studyRepository.setQueryAttributes(query, "stuart", values);
 	}
 
 	@Test
@@ -1061,14 +1143,17 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueOptionUnexpectedValueError() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "complete");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "sampleAvailable");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addViewCaseMatcher(query, view);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		ObjectNode values = jsonNodeFactory.objectNode();
+		values.replace("sampleAvailable", jsonNodeFactory.textNode("BAD"));
 
 		thrown.expect(InvalidValueException.class);
 		thrown.expectMessage(containsString("Invalid string"));
 
-		JsonNode stringValue = jsonNodeFactory.textNode("BAD");
-		studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", stringValue);
+		studyRepository.setQueryAttributes(query, "stuart", values);
 	}
 
 	// Regression test for #6 -- check that multiple writes are handled correctly. 
@@ -1078,25 +1163,33 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueBooleanTwice() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
 
 		try {
-			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("specimenAvailable", jsonNodeFactory.booleanNode(false));
+
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		try {
-			JsonNode booleanValue = jsonNodeFactory.booleanNode(true);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("specimenAvailable", jsonNodeFactory.booleanNode(true));
+
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -1114,10 +1207,10 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isBoolean());
-		Assert.assertEquals("true", data.asText());
+		Assert.assertTrue(data.has("specimenAvailable"));
+		Assert.assertEquals("true", data.get("specimenAvailable").asText());
 	}
 
 	// Regression test for #6 -- check that multiple writes are handled correctly. 
@@ -1127,28 +1220,36 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteSameValueBooleanTwice() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
 
 		try {
-			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("specimenAvailable", jsonNodeFactory.booleanNode(false));
+
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		try {
-			JsonNode booleanValue = jsonNodeFactory.booleanNode(false);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", booleanValue);
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("specimenAvailable", jsonNodeFactory.booleanNode(false));
+
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
-		query.setOffset(0);
-		query.setLimit(5);
-		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(5);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, pager);
 		Assert.assertNotNull(auditEntries);
 		Assert.assertEquals(1, auditEntries.size());
 		
@@ -1163,10 +1264,10 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isBoolean());
-		Assert.assertEquals("false", data.asText());
+		Assert.assertTrue(data.has("specimenAvailable"));
+		Assert.assertEquals("false", data.get("specimenAvailable").asText());
 	}
 
 	// Regression test for #7 -- check that N/A writes are handled correctly. 
@@ -1176,19 +1277,23 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueBooleanNotAvailable() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
 
 		try {
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
 			ObjectNode notAvailable = objectMapper.createObjectNode();
 			notAvailable.put("$notAvailable", true);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", notAvailable);
+			values.replace("specimenAvailable", notAvailable);
+
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -1207,10 +1312,11 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isObject());
-		Assert.assertEquals(true, data.get("$notAvailable").asBoolean());
+		Assert.assertTrue(data.has("specimenAvailable"));
+		Assert.assertTrue(data.get("specimenAvailable").isObject());
+		Assert.assertEquals(true, data.get("specimenAvailable").get("$notAvailable").asBoolean());
 	}
 	
 	@Test
@@ -1219,17 +1325,21 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteValueBooleanNull() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
 
 		try {
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", jsonNodeFactory.nullNode());
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("specimenAvailable", jsonNodeFactory.nullNode());
+
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -1247,9 +1357,10 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 1);
 		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isNull());
+		Assert.assertTrue(data.has("specimenAvailable"));
+		Assert.assertTrue(data.get("specimenAvailable").isNull());
 	}
 	
 	@Test
@@ -1258,19 +1369,23 @@ public class StudyRepositoryImplTest {
 	public void testSingleCaseAttributeWriteNonExistentValue() {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 15);
-		Attributes attribute = studyRepository.getStudyAttribute(study, "specimenAvailable");
 
 		try {
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 15);
+			ObjectNode values = jsonNodeFactory.objectNode();
 			ObjectNode notAvailable = objectMapper.createObjectNode();
 			notAvailable.put("$notAvailable", true);
-			studyRepository.setCaseAttributeValue(study, view, caseValue, attribute, "stuart", notAvailable);
+			values.replace("specimenAvailable", notAvailable);
+
+			studyRepository.setQueryAttributes(query, "stuart", values);
 		} catch (RepositoryException e) {
 			Assert.fail();
 		}
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(5);
 		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
@@ -1289,10 +1404,11 @@ public class StudyRepositoryImplTest {
 		// And now, we ought to be able to see the new audit entry in the database, and
 		// the value should be correct too. Note that as we have set null, we get back a 
 		// JSON null, not a Java one. 
-		JsonNode data = studyRepository.getCaseAttributeValue(study, view, caseValue, attribute);
+		JsonNode data = getCaseAttributeValue(study, view, 15);
 		Assert.assertNotNull(data);
-		Assert.assertTrue(data.isObject());
-		Assert.assertEquals(true, data.get("$notAvailable").asBoolean());
+		Assert.assertTrue(data.has("specimenAvailable"));
+		Assert.assertTrue(data.get("specimenAvailable").isObject());
+		Assert.assertEquals(true, data.get("specimenAvailable").get("$notAvailable").asBoolean());
 	}
 
 	@Test
@@ -1622,7 +1738,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals(15, list.size());
 		
 		ViewAttributes att1 = new ViewAttributes();
-		att1.setId(28);
+		att1.setId(600);
 		att1.setName("unknown");
 		att1.setType("string");
 		att1.setLabel("Specimen #");
@@ -1739,7 +1855,7 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
-	public void testSetCaseState() {
+	public void testNewCaseWithoutManager() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
 		View view = studyRepository.getStudyView(study, "track");
 		Cases caseValue = studyRepository.getStudyCase(study, view, 7);
@@ -1747,10 +1863,10 @@ public class StudyRepositoryImplTest {
 		studyRepository.setStudyCaseState(study, view, caseValue, "morag", "pending");
 		
 		// Check we now have an audit log entry
-		CaseQuery query = new CaseQuery();
-		query.setOffset(0);
-		query.setLimit(5);
-		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, query);
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(5);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, pager);
 		Assert.assertNotNull(auditEntries);
 		Assert.assertEquals(1, auditEntries.size());
 		
@@ -1762,5 +1878,382 @@ public class StudyRepositoryImplTest {
 		// Check a re-read gets the new state
 		Cases foundValue = studyRepository.getStudyCase(study, view, 15);
 		Assert.assertEquals("pending", foundValue.getState());
+	}
+	
+	/**
+	 * Checks that basic filtering works, with an exact match to a string
+	 * @throws RepositoryException
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFiltering() throws RepositoryException {
+		
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("DEMO-02"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+		
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-02", data.get("patientId").asText());
+	}
+
+	/**
+	 * Checks that basic filtering works, with an exact match to a string
+	 * failing to find any records at all.
+	 * @throws RepositoryException
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringMiss() throws RepositoryException {
+		
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("MISSING"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(0, dataList.size());
+	}
+	
+	/**
+	 * Blanks are a special case. They might be NULL or they might be an
+	 * empty string, so we need to check for both in the underlying 
+	 * query that we generate. 
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringBlank() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("mrn", jsonNodeFactory.textNode("\"\""));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(15, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-05", data.get("patientId").asText());
+	}
+
+	/**
+	 * N/A is a special case. The filter needs to check the missing
+	 * value field rather than the usual value field.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringNA() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("tissueSite", jsonNodeFactory.textNode("N/A"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-06", data.get("patientId").asText());
+	}
+	
+	/**
+	 * Wildcards are another filter option, and we should check both pre and
+	 * postfix values.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringWildcardPrefix() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("*-05"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-05", data.get("patientId").asText());
+	}
+
+	
+	/**
+	 * Wildcards are another filter option, and we should check both pre and
+	 * postfix values.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringWildcardSuffix() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("DEMO-0*"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(10, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-01", data.get("patientId").asText());
+	}
+
+	/**
+	 * Wildcards are another filter option, and we should check both pre and
+	 * postfix values.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("tissueSite", jsonNodeFactory.textNode("N/A OR *lung*"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(2, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-03", data.get("patientId").asText());
+
+		data = dataList.get(1);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-06", data.get("patientId").asText());
+	}
+
+	/**
+	 * Booleans are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicBooleanFilteringExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("specimenAvailable", jsonNodeFactory.textNode("No"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(3, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-02", data.get("patientId").asText());
+	}
+
+	/**
+	 * Dates are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicDateFilteringExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("consentDate", jsonNodeFactory.textNode("2014-08-18"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-02", data.get("patientId").asText());
+	}
+
+	/**
+	 * Wildcards are another filter option, and we should check both pre and
+	 * postfix values.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testMultipleFiltering1() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("patientId", jsonNodeFactory.textNode("DEMO-03"));
+		filter.replace("sampleAvailable", jsonNodeFactory.textNode("LMP"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(1, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+
+		Assert.assertTrue(data.has("specimenNo"));
+		Assert.assertEquals("S12-3000", data.get("specimenNo").asText());
+	}
+
+	/**
+	 * Multiple filters with a blank value seem to be an issue, so let's test
+	 * that case too. 
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testMultipleFilteringBlankRegressionDate() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("physician", jsonNodeFactory.textNode(""));
+		filter.replace("patientId", jsonNodeFactory.textNode("DEMO-0*"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(10, dataList.size());
+	}
+
+	/**
+	 * Multiple filters with a blank value seem to be an issue, so let's test
+	 * that case too. 
+	 * <p>
+	 * Regression for #101 - error filtering by blank string for dates and booleans
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testMultipleFilteringBlankRegressionBoolean() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("sampleAvailable", jsonNodeFactory.textNode(""));
+		filter.replace("consentDate", jsonNodeFactory.textNode("\"\""));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(15, dataList.size());
+	}
+
+	/**
+	 * Multiple filters with a blank value seem to be an issue, so let's test
+	 * that case too. 
+	 * <p>
+	 * Regression for #101 - error filtering by blank string for dates and booleans
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testMultipleFiltering3() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("sampleAvailable", jsonNodeFactory.textNode(""));
+		filter.replace("specimenAvailable", jsonNodeFactory.textNode("\"\""));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(16, dataList.size());
 	}
 }

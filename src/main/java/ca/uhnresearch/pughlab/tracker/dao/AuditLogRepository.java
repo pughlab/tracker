@@ -12,12 +12,15 @@ public interface AuditLogRepository {
 	/**
 	 * Retrieves the audit log data. This is formatted as a set of JSON nodes, as there is 
 	 * some reformatting of identifiers to match the tagging within the repository itself. 
+	 * @param study the study
+	 * @param pager a page filter 
 	 * @return list of JSON nodes
 	 */
-	List<JsonNode> getAuditData(Study study, CaseQuery query);
+	List<JsonNode> getAuditData(Study study, CasePager pager);
 	
 	/**
-	 * Writes an audit log entry
+	 * Writes an audit log entry.
+	 * @param record the record
 	 */
 	void writeAuditLogRecord(AuditLogRecord record);
 }

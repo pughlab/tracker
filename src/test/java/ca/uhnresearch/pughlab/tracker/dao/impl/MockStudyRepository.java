@@ -24,9 +24,11 @@ import com.google.gson.JsonPrimitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CaseChangeInfo;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
@@ -339,7 +341,7 @@ public class MockStudyRepository implements StudyRepository {
 	 * @param view
 	 * @return
 	 */
-	private Map<Integer, JsonObject> getAllData(Study study, View view) {
+	private Map<Integer, JsonObject> getAllData() {
 		return data;
 	}
 	
@@ -352,10 +354,10 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * A mocked getData
 	 */
-	public List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CaseQuery query) {
+	public List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CasePager query) {
 		
 		// We build all the data in Gson, because it's easier
-		Map<Integer, JsonObject> data = getAllData(study, view);
+		Map<Integer, JsonObject> data = getAllData();
 		
 		Set<String> includedAttributes = new HashSet<String>();
 		for(Attributes a : attributes) {
@@ -427,50 +429,6 @@ public class MockStudyRepository implements StudyRepository {
 		cases.setState(state);		
 	}
 
-	@Override
-	public ObjectNode getCaseData(Study study, View view, Cases caseValue) {
-		return getCaseData(study, view, null, caseValue);
-	}
-
-	@Override
-	public ObjectNode getCaseData(Study study, View view, List<? extends Attributes> attributes, Cases caseValue) {
-		// We build all the data in Gson, because it's easier
-		Map<Integer, JsonObject> data = getAllData(study, view);
-		if (! data.containsKey(caseValue.getId())) {
-			return null;
-		}
-		return convertJsonElementToObjectNode(data.get(caseValue.getId()));
-	}
-
-	@Override
-	public JsonNode getCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute) {
-		
-		ObjectNode caseData = getCaseData(study, view, caseValue);
-		return caseData.get(attribute.getName());
-	}
-
-	@Override
-	public void setCaseAttributeValue(Study study, View view, Cases caseValue, Attributes attribute, String userName, JsonNode value) {
-		
-		// Well, yes, in theory we can just write in a new value, but this is all mocked
-		// and it's actually a mirror of the correct value. Strictly, here, we need to 
-		// get the type and then find and delete a real value. But hey, this is a mock
-		// so we don't really care. Yet.
-
-		return;
-	}
-
-	private ObjectNode convertJsonElementToObjectNode(JsonElement object) {
-		String text = object.toString();
-		try {
-			return (ObjectNode) mapper.readTree(text);
-		} catch (IOException e) {
-			logger.error("Internal test error: {}", e.getMessage());
-			return null;
-		}
-
-	}
-
 	/**
 	 * Mocked setter for an update event manager
 	 */
@@ -497,5 +455,95 @@ public class MockStudyRepository implements StudyRepository {
 	@Override
 	public Study saveStudy(Study study) {
 		return study;
+	}
+	
+	@Override
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, List<? extends Attributes> attributes) {
+		return getCaseData(query, (View) null);
+	}
+
+	@Override
+	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
+		MockStudyCaseQuery mq = (MockStudyCaseQuery) query;
+		List<ObjectNode> result = new ArrayList<ObjectNode>();
+		Map<Integer, JsonObject> data = getAllData();
+		try {
+			for(Integer i : mq.getCases()) {
+				JsonObject caseObject = data.get(i);
+				result.add((ObjectNode) mapper.readTree(caseObject.toString()));
+			} 
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	@Override
+	public MockStudyCaseQuery newStudyCaseQuery(Study study) {
+		MockStudyCaseQuery query = new MockStudyCaseQuery();
+		query.setCases(new ArrayList<Integer>());
+		for(Integer i = 0; i < 5; i++) {
+			query.getCases().add(i);
+		}
+		return query;
+	}
+
+	@Override
+	public StudyCaseQuery addViewCaseMatcher(StudyCaseQuery query, View view) {
+		return query;
+	}
+
+	@Override
+	public StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public MockStudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId) {
+		MockStudyCaseQuery result = new MockStudyCaseQuery();
+		result.getCases().add(caseId);
+		return result;
+	}
+
+	@Override
+	public StudyCaseQuery subcases(StudyCaseQuery query, String attribute) {
+		throw new RuntimeException("Not yet implemented");
+	}
+
+	@Override
+	public StudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager) {
+		return query;
+	}
+
+	@Override
+	public List<CaseChangeInfo> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) {
+		
+		MockStudyCaseQuery caseQuery = (MockStudyCaseQuery) query;
+		List<Integer> caseIds = caseQuery.getCases();
+
+		// Well, yes, in theory we can just write in a new value, but this is all mocked
+		// and it's actually a mirror of the correct value. Strictly, here, we need to 
+		// get the type and then find and delete a real value. But hey, this is a mock
+		// so we don't really care. Yet.
+		
+		List<CaseChangeInfo> result = new ArrayList<CaseChangeInfo>();
+		for(Integer caseId : caseIds) {
+			CaseChangeInfo caseChange = new CaseChangeInfo(caseId);
+			Iterator<String> fields = values.fieldNames();
+			while(fields.hasNext()) {
+				String field = fields.next();
+				caseChange.addValueChange(field, null, values.get(field));
+			}
+			result.add(caseChange);			
+		}
+		
+		return result;
+	}
+	
+	@Override
+	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode expression) {
+		return query;
 	}
 }

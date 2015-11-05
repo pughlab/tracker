@@ -19,12 +19,12 @@ public interface AuthorizationRepository {
 	 * Retrieves the number of matching roles in the repository
 	 * @return number of roles
 	 */
-	Long getStudyRoleCount(Study study, CaseQuery query);
+	Long getStudyRoleCount(Study study, CasePager query);
 
 	/**
 	 * Retrieves all the roles from the repository for a given study
 	 */
-	List<Role> getStudyRoles(Study study, CaseQuery query) throws RepositoryException;
+	List<Role> getStudyRoles(Study study, CasePager query) throws RepositoryException;
 	
 	/**
 	 * Retrieves a role by name

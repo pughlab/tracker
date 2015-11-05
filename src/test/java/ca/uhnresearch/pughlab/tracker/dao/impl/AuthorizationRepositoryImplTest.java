@@ -26,7 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -60,7 +60,7 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRoleCount() {
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		
 		Study study = createMock(Study.class);
 		expect(study.getId()).andStubReturn(1);
@@ -71,31 +71,13 @@ public class AuthorizationRepositoryImplTest {
 	}
 
 	/**
-	 * Checks that the number of roles is returned correctly.
-	 */
-	@Test
-	@Transactional
-	@Rollback(true)
-	public void testGetRoleCountWithPattern() {
-		CaseQuery query = new CaseQuery();
-		query.setPattern("TRACK");
-		
-		Study study = createMock(Study.class);
-		expect(study.getId()).andStubReturn(1);
-		replay(study);
-
-		Long count = authorizationRepository.getStudyRoleCount(study, query);
-		Assert.assertEquals(1, count.longValue());
-	}
-
-	/**
 	 * Checks that a list of roles is returned correctly.
 	 */
 	@Test
 	@Transactional
 	@Rollback(true)
 	public void testGetRoles() throws RepositoryException {
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 
@@ -115,7 +97,7 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRoleStudyNames() throws RepositoryException {
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 		
@@ -142,7 +124,7 @@ public class AuthorizationRepositoryImplTest {
 		expect(study.getId()).andReturn(1);
 		replay(study);
 		
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 
@@ -166,7 +148,7 @@ public class AuthorizationRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testGetRolesQuery() throws RepositoryException {
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(1);
 
 		Study study = createMock(Study.class);
@@ -176,26 +158,6 @@ public class AuthorizationRepositoryImplTest {
 		List<Role> list = authorizationRepository.getStudyRoles(study, query);
 		Assert.assertNotNull(list);
 		Assert.assertEquals(2, list.size());
-	}
-
-	/**
-	 * Checks that a list of roles is returned correctly with a case query and offset.
-	 */
-	@Test
-	@Transactional
-	@Rollback(true)
-	public void testGetRolesQueryPattern() throws RepositoryException {
-		
-		Study study = createMock(Study.class);
-		expect(study.getId()).andReturn(1);
-		replay(study);
-
-		CaseQuery query = new CaseQuery();
-		query.setPattern("DEMO");
-
-		List<Role> list = authorizationRepository.getStudyRoles(study, query);
-		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());
 	}
 
 	/**
@@ -210,7 +172,7 @@ public class AuthorizationRepositoryImplTest {
 		expect(study.getId()).andReturn(0);
 		replay(study);
 
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 
@@ -231,7 +193,7 @@ public class AuthorizationRepositoryImplTest {
 		expect(study.getId()).andReturn(1);
 		replay(study);
 
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 
@@ -253,7 +215,7 @@ public class AuthorizationRepositoryImplTest {
 		expect(study.getId()).andReturn(1);
 		replay(study);
 
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 
@@ -273,7 +235,7 @@ public class AuthorizationRepositoryImplTest {
 		expect(study.getId()).andReturn(1);
 		replay(study);
 
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 
@@ -295,7 +257,7 @@ public class AuthorizationRepositoryImplTest {
 		expect(study.getId()).andReturn(1);
 		replay(study);
 
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 
@@ -315,7 +277,7 @@ public class AuthorizationRepositoryImplTest {
 		expect(study.getId()).andReturn(1);
 		replay(study);
 
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 
@@ -337,7 +299,7 @@ public class AuthorizationRepositoryImplTest {
 		expect(study.getId()).andReturn(0);
 		replay(study);
 
-		CaseQuery query = new CaseQuery();
+		CasePager query = new CasePager();
 		query.setOffset(0);
 		query.setLimit(10);
 

@@ -10,22 +10,22 @@ import org.restlet.Restlet;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
-public class CaseQueryExtractorTest {
+public class CasePagerExtractorTest {
 	
 	private class TraceRestlet extends Restlet {
 		// Does snothing, but prevents warning shouts
 	}
 
-	private CaseQueryExtractor extractor;
+	private CasePagerExtractor extractor;
 
 	@Before
 	public void initialize() {
 		
 		Restlet mock = new TraceRestlet();
-		extractor = new CaseQueryExtractor();
+		extractor = new CasePagerExtractor();
 		extractor.setNext(mock);
 	}
 
@@ -39,14 +39,14 @@ public class CaseQueryExtractorTest {
 		Response response = new Response(request);
 		extractor.handle(request, response);
 		
-		CaseQuery query = RequestAttributes.getRequestCaseQuery(request);
-		assertNotNull(query);
+		CasePager pager = RequestAttributes.getRequestCasePager(request);
+		assertNotNull(pager);
 		
-		assertNotNull(query.getLimit());
-		assertEquals(3, query.getLimit().intValue());
+		assertNotNull(pager.getLimit());
+		assertEquals(3, pager.getLimit().intValue());
 		
-		assertNotNull(query.getOffset());
-		assertEquals(5, query.getOffset().intValue());
+		assertNotNull(pager.getOffset());
+		assertEquals(5, pager.getOffset().intValue());
 	}
 
 	@Test
@@ -57,11 +57,11 @@ public class CaseQueryExtractorTest {
 		Response response = new Response(request);
 		extractor.handle(request, response);
 		
-		CaseQuery query = RequestAttributes.getRequestCaseQuery(request);
-		assertNotNull(query);
+		CasePager pager = RequestAttributes.getRequestCasePager(request);
+		assertNotNull(pager);
 		
-		assertNull(query.getLimit());
-		assertNull(query.getOffset());
+		assertNull(pager.getLimit());
+		assertNull(pager.getOffset());
 	}
 
 }

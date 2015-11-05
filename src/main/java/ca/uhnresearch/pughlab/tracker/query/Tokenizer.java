@@ -1,0 +1,113 @@
+package ca.uhnresearch.pughlab.tracker.query;
+
+import java.io.IOException;
+import java.io.Reader;
+
+/**
+ * Converts a string into a set of tokens. This is a somewhat quick-and-dirty
+ * tokenizer that is mostly UNICODE sound and generates the fairly small set
+ * of tokens that we are interested in. 
+ * 
+ * @author stuartw
+ *
+ */
+public class Tokenizer {
+	
+	private final Reader input;
+	
+	private int peek = -1;
+	
+	private static final int PEEK_EMPTY = -1;
+	
+	private StringBuilder tokenBuilder = new StringBuilder();
+	
+	private int getNextCharacter() throws IOException {
+		if (peek != PEEK_EMPTY) {
+			int result = peek;
+			peek = PEEK_EMPTY;
+			return result;
+		} else {
+			return input.read();
+		}
+	}
+	
+	private void ungetCharacter(int character) {
+		if (character != -1) {
+			peek = character;
+		}
+	}
+	
+	public Tokenizer(Reader input) {
+		super();
+		this.input = input;
+	}
+
+	public Token getNextToken() throws IOException, InvalidTokenException {
+		tokenBuilder.setLength(0);
+		
+		while(true) {
+			int tokenStart = getNextCharacter();
+			char tokenChar = (char) tokenStart;
+			
+			if (tokenStart == -1) {
+				
+				// At the end, return null to signal there's no token
+				return null;
+			
+			} else if (tokenChar == '"') {
+				
+				// Handles a quoted string.
+				tokenBuilder.append(tokenChar);
+				while(true) {
+					int constituent = getNextCharacter();
+					char constituentChar = (char) constituent;
+					if (constituent == -1) {
+						throw new InvalidTokenException("Missing end quote");
+					} else if (constituentChar != '"') {
+						tokenBuilder.append(constituentChar);
+					} else {
+						tokenBuilder.append(constituentChar);
+						return new QuotedStringToken(tokenBuilder.toString());
+					}
+				}
+
+			} else if (Character.isWhitespace(tokenChar)) {
+				// Do nothing. We can skip to the next character and attempt to
+				// tokenize again
+				
+			} else if (tokenChar == '(' || tokenChar == ')' || tokenChar == ',') {
+				
+				// Character operators
+				return new OperatorToken(Character.toString(tokenChar));
+				
+			} else {
+				
+				// Anything else is not whitespace. Add elements that aren't
+				// whitespace or a terminator into a new token.
+				
+				tokenBuilder.append(tokenChar);
+				while(true) {
+					int constituent = getNextCharacter();
+					char constituentChar = (char) constituent;
+					if (constituent == -1 || constituentChar == '(' || constituentChar == ')' || constituentChar == ',' || Character.isWhitespace(constituentChar)) {
+						
+						// At the end, so put back the thing we just found
+						ungetCharacter(constituent);
+						
+						// Now what we have might be an operator
+						String token = tokenBuilder.toString();
+						if (OperatorToken.isOperator(token)) {
+							return new OperatorToken(token);
+						} else {
+							return new ValueToken(token);
+						}
+					
+					} else {
+					
+						tokenBuilder.append(constituentChar);
+					}
+				}
+			}
+		}
+	}
+}

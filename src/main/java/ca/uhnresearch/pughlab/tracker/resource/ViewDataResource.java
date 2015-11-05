@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.restlet.Request;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
 import org.restlet.ext.jackson.JacksonRepresentation;
@@ -19,7 +20,8 @@ import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import ca.uhnresearch.pughlab.tracker.dao.CaseQuery;
+import ca.uhnresearch.pughlab.tracker.dao.CasePager;
+import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
@@ -68,12 +70,22 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 		
 		Subject currentUser = SecurityUtils.getSubject();
 
-    	CaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+		Request request = getRequest();
+    	Study study = RequestAttributes.getRequestStudy(request);
+    	View view = RequestAttributes.getRequestView(request);
+    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(request);
+		CasePager pager = RequestAttributes.getRequestCasePager(request);
+		ObjectNode filter = RequestAttributes.getRequestFilter(request);
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
-    	dto.setStudy(study);
+		dto.setStudy(study);
     	dto.setView(view);
+    	
+    	// Filters aren't persisted, but we reflect it from the request
+    	if (filter != null) {
+    		dto.setFilter(filter);
+    	}
+    	
+    	query = getRepository().applyPager(query, pager);
     	
 		List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
 		
@@ -89,7 +101,7 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 
 		dto.setAttributes(readable);
 		
-    	List<ObjectNode> records = getRepository().getData(study, view, readable, query);
+    	List<ObjectNode> records = getRepository().getCaseData(query, view);
     	dto.setRecords(records);
     	dto.getCounts().setTotal(getRepository().getRecordCount(study, view));
     	
