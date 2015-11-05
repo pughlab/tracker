@@ -49,10 +49,15 @@ public class FilterExtractor extends RepositoryAwareExtractor {
 		ObjectNode queryObject = mapper.readValue(query, ObjectNode.class);
 		
 		// Now we ought to be able to add filters into the query that we generate
-		// through the repository. 
+		// through the repository. Don't do this if we don't have a real filter
+		// value that makes sense. 
 		
-		StudyCaseQuery caseQuery = RequestAttributes.getRequestCaseQuery(request);
-		StudyCaseQuery filteredCaseQuery = getRepository().addStudyCaseFilterSelector(caseQuery, queryObject);
-		RequestAttributes.setRequestCaseQuery(request, filteredCaseQuery);
+		if (queryObject != null) { 
+			StudyCaseQuery caseQuery = RequestAttributes.getRequestCaseQuery(request);
+			StudyCaseQuery filteredCaseQuery = getRepository().addStudyCaseFilterSelector(caseQuery, queryObject);
+			RequestAttributes.setRequestCaseQuery(request, filteredCaseQuery);
+		}
+		
+		RequestAttributes.setRequestFilter(request, queryObject);
 	}
 }

@@ -2,6 +2,8 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import org.restlet.Request;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import ca.uhnresearch.pughlab.tracker.dao.CasePager;
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
@@ -25,6 +27,8 @@ public class RequestAttributes {
 	private static final String ENTITY_ATTRIBUTE = "entity";
 
 	private static final String ATTRIBUTE_ATTRIBUTE = "attribute";
+
+	private static final String FILTER_ATTRIBUTE = "filter";
 
 	/**
 	 * Helper method to read a study from a request attribute
@@ -150,5 +154,23 @@ public class RequestAttributes {
 	 */
 	public static void setRequestAttribute(Request request, Attributes a) {
 		request.getAttributes().put(RequestAttributes.ATTRIBUTE_ATTRIBUTE, a);
+	}
+
+	/**
+	 * Helper method to read an attribute from a request attribute
+	 * @param request
+	 * @return
+	 */
+	public static ObjectNode getRequestFilter(Request request) {
+		return (ObjectNode) request.getAttributes().get(RequestAttributes.FILTER_ATTRIBUTE);
+	}
+
+	/**
+	 * Helper method to write an attribute into a request attribute
+	 * @param request
+	 * @param s
+	 */
+	public static void setRequestFilter(Request request, ObjectNode a) {
+		request.getAttributes().put(RequestAttributes.FILTER_ATTRIBUTE, a);
 	}
 }

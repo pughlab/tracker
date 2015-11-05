@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.restlet.Request;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
 import org.restlet.ext.jackson.JacksonRepresentation;
@@ -69,13 +70,20 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 		
 		Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
-    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
-		CasePager pager = RequestAttributes.getRequestCasePager(getRequest());
+		Request request = getRequest();
+    	Study study = RequestAttributes.getRequestStudy(request);
+    	View view = RequestAttributes.getRequestView(request);
+    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(request);
+		CasePager pager = RequestAttributes.getRequestCasePager(request);
+		ObjectNode filter = RequestAttributes.getRequestFilter(request);
 
 		dto.setStudy(study);
     	dto.setView(view);
+    	
+    	// Filters aren't persisted, but we reflect it from the request
+    	if (filter != null) {
+    		dto.setFilter(filter);
+    	}
     	
     	query = getRepository().applyPager(query, pager);
     	
