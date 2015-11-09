@@ -75,6 +75,11 @@
   			<param-name>org.atmosphere.cpr.objectFactory</param-name>
   			<param-value>org.atmosphere.spring.SpringWebObjectFactory</param-value>
 		</init-param>
+        <!-- Disables the analytics thread. No idea why it ought to be a thread! -->
+        <init-param>
+            <param-name>org.atmosphere.cpr.AtmosphereFramework.analytics</param-name>
+            <param-value>false</param-value>
+        </init-param>
         <init-param>
             <param-name>org.atmosphere.cpr.packages</param-name>
             <param-value>ca.uhnresearch.pughlab.tracker.sockets</param-value>
