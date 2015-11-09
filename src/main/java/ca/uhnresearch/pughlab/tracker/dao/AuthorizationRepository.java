@@ -17,32 +17,47 @@ public interface AuthorizationRepository {
 
 	/**
 	 * Retrieves the number of matching roles in the repository
+	 * @param study study
+	 * @param pager a pager
 	 * @return number of roles
 	 */
-	Long getStudyRoleCount(Study study, CasePager query);
+	Long getStudyRoleCount(Study study, CasePager pager);
 
 	/**
 	 * Retrieves all the roles from the repository for a given study
+	 * @param study study
+	 * @param pager a pager
+	 * @return a list of roles
 	 */
-	List<Role> getStudyRoles(Study study, CasePager query) throws RepositoryException;
+	List<Role> getStudyRoles(Study study, CasePager pager) throws RepositoryException;
 	
 	/**
-	 * Retrieves a role by name
+	 * Retrieves a role by name.
+	 * @param study study
+	 * @param name the name of a role
+	 * @return the role
 	 */
 	Role getStudyRole(Study study, String name) throws RepositoryException;
 
 	/**
-	 * Retrieves a study role by internal identifier
+	 * Retrieves a study role by internal identifier.
+	 * @param study study
+	 * @param id the role identifier
+	 * @return the role
 	 */
 	Role getStudyRoleById(Study study, Integer id) throws RepositoryException;
 
 	/**
-	 * Deletes a role
+	 * Deletes a role.
+	 * @param study study
+	 * @param role the role
 	 */
 	void deleteStudyRole(Study study, Role role) throws RepositoryException;
 
 	/**
-	 * Saves (and possibly creates) a role
+	 * Saves (and possibly creates) a role.
+	 * @param study study
+	 * @param role the role
 	 */
 	void saveStudyRole(Study study, Role role) throws RepositoryException;
 }

@@ -20,7 +20,7 @@ public interface StudyRepository {
 	List<Study> getAllStudies();
 	
 	/**
-	 * Retrieves a single specified study from the repository
+	 * Retrieves a single specified study from the repository.
 	 * @return a study
 	 */
 	Study getStudy(String name);

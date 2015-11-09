@@ -7,6 +7,12 @@ import ca.uhnresearch.pughlab.tracker.dto.Study;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * The audit log repository has a fairly simple interface, allowing queries and 
+ * new records to be added.
+ * 
+ * @author Stuart Watt
+ */
 public interface AuditLogRepository {
 
 	/**
