@@ -411,7 +411,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public Cases getStudyCase(Study study, View view, Integer caseId) {
+	public Cases getStudyCase(Study study, Integer caseId) {
 		
 		Cases result = null;
 		for (Cases c : cases) {
@@ -425,7 +425,7 @@ public class MockStudyRepository implements StudyRepository {
 	
 
 	@Override
-	public void setStudyCaseState(Study study, View view, Cases cases, String userName, String state) {
+	public void setStudyCaseState(Study study, Cases cases, String userName, String state) {
 		cases.setState(state);		
 	}
 
@@ -437,12 +437,12 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public Cases newStudyCase(Study study, View view, String userName) throws RepositoryException {
-		return newStudyCase(study, view, userName, null);
+	public Cases newStudyCase(Study study, String userName) throws RepositoryException {
+		return newStudyCase(study, userName, null);
 	}
 
 	@Override
-	public Cases newStudyCase(Study study, View view, String userName, Cases afterCase) throws RepositoryException {
+	public Cases newStudyCase(Study study, String userName, Cases afterCase) throws RepositoryException {
 		Cases newCase = new Cases();
 		newCase.setId(nextCaseId++);
 		if (afterCase != null) {

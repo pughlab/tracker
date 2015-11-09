@@ -173,7 +173,7 @@ public interface StudyRepository {
 	 * Retrieves a single specified case for a study and view from the repository.
 	 * @return a case
 	 */
-	Cases getStudyCase(Study study, View view, Integer caseId);
+	Cases getStudyCase(Study study, Integer caseId);
 	
 	/**
 	 * /**
@@ -187,7 +187,7 @@ public interface StudyRepository {
 	 * @param cases
 	 * @param state
 	 */
-	void setStudyCaseState(Study study, View view, Cases cases, String userName, String state);
+	void setStudyCaseState(Study study, Cases cases, String userName, String state);
 	
 	/**
 	 * Makes a new, empty, case. The new case will be added after afterCase
@@ -196,7 +196,7 @@ public interface StudyRepository {
 	 * @return the case identifier
 	 * @throws RepositoryException
 	 */
-	Cases newStudyCase(Study study, View view, String userName, Cases afterCase) throws RepositoryException;
+	Cases newStudyCase(Study study, String userName, Cases afterCase) throws RepositoryException;
 	
 	/**
 	 * Makes a new, empty, case. The new case will be added at the
@@ -207,7 +207,7 @@ public interface StudyRepository {
 	 * @return
 	 * @throws RepositoryException
 	 */
-	Cases newStudyCase(Study study, View view, String userName) throws RepositoryException;
+	Cases newStudyCase(Study study, String userName) throws RepositoryException;
 	
 	/**
 	 * Selects which attributes will be returned in a query. 

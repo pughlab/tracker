@@ -425,8 +425,7 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testSingleCase() {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 1);
+		Cases caseValue = studyRepository.getStudyCase(study, 1);
 		Assert.assertNotNull(caseValue);
 		Assert.assertEquals(1, caseValue.getId().intValue());
 	}
@@ -436,8 +435,7 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testSingleMissingCase() {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 100);
+		Cases caseValue = studyRepository.getStudyCase(study, 100);
 		Assert.assertNull(caseValue);
 	}
 
@@ -446,8 +444,7 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testSingleFromDifferentStudy() {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 22);
+		Cases caseValue = studyRepository.getStudyCase(study, 22);
 		Assert.assertNull(caseValue);
 	}
 
@@ -1761,16 +1758,15 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testNewCase() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
 
-		Cases newCase = studyRepository.newStudyCase(study, view, "test");
+		Cases newCase = studyRepository.newStudyCase(study, "test");
 		Assert.assertNotNull(newCase);
 		Assert.assertNotNull(newCase.getId());
 		Assert.assertNotNull(newCase.getStudyId());
 		
 		// And now let's dig out the new case -- mainly to check that we can actually
 		// follow this identifier.
-		Cases caseValue = studyRepository.getStudyCase(study, view, newCase.getId());
+		Cases caseValue = studyRepository.getStudyCase(study, newCase.getId());
 		Assert.assertNotNull(caseValue);
 		Assert.assertEquals(newCase.getId(), caseValue.getId());
 	}
@@ -1783,25 +1779,24 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testNewCaseOrdering() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
 		
-		Cases foundCase = studyRepository.getStudyCase(study, view, 10);
+		Cases foundCase = studyRepository.getStudyCase(study, 10);
 		Integer foundCaseOrder = foundCase.getOrder();
 
-		Cases newCase = studyRepository.newStudyCase(study, view, "test", foundCase);
+		Cases newCase = studyRepository.newStudyCase(study, "test", foundCase);
 		Assert.assertNotNull(newCase);
 		Assert.assertNotNull(newCase.getId());
 		Assert.assertNotNull(newCase.getStudyId());
 		
 		// And now let's dig out the new case -- mainly to check that we can actually
 		// follow this identifier.
-		Cases caseValue = studyRepository.getStudyCase(study, view, newCase.getId());
+		Cases caseValue = studyRepository.getStudyCase(study, newCase.getId());
 		Assert.assertNotNull(caseValue);
 		Assert.assertEquals(newCase.getId(), caseValue.getId());
 		Assert.assertEquals(foundCaseOrder, caseValue.getOrder());
 		
 		// And check we've bumped the order
-		Cases refoundCase = studyRepository.getStudyCase(study, view, foundCase.getId());
+		Cases refoundCase = studyRepository.getStudyCase(study, foundCase.getId());
 		Assert.assertThat(caseValue.getOrder(), Matchers.lessThan(refoundCase.getOrder()));
 		Assert.assertThat(foundCase.getOrder(), Matchers.not(refoundCase.getOrder()));
 	}
@@ -1815,7 +1810,6 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testFailingNewCase() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
 		
 		QueryDslJdbcTemplate mockTemplate = createMock(QueryDslJdbcTemplate.class);
 		expect(mockTemplate.newSqlQuery()).andStubReturn(studyRepository.getTemplate().newSqlQuery());
@@ -1831,7 +1825,7 @@ public class StudyRepositoryImplTest {
 		studyRepository.setTemplate(mockTemplate);
 
 		try {
-			studyRepository.newStudyCase(study, view, "test");
+			studyRepository.newStudyCase(study, "test");
 		} finally {
 			studyRepository.setTemplate(originalTemplate);
 		}
@@ -1857,10 +1851,9 @@ public class StudyRepositoryImplTest {
 	@Rollback(true)
 	public void testNewCaseWithoutManager() throws RepositoryException {
 		Study study = studyRepository.getStudy("DEMO");
-		View view = studyRepository.getStudyView(study, "track");
-		Cases caseValue = studyRepository.getStudyCase(study, view, 7);
+		Cases caseValue = studyRepository.getStudyCase(study, 7);
 		
-		studyRepository.setStudyCaseState(study, view, caseValue, "morag", "pending");
+		studyRepository.setStudyCaseState(study, caseValue, "morag", "pending");
 		
 		// Check we now have an audit log entry
 		CasePager pager = new CasePager();
@@ -1876,7 +1869,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("pending", entry.get("eventArgs").get("state").asText());
 		
 		// Check a re-read gets the new state
-		Cases foundValue = studyRepository.getStudyCase(study, view, 15);
+		Cases foundValue = studyRepository.getStudyCase(study, 15);
 		Assert.assertEquals("pending", foundValue.getState());
 	}
 	

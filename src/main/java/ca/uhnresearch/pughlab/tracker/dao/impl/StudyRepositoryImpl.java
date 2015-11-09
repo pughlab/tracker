@@ -250,7 +250,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Returns a single study case.
 	 */
 	@Override
-	public Cases getStudyCase(Study study, View view, Integer caseId) {
+	public Cases getStudyCase(Study study, Integer caseId) {
 		logger.debug("Looking for case by identifier: {}", caseId);
     	SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
     	Cases caseValue = template.queryForObject(sqlQuery, cases);
@@ -497,7 +497,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @param state
 	 */
 	@Override
-	public void setStudyCaseState(final Study study, final View view, final Cases c, final String userName, final String state) {
+	public void setStudyCaseState(final Study study, final Cases c, final String userName, final String state) {
 		logger.debug("Updating a case: {}", c.getId());
 		
 		String oldState = c.getState();
@@ -522,7 +522,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 		ObjectNode parameters = factory.objectNode();
 		parameters.put("study_id", study.getId());
 		parameters.put("study", study.getName());
-		parameters.put("view", view.getName());
 		parameters.put("case_id", c.getId());
 		parameters.put("old_state", oldState);
 		parameters.put("state", state);
@@ -597,8 +596,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public Cases newStudyCase(final Study study, final View view, final String userName) throws RepositoryException {
-		return newStudyCase(study, view, userName, null);
+	public Cases newStudyCase(final Study study, final String userName) throws RepositoryException {
+		return newStudyCase(study, userName, null);
 	}	
 	/**
 	 * Creates and returns a case object for a new case. The only fields set will be the
@@ -607,7 +606,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return the new case
 	 */
 	@Override
-	public Cases newStudyCase(final Study study, final View view, final String userName, final Cases afterCase) throws RepositoryException {
+	public Cases newStudyCase(final Study study, final String userName, final Cases afterCase) throws RepositoryException {
 		
 		Integer orderPoint = 1;
 		if (afterCase != null) {

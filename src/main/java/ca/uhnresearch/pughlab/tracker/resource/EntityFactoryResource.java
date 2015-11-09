@@ -78,7 +78,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			
 			PrincipalCollection principals = currentUser.getPrincipals();
 			String user = principals.getPrimaryPrincipal().toString();
-			Cases newCase = getRepository().newStudyCase(study, view, user);
+			Cases newCase = getRepository().newStudyCase(study, user);
 			if (newCase == null) {
 				throw new RuntimeException("Error creating new case");
 			}
