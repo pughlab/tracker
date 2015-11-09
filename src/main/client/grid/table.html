@@ -19,8 +19,10 @@
 
   <div tracker-error error-message="errorMessage"></div>
 
-  <div tracker-table tracker-study="study" tracker-view="view" tracker-attributes="attributes" tracker-editing-status="editingStatus" ></div>
-
+  <div class="tracker-table-container">
+    <div tracker-table tracker-study="study" tracker-view="view" tracker-attributes="attributes" tracker-editing-status="editingStatus" ></div>
+  </div>
+  
   <div ng-controller="GridActionController">
     <button ng-show="permissions.downloadAllowed" class="btn btn-default" ng-click="export()">Export Spreadsheet</button>
   </div>
