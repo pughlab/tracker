@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.restlets;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.restlet.Component;
 import org.restlet.Request;
@@ -27,10 +28,17 @@ public class CustomSpringSessionAuthenticator extends Authenticator {
 		Subject currentUser = SecurityUtils.getSubject();
 		
 		if (currentUser == null) {
-			throw new IllegalStateException("Invalid subject: SecurityUtils.getSubject returned null");
+			throw new IllegalStateException("Invalid subject: SecurityUtils.getSubject() returned null");
 		}
 		
-		Object principal = currentUser.getPrincipals().getPrimaryPrincipal(); 
+		
+		// If we have no principals, we're not authenticated
+		PrincipalCollection principals = currentUser.getPrincipals();
+		if (principals == null) {
+			return false;
+		}
+
+		Object principal = principals.getPrimaryPrincipal(); 
 		if (principal != null) {
 			User user = new User(principal.toString());
 			request.getClientInfo().setUser(user);
