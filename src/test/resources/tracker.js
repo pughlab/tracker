@@ -11,17 +11,15 @@ events.get("DEMO").on("field", function(event) {
     var parameters = event.data.parameters;
     console.log("Parameters", parameters);
     var study = parameters.get("study").asText();
-    var view = parameters.get("view").asText();
     var field = parameters.get("field").asText();
     var newValue = parameters.get("new").getValue();
     if (field == "returnRequested") {
         study = repository.getStudy(study);
-        view = repository.getStudyView(study, view);
-        var c = repository.getStudyCase(study, view, parameters.get("case_id").asInt());
+        var c = repository.getStudyCase(study, parameters.get("case_id").asInt());
         var oldState = c.getState();
         var newState = (newValue.toString() == "true") ? "returnPending" : null;
         if (oldState != newState) {
-            repository.setStudyCaseState(study, view, c, event.data.user, newState);
+            repository.setStudyCaseState(study, c, event.data.user, newState);
         }
     }
 });
