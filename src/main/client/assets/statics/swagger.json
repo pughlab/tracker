@@ -77,6 +77,34 @@
             }
           }
         }
+      },
+      "put": {
+        "tags": ["studies"],
+        "operationId": "putStudySchema",
+        "description": "Updates the schema for a study",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }, {
+          "name": "schema",
+          "in": "body",
+          "description": "The new study schema",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/StudySchemaResponse"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "A study schema response.",
+            "schema": {
+              "$ref": "#/definitions/StudySchemaResponse"
+            }
+          }
+        }
       }
     },
     "/studies/{studyName}/views": {
@@ -124,6 +152,62 @@
             "description": "A study views response",
             "schema": {
               "$ref": "#/definitions/StudyViewDataResponse"
+            }
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/views/{viewName}/schema": {
+      "get": {
+        "tags": ["views"],
+        "operationId": "getStudyViewSchema",
+        "description": "Returns the view schema",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }, {
+          "name": "viewName",
+          "in": "path",
+          "description": "the name of the view",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study view schema response",
+            "schema": {
+              "$ref": "#/definitions/StudyViewSchemaResponse"
+            }
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/views/{viewName}/attributes": {
+      "get": {
+        "tags": ["views"],
+        "operationId": "getStudyViewAttributes",
+        "description": "Returns the view attributes",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }, {
+          "name": "viewName",
+          "in": "path",
+          "description": "the name of the view",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study view attributes response",
+            "schema": {
+              "$ref": "#/definitions/StudyViewAttributesResponse"
             }
           }
         }
