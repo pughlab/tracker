@@ -210,8 +210,8 @@ public class ViewDataResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:download:complete")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:create:complete")).andStubReturn(false);
-        expect(subjectUnderTest.isPermitted("DEMO:delete:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:create")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:delete")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
