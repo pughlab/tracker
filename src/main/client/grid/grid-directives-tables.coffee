@@ -11,10 +11,11 @@ angular
       restrict: "A"
       replace: true
       scope:
-        trackerStudy: '='
-        trackerView: '='
-        trackerAttributes: '='
-        trackerEditingStatus: '='
+        study: '='
+        view: '='
+        attributes: '='
+        editingStatus: '='
+        permissions: '='
       template: '<div class="handsontable tracker-table-hidden" style="width: 800px; height: 500px; overflow: hidden;"></div>'
 
       link: (scope, iElement, iAttrs) ->
@@ -22,7 +23,7 @@ angular
         scope.filters = {}
 
         scope.getStudyUrl = (scope) ->
-          "/api/studies/#{scope.trackerStudy.name}/views/#{scope.trackerView.name}"
+          "/api/studies/#{scope.study.name}/views/#{scope.view.name}"
 
         handsonTable = undefined
         entityRowTable = undefined
@@ -89,16 +90,16 @@ angular
         scope.$on 'socket:welcome', (e, data) ->
           console.log "Called socket:welcome", e
           userControllerScope = e.targetScope
-          if scope.trackerStudy
-            userControllerScope.$emit 'socket:join', { "scope": scope.trackerStudy.name, "time" : (new Date()).valueOf() }
+          if scope.study
+            userControllerScope.$emit 'socket:join', { "scope": scope.study.name, "time" : (new Date()).valueOf() }
 
 
-        scope.$watch 'trackerStudy', (study) ->
+        scope.$watch 'study', (study) ->
           if userControllerScope
             userControllerScope.$emit 'socket:join', { 'scope': study.name, "time" : (new Date()).valueOf() }
 
 
-        scope.$watch 'trackerAttributes', (attributes, old) ->
+        scope.$watch 'attributes', (attributes, old) ->
 
           if attributes?
 
@@ -210,7 +211,7 @@ angular
                 schema
               currentRowClassName: 'currentRow'
               currentColClassName: 'currentCol'
-              readOnly: ! (scope.trackerEditingStatus or false)
+              readOnly: ! (scope.editingStatus or false)
               cells: (row, col, prop) ->
                 cellProperties = {}
                 if row == 0
@@ -231,7 +232,7 @@ angular
             })
 
             handsonTable.trackerData = {
-              stateLabels: scope.trackerStudy.options?.stateLabels || {}
+              stateLabels: scope.study.options?.stateLabels || {}
               typeTable: (attribute.type for attribute in orderedAttributes)
             }
 
@@ -241,11 +242,17 @@ angular
             ## Notify to load the initial table data
             scope.$emit 'table:reload'
 
-        scope.$watch 'trackerEditingStatus', (editing, old) ->
+        scope.$watch 'editingStatus', (editing, old) ->
           if handsonTable
+            commands = []
+            if scope.permissions?.create
+              commands.push 'row_above'
+              commands.push 'row_below'
+            if scope.permissions?.delete
+              commands.push 'remove_row'
             handsonTable.updateSettings {
               readOnly: ! editing,
-              contextMenu: if editing then ['row_above', 'row_below'] else false
+              contextMenu: if editing and commands.length > 0 then commands else false
             }
 
 
