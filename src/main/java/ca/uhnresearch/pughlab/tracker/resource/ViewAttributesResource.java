@@ -48,12 +48,15 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
     	Boolean readPermitted = currentUser.isPermitted(study.getName() + ":read:" + view.getName());
     	Boolean writePermitted = currentUser.isPermitted(study.getName() + ":write:" + view.getName());
     	Boolean downloadPermitted = currentUser.isPermitted(study.getName() + ":download:" + view.getName());
+    	Boolean createPermitted = currentUser.isPermitted(study.getName() + ":create:" + view.getName());
+    	Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete:" + view.getName());
     	
     	readPermitted = readPermitted || writePermitted;
     	
-    	dto.getPermissions().setReadAllowed(readPermitted); 
-    	dto.getPermissions().setWriteAllowed(writePermitted); 
-    	dto.getPermissions().setDownloadAllowed(downloadPermitted); 
-
+    	dto.getPermissions().setRead(readPermitted); 
+    	dto.getPermissions().setWrite(writePermitted); 
+    	dto.getPermissions().setDownload(downloadPermitted); 
+    	dto.getPermissions().setCreate(createPermitted); 
+    	dto.getPermissions().setDelete(deletePermitted); 
 	}
 }

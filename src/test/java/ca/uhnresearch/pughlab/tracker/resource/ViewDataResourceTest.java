@@ -190,10 +190,10 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		
 		JsonObject permissions = data.get("permissions").getAsJsonObject();
 		
-		assertEquals(false, permissions.get("adminAllowed").getAsBoolean());
-		assertEquals(true, permissions.get("readAllowed").getAsBoolean());
-		assertEquals(true, permissions.get("writeAllowed").getAsBoolean());
-		assertEquals(true, permissions.get("downloadAllowed").getAsBoolean());
+		assertEquals(false, permissions.get("admin").getAsBoolean());
+		assertEquals(true, permissions.get("read").getAsBoolean());
+		assertEquals(true, permissions.get("write").getAsBoolean());
+		assertEquals(true, permissions.get("download").getAsBoolean());
 	}
 
 	@Test
@@ -210,6 +210,8 @@ public class ViewDataResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.isPermitted("DEMO:read:complete")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:download:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:create:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:delete:complete")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
 
@@ -234,9 +236,9 @@ public class ViewDataResourceTest extends AbstractShiroTest {
 		
 		JsonObject permissions = data.get("permissions").getAsJsonObject();
 		
-		assertEquals(false, permissions.get("adminAllowed").getAsBoolean());
-		assertEquals(true, permissions.get("readAllowed").getAsBoolean());
-		assertEquals(true, permissions.get("writeAllowed").getAsBoolean());
-		assertEquals(false, permissions.get("downloadAllowed").getAsBoolean());
+		assertEquals(false, permissions.get("admin").getAsBoolean());
+		assertEquals(true, permissions.get("read").getAsBoolean());
+		assertEquals(true, permissions.get("write").getAsBoolean());
+		assertEquals(false, permissions.get("download").getAsBoolean());
 	}
 }

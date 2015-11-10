@@ -7,51 +7,93 @@ public class ViewPermissions extends AdministratorPermissions {
 	public ViewPermissions() { }
 	
 	/**
-	 * @return the readAllowed
+	 * Retrieves the read permission.
+	 * @return the read
 	 */
 	@JsonProperty
-	public Boolean getReadAllowed() {
-		return readAllowed;
+	public Boolean getRead() {
+		return read;
 	}
 
 	/**
-	 * @param readAllowed the readAllowed to set
+	 * Sets the read permission.
+	 * @param read the read to set
 	 */
-	public void setReadAllowed(Boolean readAllowed) {
-		this.readAllowed = readAllowed;
+	public void setRead(Boolean read) {
+		this.read = read;
 	}
 
 	/**
-	 * @return the writeAllowed
-	 */
-	@JsonProperty
-	public Boolean getWriteAllowed() {
-		return writeAllowed;
-	}
-
-	/**
-	 * @param writeAllowed the writeAllowed to set
-	 */
-	public void setWriteAllowed(Boolean writeAllowed) {
-		this.writeAllowed = writeAllowed;
-	}
-
-	/**
-	 * @return the downloadAllowed
+	 * Retrieves the write permission.
+	 * @return the write
 	 */
 	@JsonProperty
-	public Boolean getDownloadAllowed() {
-		return downloadAllowed;
+	public Boolean getWrite() {
+		return write;
 	}
 
 	/**
-	 * @param downloadAllowed the downloadAllowed to set
+	 * Sets the write permission.
+	 * @param write the write to set
 	 */
-	public void setDownloadAllowed(Boolean downloadAllowed) {
-		this.downloadAllowed = downloadAllowed;
+	public void setWrite(Boolean write) {
+		this.write = write;
 	}
 
-	private Boolean readAllowed = false;
-	private Boolean writeAllowed = false;
-	private Boolean downloadAllowed = false;
+	/**
+	 * Retrieves the download permission.
+	 * @return the download
+	 */
+	@JsonProperty
+	public Boolean getDownload() {
+		return download;
+	}
+
+	/**
+	 * Sets the download permission.
+	 * @param download the download to set
+	 */
+	public void setDownload(Boolean download) {
+		this.download = download;
+	}
+
+	/**
+	 * Retrieves the create permission.
+	 * @return the create
+	 */
+	@JsonProperty
+	public Boolean getCreate() {
+		return create;
+	}
+
+	/**
+	 * Sets the create permission.
+	 * @param create the create to set
+	 */
+	public void setCreate(Boolean create) {
+		this.create = create;
+	}
+
+	/**
+	 * Retrieves the delete permission.
+	 * @return the delete
+	 */
+	@JsonProperty
+	public Boolean getDelete() {
+		return delete;
+	}
+
+	/**
+	 * Sets the delete permission.
+	 * @param delete the delete to set
+	 */
+	public void setDelete(Boolean delete) {
+		this.delete = delete;
+	}
+
+	private Boolean read = false;
+	private Boolean write = false;
+	private Boolean download = false;
+	private Boolean create = false;
+	private Boolean delete = false;
 }
