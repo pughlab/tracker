@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0.0",
     "title": "UHN Tracker",
-    "description": "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
+    "description": "Describes the API used by the tracker, both as the engine for its single-page client, and as a resource for integration",
     "contact": {
       "name": "Stuart Watt"
     },
@@ -27,15 +27,32 @@
         "tags": ["studies"],
         "operationId": "getStudies",
         "description": "Returns all studies from the system that the user has access to",
-        "produces": [
-          "application/json"
-        ],
         "responses": {
           "200": {
             "description": "A list of studies.",
             "schema": {
               "$ref": "#/definitions/StudiesResponse"
             }
+          }
+        }
+      },
+      "post": {
+        "tags": ["studies"],
+        "operationId": "postStudy",
+        "description": "Creates a new study",
+        "parameters": [{
+          "name": "study",
+          "in": "body",
+          "description": "The new study to create",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/Study"
+          }
+        }],
+        "produces": [],
+        "responses": {
+          "302": {
+            "description": "Redirect to the new study"
           }
         }
       }
@@ -45,9 +62,6 @@
         "tags": ["studies"],
         "operationId": "getStudySchema",
         "description": "Returns the schema for a study",
-        "produces": [
-          "application/json"
-        ],
         "parameters": [{
           "name": "studyName",
           "in": "path",
@@ -64,6 +78,56 @@
           }
         }
       }
+    },
+    "/studies/{studyName}/views": {
+      "get": {
+        "tags": ["views"],
+        "operationId": "getStudyViews",
+        "description": "Returns the views for a study",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study views response",
+            "schema": {
+              "$ref": "#/definitions/StudyViewsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/views/{viewName}": {
+      "get": {
+        "tags": ["views"],
+        "operationId": "getStudyViewData",
+        "description": "Returns the view data for a study",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }, {
+          "name": "viewName",
+          "in": "path",
+          "description": "the name of the view",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study views response",
+            "schema": {
+              "$ref": "#/definitions/StudyViewDataResponse"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -75,6 +139,55 @@
         },
         "user": {
           "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "StudyViewsResponse": {
+      "type": "object",
+      "properties": {
+        "serviceUrl": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "study": {
+          "$ref": "#/definitions/Study"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/View"
+          }
+        }
+      }
+    },
+    "StudyViewDataResponse": {
+      "type": "object",
+      "properties": {
+        "serviceUrl": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "study": {
+          "$ref": "#/definitions/Study"
+        },
+        "view": {
+          "$ref": "#/definitions/View"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Attribute"
+          }
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         }
       }
     },
@@ -115,6 +228,25 @@
         },
         "description": {
           "type": "string"
+        }
+      }
+    },
+    "View": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "studyId": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     }
