@@ -114,9 +114,6 @@ public class CaseAttributePersistence {
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Selecting cases: {}", caseInfoQuery.toString());
-			for(CaseInfo ci : caseInfos) {
-				logger.debug("Selected case: {}", ci.getId());
-			}
 		}
 		
 		List<String> filter = new ArrayList<String>();
