@@ -1,0 +1,122 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "UHN Tracker",
+    "description": "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
+    "contact": {
+      "name": "Stuart Watt"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "basePath": "/api",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/studies": {
+      "get": {
+        "tags": ["studies"],
+        "operationId": "getStudies",
+        "description": "Returns all studies from the system that the user has access to",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of studies.",
+            "schema": {
+              "$ref": "#/definitions/StudiesResponse"
+            }
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/schema": {
+      "get": {
+        "tags": ["studies"],
+        "operationId": "getStudySchema",
+        "description": "Returns the schema for a study",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study schema response.",
+            "schema": {
+              "$ref": "#/definitions/StudySchemaResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StudySchemaResponse": {
+      "type": "object",
+      "properties": {
+        "serviceUrl": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "StudiesResponse": {
+      "type": "object",
+      "properties": {
+        "serviceUrl": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "studies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Study"
+          }
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      }
+    },
+    "Study": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
