@@ -8,6 +8,13 @@ A fairly generic tracking system, designed to be connected to some kind of persi
 storage and some other kind of authentication system, allow a kind of spreadsheet view
 with the data persisted, and different users seeing different data.
 
+
+For more information
+====================
+
+[See the documentation](http://pughlab.github.io/tracker/)
+
+
 Intended use
 ============
 
@@ -15,6 +22,7 @@ As a replacement for Excel for tracking project data, especially involving time,
 environment that requires data to be kept confidential. So it's a bit like Google Docs,
 but with a local install to deliver security, and a slightly more database like 
 structure.
+
 
 Features
 ========
