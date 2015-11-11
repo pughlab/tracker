@@ -1,0 +1,17 @@
+# Site settings
+title: 'Tracker : Generic research tracking system'
+email: stuart@morungos.com
+description: > # this means to ignore newlines until "baseurl:"
+  The tracker is a generic tracking system, designed to be connected to some
+  kind of persistent storage and some other kind of authentication system,
+  allow a kind of spreadsheet view with the data persisted, and different
+  users seeing different data.
+#baseurl: "/tracker/" # the subpath of your site, e.g. /blog/
+#url: "http://pughlab.github.io" # the base hostname & protocol for your site
+twitter_username: morungos
+github_username:  morungos
+name: 'Tracker'
+tagline: 'Generic research tracking system'
+
+# Build settings
+markdown: kramdown
