@@ -37,7 +37,7 @@ There are several configuration files in `/etc/tracker`
 The settings can be configured in `/etc/tracker/tracker.properties`,
 which will typically look something like this:
 
-```
+{% highlight properties %}
 ## LDAP settings
 ldap_domain=ads.uhnresearch.ca
 ldap_host=127.0.0.1
@@ -52,4 +52,4 @@ db_password=xxx
 db_host=localhost
 db_port=3306
 db_name=tracker
-```
+{% endhighlight %}
