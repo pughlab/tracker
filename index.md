@@ -8,6 +8,12 @@ A fairly generic tracking system, designed to be connected to some kind of persi
 storage and some other kind of authentication system, allow a kind of spreadsheet view
 with the data persisted, and different users seeing different data.
 
+# Documentation
+
+ * [User Guide](pages/user-guide.html)
+ * [Administration Guide](pages/admin-guide.html)
+ * [Deployment Guide](pages/deployment-guide.html)
+
 # Intended use
 
 As a replacement for Excel for tracking project data, especially involving time, in an

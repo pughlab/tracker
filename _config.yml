@@ -6,8 +6,8 @@ description: > # this means to ignore newlines until "baseurl:"
   kind of persistent storage and some other kind of authentication system,
   allow a kind of spreadsheet view with the data persisted, and different
   users seeing different data.
-#baseurl: "/tracker/" # the subpath of your site, e.g. /blog/
-#url: "http://pughlab.github.io" # the base hostname & protocol for your site
+baseurl: "/tracker/" # the subpath of your site, e.g. /blog/
+url: "http://pughlab.github.io" # the base hostname & protocol for your site
 twitter_username: morungos
 github_username:  morungos
 name: 'Tracker'

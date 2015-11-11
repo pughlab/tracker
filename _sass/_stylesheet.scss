@@ -284,6 +284,24 @@ Full-Width Styles
   border-bottom-right-radius: 2px;
 }
 
+#breadcrumbs_banner {
+  display: block;
+  position: absolute;
+  top:0;
+  left: 0px;
+  z-index: 10;
+  font-size: 20px;
+  padding: 5px 50px 10px 10px;
+}
+
+#breadcrumbs_banner a {
+  color: #AAA;
+}
+
+#breadcrumbs_banner a:hover{
+    text-decoration: none;
+}
+
 #header_wrap {
   background: #212121;
   background: -moz-linear-gradient(top, #373737, #212121);
@@ -365,8 +383,6 @@ Full-Width Styles
 #footer_wrap {
   background: #212121;
 }
-
-
 
 /*******************************************************************************
 Small Device Styles
