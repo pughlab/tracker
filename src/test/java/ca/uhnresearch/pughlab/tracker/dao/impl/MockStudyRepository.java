@@ -546,4 +546,13 @@ public class MockStudyRepository implements StudyRepository {
 	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode expression) {
 		return query;
 	}
+
+	@Override
+	public void deleteCases(StudyCaseQuery query) throws RepositoryException {
+		MockStudyCaseQuery caseQuery = (MockStudyCaseQuery) query;
+		List<Integer> caseIds = caseQuery.getCases();
+		for(Integer caseId : caseIds) {
+			cases.remove(caseId);
+		}
+	}
 }

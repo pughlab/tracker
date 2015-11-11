@@ -774,5 +774,17 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		return new QueryStudyCaseQuery(scq.getStudy(), sq);
 	}
+
+	@Override
+	/**
+	 * Deletes a set of cases from the repository. 
+	 * @param query a query to select the cases for deletion
+	 */
+	public void deleteCases(StudyCaseQuery query) throws RepositoryException {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+
+	}
 }
 
