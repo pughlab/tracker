@@ -69,7 +69,17 @@ angular
         $timeout highlightOn, 100
 
 
-  .factory 'addTableRecord', Array '$timeout', 'highlightElement', ($timeout, highlightElement) ->
+  .factory 'deleteTableRecord', Array '$http', '$timeout', ($http, $timeout) ->
+    return (scope, handsonTable, entityIdentifier) ->
+      $http
+        .delete scope.getStudyUrl(scope) + "/entities/#{entityIdentifier}", {}
+        .success (response) ->
+          console.log "Got delete response", response
+        .error (response) ->
+          console.log "Got delete error response", response
+
+
+  .factory 'addTableRecord', Array '$http', '$timeout', 'highlightElement', ($http, $timeout, highlightElement) ->
     return (scope, handsonTable, entityIdentifier, editingClasses) ->
       $http
         .get scope.getStudyUrl(scope) + "/entities/#{entityIdentifier}", {}

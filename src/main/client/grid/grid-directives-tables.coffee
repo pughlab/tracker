@@ -5,8 +5,8 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'editTableCell', 'validateTableValue', 'reloadTable', \
-                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, editTableCell, validateTableValue, reloadTable) ->
+  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'deleteTableRecord', 'editTableCell', 'validateTableValue', 'reloadTable', \
+                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, deleteTableRecord, editTableCell, validateTableValue, reloadTable) ->
     result =
       restrict: "A"
       replace: true
@@ -242,17 +242,29 @@ angular
             ## Notify to load the initial table data
             scope.$emit 'table:reload'
 
+
         scope.$watch 'editingStatus', (editing, old) ->
           if handsonTable
-            commands = []
+            commands = {}
             if scope.permissions?.create
-              commands.push 'row_above'
-              commands.push 'row_below'
+              commands['row_above'] = {name: 'Insert row above'}
+              commands['row_below'] = {name: 'Insert row below'}
             if scope.permissions?.delete
-              commands.push 'remove_row'
+              commands['row_delete'] = {
+                name: 'Delete row',
+                callback: (command, selection, evt) ->
+                  start = selection.start.row
+                  end = selection.end.row
+                  for i in [start .. end] by 1
+                    entityIdentifier = handsonTable.getSourceDataAtRow(i).id
+                    deleteTableRecord scope, handsonTable, entityIdentifier
+              }
             handsonTable.updateSettings {
               readOnly: ! editing,
-              contextMenu: if editing and commands.length > 0 then commands else false
+              contextMenu:
+                callback: (key, options) ->
+
+                items: if editing and Object.keys(commands).length > 0 then commands else false
             }
 
 
