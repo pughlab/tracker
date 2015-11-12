@@ -69,14 +69,36 @@ angular
         $timeout highlightOn, 100
 
 
-  .factory 'deleteTableRecord', Array '$http', '$timeout', ($http, $timeout) ->
+  .factory 'deleteCase', Array '$http', '$timeout', 'removeTableRecord', ($http, $timeout, removeTableRecord) ->
     return (scope, handsonTable, entityIdentifier) ->
       $http
         .delete scope.getStudyUrl(scope) + "/entities/#{entityIdentifier}", {}
         .success (response) ->
+          ## If we get here, we should remove the row.
           console.log "Got delete response", response
+          removeTableRecord scope, handsonTable, entityIdentifier
         .error (response) ->
           console.log "Got delete error response", response
+
+
+  .factory 'removeTableRecord', () ->
+    return (scope, handsonTable, entityIdentifier) ->
+
+      return if typeof entityIdentifier == 'undefined'
+
+      rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
+      return if typeof rowIndex == 'undefined' or !rowIndex
+
+      ## Now, how can we tell the original remove from a second one when we
+      ## get a notified event back? Easy, remove it from the table as well
+
+      handsonTable.alter('remove_row', rowIndex)
+
+      ## Fix the row indexes
+      delete handsonTable.trackerEntityRowTable[entityIdentifier]
+      for own k, v of handsonTable.trackerEntityRowTable
+        if v > rowIndex
+          handsonTable.trackerEntityRowTable[k] = v - 1
 
 
   .factory 'addTableRecord', Array '$http', '$timeout', 'highlightElement', ($http, $timeout, highlightElement) ->
@@ -126,8 +148,8 @@ angular
       $http
         .get scope.getStudyUrl(scope) + "/entities/#{entityIdentifier}", {}
         .success (response) ->
-          columnIndex = attributeColumnTable[field]
-          rowIndex = entityRowTable[entityIdentifier]
+          columnIndex = handsonTable.trackerAttributeColumnTable[field]
+          rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
           return if !columnIndex or !rowIndex
 
           value = response.entity[field]
@@ -250,6 +272,9 @@ angular
             entityRowTable[entity.id] = i + 1
           for attribute, i in response.attributes
             attributeColumnTable[attribute.name] = i + 1
+
+          handsonTable.trackerEntityRowTable = entityRowTable
+          handsonTable.trackerAttributeColumnTable = attributeColumnTable
 
           ## This is where we have the initial load. Let's initiate a scroll down, but carefully
           scope.$emit 'table:positionAtEnd'

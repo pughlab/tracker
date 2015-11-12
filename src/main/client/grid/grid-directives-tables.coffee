@@ -5,8 +5,8 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'deleteTableRecord', 'editTableCell', 'validateTableValue', 'reloadTable', \
-                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, deleteTableRecord, editTableCell, validateTableValue, reloadTable) ->
+  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'removeTableRecord', 'deleteCase', 'editTableCell', 'validateTableValue', 'reloadTable', \
+                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, removeTableRecord, deleteCase, editTableCell, validateTableValue, reloadTable) ->
     result =
       restrict: "A"
       replace: true
@@ -26,13 +26,11 @@ angular
           "/api/studies/#{scope.study.name}/views/#{scope.view.name}"
 
         handsonTable = undefined
-        entityRowTable = undefined
-        attributeColumnTable = undefined
         contextMenu = false
         userControllerScope = false
 
         handleStateCell = (entityIdentifier, state, editingClasses) ->
-          rowIndex = entityRowTable[entityIdentifier]
+          rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
           return if !rowIndex
 
           ## Tha labels are applied to the whole entity, so we need to update
@@ -122,6 +120,9 @@ angular
               if handsonTable != undefined and original.data.userNumber > 0
                 addTableRecord scope, handsonTable, original.data.parameters.case_id, original.data.editingClasses
 
+            scope.$on 'socket:delete', (evt, original) ->
+              if handsonTable != undefined and original.data.userNumber > 0
+                removeTableRecord scope, handsonTable, original.data.parameters.case_id
 
             convertColumn = (attribute) ->
               result = {}
@@ -257,7 +258,7 @@ angular
                   end = selection.end.row
                   for i in [start .. end] by 1
                     entityIdentifier = handsonTable.getSourceDataAtRow(i).id
-                    deleteTableRecord scope, handsonTable, entityIdentifier
+                    deleteCase scope, handsonTable, entityIdentifier
               }
             handsonTable.updateSettings {
               readOnly: ! editing,
@@ -302,6 +303,5 @@ angular
 
           jQuery(window).off 'resize', resizeWrapper
 
-          entityRowTable = undefined
           attributeColumnTable = undefined
           userControllerScope = false
