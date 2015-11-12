@@ -408,7 +408,7 @@ public class MockStudyRepository implements StudyRepository {
 
 	@Override
 	public Long getRecordCount(Study study, View view) {
-		return new Long(caseCount);
+		return new Long(cases.size());
 	}
 
 	@Override
@@ -554,7 +554,7 @@ public class MockStudyRepository implements StudyRepository {
 		MockStudyCaseQuery caseQuery = (MockStudyCaseQuery) query;
 		List<Integer> caseIds = caseQuery.getCases();
 		for(Integer caseId : caseIds) {
-			cases.remove(caseId);
+			cases.remove(caseId.intValue());
 		}
 	}
 }
