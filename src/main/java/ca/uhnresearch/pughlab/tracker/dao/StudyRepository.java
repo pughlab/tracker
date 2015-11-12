@@ -108,9 +108,9 @@ public interface StudyRepository {
 	List<ObjectNode> getCaseData(StudyCaseQuery query, List<? extends Attributes> attributes);
 	
 	/**
-	 * Deletes a set of cases from the repository,
+	 * Deletes a set of cases from the repository.
 	 */
-	void deleteCases(StudyCaseQuery query) throws RepositoryException;
+	void deleteCases(StudyCaseQuery query, String userName) throws RepositoryException;
 
 	/**
 	 * Builds a new study case query, which can be transformed into a set of cases.

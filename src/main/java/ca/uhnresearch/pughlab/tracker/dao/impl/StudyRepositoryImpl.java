@@ -534,6 +534,29 @@ public class StudyRepositoryImpl implements StudyRepository {
 
     	return;
 	}
+	
+	private void setQueryAttributesForField(final Study study, final String userName, final CaseChangeInfo caseChanges, final String field) {
+		
+		CaseChangeInfo.Change change = caseChanges.getChange(field);
+		
+		Event event = new Event(Event.EVENT_SET_FIELD);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+
+		parameters.put("field", field);
+		parameters.put("case_id", caseChanges.getCaseId());
+		parameters.put("study_id", study.getId());
+		parameters.put("study", study.getName());
+		parameters.replace("old", new RedactedJsonNode(change.getOldValue()));
+		parameters.replace("new", new RedactedJsonNode(change.getNewValue()));
+		
+		event.getData().setParameters(parameters);
+
+		getEventHandler().sendMessage(event, event.getData().getScope());
+	}
 
 	/**
 	 * Writing data into a StudyCaseQuery is a little more complex. We will end up with 
@@ -551,29 +574,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		Study study = query.getStudy();
 
-		EventHandler handler = getEventHandler();
-
 		for(CaseChangeInfo caseChanges : changes) {
 			for(String field : caseChanges.fields()) {
-				CaseChangeInfo.Change change = caseChanges.getChange(field);
-				
-				Event event = new Event(Event.EVENT_SET_FIELD);
-				event.getData().setScope(study.getName());
-				event.getData().setUser(userName);
-				
-				final JsonNodeFactory factory = JsonNodeFactory.instance;
-				ObjectNode parameters = factory.objectNode();
-
-				parameters.put("field", field);
-				parameters.put("case_id", caseChanges.getCaseId());
-				parameters.put("study_id", study.getId());
-				parameters.put("study", study.getName());
-				parameters.replace("old", new RedactedJsonNode(change.getOldValue()));
-				parameters.replace("new", new RedactedJsonNode(change.getNewValue()));
-				
-				event.getData().setParameters(parameters);
-
-		    	handler.sendMessage(event, event.getData().getScope());
+				setQueryAttributesForField(study, userName, caseChanges, field);
 			}
 		}
 		
@@ -774,17 +777,50 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		return new QueryStudyCaseQuery(scq.getStudy(), sq);
 	}
+	
+	
+	private void sendDeleteCaseEvent(final Study study, final String userName, final ObjectNode data) throws RepositoryException {
+		
+		// This merits a new event, too, but it's not an attribute event, it's a state change
+		// event. That way it gets audited and can be sent through a websocket connection
+		// to a listening client. 
 
+		Event event = new Event(Event.EVENT_DELETE_RECORD);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+		parameters.put("study_id", study.getId());
+		parameters.put("study", study.getName());
+		parameters.put("case_id", data.get("id").asInt());
+		parameters.replace("data", RedactedJsonNode.redactObjectNode(data));
+		event.getData().setParameters(parameters);
+
+    	EventHandler manager = getEventHandler();
+    	manager.sendMessage(event, event.getData().getScope());
+	}
+	
 	@Override
 	/**
 	 * Deletes a set of cases from the repository. 
 	 * @param query a query to select the cases for deletion
 	 */
-	public void deleteCases(StudyCaseQuery query) throws RepositoryException {
+	public void deleteCases(final StudyCaseQuery query, final String userName) throws RepositoryException {
 		if (! (query instanceof QueryStudyCaseQuery)) {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
 		}
 
+		QueryStudyCaseQuery scq = (QueryStudyCaseQuery) query;
+		Study study = scq.getStudy();
+		List<Attributes> attributes = getStudyAttributes(study);
+
+		List<ObjectNode> caseDatas = getCaseData(query, attributes);
+		for(ObjectNode caseData : caseDatas) {
+			sendDeleteCaseEvent(study, userName, caseData);
+		}
+
+		cap.deleteCases(template, scq);
 	}
 }
 

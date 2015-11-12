@@ -44,6 +44,11 @@ public class Event {
 	public static final String EVENT_NEW_RECORD = "record";
 
 	/**
+	 * Event sent by the client to the server notifying a record is being deleted
+	 */
+	public static final String EVENT_DELETE_RECORD = "delete";
+
+	/**
 	 * Event sent by the client to the server notifying a new user has connected 
 	 * to the same scope
 	 */

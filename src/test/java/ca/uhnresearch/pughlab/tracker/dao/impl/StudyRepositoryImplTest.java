@@ -8,13 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.easymock.EasyMock.*;
-import org.hamcrest.Matchers;
 
+import org.hamcrest.Matchers;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.Assert;
-
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -2248,5 +2247,52 @@ public class StudyRepositoryImplTest {
 		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
 		Assert.assertNotNull(dataList);
 		Assert.assertEquals(16, dataList.size());
+	}
+	
+	/**
+	 * Tests that cases can be deleted using the studyRepository
+	 * @throws RepositoryException
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testDeleteCase() throws RepositoryException {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		
+		// First check the data exists
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		
+		List<ObjectNode> data = studyRepository.getCaseData(query, view);
+		Assert.assertNotNull(data);
+		Assert.assertEquals(1,  data.size());
+		
+		query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+
+		// Try the deletion
+		studyRepository.deleteCases(query, "morag");
+		
+		// Now generate the query again, and confirm we can't find it
+		query = studyRepository.newStudyCaseQuery(study);
+		query = studyRepository.addStudyCaseSelector(query, 1);
+		
+		data = studyRepository.getCaseData(query, view);
+		
+		Assert.assertNotNull(data);
+		Assert.assertEquals(0,  data.size());		
+		
+		CasePager pager = new CasePager();
+		pager.setOffset(0);
+		pager.setLimit(5);
+		List<JsonNode> auditEntries = auditLogRepository.getAuditData(study, pager);
+		
+		Assert.assertEquals(1, auditEntries.size());
+		JsonNode entry = auditEntries.get(0);
+		Assert.assertEquals("delete", entry.get("eventType").asText());
+		JsonNode entryData = entry.get("eventArgs").get("data");
+		
+		Assert.assertEquals("DEMO-01", entryData.get("patientId").asText());
 	}
 }
