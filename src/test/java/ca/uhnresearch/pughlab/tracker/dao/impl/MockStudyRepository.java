@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -407,7 +408,7 @@ public class MockStudyRepository implements StudyRepository {
 
 	@Override
 	public Long getRecordCount(Study study, View view) {
-		return new Long(caseCount);
+		return new Long(cases.size());
 	}
 
 	@Override
@@ -545,5 +546,15 @@ public class MockStudyRepository implements StudyRepository {
 	@Override
 	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode expression) {
 		return query;
+	}
+
+	@Override
+	public void deleteCases(final StudyCaseQuery query, final String userName) throws RepositoryException {
+		Assert.assertNotNull(userName);
+		MockStudyCaseQuery caseQuery = (MockStudyCaseQuery) query;
+		List<Integer> caseIds = caseQuery.getCases();
+		for(Integer caseId : caseIds) {
+			cases.remove(caseId.intValue());
+		}
 	}
 }

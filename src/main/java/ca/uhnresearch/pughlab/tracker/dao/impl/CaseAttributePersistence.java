@@ -507,6 +507,38 @@ public class CaseAttributePersistence {
     		return oldRawValue;
     	}
 	}
+	
+	/**
+	 * Deletes a set of cases and all its associated attribute values.
+	 * @param template the JdbcTemplate
+	 * @param query the case selection query
+	 * @throws RepositoryException
+	 */
+	public void deleteCases(QueryDslJdbcTemplate template, QueryStudyCaseQuery query) throws RepositoryException {
+		
+		SQLQuery caseSelectionQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
+		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Deleting cases: {}", caseSelectionQuery.toString());
+		}
+		
+		for(Class<?> cls : types.keySet()) {
+			final QCaseAttributeBase<?> atts = types.get(cls);
+			
+			template.delete(atts, new SqlDeleteCallback() { 
+				public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+					return sqlDeleteClause.where(atts.caseId.in(caseQuery)).execute();
+				};
+			});
+		}
+		
+		template.delete(cases, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(cases.id.in(caseQuery)).execute();
+			};
+		});
+	}
 
 	/**
 	 * @return the queryParserFactory

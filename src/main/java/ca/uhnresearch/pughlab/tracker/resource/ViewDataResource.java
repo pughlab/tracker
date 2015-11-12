@@ -105,15 +105,19 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
     	dto.setRecords(records);
     	dto.getCounts().setTotal(getRepository().getRecordCount(study, view));
     	
+    	Boolean createPermitted = currentUser.isPermitted(study.getName() + ":create");
+    	Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete");
+    	dto.getPermissions().setCreate(createPermitted); 
+    	dto.getPermissions().setDelete(deletePermitted); 
+
     	Boolean readPermitted = currentUser.isPermitted(study.getName() + ":read:" + view.getName());
     	Boolean writePermitted = currentUser.isPermitted(study.getName() + ":write:" + view.getName());
-    	Boolean downloadPermitted = currentUser.isPermitted(study.getName() + ":download:" + view.getName());
-    	
+    	Boolean downloadPermitted = currentUser.isPermitted(study.getName() + ":download:" + view.getName());    	
     	readPermitted = readPermitted || writePermitted;
     	
-    	dto.getPermissions().setReadAllowed(readPermitted); 
-    	dto.getPermissions().setWriteAllowed(writePermitted); 
-    	dto.getPermissions().setDownloadAllowed(downloadPermitted); 
+    	dto.getPermissions().setRead(readPermitted); 
+    	dto.getPermissions().setWrite(writePermitted); 
+    	dto.getPermissions().setDownload(downloadPermitted); 
 	}
 
 	/**

@@ -100,7 +100,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     			study.setId(s.getId());
     			study.setName(s.getName());
     			study.setDescription(s.getDescription());
-    			study.getAccess().setAdminAllowed(studyAdminPermission);
+    			study.getAccess().setAdmin(studyAdminPermission);
     			dto.getStudies().add(study);
     		}
     	}

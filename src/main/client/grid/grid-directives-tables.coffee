@@ -5,16 +5,17 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'editTableCell', 'validateTableValue', 'reloadTable', \
-                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, editTableCell, validateTableValue, reloadTable) ->
+  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'removeTableRecord', 'deleteCase', 'editTableCell', 'validateTableValue', 'reloadTable', \
+                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, removeTableRecord, deleteCase, editTableCell, validateTableValue, reloadTable) ->
     result =
       restrict: "A"
       replace: true
       scope:
-        trackerStudy: '='
-        trackerView: '='
-        trackerAttributes: '='
-        trackerEditingStatus: '='
+        study: '='
+        view: '='
+        attributes: '='
+        editingStatus: '='
+        permissions: '='
       template: '<div class="handsontable tracker-table-hidden" style="width: 800px; height: 500px; overflow: hidden;"></div>'
 
       link: (scope, iElement, iAttrs) ->
@@ -22,16 +23,14 @@ angular
         scope.filters = {}
 
         scope.getStudyUrl = (scope) ->
-          "/api/studies/#{scope.trackerStudy.name}/views/#{scope.trackerView.name}"
+          "/api/studies/#{scope.study.name}/views/#{scope.view.name}"
 
         handsonTable = undefined
-        entityRowTable = undefined
-        attributeColumnTable = undefined
         contextMenu = false
         userControllerScope = false
 
         handleStateCell = (entityIdentifier, state, editingClasses) ->
-          rowIndex = entityRowTable[entityIdentifier]
+          rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
           return if !rowIndex
 
           ## Tha labels are applied to the whole entity, so we need to update
@@ -89,16 +88,16 @@ angular
         scope.$on 'socket:welcome', (e, data) ->
           console.log "Called socket:welcome", e
           userControllerScope = e.targetScope
-          if scope.trackerStudy
-            userControllerScope.$emit 'socket:join', { "scope": scope.trackerStudy.name, "time" : (new Date()).valueOf() }
+          if scope.study
+            userControllerScope.$emit 'socket:join', { "scope": scope.study.name, "time" : (new Date()).valueOf() }
 
 
-        scope.$watch 'trackerStudy', (study) ->
+        scope.$watch 'study', (study) ->
           if userControllerScope
             userControllerScope.$emit 'socket:join', { 'scope': study.name, "time" : (new Date()).valueOf() }
 
 
-        scope.$watch 'trackerAttributes', (attributes, old) ->
+        scope.$watch 'attributes', (attributes, old) ->
 
           if attributes?
 
@@ -121,6 +120,9 @@ angular
               if handsonTable != undefined and original.data.userNumber > 0
                 addTableRecord scope, handsonTable, original.data.parameters.case_id, original.data.editingClasses
 
+            scope.$on 'socket:delete', (evt, original) ->
+              if handsonTable != undefined and original.data.userNumber > 0
+                removeTableRecord scope, handsonTable, original.data.parameters.case_id
 
             convertColumn = (attribute) ->
               result = {}
@@ -210,7 +212,7 @@ angular
                 schema
               currentRowClassName: 'currentRow'
               currentColClassName: 'currentCol'
-              readOnly: ! (scope.trackerEditingStatus or false)
+              readOnly: ! (scope.editingStatus or false)
               cells: (row, col, prop) ->
                 cellProperties = {}
                 if row == 0
@@ -231,7 +233,7 @@ angular
             })
 
             handsonTable.trackerData = {
-              stateLabels: scope.trackerStudy.options?.stateLabels || {}
+              stateLabels: scope.study.options?.stateLabels || {}
               typeTable: (attribute.type for attribute in orderedAttributes)
             }
 
@@ -241,11 +243,29 @@ angular
             ## Notify to load the initial table data
             scope.$emit 'table:reload'
 
-        scope.$watch 'trackerEditingStatus', (editing, old) ->
+
+        scope.$watch 'editingStatus', (editing, old) ->
           if handsonTable
+            commands = {}
+            if scope.permissions?.create
+              commands['row_above'] = {name: 'Insert row above'}
+              commands['row_below'] = {name: 'Insert row below'}
+            if scope.permissions?.delete
+              commands['row_delete'] = {
+                name: 'Delete row',
+                callback: (command, selection, evt) ->
+                  start = selection.start.row
+                  end = selection.end.row
+                  for i in [start .. end] by 1
+                    entityIdentifier = handsonTable.getSourceDataAtRow(i).id
+                    deleteCase scope, handsonTable, entityIdentifier
+              }
             handsonTable.updateSettings {
               readOnly: ! editing,
-              contextMenu: if editing then ['row_above', 'row_below'] else false
+              contextMenu:
+                callback: (key, options) ->
+
+                items: if editing and Object.keys(commands).length > 0 then commands else false
             }
 
 
@@ -283,6 +303,5 @@ angular
 
           jQuery(window).off 'resize', resizeWrapper
 
-          entityRowTable = undefined
           attributeColumnTable = undefined
           userControllerScope = false

@@ -1,6 +1,5 @@
 package ca.uhnresearch.pughlab.tracker.audit;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
@@ -21,16 +20,11 @@ public class AuditLogEventHandler implements EventHandler {
 	@Override
 	public void sendMessage(Event event, String scope) {
 		
-		final ObjectNode parameters = event.getData().getParameters().deepCopy();
-		final JsonNode oldValue = parameters.get("old");
-		if (oldValue != null && oldValue instanceof RedactedJsonNode) {
-			parameters.replace("old", ((RedactedJsonNode) oldValue).getValue());
-		}
-		final JsonNode newValue = parameters.get("new");
-		if (newValue != null && newValue instanceof RedactedJsonNode) {
-			parameters.replace("new", ((RedactedJsonNode) newValue).getValue());
-		}
-
+		// Strip redaction here, so we write clear. There's no need to redact when writing to the
+		// audit log, although it's handy for scripting and event handling in other forms, like
+		// socket data.
+		final ObjectNode parameters = RedactedJsonNode.redactedToClear(event.getData().getParameters());
+		
 		AuditLogRecord record = new AuditLogRecord();
 		if (parameters.has("study_id")) {
 			record.setStudyId(parameters.get("study_id").asInt());
