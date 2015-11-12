@@ -246,6 +246,7 @@ angular
             selectize.clearOptions()
             selectize.addOption {$sId: -1, name: '', label: 'None'}
             for option, i in value
+              option = angular.copy(option)
               option.$sId = i
               selectize.addOption(option)
             $timeout () ->
