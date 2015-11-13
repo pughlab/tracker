@@ -30,6 +30,9 @@ import ca.uhnresearch.pughlab.tracker.services.Writer;
 
 public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> {
 	
+	/**
+	 * A logger
+	 */
 	private final Logger logger = LoggerFactory.getLogger(ViewDataResource.class);
 	
 	private Map<String, Writer> writers = new HashMap<String, Writer>();

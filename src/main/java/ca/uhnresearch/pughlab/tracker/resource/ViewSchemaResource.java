@@ -23,12 +23,25 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.ViewSchemaResponse;
 
+/**
+ * Restlet resource for the view schema endpoint.
+ */
 public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaResponse> {
 	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	/**
+	 * A logger
+	 */
+	private final Logger logger = LoggerFactory.getLogger(ViewSchemaResource.class);
 
+	/**
+	 * A converter for Jackson rendering to/from JSON.
+	 */
 	private JacksonConverter converter = new JacksonConverter();
 
+	/**
+	 * Handles GET requests on a view schema. 
+	 * @return a representation
+	 */
     @Get("json")
     public Representation getResource()  {
     	
@@ -38,7 +51,7 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     }
 
     /**
-     * Writes a new study schema. A copy of the schema is generated and 
+     * Handles PUT requests on a view schema. A copy of the schema is generated and 
      * returned after it is written, which ensures the front-end is consistent
      * with the data store.
      * @param input the new schema
@@ -86,6 +99,10 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	return getResource();
     }
     
+    /**
+     * Builds a response DTO for a view schema request
+     * @param dto the response DTO to build
+     */
 	@Override
 	public void buildResponseDTO(ViewSchemaResponse dto) throws ResourceException {
 		super.buildResponseDTO(dto);

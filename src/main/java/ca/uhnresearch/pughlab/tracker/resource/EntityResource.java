@@ -26,7 +26,10 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	/**
+	 * A logger
+	 */
+	private final Logger logger = LoggerFactory.getLogger(EntityResource.class);
 	
     @Get("json")
     public Representation getResource() {

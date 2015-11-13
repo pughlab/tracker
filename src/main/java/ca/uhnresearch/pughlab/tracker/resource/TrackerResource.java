@@ -25,7 +25,10 @@ import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 
 public class TrackerResource extends StudyRepositoryResource<StudyListResponse> {
 		
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	/**
+	 * A logger
+	 */
+	private final Logger logger = LoggerFactory.getLogger(TrackerResource.class);
 
 	private JacksonConverter converter = new JacksonConverter();
 
