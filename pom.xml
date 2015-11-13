@@ -643,6 +643,37 @@
 					</webResources>
 				</configuration>
 			</plugin>
+			
+			
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/tracker-server.xml</descriptor>
+					</descriptors>
+					<archive>
+						<manifestSections>
+							<manifestSection>
+								<name>webapp</name>
+								<manifestEntries>
+									<key>/</key>
+									<key>capsid-webapp-app-${project.version}</key>
+								</manifestEntries>
+							</manifestSection>
+						</manifestSections>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 
 			<plugin>

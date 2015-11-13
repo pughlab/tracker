@@ -1,0 +1,5 @@
+# This is where TRACKER_HOME is located
+usr/share/tracker
+
+# Store tracker log here
+var/log/tracker
