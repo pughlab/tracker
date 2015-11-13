@@ -1,33 +1,16 @@
 <assembly>
+
 	<id>dist</id>
 	<formats>
 		<format>zip</format>
 	</formats>
-	<fileSets>
-		<fileSet>
-			<directory>src/main/bin</directory>
-			<outputDirectory>bin</outputDirectory>
-			<includes>
-				<include>*.bat</include>
-			</includes>
-		</fileSet>
 
-		<!-- Copy unix shell scripts. -->
-		<fileSet>
-			<directory>src/main/bin</directory>
-			<outputDirectory>bin</outputDirectory>
-			<fileMode>0755</fileMode>
-			<excludes>
-				<exclude>*.bat</exclude>
-			</excludes>
-			<includes>
-				<include>*</include>
-			</includes>
-		</fileSet>
+	<fileSets>
 
 		<fileSet>
 			<directory>src/main/conf</directory>
 			<outputDirectory>conf</outputDirectory>
+			<filtered>true</filtered>
 			<includes>
 				<include>**/*.*</include>
 			</includes>
@@ -38,21 +21,4 @@
 
 	</fileSets>
 
-	<!-- Filter heliotrope.xml, mainly so we get the project version filled in -->
-<!-- 	<files> -->
-<!-- 		<file> -->
-<!-- 			<source>src/main/conf/tracker.xml</source> -->
-<!-- 			<outputDirectory>conf</outputDirectory> -->
-<!-- 			<filtered>true</filtered> -->
-<!-- 		</file> -->
-<!-- 	</files> -->
-
-	<dependencySets>
-
-		<!-- Copy dependency jar files to 'lib' -->
-		<dependencySet>
-			<outputDirectory>lib</outputDirectory>
-		</dependencySet>
-
-	</dependencySets>
 </assembly>

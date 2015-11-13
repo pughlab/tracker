@@ -658,7 +658,7 @@
 								<name>webapp</name>
 								<manifestEntries>
 									<key>/</key>
-									<key>capsid-webapp-app-${project.version}</key>
+									<key>tracker-server-${project.version}</key>
 								</manifestEntries>
 							</manifestSection>
 						</manifestSections>
