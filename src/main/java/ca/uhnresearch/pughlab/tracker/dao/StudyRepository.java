@@ -141,8 +141,8 @@ public interface StudyRepository {
 	 * Adds a new matching element to a study case filter. Only string values 
 	 * are typically allowed here, currently. A new study case query is returned.
 	 * and can be used later.
-	 * @param attribute
-	 * @param value
+	 * @param query
+	 * @param caseId
 	 * @return
 	 */
 	StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId);
@@ -151,8 +151,8 @@ public interface StudyRepository {
 	 * Adds a new matching element to a study case filter. Only string values 
 	 * are typically allowed here, currently. A new study case query is returned
 	 * and can be used later.
-	 * @param attribute
-	 * @param value
+	 * @param query
+	 * @param filter
 	 * @return
 	 */
 	StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode filter);
@@ -188,8 +188,8 @@ public interface StudyRepository {
 	 * triggered by other changes, and generate notifications. 
 	 * 
 	 * @param study
-	 * @param view
 	 * @param cases
+	 * @param userName
 	 * @param state
 	 */
 	void setStudyCaseState(Study study, Cases cases, String userName, String state);
@@ -207,7 +207,6 @@ public interface StudyRepository {
 	 * Makes a new, empty, case. The new case will be added at the
 	 * beginning of the case list, which is only sometimes what you want.
 	 * @param study
-	 * @param view
 	 * @param userName
 	 * @return
 	 * @throws RepositoryException

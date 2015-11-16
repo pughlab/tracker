@@ -60,7 +60,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write a view into a request attribute
 	 * @param request
-	 * @param s
+	 * @param v
 	 */
 	public static void setRequestView(Request request, View v) {
 		request.getAttributes().put(RequestAttributes.VIEW_ATTRIBUTE, v);
@@ -78,7 +78,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write a role into a request attribute
 	 * @param request
-	 * @param s
+	 * @param r
 	 */
 	public static void setRequestRole(Request request, Role r) {
 		request.getAttributes().put(RequestAttributes.ROLE_ATTRIBUTE, r);
@@ -96,7 +96,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write a query into a request attribute
 	 * @param request
-	 * @param s
+	 * @param q
 	 */
 	public static void setRequestCaseQuery(Request request, StudyCaseQuery q) {
 		request.getAttributes().put(RequestAttributes.QUERY_ATTRIBUTE, q);
@@ -114,7 +114,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write a pager into a request attribute
 	 * @param request
-	 * @param s
+	 * @param q
 	 */
 	public static void setRequestCasePager(Request request, CasePager q) {
 		request.getAttributes().put(RequestAttributes.PAGER_ATTRIBUTE, q);
@@ -132,7 +132,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write an entity into a request attribute
 	 * @param request
-	 * @param s
+	 * @param c
 	 */
 	public static void setRequestEntity(Request request, Cases c) {
 		request.getAttributes().put(RequestAttributes.ENTITY_ATTRIBUTE, c);
@@ -150,7 +150,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write an attribute into a request attribute
 	 * @param request
-	 * @param s
+	 * @param a
 	 */
 	public static void setRequestAttribute(Request request, Attributes a) {
 		request.getAttributes().put(RequestAttributes.ATTRIBUTE_ATTRIBUTE, a);
@@ -168,7 +168,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write an attribute into a request attribute
 	 * @param request
-	 * @param s
+	 * @param a
 	 */
 	public static void setRequestFilter(Request request, ObjectNode a) {
 		request.getAttributes().put(RequestAttributes.FILTER_ATTRIBUTE, a);

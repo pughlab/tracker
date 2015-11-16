@@ -170,9 +170,9 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
     /**
      * Builds the challenge for authorization by setting a HTTP <code>401</code> (Unauthorized) status as well as the
      * response's {@link #AUTHENTICATE_HEADER AUTHENTICATE_HEADER}.
-     * <p/>
+     * <p>
      * The header value constructed is equal to:
-     * <p/>
+     * <p>
      * <code>{@link #getAuthcScheme() getAuthcScheme()} + " realm=\"" + {@link #getApplicationName() getApplicationName()} + "\"";</code>
      *
      * @param request  incoming ServletRequest, ignored by this implementation
@@ -204,10 +204,10 @@ public class SessionAuthenticationFilter extends AuthenticatingFilter {
 
     /**
      * Returns the {@link #AUTHORIZATION_HEADER AUTHORIZATION_HEADER} from the specified ServletRequest.
-     * <p/>
+     * <p>
      * This implementation merely casts the request to an <code>HttpServletRequest</code> and returns the header:
-     * <p/>
-     * <code>HttpServletRequest httpRequest = {@link WebUtils#toHttp(javax.servlet.ServletRequest) toHttp(reaquest)};<br/>
+     * <p>
+     * <code>HttpServletRequest httpRequest = {@link WebUtils#toHttp(javax.servlet.ServletRequest) toHttp(reaquest)};<br>
      * return httpRequest.getHeader({@link #AUTHORIZATION_HEADER AUTHORIZATION_HEADER});</code>
      *
      * @param request the incoming <code>ServletRequest</code>

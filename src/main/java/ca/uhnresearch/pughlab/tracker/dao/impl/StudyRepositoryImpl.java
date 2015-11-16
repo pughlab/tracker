@@ -70,7 +70,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 	/**
      * Returns a list of studies
-     * @param study
      * @return
      */
     public List<Study> getAllStudies() {
@@ -85,7 +84,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 
     /**
      * Returns a named study
-     * @param study
+     * @param name
      * @return
      */
 	public Study getStudy(String name) {
@@ -200,7 +199,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	/**
      * Returns the named view associated with a study
      * @param study
-     * @return
+     * @param view
      */
 	public void setStudyView(Study study, View view) throws RepositoryException {
 		if (study.getId().equals(view.getStudyId())) {
@@ -213,7 +212,6 @@ public class StudyRepositoryImpl implements StudyRepository {
     /**
      * Returns a list of all the attributes for a given view. 
      * @param study
-     * @param view
      * @return
      */
 	public List<Attributes> getStudyAttributes(Study study) {
@@ -492,8 +490,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * triggered by other changes, and generate notifications.
 	 * 
 	 * @param study
-	 * @param view
-	 * @param cases
+	 * @param c
+	 * @param userName
 	 * @param state
 	 */
 	@Override

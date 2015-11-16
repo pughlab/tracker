@@ -69,7 +69,6 @@ public class CaseObjectBuilder {
 	/**
 	 * Writes values from a set of data tuples retrieved with a very specific order within getData,
 	 * and wires them into JSON values for returning. 
-	 * @param table
 	 * @param values
 	 */
 	public void addTupleAttributes(List<Tuple> values) {

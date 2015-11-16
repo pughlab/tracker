@@ -38,7 +38,7 @@ public class TrackerSocketHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private SocketEventHandler server;
+	private SocketEventHandler manager;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -93,9 +93,10 @@ public class TrackerSocketHandler {
     /**
 	 * Handles a message from the client. This is where most of the actual logic goes here. 
 	 * 
-     * @param message an instance of {@link Event}
+     * @param r
+     * @param input
      * @return
-     * @throws IOException
+     * @throws IOException if there was an IO exception
      */
     @Message
     public String onMessage(AtmosphereResource r, String input) throws IOException {
@@ -113,17 +114,17 @@ public class TrackerSocketHandler {
      * @return the event manager
      */
 	public SocketEventHandler getEventManager() {
-		return server;
+		return manager;
 	}
 
 	/**
 	 * Sets the current event manager. Used with dependency injection. 
-	 * @param eventManager
+	 * @param manager
 	 */
 	@Inject
 	@Named("socketEventHandler")
-	public void setEventManager(SocketEventHandler server) {
-		logger.debug("Setting SocketEventHandler to: {}", server);
-		this.server = server;
+	public void setEventManager(SocketEventHandler manager) {
+		logger.debug("Setting SocketEventHandler to: {}", manager);
+		this.manager = manager;
 	}
 }

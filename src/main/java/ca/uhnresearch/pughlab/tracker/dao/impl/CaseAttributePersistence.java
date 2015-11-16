@@ -99,10 +99,8 @@ public class CaseAttributePersistence {
 	 * Builds a set of JSON data structures for the given study, view, and a case query.
 	 * attributes.
 	 * @param template
-	 * @param study
-	 * @param view
-	 * @param viewAtts
-	 * @param caseQuery
+	 * @param query
+	 * @param attributeFilter
 	 * @return
 	 */
 	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, List<? extends Attributes> attributeFilter) {
@@ -479,9 +477,7 @@ public class CaseAttributePersistence {
 	/**
 	 * Retrieves an old case attribute value.
 	 * @param template
-	 * @param study
-	 * @param view
-	 * @param caseValue
+	 * @param query
 	 * @param attribute
 	 * @param cls
 	 * @return

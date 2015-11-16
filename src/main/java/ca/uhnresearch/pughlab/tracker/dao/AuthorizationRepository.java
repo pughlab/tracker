@@ -28,6 +28,7 @@ public interface AuthorizationRepository {
 	 * @param study study
 	 * @param pager a pager
 	 * @return a list of roles
+	 * @throws RepositoryException if a repository exception occurred
 	 */
 	List<Role> getStudyRoles(Study study, CasePager pager) throws RepositoryException;
 	
@@ -36,6 +37,7 @@ public interface AuthorizationRepository {
 	 * @param study study
 	 * @param name the name of a role
 	 * @return the role
+	 * @throws RepositoryException if a repository exception occurred
 	 */
 	Role getStudyRole(Study study, String name) throws RepositoryException;
 
@@ -44,6 +46,7 @@ public interface AuthorizationRepository {
 	 * @param study study
 	 * @param id the role identifier
 	 * @return the role
+	 * @throws RepositoryException if a repository exception occurred
 	 */
 	Role getStudyRoleById(Study study, Integer id) throws RepositoryException;
 
@@ -51,6 +54,7 @@ public interface AuthorizationRepository {
 	 * Deletes a role.
 	 * @param study study
 	 * @param role the role
+	 * @throws RepositoryException if a repository exception occurred
 	 */
 	void deleteStudyRole(Study study, Role role) throws RepositoryException;
 
@@ -58,6 +62,7 @@ public interface AuthorizationRepository {
 	 * Saves (and possibly creates) a role.
 	 * @param study study
 	 * @param role the role
+	 * @throws RepositoryException if a repository exception occurred
 	 */
 	void saveStudyRole(Study study, Role role) throws RepositoryException;
 }

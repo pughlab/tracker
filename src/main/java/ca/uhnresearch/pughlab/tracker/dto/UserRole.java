@@ -30,7 +30,7 @@ public class UserRole {
 	}
 
 	/**
-	 * @param userId the userId to set
+	 * @param username the userId to set
 	 */
 	public void setUsername(String username) {
 		this.username = username;

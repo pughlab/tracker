@@ -1803,7 +1803,6 @@ public class StudyRepositoryImplTest {
 	/**
 	 * Simple test of adding a number of attributes as well as deleting.
 	 */
-	@SuppressWarnings("unchecked")
 	@Test
 	@Transactional
 	@Rollback(true)
@@ -1812,9 +1811,9 @@ public class StudyRepositoryImplTest {
 		
 		QueryDslJdbcTemplate mockTemplate = createMock(QueryDslJdbcTemplate.class);
 		expect(mockTemplate.newSqlQuery()).andStubReturn(studyRepository.getTemplate().newSqlQuery());
-		expect(mockTemplate.queryForObject(anyObject(SQLQuery.class), anyObject(Expression.class))).andStubReturn(null);
+		expect(mockTemplate.queryForObject(anyObject(SQLQuery.class), (Expression<?>) anyObject(Expression.class))).andStubReturn(null);
 		expect(mockTemplate.update(eq(QCases.cases), anyObject(SqlUpdateCallback.class))).andStubReturn(new Long(1));
-		expect(mockTemplate.insertWithKey(anyObject(RelationalPath.class), anyObject(SqlInsertWithKeyCallback.class))).andStubReturn(null);
+		expect(mockTemplate.insertWithKey((RelationalPath<?>) anyObject(RelationalPath.class), (SqlInsertWithKeyCallback<?>) anyObject(SqlInsertWithKeyCallback.class))).andStubReturn(null);
 		replay(mockTemplate);
 		
 		thrown.expect(InvalidValueException.class);

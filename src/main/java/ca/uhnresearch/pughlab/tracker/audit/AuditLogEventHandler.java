@@ -51,7 +51,7 @@ public class AuditLogEventHandler implements EventHandler {
 
 	/**
 	 * Sets the audit log repository.
-	 * @param repo the repository to set
+	 * @param repository the repository to set
 	 */
 	public void setRepository(AuditLogRepository repository) {
 		this.repository = repository;
