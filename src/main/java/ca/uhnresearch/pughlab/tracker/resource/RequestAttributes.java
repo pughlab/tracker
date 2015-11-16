@@ -33,7 +33,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a study from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request study
 	 */
 	public static Study getRequestStudy(Request request) {
 		return (Study) request.getAttributes().get(RequestAttributes.STUDY_ATTRIBUTE);
@@ -51,7 +51,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a view from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request view
 	 */
 	public static View getRequestView(Request request) {
 		return (View) request.getAttributes().get(RequestAttributes.VIEW_ATTRIBUTE);
@@ -69,7 +69,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a role from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request role
 	 */
 	public static Role getRequestRole(Request request) {
 		return (Role) request.getAttributes().get(RequestAttributes.ROLE_ATTRIBUTE);
@@ -87,7 +87,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a query from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request query
 	 */
 	public static StudyCaseQuery getRequestCaseQuery(Request request) {
 		return (StudyCaseQuery) request.getAttributes().get(RequestAttributes.QUERY_ATTRIBUTE);
@@ -105,7 +105,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a pager from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request pager
 	 */
 	public static CasePager getRequestCasePager(Request request) {
 		return (CasePager) request.getAttributes().get(RequestAttributes.PAGER_ATTRIBUTE);
@@ -123,7 +123,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read an entity from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request case
 	 */
 	public static Cases getRequestEntity(Request request) {
 		return (Cases) request.getAttributes().get(RequestAttributes.ENTITY_ATTRIBUTE);
@@ -141,7 +141,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read an attribute from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request attribute
 	 */
 	public static Attributes getRequestAttribute(Request request) {
 		return (Attributes) request.getAttributes().get(RequestAttributes.ATTRIBUTE_ATTRIBUTE);
@@ -159,7 +159,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read an attribute from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request filter
 	 */
 	public static ObjectNode getRequestFilter(Request request) {
 		return (ObjectNode) request.getAttributes().get(RequestAttributes.FILTER_ATTRIBUTE);

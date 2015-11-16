@@ -115,7 +115,7 @@ public interface StudyRepository {
 	/**
 	 * Builds a new study case query, which can be transformed into a set of cases.
 	 * This is always initialized to a single study. 
-	 * @return
+	 * @return a new StudyCaseQuery
 	 */
 	StudyCaseQuery newStudyCaseQuery(Study study);
 
@@ -123,7 +123,7 @@ public interface StudyRepository {
 	 * Adds a view to the case matcher, which might filter out a bunch of data that should not
 	 * be visible. These will typically be row filters, as cases are being selected by the
 	 * case query, not attributes. 
-	 * @return
+	 * @return a modified StudyCaseQuery
 	 */
 	StudyCaseQuery addViewCaseMatcher(StudyCaseQuery query, View view);
 
@@ -133,7 +133,7 @@ public interface StudyRepository {
 	 * and can be used later.
 	 * @param attribute
 	 * @param value
-	 * @return
+	 * @return a modified StudyCaseQuery
 	 */
 	StudyCaseQuery addStudyCaseMatcher(StudyCaseQuery query, String attribute, String value);
 	
@@ -143,7 +143,7 @@ public interface StudyRepository {
 	 * and can be used later.
 	 * @param query
 	 * @param caseId
-	 * @return
+	 * @return a modified StudyCaseQuery
 	 */
 	StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId);
 
@@ -153,7 +153,7 @@ public interface StudyRepository {
 	 * and can be used later.
 	 * @param query
 	 * @param filter
-	 * @return
+	 * @return a modified StudyCaseQuery
 	 */
 	StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode filter);
 
@@ -162,7 +162,7 @@ public interface StudyRepository {
 	 * process.
 	 * @param query
 	 * @param attribute
-	 * @return
+	 * @return a modified StudyCaseQuery
 	 */
 	StudyCaseQuery subcases(StudyCaseQuery query, String attribute);
 	
@@ -170,7 +170,7 @@ public interface StudyRepository {
 	 * Applies a CasePager to a query, returning a new query.
 	 * @param query
 	 * @param pager
-	 * @return
+	 * @return a modified StudyCaseQuery
 	 */
 	StudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager);
 
@@ -208,8 +208,8 @@ public interface StudyRepository {
 	 * beginning of the case list, which is only sometimes what you want.
 	 * @param study
 	 * @param userName
-	 * @return
-	 * @throws RepositoryException
+	 * @return a new case
+	 * @throws RepositoryException 
 	 */
 	Cases newStudyCase(Study study, String userName) throws RepositoryException;
 	

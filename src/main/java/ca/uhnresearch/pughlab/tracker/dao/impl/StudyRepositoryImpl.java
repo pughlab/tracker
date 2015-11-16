@@ -69,8 +69,8 @@ public class StudyRepositoryImpl implements StudyRepository {
     }
 
 	/**
-     * Returns a list of studies
-     * @return
+     * Returns a list of studies.
+     * @return a list of studies
      */
     public List<Study> getAllStudies() {
 		logger.debug("Looking for all studies");
@@ -83,9 +83,9 @@ public class StudyRepositoryImpl implements StudyRepository {
     }
 
     /**
-     * Returns a named study
+     * Returns a named study.
      * @param name
-     * @return
+     * @return a named study
      */
 	public Study getStudy(String name) {
 		logger.debug("Looking for study by name: {}", name);
@@ -128,9 +128,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	
     /**
-     * Returns the list of views associated with a study
+     * Returns the list of views associated with a study.
      * @param study
-     * @return
+     * @return a list of views
      */
 	public List<View> getStudyViews(Study study) {
 		logger.debug("Looking for views for study: {}", study.getName());
@@ -180,7 +180,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	/**
      * Returns the named view associated with a study
      * @param study
-     * @return
+     * @return a view
      */
 	public View getStudyView(Study study, String name) {
 		logger.debug("Looking for study by name: {}", name);
@@ -212,7 +212,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     /**
      * Returns a list of all the attributes for a given view. 
      * @param study
-     * @return
+     * @return a list of attributes
      */
 	public List<Attributes> getStudyAttributes(Study study) {
 		logger.debug("Looking for study attributes");
@@ -231,7 +231,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * Returns a single named attributes for a given study. 
      * @param study
      * @param name
-     * @return
+     * @return a named attribute
      */
 	public Attributes getStudyAttribute(Study study, String name) {
 		logger.debug("Looking for study attribute: {}", name);
@@ -457,7 +457,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * Returns a list of all the attributes for a given view. 
      * @param study
      * @param view
-     * @return
+     * @return a list of view attributes
      */
 	public List<ViewAttributes> getViewAttributes(Study study, View view) {
 		
@@ -693,7 +693,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * be exposed externally. 
 	 * @param query
 	 * @param pager
-	 * @return
+	 * @return a new query 
 	 */
 	@Override
 	public QueryStudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager) {
@@ -741,7 +741,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Refines a query to a single case, which can be found by identifier. This can then be incorporated
 	 * into the queries that are used to access data. 
 	 * @param query
-	 * @return
+	 * @return a new query
 	 */
 	@Override
 	public StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId) {

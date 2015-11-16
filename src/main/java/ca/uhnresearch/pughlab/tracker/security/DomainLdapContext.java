@@ -58,8 +58,8 @@ public class DomainLdapContext implements LdapContext {
 	private String emailAttribute = "mail";
 	
 	/**
-	 * Lazily initialize a connection pool on demand
-	 * @return
+	 * Lazily initialize a connection pool on demand.
+	 * @return a connection
 	 * @throws Exception 
 	 */
 	protected LdapConnectionPool getConnectionPool() throws Exception {

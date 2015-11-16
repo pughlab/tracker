@@ -101,7 +101,7 @@ public class CaseAttributePersistence {
 	 * @param template
 	 * @param query
 	 * @param attributeFilter
-	 * @return
+	 * @return a list of data objects
 	 */
 	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, List<? extends Attributes> attributeFilter) {
 		
@@ -373,7 +373,7 @@ public class CaseAttributePersistence {
 	 * @param template
 	 * @param query
 	 * @param values
-	 * @return
+	 * @return a list of case change records
 	 */
 	public List<CaseChangeInfo> setQueryAttributes(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, ObjectNode values) throws RepositoryException {
 		
@@ -480,7 +480,7 @@ public class CaseAttributePersistence {
 	 * @param query
 	 * @param attribute
 	 * @param cls
-	 * @return
+	 * @return an object describing the old case attribute value
 	 * @throws RepositoryException
 	 */
 	public Object getOldCaseAttributeValue(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, final String attribute, final Class<?> cls) throws RepositoryException {
