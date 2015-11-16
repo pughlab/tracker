@@ -560,7 +560,7 @@
 			</plugin>
 
 
-            <!-- Build a CoffeeScript resources file, allows injecting properties into client code -->
+            <!-- Build resources files, allows injecting properties into client code -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.7</version>
@@ -579,6 +579,22 @@
                                     <includes>
                                         <include>client_settings.coffee</include>
                                     </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-config-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/generated-etc</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/conf</directory>
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
@@ -1027,8 +1043,8 @@
                                         </tstamp>
     
                                         <mkdir dir="${deb.dir}" />
-                                        <mkdir dir="${deb.dir}/usr/share" />
-                                        <mkdir dir="${deb.dir}/etc" />
+                                        <mkdir dir="${deb.dir}/usr/share/tracker" />
+                                        <mkdir dir="${deb.dir}/etc/tracker" />
     
                                         <!-- Copy the files, templating the changelog, etc., with the right date -->
                                         <copy todir="${deb.dir}">
@@ -1048,6 +1064,12 @@
                                             </fileset>
                                         </copy>
     
+                                        <copy todir="${deb.dir}/etc/tracker">
+                                            <fileset dir="${basedir}/target/generated-etc">
+                                                <filename name="*.*"/>
+                                            </fileset>
+                                        </copy>
+
                                         <exec executable="debuild" dir="${deb.dir}" failonerror="true" osfamily="unix">
                                             <arg value="-b" />
     

@@ -27,8 +27,8 @@ set -e
 case "$1" in
     purge)
         userdel -f tracker || true
-        rm -rf /var/lib/tracker /var/log/tracker /var/run/tracker /etc/tracker /usr/share/tracker
-        ucf --purge /etc/tracker/tracker-config.groovy
+        rm -rf /var/log/tracker /var/run/tracker /etc/tracker /usr/share/tracker
+        ucf --purge /etc/tracker/tracker.xml
     ;;
 
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)

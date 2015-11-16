@@ -37,34 +37,39 @@ case "$1" in
         RET=""
         db_get tracker-server/database_host
         DB_HOST=$RET
-        sed -i "s/_DBC_DBSERVER_/$DB_HOST/" /etc/tracker/tracker-config.groovy
+        DB_HOST=$(echo "$DB_HOST" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+        sed -i "s/_DBC_DBSERVER_/$DB_HOST/" /etc/tracker/tracker.xml
 
         RET=""
         db_get tracker-server/database_port
         DB_PORT=$RET
-        sed -i "s/_DBC_DBPORT_/$DB_PORT/" /etc/tracker/tracker-config.groovy
+        DB_PORT=$(echo "$DB_PORT" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+        sed -i "s/_DBC_DBPORT_/$DB_PORT/" /etc/tracker/tracker.xml
 
         RET=""
         db_get tracker-server/database_name
         DB_NAME=$RET
-        sed -i "s/_DBC_DBNAME_/$DB_NAME/" /etc/tracker/tracker-config.groovy
+        DB_NAME=$(echo "$DB_NAME" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+        sed -i "s/_DBC_DBNAME_/$DB_NAME/" /etc/tracker/tracker.xml
 
         RET=""
         db_get tracker-server/database_username
         DB_USER=$RET
-        sed -i "s/_DBC_DBUSER_/$DB_USER/" /etc/tracker/tracker-config.groovy
+        DB_USER=$(echo "$DB_USER" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+        sed -i "s/_DBC_DBUSER_/$DB_USER/" /etc/tracker/tracker.xml
 
         RET=""
         db_get tracker-server/database_password
         DB_PASSWORD=$RET
-        sed -i "s/_DBC_DBPASS_/$DB_PASSWORD/" /etc/tracker/tracker-config.groovy
+        DB_PASSWORD=$(echo "$DB_PASSWORD" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+        sed -i "s/_DBC_DBPASS_/$DB_PASSWORD/" /etc/tracker/tracker.xml
 
         # Create tracker user if it doesn't exist.
         if ! id tracker > /dev/null 2>&1 ; then
-            adduser --system --home /usrs/share/tracker --no-create-home \
+            adduser --system --home /usr/share/tracker --no-create-home \
                  --disabled-password tracker
         fi
-
+        
         ## We might have a pre-existing link created, so don't just wipe it
         ## rm -f /usr/share/tracker
         ## ln -s /usr/share/tracker-* /usr/share/tracker
@@ -73,8 +78,8 @@ case "$1" in
           ln -s /etc/tracker /var/lib/tracker/conf
         fi
 
-        chown -R tracker:adm /var/lib/tracker /var/log/tracker /etc/tracker
-        chmod -R 750      /var/lib/tracker /var/log/tracker /etc/tracker
+        chown -R tracker:adm /usr/share/tracker /var/log/tracker /etc/tracker
+        chmod -R 750      /usr/share/tracker /var/log/tracker /etc/tracker
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
