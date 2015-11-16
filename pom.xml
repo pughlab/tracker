@@ -1009,5 +1009,118 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <!-- A profile for the builds performed by the continuous integration server -->
+            <id>package-debian</id>
+            <build>
+                <plugins>
+                
+                    <!-- Resolves and retrieves the server container, which we use for Debian packaging -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.10</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>ca.uhnresearch.pughlab</groupId>
+                                            <artifactId>java-server</artifactId>
+                                            <version>1.0.3</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${basedir}/target/deployment-dependencies</outputDirectory>
+                                            <destFileName>java-server.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+      
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>make-deb</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <property name="deb.dir" value="${basedir}/target/deb" />
+                                        <property name="deb.version" value="${project.version}" />
+                                        <tstamp>
+                                            <!-- http://www.debian.org/doc/debian-policy/ch-source.html -->
+                                            <format property="deb.date" pattern="EEE, d MMM yyyy HH:mm:ss Z" locale="en" />
+                                        </tstamp>
+    
+                                        <mkdir dir="${deb.dir}" />
+                                        <mkdir dir="${deb.dir}/usr/share" />
+                                        <mkdir dir="${deb.dir}/etc" />
+    
+                                        <!-- Copy the files, templating the changelog, etc., with the right date -->
+                                        <copy todir="${deb.dir}">
+                                            <fileset dir="src/main/deb" />
+                                            <filterset>
+                                                <filter token="project.version" value="${deb.version}" />
+                                                <filter token="date" value="${deb.date}" />
+                                            </filterset>
+                                        </copy>
+                                        
+                                        <copy todir="${deb.dir}/usr/share">
+                                            <fileset dir="${basedir}/target">
+                                                <filename name="tracker-webapp-${project.version}.war"/>
+                                            </fileset>
+                                            <fileset dir="${basedir}/target/deployment-dependencies">
+                                                <filename name="java-server.jar"/>
+                                            </fileset>
+                                        </copy>
+    
+                                        <exec executable="debuild" dir="${deb.dir}" failonerror="true" osfamily="unix">
+                                            <arg value="-b" />
+    
+                                            <!-- Turn off signing for now, until we move to a continuous integration server -->
+                                            <arg value="-us" />
+                                            <arg value="-uc" />
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>deploy-deb</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <property name="deb.version" value="${project.version}" />
+                                        <!-- Deploy deb file in deb repo -->
+                                        <copy todir="${basedir}/target" file="tracker-server-_${deb.version}_all.deb" />
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                </plugins>
+            </build>
+    
+        </profile>
+    
     </profiles>
 </project>
