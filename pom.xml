@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ca.uhnresearch.pughlab</groupId>
-	<artifactId>tracker-java-restlet</artifactId>
+	<artifactId>tracker-webapp</artifactId>
 	<packaging>war</packaging>
 
 	<name>tracker</name>
@@ -11,7 +11,7 @@
 	distributed research projects.
 	</description>
 	<inceptionYear>2014</inceptionYear>
-	<version>2.1.0-RC2</version>
+	<version>2.1.0-SNAPSHOT</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,6 +28,9 @@
         
         <node.version>v0.12.7</node.version>
         <npm.version>3.3.6</npm.version>
+        
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         
         <test.db.driverClassName>org.hsqldb.jdbc.JDBCDriver</test.db.driverClassName>
         <test.db.url>jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</test.db.url>
@@ -477,6 +480,7 @@
 
 		<plugins>
 
+            <!-- Allow externalising of properties -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
@@ -499,17 +503,19 @@
             </plugin>
 
 
+            <!-- Set the Java version - 1.8 is required as we use Nashorn -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 
 
+            <!-- Generate project info reports -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
@@ -517,6 +523,7 @@
 			</plugin>
 
 
+            <!-- Allow running within Jetty from the command line with mvn jetty:run -->
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
@@ -553,6 +560,7 @@
 			</plugin>
 
 
+            <!-- Build a CoffeeScript resources file, allows injecting properties into client code -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.7</version>
@@ -580,6 +588,7 @@
             </plugin>
 
 
+            <!-- Use node.js, and allow it to run "gulp build-all" to package the front end  -->
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
@@ -630,6 +639,7 @@
 			</plugin>
 
 
+            <!-- Build a war file including the packaged code from "gulp build-all"  -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
@@ -645,37 +655,7 @@
 			</plugin>
 			
 			
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<descriptors>
-						<descriptor>src/main/assembly/tracker-server.xml</descriptor>
-					</descriptors>
-					<archive>
-						<manifestSections>
-							<manifestSection>
-								<name>webapp</name>
-								<manifestEntries>
-									<key>/</key>
-									<key>tracker-server-${project.version}</key>
-								</manifestEntries>
-							</manifestSection>
-						</manifestSections>
-					</archive>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-
+            <!-- Initialize SQL data for testing  -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>sql-maven-plugin</artifactId>
@@ -710,13 +690,88 @@
 					</execution>
 				</executions>
 			</plugin>
+            
+            
+            <!-- Allow staging to Nexus  -->
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.3</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            
 
+            <!-- Build a source jar file for Nexus  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!-- Build a javadoc jar file for Nexus  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!-- Allow maven to handle releases  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+            </plugin>
+
+
+            <!-- Sign the artifacts with GPG  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!-- Generate PMD reports  -->
 			<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-pmd-plugin</artifactId>
 		        <version>3.4</version>
 		    </plugin>
 
+
+            <!-- Run with Jacoco for test coverage analysis  -->
 			<plugin>
 			    <groupId>org.jacoco</groupId>
 			    <artifactId>jacoco-maven-plugin</artifactId>
@@ -911,83 +966,6 @@
 	</repositories>
     
     <profiles>
-
-        <profile>
-            <!-- A profile for the packaging system -->
-            <id>debian-package</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>make-deb</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <property name="deb.dir" value="${basedir}/target/deb" />
-                                        <property name="deb.version" value="${project.version}" />
-                                        <tstamp>
-                                            <!-- http://www.debian.org/doc/debian-policy/ch-source.html -->
-                                            <format property="deb.date" pattern="EEE, d MMM yyyy HH:mm:ss Z" locale="en" />
-                                        </tstamp>
-    
-                                        <mkdir dir="${deb.dir}" />
-                                        <mkdir dir="${deb.dir}/usr/share" />
-                                        <mkdir dir="${deb.dir}/etc" />
-    
-                                        <copy todir="${deb.dir}">
-                                            <fileset dir="src/main/deb" />
-                                            <filterset>
-                                                <filter token="project.version" value="${deb.version}" />
-                                                <filter token="date" value="${deb.date}" />
-                                            </filterset>
-                                        </copy>
-    
-                                        <exec executable="unzip">
-                                            <arg value="-o" />
-                                            <arg value="${project.build.directory}/${project.build.finalName}-dist.zip" />
-                                            <arg value="-d" />
-                                            <arg value="${deb.dir}/usr/share" />
-                                        </exec>
-    
-                                        <move todir="${deb.dir}/etc/tracker">
-                                            <fileset dir="${deb.dir}/usr/share/tracker-${project.version}/conf" />
-                                        </move>
-    
-                                        <exec executable="debuild" dir="${deb.dir}" failonerror="true" osfamily="unix">
-                                            <arg value="-b" />
-    
-                                            <!-- Turn off signing for now, until we move to a continuous integration server -->
-                                            <arg value="-us" />
-                                            <arg value="-uc" />
-                                        </exec>
-                                    </target>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>deploy-deb</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <property name="deb.version" value="${project.version}" />
-                                        <!-- Deploy deb file in deb repo -->
-                                        <copy todir="${obiba.deb.dir}" file="target/tracker_${deb.version}_all.deb" />
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     
         <!-- A profile that can be used to test against MySQL -->
         <profile>
