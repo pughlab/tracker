@@ -1062,6 +1062,9 @@
                                             <fileset dir="${basedir}/target/deployment-dependencies">
                                                 <filename name="java-server.jar"/>
                                             </fileset>
+                                            <fileset dir="${basedir}/src/main/etc">
+                                            	<filename name="initialize_mysql.sql"/>
+                                            </fileset>
                                         </copy>
     
                                         <copy todir="${deb.dir}/etc/tracker">

@@ -30,10 +30,6 @@ set -e
 case "$1" in
     configure)
 
-        if [ ! -e /etc/tracker/tracker-config.groovy ] ; then
-          cp /etc/tracker/tracker-config.groovy.template /etc/tracker/tracker-config.groovy
-        fi
-
         RET=""
         db_get tracker-server/database_host
         DB_HOST=$RET
@@ -73,10 +69,10 @@ case "$1" in
         ## We might have a pre-existing link created, so don't just wipe it
         ## rm -f /usr/share/tracker
         ## ln -s /usr/share/tracker-* /usr/share/tracker
-
-        if [ ! -e /var/lib/tracker/conf ] ; then
-          ln -s /etc/tracker /var/lib/tracker/conf
-        fi
+        ##
+        ## if [ ! -e /var/lib/tracker/conf ] ; then
+        ##   ln -s /etc/tracker /var/lib/tracker/conf
+        ## fi
 
         chown -R tracker:adm /usr/share/tracker /var/log/tracker /etc/tracker
         chmod -R 750      /usr/share/tracker /var/log/tracker /etc/tracker
