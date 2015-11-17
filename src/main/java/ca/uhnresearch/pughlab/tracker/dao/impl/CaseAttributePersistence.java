@@ -99,11 +99,9 @@ public class CaseAttributePersistence {
 	 * Builds a set of JSON data structures for the given study, view, and a case query.
 	 * attributes.
 	 * @param template
-	 * @param study
-	 * @param view
-	 * @param viewAtts
-	 * @param caseQuery
-	 * @return
+	 * @param query
+	 * @param attributeFilter
+	 * @return a list of data objects
 	 */
 	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, List<? extends Attributes> attributeFilter) {
 		
@@ -114,9 +112,6 @@ public class CaseAttributePersistence {
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Selecting cases: {}", caseInfoQuery.toString());
-			for(CaseInfo ci : caseInfos) {
-				logger.debug("Selected case: {}", ci.getId());
-			}
 		}
 		
 		List<String> filter = new ArrayList<String>();
@@ -378,7 +373,7 @@ public class CaseAttributePersistence {
 	 * @param template
 	 * @param query
 	 * @param values
-	 * @return
+	 * @return a list of case change records
 	 */
 	public List<CaseChangeInfo> setQueryAttributes(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, ObjectNode values) throws RepositoryException {
 		
@@ -482,12 +477,10 @@ public class CaseAttributePersistence {
 	/**
 	 * Retrieves an old case attribute value.
 	 * @param template
-	 * @param study
-	 * @param view
-	 * @param caseValue
+	 * @param query
 	 * @param attribute
 	 * @param cls
-	 * @return
+	 * @return an object describing the old case attribute value
 	 * @throws RepositoryException
 	 */
 	public Object getOldCaseAttributeValue(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, final String attribute, final Class<?> cls) throws RepositoryException {
@@ -509,6 +502,38 @@ public class CaseAttributePersistence {
     	} else {
     		return oldRawValue;
     	}
+	}
+	
+	/**
+	 * Deletes a set of cases and all its associated attribute values.
+	 * @param template the JdbcTemplate
+	 * @param query the case selection query
+	 * @throws RepositoryException
+	 */
+	public void deleteCases(QueryDslJdbcTemplate template, QueryStudyCaseQuery query) throws RepositoryException {
+		
+		SQLQuery caseSelectionQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
+		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Deleting cases: {}", caseSelectionQuery.toString());
+		}
+		
+		for(Class<?> cls : types.keySet()) {
+			final QCaseAttributeBase<?> atts = types.get(cls);
+			
+			template.delete(atts, new SqlDeleteCallback() { 
+				public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+					return sqlDeleteClause.where(atts.caseId.in(caseQuery)).execute();
+				};
+			});
+		}
+		
+		template.delete(cases, new SqlDeleteCallback() { 
+			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
+				return sqlDeleteClause.where(cases.id.in(caseQuery)).execute();
+			};
+		});
 	}
 
 	/**

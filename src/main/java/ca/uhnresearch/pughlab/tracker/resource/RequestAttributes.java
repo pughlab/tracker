@@ -33,7 +33,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a study from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request study
 	 */
 	public static Study getRequestStudy(Request request) {
 		return (Study) request.getAttributes().get(RequestAttributes.STUDY_ATTRIBUTE);
@@ -51,7 +51,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a view from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request view
 	 */
 	public static View getRequestView(Request request) {
 		return (View) request.getAttributes().get(RequestAttributes.VIEW_ATTRIBUTE);
@@ -60,7 +60,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write a view into a request attribute
 	 * @param request
-	 * @param s
+	 * @param v
 	 */
 	public static void setRequestView(Request request, View v) {
 		request.getAttributes().put(RequestAttributes.VIEW_ATTRIBUTE, v);
@@ -69,7 +69,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a role from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request role
 	 */
 	public static Role getRequestRole(Request request) {
 		return (Role) request.getAttributes().get(RequestAttributes.ROLE_ATTRIBUTE);
@@ -78,7 +78,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write a role into a request attribute
 	 * @param request
-	 * @param s
+	 * @param r
 	 */
 	public static void setRequestRole(Request request, Role r) {
 		request.getAttributes().put(RequestAttributes.ROLE_ATTRIBUTE, r);
@@ -87,7 +87,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a query from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request query
 	 */
 	public static StudyCaseQuery getRequestCaseQuery(Request request) {
 		return (StudyCaseQuery) request.getAttributes().get(RequestAttributes.QUERY_ATTRIBUTE);
@@ -96,7 +96,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write a query into a request attribute
 	 * @param request
-	 * @param s
+	 * @param q
 	 */
 	public static void setRequestCaseQuery(Request request, StudyCaseQuery q) {
 		request.getAttributes().put(RequestAttributes.QUERY_ATTRIBUTE, q);
@@ -105,7 +105,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read a pager from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request pager
 	 */
 	public static CasePager getRequestCasePager(Request request) {
 		return (CasePager) request.getAttributes().get(RequestAttributes.PAGER_ATTRIBUTE);
@@ -114,7 +114,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write a pager into a request attribute
 	 * @param request
-	 * @param s
+	 * @param q
 	 */
 	public static void setRequestCasePager(Request request, CasePager q) {
 		request.getAttributes().put(RequestAttributes.PAGER_ATTRIBUTE, q);
@@ -123,7 +123,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read an entity from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request case
 	 */
 	public static Cases getRequestEntity(Request request) {
 		return (Cases) request.getAttributes().get(RequestAttributes.ENTITY_ATTRIBUTE);
@@ -132,7 +132,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write an entity into a request attribute
 	 * @param request
-	 * @param s
+	 * @param c
 	 */
 	public static void setRequestEntity(Request request, Cases c) {
 		request.getAttributes().put(RequestAttributes.ENTITY_ATTRIBUTE, c);
@@ -141,7 +141,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read an attribute from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request attribute
 	 */
 	public static Attributes getRequestAttribute(Request request) {
 		return (Attributes) request.getAttributes().get(RequestAttributes.ATTRIBUTE_ATTRIBUTE);
@@ -150,7 +150,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write an attribute into a request attribute
 	 * @param request
-	 * @param s
+	 * @param a
 	 */
 	public static void setRequestAttribute(Request request, Attributes a) {
 		request.getAttributes().put(RequestAttributes.ATTRIBUTE_ATTRIBUTE, a);
@@ -159,7 +159,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to read an attribute from a request attribute
 	 * @param request
-	 * @return
+	 * @return the request filter
 	 */
 	public static ObjectNode getRequestFilter(Request request) {
 		return (ObjectNode) request.getAttributes().get(RequestAttributes.FILTER_ATTRIBUTE);
@@ -168,7 +168,7 @@ public class RequestAttributes {
 	/**
 	 * Helper method to write an attribute into a request attribute
 	 * @param request
-	 * @param s
+	 * @param a
 	 */
 	public static void setRequestFilter(Request request, ObjectNode a) {
 		request.getAttributes().put(RequestAttributes.FILTER_ATTRIBUTE, a);

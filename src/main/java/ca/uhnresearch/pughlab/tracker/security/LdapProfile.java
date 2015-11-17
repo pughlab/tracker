@@ -38,7 +38,7 @@ public class LdapProfile {
 	}
 
 	/**
-	 * @param realName the realName to set
+	 * @param displayName the realName to set
 	 */
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;

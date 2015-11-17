@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -407,11 +408,11 @@ public class MockStudyRepository implements StudyRepository {
 
 	@Override
 	public Long getRecordCount(Study study, View view) {
-		return new Long(caseCount);
+		return new Long(cases.size());
 	}
 
 	@Override
-	public Cases getStudyCase(Study study, View view, Integer caseId) {
+	public Cases getStudyCase(Study study, Integer caseId) {
 		
 		Cases result = null;
 		for (Cases c : cases) {
@@ -425,7 +426,7 @@ public class MockStudyRepository implements StudyRepository {
 	
 
 	@Override
-	public void setStudyCaseState(Study study, View view, Cases cases, String userName, String state) {
+	public void setStudyCaseState(Study study, Cases cases, String userName, String state) {
 		cases.setState(state);		
 	}
 
@@ -437,12 +438,12 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public Cases newStudyCase(Study study, View view, String userName) throws RepositoryException {
-		return newStudyCase(study, view, userName, null);
+	public Cases newStudyCase(Study study, String userName) throws RepositoryException {
+		return newStudyCase(study, userName, null);
 	}
 
 	@Override
-	public Cases newStudyCase(Study study, View view, String userName, Cases afterCase) throws RepositoryException {
+	public Cases newStudyCase(Study study, String userName, Cases afterCase) throws RepositoryException {
 		Cases newCase = new Cases();
 		newCase.setId(nextCaseId++);
 		if (afterCase != null) {
@@ -545,5 +546,15 @@ public class MockStudyRepository implements StudyRepository {
 	@Override
 	public StudyCaseQuery addStudyCaseFilterSelector(StudyCaseQuery query, ObjectNode expression) {
 		return query;
+	}
+
+	@Override
+	public void deleteCases(final StudyCaseQuery query, final String userName) throws RepositoryException {
+		Assert.assertNotNull(userName);
+		MockStudyCaseQuery caseQuery = (MockStudyCaseQuery) query;
+		List<Integer> caseIds = caseQuery.getCases();
+		for(Integer caseId : caseIds) {
+			cases.remove(caseId.intValue());
+		}
 	}
 }

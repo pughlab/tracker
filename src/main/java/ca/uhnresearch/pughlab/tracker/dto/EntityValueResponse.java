@@ -18,7 +18,7 @@ public class EntityValueResponse extends ViewResponse {
 	}
 
 	/**
-	 * @param entity the value to set
+	 * @param value the value to set
 	 */
 	public void setValue(JsonNode value) {
 		this.value = value;

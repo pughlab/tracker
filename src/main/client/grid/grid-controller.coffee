@@ -53,8 +53,12 @@ angular
       $scope.$broadcast 'socket:field', event
 
     socket.on 'record', (event) ->
-      annotateEvent event
+      annotateEventWithUser event
       $scope.$broadcast 'socket:record', event
+
+    socket.on 'delete', (event) ->
+      annotateEventWithUser event
+      $scope.$broadcast 'socket:delete', event
 
     $scope.$on 'socket:join', (evt, event) ->
       socket.emit 'join', event

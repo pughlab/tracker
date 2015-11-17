@@ -44,6 +44,11 @@ public class Event {
 	public static final String EVENT_NEW_RECORD = "record";
 
 	/**
+	 * Event sent by the client to the server notifying a record is being deleted
+	 */
+	public static final String EVENT_DELETE_RECORD = "delete";
+
+	/**
 	 * Event sent by the client to the server notifying a new user has connected 
 	 * to the same scope
 	 */
@@ -87,7 +92,7 @@ public class Event {
 		}
 
 		/**
-		 * @param parameters the user to set
+		 * @param user the user to set
 		 */
 		public void setUser(String user) {
 			this.user = user;
@@ -102,7 +107,7 @@ public class Event {
 		}
 
 		/**
-		 * @param parameters the time to set
+		 * @param time the time to set
 		 */
 		public void setTime(long time) {
 			this.time = time;
@@ -117,7 +122,7 @@ public class Event {
 		}
 
 		/**
-		 * @param parameters the scope to set
+		 * @param scope the scope to set
 		 */
 		public void setScope(String scope) {
 			this.scope = scope;
@@ -148,7 +153,7 @@ public class Event {
 	}
 
 	/**
-	 * @param parameters the type to set
+	 * @param type the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
@@ -163,7 +168,7 @@ public class Event {
 	}
 
 	/**
-	 * @param parameters the data to set
+	 * @param data the data to set
 	 */
 	public void setData(EventData data) {
 		this.data = data;

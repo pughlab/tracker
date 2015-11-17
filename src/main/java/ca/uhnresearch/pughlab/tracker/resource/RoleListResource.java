@@ -27,7 +27,10 @@ import ca.uhnresearch.pughlab.tracker.dto.User;
 
 public class RoleListResource extends AuthorizationRepositoryResource<RoleListResponse>{
 	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	/**
+	 * A logger
+	 */
+	private final Logger logger = LoggerFactory.getLogger(RoleListResource.class);
 
 	private JacksonConverter converter = new JacksonConverter();
 

@@ -9,7 +9,7 @@
   <div search-control></div>
 
   <h3>
-    <div ng-show="permissions.writeAllowed" style="display:inline-block;">
+    <div ng-show="permissions.write" style="display:inline-block;">
       <toggle-switch ng-model="editingStatus" class="switch-danger switch-small" knob-label="Editing"><toggle-switch>
     </div>
     <small ng-show="currentUsers.length">
@@ -19,10 +19,12 @@
 
   <div tracker-error error-message="errorMessage"></div>
 
-  <div tracker-table tracker-study="study" tracker-view="view" tracker-attributes="attributes" tracker-editing-status="editingStatus" ></div>
+  <div class="tracker-table-container">
+    <div tracker-table study="study" view="view" attributes="attributes" editing-status="editingStatus" permissions="permissions"></div>
+  </div>
 
   <div ng-controller="GridActionController">
-    <button ng-show="permissions.downloadAllowed" class="btn btn-default" ng-click="export()">Export Spreadsheet</button>
+    <button ng-show="permissions.download" class="btn btn-default" ng-click="export()">Export Spreadsheet</button>
   </div>
 
 </div>

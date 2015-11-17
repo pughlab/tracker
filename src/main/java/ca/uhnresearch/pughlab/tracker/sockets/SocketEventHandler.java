@@ -173,7 +173,6 @@ public class SocketEventHandler implements EventHandler {
 	 * notify when we get an event. Messages can be sent to a single AtmosphereResource
 	 * (with a UUID) or to all of them. 
 	 * 
-	 * @param uuid
 	 * @param resource
 	 */
 	public void registerAtmosphereResource(AtmosphereResource resource) {
@@ -188,7 +187,7 @@ public class SocketEventHandler implements EventHandler {
 	
 	/**
 	 * Removes a registered UUID and AtmosphereResource association.
-	 * @param uuid
+	 * @param resource
 	 */
 	public void unregisterAtmosphereResource(AtmosphereResource resource) {
 		String uuid = resource.uuid();

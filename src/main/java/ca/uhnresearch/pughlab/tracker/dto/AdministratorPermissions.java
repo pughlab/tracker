@@ -4,22 +4,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public abstract class AdministratorPermissions {
 
-	private Boolean adminAllowed = false;
+	private Boolean admin = false;
 
 	/**
-	 * @return the adminAllowed
+	 * Retrieves the admin permission.
+	 * @return the admin
 	 */
 	@JsonProperty
-	public Boolean getAdminAllowed() {
-		return adminAllowed;
+	public Boolean getAdmin() {
+		return admin;
 	}
 
 	/**
-	 * @param adminAllowed the adminAllowed to set
+	 * Sets the admin permission.
+	 * @param admin the admin to set
 	 */
-	public void setAdminAllowed(Boolean adminAllowed) {
-		this.adminAllowed = adminAllowed;
+	public void setAdmin(Boolean admin) {
+		this.admin = admin;
 	}
-
-
 }

@@ -1,0 +1,338 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "UHN Tracker",
+    "description": "Describes the API used by the tracker, both as the engine for its single-page client, and as a resource for integration",
+    "contact": {
+      "name": "Stuart Watt"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "basePath": "/api",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/studies": {
+      "get": {
+        "tags": ["studies"],
+        "operationId": "getStudies",
+        "description": "Returns all studies from the system that the user has access to",
+        "responses": {
+          "200": {
+            "description": "A list of studies.",
+            "schema": {
+              "$ref": "#/definitions/StudiesResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["studies"],
+        "operationId": "postStudy",
+        "description": "Creates a new study",
+        "parameters": [{
+          "name": "study",
+          "in": "body",
+          "description": "The new study to create",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/Study"
+          }
+        }],
+        "produces": [],
+        "responses": {
+          "302": {
+            "description": "Redirect to the new study"
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/schema": {
+      "get": {
+        "tags": ["studies"],
+        "operationId": "getStudySchema",
+        "description": "Returns the schema for a study",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study schema response.",
+            "schema": {
+              "$ref": "#/definitions/StudySchemaResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["studies"],
+        "operationId": "putStudySchema",
+        "description": "Updates the schema for a study",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }, {
+          "name": "schema",
+          "in": "body",
+          "description": "The new study schema",
+          "required": true,
+          "schema": {
+            "$ref": "#/definitions/StudySchemaResponse"
+          }
+        }],
+        "responses": {
+          "200": {
+            "description": "A study schema response.",
+            "schema": {
+              "$ref": "#/definitions/StudySchemaResponse"
+            }
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/views": {
+      "get": {
+        "tags": ["views"],
+        "operationId": "getStudyViews",
+        "description": "Returns the views for a study",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study views response",
+            "schema": {
+              "$ref": "#/definitions/StudyViewsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/views/{viewName}": {
+      "get": {
+        "tags": ["views"],
+        "operationId": "getStudyViewData",
+        "description": "Returns the view data for a study",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }, {
+          "name": "viewName",
+          "in": "path",
+          "description": "the name of the view",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study views response",
+            "schema": {
+              "$ref": "#/definitions/StudyViewDataResponse"
+            }
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/views/{viewName}/schema": {
+      "get": {
+        "tags": ["views"],
+        "operationId": "getStudyViewSchema",
+        "description": "Returns the view schema",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }, {
+          "name": "viewName",
+          "in": "path",
+          "description": "the name of the view",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study view schema response",
+            "schema": {
+              "$ref": "#/definitions/StudyViewSchemaResponse"
+            }
+          }
+        }
+      }
+    },
+    "/studies/{studyName}/views/{viewName}/attributes": {
+      "get": {
+        "tags": ["views"],
+        "operationId": "getStudyViewAttributes",
+        "description": "Returns the view attributes",
+        "parameters": [{
+          "name": "studyName",
+          "in": "path",
+          "description": "the name of the study",
+          "required": true,
+          "type": "string"
+        }, {
+          "name": "viewName",
+          "in": "path",
+          "description": "the name of the view",
+          "required": true,
+          "type": "string"
+        }],
+        "responses": {
+          "200": {
+            "description": "A study view attributes response",
+            "schema": {
+              "$ref": "#/definitions/StudyViewAttributesResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StudySchemaResponse": {
+      "type": "object",
+      "properties": {
+        "serviceUrl": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "StudyViewsResponse": {
+      "type": "object",
+      "properties": {
+        "serviceUrl": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "study": {
+          "$ref": "#/definitions/Study"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/View"
+          }
+        }
+      }
+    },
+    "StudyViewDataResponse": {
+      "type": "object",
+      "properties": {
+        "serviceUrl": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "study": {
+          "$ref": "#/definitions/Study"
+        },
+        "view": {
+          "$ref": "#/definitions/View"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Attribute"
+          }
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "StudiesResponse": {
+      "type": "object",
+      "properties": {
+        "serviceUrl": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "studies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Study"
+          }
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      }
+    },
+    "Study": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "View": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "studyId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    }
+  }
+}

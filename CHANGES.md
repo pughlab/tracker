@@ -1,6 +1,16 @@
 ## Revision history
 
 
+### Version 2.1.0 - November 17th 2015
+
+ * Added a Debian package. See #113
+ * Allow rows to be deleted. See #107
+ * Fixed an issue saving views. See #115
+ * Fixed an issue with excessive redaction for audits. See #114
+ * Fixed other small bugs. See #106
+ * Updated to a newer Restlets. See #105
+
+
 ### Version 2.1.0-RC2 - November 5th 2015
 
  * Incorporates a whole new filtering system. See #94, #101, #102

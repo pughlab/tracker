@@ -69,9 +69,8 @@ public class StudyRepositoryImpl implements StudyRepository {
     }
 
 	/**
-     * Returns a list of studies
-     * @param study
-     * @return
+     * Returns a list of studies.
+     * @return a list of studies
      */
     public List<Study> getAllStudies() {
 		logger.debug("Looking for all studies");
@@ -84,9 +83,9 @@ public class StudyRepositoryImpl implements StudyRepository {
     }
 
     /**
-     * Returns a named study
-     * @param study
-     * @return
+     * Returns a named study.
+     * @param name
+     * @return a named study
      */
 	public Study getStudy(String name) {
 		logger.debug("Looking for study by name: {}", name);
@@ -129,9 +128,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	
     /**
-     * Returns the list of views associated with a study
+     * Returns the list of views associated with a study.
      * @param study
-     * @return
+     * @return a list of views
      */
 	public List<View> getStudyViews(Study study) {
 		logger.debug("Looking for views for study: {}", study.getName());
@@ -181,7 +180,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	/**
      * Returns the named view associated with a study
      * @param study
-     * @return
+     * @return a view
      */
 	public View getStudyView(Study study, String name) {
 		logger.debug("Looking for study by name: {}", name);
@@ -200,7 +199,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	/**
      * Returns the named view associated with a study
      * @param study
-     * @return
+     * @param view
      */
 	public void setStudyView(Study study, View view) throws RepositoryException {
 		if (study.getId().equals(view.getStudyId())) {
@@ -213,8 +212,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     /**
      * Returns a list of all the attributes for a given view. 
      * @param study
-     * @param view
-     * @return
+     * @return a list of attributes
      */
 	public List<Attributes> getStudyAttributes(Study study) {
 		logger.debug("Looking for study attributes");
@@ -233,7 +231,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * Returns a single named attributes for a given study. 
      * @param study
      * @param name
-     * @return
+     * @return a named attribute
      */
 	public Attributes getStudyAttribute(Study study, String name) {
 		logger.debug("Looking for study attribute: {}", name);
@@ -250,7 +248,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Returns a single study case.
 	 */
 	@Override
-	public Cases getStudyCase(Study study, View view, Integer caseId) {
+	public Cases getStudyCase(Study study, Integer caseId) {
 		logger.debug("Looking for case by identifier: {}", caseId);
     	SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
     	Cases caseValue = template.queryForObject(sqlQuery, cases);
@@ -459,7 +457,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * Returns a list of all the attributes for a given view. 
      * @param study
      * @param view
-     * @return
+     * @return a list of view attributes
      */
 	public List<ViewAttributes> getViewAttributes(Study study, View view) {
 		
@@ -492,12 +490,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * triggered by other changes, and generate notifications.
 	 * 
 	 * @param study
-	 * @param view
-	 * @param cases
+	 * @param c
+	 * @param userName
 	 * @param state
 	 */
 	@Override
-	public void setStudyCaseState(final Study study, final View view, final Cases c, final String userName, final String state) {
+	public void setStudyCaseState(final Study study, final Cases c, final String userName, final String state) {
 		logger.debug("Updating a case: {}", c.getId());
 		
 		String oldState = c.getState();
@@ -522,7 +520,6 @@ public class StudyRepositoryImpl implements StudyRepository {
 		ObjectNode parameters = factory.objectNode();
 		parameters.put("study_id", study.getId());
 		parameters.put("study", study.getName());
-		parameters.put("view", view.getName());
 		parameters.put("case_id", c.getId());
 		parameters.put("old_state", oldState);
 		parameters.put("state", state);
@@ -534,6 +531,29 @@ public class StudyRepositoryImpl implements StudyRepository {
     	c.setState(state);
 
     	return;
+	}
+	
+	private void setQueryAttributesForField(final Study study, final String userName, final CaseChangeInfo caseChanges, final String field) {
+		
+		CaseChangeInfo.Change change = caseChanges.getChange(field);
+		
+		Event event = new Event(Event.EVENT_SET_FIELD);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+
+		parameters.put("field", field);
+		parameters.put("case_id", caseChanges.getCaseId());
+		parameters.put("study_id", study.getId());
+		parameters.put("study", study.getName());
+		parameters.replace("old", new RedactedJsonNode(change.getOldValue()));
+		parameters.replace("new", new RedactedJsonNode(change.getNewValue()));
+		
+		event.getData().setParameters(parameters);
+
+		getEventHandler().sendMessage(event, event.getData().getScope());
 	}
 
 	/**
@@ -552,29 +572,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
 		Study study = query.getStudy();
 
-		EventHandler handler = getEventHandler();
-
 		for(CaseChangeInfo caseChanges : changes) {
 			for(String field : caseChanges.fields()) {
-				CaseChangeInfo.Change change = caseChanges.getChange(field);
-				
-				Event event = new Event(Event.EVENT_SET_FIELD);
-				event.getData().setScope(study.getName());
-				event.getData().setUser(userName);
-				
-				final JsonNodeFactory factory = JsonNodeFactory.instance;
-				ObjectNode parameters = factory.objectNode();
-
-				parameters.put("field", field);
-				parameters.put("case_id", caseChanges.getCaseId());
-				parameters.put("study_id", study.getId());
-				parameters.put("study", study.getName());
-				parameters.replace("old", new RedactedJsonNode(change.getOldValue()));
-				parameters.replace("new", new RedactedJsonNode(change.getNewValue()));
-				
-				event.getData().setParameters(parameters);
-
-		    	handler.sendMessage(event, event.getData().getScope());
+				setQueryAttributesForField(study, userName, caseChanges, field);
 			}
 		}
 		
@@ -597,8 +597,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	@Override
-	public Cases newStudyCase(final Study study, final View view, final String userName) throws RepositoryException {
-		return newStudyCase(study, view, userName, null);
+	public Cases newStudyCase(final Study study, final String userName) throws RepositoryException {
+		return newStudyCase(study, userName, null);
 	}	
 	/**
 	 * Creates and returns a case object for a new case. The only fields set will be the
@@ -607,7 +607,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return the new case
 	 */
 	@Override
-	public Cases newStudyCase(final Study study, final View view, final String userName, final Cases afterCase) throws RepositoryException {
+	public Cases newStudyCase(final Study study, final String userName, final Cases afterCase) throws RepositoryException {
 		
 		Integer orderPoint = 1;
 		if (afterCase != null) {
@@ -693,7 +693,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * be exposed externally. 
 	 * @param query
 	 * @param pager
-	 * @return
+	 * @return a new query 
 	 */
 	@Override
 	public QueryStudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager) {
@@ -741,7 +741,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Refines a query to a single case, which can be found by identifier. This can then be incorporated
 	 * into the queries that are used to access data. 
 	 * @param query
-	 * @return
+	 * @return a new query
 	 */
 	@Override
 	public StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId) {
@@ -774,6 +774,51 @@ public class StudyRepositoryImpl implements StudyRepository {
 		}
 		
 		return new QueryStudyCaseQuery(scq.getStudy(), sq);
+	}
+	
+	
+	private void sendDeleteCaseEvent(final Study study, final String userName, final ObjectNode data) throws RepositoryException {
+		
+		// This merits a new event, too, but it's not an attribute event, it's a state change
+		// event. That way it gets audited and can be sent through a websocket connection
+		// to a listening client. 
+
+		Event event = new Event(Event.EVENT_DELETE_RECORD);
+		event.getData().setScope(study.getName());
+		event.getData().setUser(userName);
+		
+		final JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode parameters = factory.objectNode();
+		parameters.put("study_id", study.getId());
+		parameters.put("study", study.getName());
+		parameters.put("case_id", data.get("id").asInt());
+		parameters.replace("data", RedactedJsonNode.redactObjectNode(data));
+		event.getData().setParameters(parameters);
+
+    	EventHandler manager = getEventHandler();
+    	manager.sendMessage(event, event.getData().getScope());
+	}
+	
+	@Override
+	/**
+	 * Deletes a set of cases from the repository. 
+	 * @param query a query to select the cases for deletion
+	 */
+	public void deleteCases(final StudyCaseQuery query, final String userName) throws RepositoryException {
+		if (! (query instanceof QueryStudyCaseQuery)) {
+			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
+		}
+
+		QueryStudyCaseQuery scq = (QueryStudyCaseQuery) query;
+		Study study = scq.getStudy();
+		List<Attributes> attributes = getStudyAttributes(study);
+
+		List<ObjectNode> caseDatas = getCaseData(query, attributes);
+		for(ObjectNode caseData : caseDatas) {
+			sendDeleteCaseEvent(study, userName, caseData);
+		}
+
+		cap.deleteCases(template, scq);
 	}
 }
 

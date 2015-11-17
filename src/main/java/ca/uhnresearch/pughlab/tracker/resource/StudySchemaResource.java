@@ -25,7 +25,10 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResponse> {
 	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	/**
+	 * A logger
+	 */
+	private final Logger logger = LoggerFactory.getLogger(StudySchemaResource.class);
 	
 	private JacksonConverter converter = new JacksonConverter();
 

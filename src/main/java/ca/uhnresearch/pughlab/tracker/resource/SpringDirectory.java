@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory;
  */
 public class SpringDirectory extends Directory {
 	
+	/**
+	 * A logger
+	 */
 	private final Logger logger = LoggerFactory.getLogger(SpringDirectory.class);
 
 	/**

@@ -129,7 +129,7 @@ public class TrackerResourceTest extends AbstractShiroTest {
 		assertEquals( "http://localhost:9998/services", data.get("serviceUrl").getAsString());
 		JsonArray studies = data.get("studies").getAsJsonArray();
 		assertEquals( 1, studies.size() );
-		assertEquals(false, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("adminAllowed").getAsBoolean());
+		assertEquals(false, studies.get(0).getAsJsonObject().get("access").getAsJsonObject().get("admin").getAsBoolean());
 		assertEquals( "DEMO", studies.get(0).getAsJsonObject().get("name").getAsString() );
 	}
 

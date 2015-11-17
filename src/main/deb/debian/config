@@ -1,0 +1,22 @@
+#!/bin/sh -e
+
+. /usr/share/debconf/confmodule
+
+if [ -n "$DEBIAN_SCRIPT_DEBUG" ]; then set -v -x; DEBIAN_SCRIPT_TRACE=1; fi
+${DEBIAN_SCRIPT_TRACE:+ echo "#42#DEBUG# RUNNING $0 $*" 1>&2 }
+
+# only ask this question on fresh installs ($2 is empty), during "reconfiguration"
+if [ "$1" = "configure" ] && [ -z "$2" ] || [ "$1" = "reconfigure" ]; then
+
+  RET=""
+  db_input high tracker-webapp/database_host || true
+  db_go
+  db_input high tracker-webapp/database_port || true
+  db_go
+  db_input high tracker-webapp/database_name || true
+  db_go
+  db_input high tracker-webapp/database_username || true
+  db_go
+  db_input high tracker-webapp/database_password || true
+  db_go
+fi

@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ca.uhnresearch.pughlab</groupId>
-	<artifactId>tracker-java-restlet</artifactId>
+	<artifactId>tracker-webapp</artifactId>
 	<packaging>war</packaging>
 
 	<name>tracker</name>
@@ -11,12 +11,12 @@
 	distributed research projects.
 	</description>
 	<inceptionYear>2014</inceptionYear>
-	<version>2.1.0-RC2</version>
+	<version>2.1.0</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<restlet.version>2.3.1</restlet.version>
+		<restlet.version>2.3.5</restlet.version>
 		<spring.version>4.1.6.RELEASE</spring.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<hsqldb.version>2.3.2</hsqldb.version>
@@ -28,6 +28,9 @@
         
         <node.version>v0.12.7</node.version>
         <npm.version>3.3.6</npm.version>
+        
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         
         <test.db.driverClassName>org.hsqldb.jdbc.JDBCDriver</test.db.driverClassName>
         <test.db.url>jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</test.db.url>
@@ -477,6 +480,7 @@
 
 		<plugins>
 
+            <!-- Allow externalising of properties -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
@@ -499,17 +503,19 @@
             </plugin>
 
 
+            <!-- Set the Java version - 1.8 is required as we use Nashorn -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 
 
+            <!-- Generate project info reports -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
@@ -517,6 +523,7 @@
 			</plugin>
 
 
+            <!-- Allow running within Jetty from the command line with mvn jetty:run -->
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
@@ -553,6 +560,7 @@
 			</plugin>
 
 
+            <!-- Build resources files, allows injecting properties into client code -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.7</version>
@@ -576,10 +584,27 @@
                             </resources>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-config-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/generated-etc</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/conf</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
 
+            <!-- Use node.js, and allow it to run "gulp build-all" to package the front end  -->
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
@@ -630,6 +655,7 @@
 			</plugin>
 
 
+            <!-- Build a war file including the packaged code from "gulp build-all"  -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
@@ -643,8 +669,9 @@
 					</webResources>
 				</configuration>
 			</plugin>
-
-
+			
+			
+            <!-- Initialize SQL data for testing  -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>sql-maven-plugin</artifactId>
@@ -679,13 +706,53 @@
 					</execution>
 				</executions>
 			</plugin>
+            
+            
+            <!-- Build a source jar file  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
+
+            <!-- Build a javadoc jar file  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                    <quiet>true</quiet>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <!-- Generate PMD reports  -->
 			<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-pmd-plugin</artifactId>
 		        <version>3.4</version>
 		    </plugin>
 
+
+            <!-- Run with Jacoco for test coverage analysis  -->
 			<plugin>
 			    <groupId>org.jacoco</groupId>
 			    <artifactId>jacoco-maven-plugin</artifactId>
@@ -720,7 +787,7 @@
 										<limit implementation="org.jacoco.report.check.Limit">
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.50</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -729,9 +796,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
-
 
 		<pluginManagement>
 			<plugins>
@@ -921,5 +986,112 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <!-- A profile for the builds performed by the continuous integration server -->
+            <id>package-debian</id>
+            
+            <build>
+                <plugins>
+                
+                    <!-- Resolves and retrieves the server container, which we use for Debian packaging -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.10</version>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>ca.uhnresearch.pughlab</groupId>
+                                            <artifactId>java-server</artifactId>
+                                            <version>1.0.3</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${basedir}/target/deployment-dependencies</outputDirectory>
+                                            <destFileName>java-server.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+      
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>make-deb</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <property name="deb.dir" value="${basedir}/target/deb" />
+                                        <property name="deb.version" value="${project.version}" />
+                                        <tstamp>
+                                            <!-- http://www.debian.org/doc/debian-policy/ch-source.html -->
+                                            <format property="deb.date" pattern="EEE, d MMM yyyy HH:mm:ss Z" locale="en" />
+                                        </tstamp>
+    
+                                        <mkdir dir="${deb.dir}" />
+                                        <mkdir dir="${deb.dir}/usr/share/tracker-webapp" />
+                                        <mkdir dir="${deb.dir}/etc/tracker-webapp" />
+    
+                                        <!-- Copy the files, templating the changelog, etc., with the right date -->
+                                        <copy todir="${deb.dir}">
+                                            <fileset dir="src/main/deb" />
+                                            <filterset>
+                                                <filter token="project.version" value="${deb.version}" />
+                                                <filter token="date" value="${deb.date}" />
+                                            </filterset>
+                                        </copy>
+                                        
+                                        <copy todir="${deb.dir}/usr/share/tracker-webapp">
+                                            <fileset dir="${basedir}/target">
+                                                <filename name="tracker-webapp-${project.version}.war"/>
+                                            </fileset>
+                                            <fileset dir="${basedir}/target/deployment-dependencies">
+                                                <filename name="java-server.jar"/>
+                                            </fileset>
+                                            <fileset dir="${basedir}/src/main/etc">
+                                            	<filename name="initialize_mysql.sql"/>
+                                            	<filename name="nginx.conf"/>
+                                            </fileset>
+                                        </copy>
+    
+                                        <copy todir="${deb.dir}/etc/tracker-webapp">
+                                            <fileset dir="${basedir}/target/generated-etc">
+                                                <filename name="*.*"/>
+                                            </fileset>
+                                        </copy>
+
+                                        <exec executable="debuild" dir="${deb.dir}" failonerror="true" osfamily="unix">
+                                            <arg value="-b" />
+    
+                                            <!-- Turn off signing for now, until we move to a continuous integration server -->
+                                            <arg value="-us" />
+                                            <arg value="-uc" />
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    
+                </plugins>
+            </build>
+    
+        </profile>
+    
     </profiles>
 </project>

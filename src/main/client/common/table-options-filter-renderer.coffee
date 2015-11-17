@@ -3,7 +3,7 @@
 
 filterAction = (evt) ->
   button = evt.detail.button
-  $(button).filterdropdown({filter: evt.detail})
+  $(button).filterdropdown({filter: evt.detail, container: ".tracker-table-container"})
   $(button).filterdropdown('showWidget')
 
   text = evt.detail.text

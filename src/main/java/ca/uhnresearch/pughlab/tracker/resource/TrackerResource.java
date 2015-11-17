@@ -25,7 +25,10 @@ import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 
 public class TrackerResource extends StudyRepositoryResource<StudyListResponse> {
 		
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	/**
+	 * A logger
+	 */
+	private final Logger logger = LoggerFactory.getLogger(TrackerResource.class);
 
 	private JacksonConverter converter = new JacksonConverter();
 
@@ -100,7 +103,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     			study.setId(s.getId());
     			study.setName(s.getName());
     			study.setDescription(s.getDescription());
-    			study.getAccess().setAdminAllowed(studyAdminPermission);
+    			study.getAccess().setAdmin(studyAdminPermission);
     			dto.getStudies().add(study);
     		}
     	}

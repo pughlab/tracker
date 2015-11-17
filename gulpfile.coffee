@@ -93,12 +93,16 @@ gulp.task 'styles', ['clean-css'], () ->
 
 
 gulp.task 'vendors', () ->
-  bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components'}).pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
+  bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components'})
+  coreVendorFiles = bowerStream.pipe(gulpIgnore.exclude(['bower_components/bootstrap/**/*.*', 'bower_components/swagger-ui/**/*.*']))
+  swaggerFiles = gulp.src(mainBowerFiles('**/swagger-ui/dist/**/*.*'), {base: 'bower_components/swagger-ui/dist'})
   es.merge(
-    bowerStream.pipe(gulpFilter('**/*.css'))
+    coreVendorFiles.pipe(gulpFilter('**/*.css'))
       .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/css'))
-    bowerStream.pipe(gulpFilter('**/*.js'))
+    coreVendorFiles.pipe(gulpFilter('**/*.js'))
       .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js'))
+    swaggerFiles
+      .pipe(gulp.dest('./target/client/tmp/client/statics/swagger'))
   )
 
 
@@ -112,11 +116,12 @@ index = () ->
       tag = 'Tag: ' + commitId + (if shortStat then (' with: ' + shortStat) else '')
 
       cssVendorFiles = bowerStream
-        .pipe(gulpIgnore.exclude('bower_components/bootstrap/**/*.*'))
+        .pipe(gulpFilter(['**/*.*', '!bootstrap/**/*.*', '!swagger-ui/**/*.*']))
         .pipe(gulpFilter('**/*.css'))
         .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/css'))
 
       jsVendorFiles = bowerStream
+        .pipe(gulpFilter(['**/*.*', '!bootstrap/**/*.*', '!swagger-ui/**/*.*']))
         .pipe(gulpFilter('**/*.js'))
         .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js'))
 

@@ -44,7 +44,7 @@ public class DefaultingFilter extends Filter {
 	}
 
 	/**
-	 * @param rewrites the defaultPath to set
+	 * @param defaultPath the defaultPath to set
 	 */
 	public void setDefaultPath(String defaultPath) {
 		this.defaultPath = defaultPath;
