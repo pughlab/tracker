@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 ### BEGIN INIT INFO
 # Provides:          tracker-webapp
 # Required-Start:    $network $local_fs $remote_fs
@@ -16,13 +16,13 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC=tracker-webapp                        # Introduce a short description here
 NAME=tracker-webapp                        # Introduce the short server's name here
 TRACKER_USER=trackerapp                    # User to use to run the service
-TRACKER_HOME=/usr/share/tracker-webapp     # Default tracker directory
-TRACKER_CONF=/etc/tracker-webapp           # Default tracker config location
-TRACKER_LOG=/var/log/tracker-webapp        # Default log location
+TRACKER_HOME=/usr/share/$NAME              # Default tracker directory
+TRACKER_CONF=/etc/$NAME                    # Default tracker config location
+TRACKER_LOG=/var/log/$NAME                 # Default log location
 DAEMON=/usr/bin/daemon                     # Introduce the server's location here
 DAEMON_ARGS=""                             # Arguments to run the daemon with
 TMPDIR=$TMPDIR/$NAME
-PIDFILE=$TMPDIR/$NAME.pid
+PIDFILE=/var/run/$NAME/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
 # Exit if the package is not installed
@@ -38,7 +38,7 @@ SCRIPTNAME=/etc/init.d/$NAME
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
 . /lib/lsb/init-functions
 
-DAEMON_ARGS="--name=$NAME --user=$TRACKER_USER --pidfile=$PIDFILE --inherit --env=TRACKER_CONF=$TRACKER_CONF --env=TRACKER_HOME=$TRACKER_HOME --output=$TRACKER_LOG/stdout.log --chdir=$TRACKER_HOME"
+DAEMON_ARGS="--name=$NAME --user=$TRACKER_USER --pidfile=$PIDFILE --inherit --output=$TRACKER_LOG/stdout.log --chdir=$TRACKER_HOME"
 CLASSPATH="$TRACKER_HOME/lib/*"
 
 # Get the status of the daemon process

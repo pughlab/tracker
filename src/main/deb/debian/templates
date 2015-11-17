@@ -21,6 +21,7 @@ Description: The name of the database:
  information needed by the tracker.
 
 Template: tracker-webapp/database_username
+Default: tracker
 Type: string
 Description: The database server user name:
  If the database server requires authentication, a user

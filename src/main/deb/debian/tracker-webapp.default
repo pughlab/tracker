@@ -24,4 +24,4 @@ TRACKER_LOG=/var/log/tracker-webapp
 TRACKER_CONF=/etc/tracker-webapp
 
 # Process start arguments
-TRACKER_ARGS=-jar $TRACKER_HOME/java-server.jar $TRACKER_CONF/tracker-webapp.xml
+TRACKER_ARGS="-DTRACKER_CONF=$TRACKER_CONF -DTRACKER_HOME=$TRACKER_HOME -jar $TRACKER_HOME/java-server.jar $TRACKER_CONF/tracker-webapp.xml"
