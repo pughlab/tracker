@@ -39,7 +39,7 @@
               </Item>
             </Array>
           </Arg>
-          <Set name="port"><Property name="jetty.port" default="8080"/></Set>
+          <Set name="port"><Property name="jetty.port" default="3000"/></Set>
         </New>
       </Arg>
     </Call>
