@@ -125,7 +125,7 @@
             </Arg>
 	    </Call>
         
-        <New class="org.eclipse.jetty.plus.naming.EnvEntry">
+        <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
             <Arg>trackerProperties</Arg> 
             <Arg type="java.lang.String"><SystemProperty name="TRACKER_CONF" />/tracker-webapp.properties</Arg> 
             <Arg type="boolean">true</Arg> 
