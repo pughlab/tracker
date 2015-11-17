@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          tracker-webapp
 # Required-Start:    $network $local_fs $remote_fs
@@ -22,7 +22,8 @@ TRACKER_LOG=/var/log/$NAME                 # Default log location
 DAEMON=/usr/bin/daemon                     # Introduce the server's location here
 DAEMON_ARGS=""                             # Arguments to run the daemon with
 TMPDIR=$TMPDIR/$NAME
-PIDFILE=/var/run/$NAME/$NAME.pid
+PIDDIR=/var/run/$NAME
+PIDFILE=$PIDDIR/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
 # Exit if the package is not installed
@@ -128,6 +129,7 @@ do_reload() {
 	# restarting (for example, when it is sent a SIGHUP),
 	# then implement that here.
 	#
+	
 	start-stop-daemon --stop --signal 1 --quiet --pidfile $PIDFILE --name $NAME
 	return 0
 }
@@ -139,6 +141,15 @@ if [ ! -d $TMPDIR ]; then
   mkdir $TMPDIR
   chown -R $TRACKER_USER:adm $TMPDIR
   chmod -R 750 $TMPDIR
+fi
+
+#
+# Make sure tracker pid dir exists, otherwise daemon calls will fail
+#
+if [ ! -d $PIDDIR ]; then 
+  mkdir $PIDDIR
+  chown -R $TRACKER_USER:adm $PIDDIR
+  chmod -R 750 $PIDDIR
 fi
 
 case "$1" in

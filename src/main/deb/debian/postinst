@@ -74,8 +74,8 @@ case "$1" in
         ##   ln -s /etc/tracker-webapp /var/lib/tracker-webapp/conf
         ## fi
         
-        chown -R trackerapp:adm /usr/share/tracker-webapp /var/log/tracker-webapp /var/run/tracker-webapp /etc/tracker-webapp
-        chmod -R 750      /usr/share/tracker-webapp /var/log/tracker-webapp /var/run/tracker-webapp /etc/tracker-webapp
+        chown -R trackerapp:adm /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
+        chmod -R 750      /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

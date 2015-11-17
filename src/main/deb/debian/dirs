@@ -3,6 +3,3 @@ usr/share/tracker-webapp
 
 # Location for the log files
 var/log/tracker-webapp
-
-# Location for the pid files
-var/run/tracker-webapp
