@@ -127,7 +127,13 @@
         
         <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
             <Arg>trackerProperties</Arg> 
-            <Arg type="java.lang.String"><SystemProperty name="TRACKER_CONF" />/tracker-webapp.properties</Arg> 
+            <Arg type="java.lang.String">file://<SystemProperty name="TRACKER_CONF" />/tracker-webapp.properties</Arg> 
+            <Arg type="boolean">true</Arg> 
+        </New>
+	
+        <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
+            <Arg>trackerScript</Arg> 
+            <Arg type="java.lang.String">file://<SystemProperty name="TRACKER_CONF" />/tracker-webapp.js</Arg> 
             <Arg type="boolean">true</Arg> 
         </New>
 	
