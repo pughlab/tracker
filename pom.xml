@@ -1064,6 +1064,7 @@
                                             </fileset>
                                             <fileset dir="${basedir}/src/main/etc">
                                             	<filename name="initialize_mysql.sql"/>
+                                            	<filename name="nginx.conf"/>
                                             </fileset>
                                         </copy>
     
