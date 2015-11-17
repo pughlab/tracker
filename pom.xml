@@ -990,6 +990,7 @@
         <profile>
             <!-- A profile for the builds performed by the continuous integration server -->
             <id>package-debian</id>
+            
             <build>
                 <plugins>
                 
@@ -1081,20 +1082,6 @@
                                             <arg value="-us" />
                                             <arg value="-uc" />
                                         </exec>
-                                    </target>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>deploy-deb</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <property name="deb.version" value="${project.version}" />
-                                        <!-- Deploy deb file in deb repo -->
-                                        <copy todir="${basedir}/target" file="tracker-webapp-_${deb.version}_all.deb" />
                                     </target>
                                 </configuration>
                             </execution>
