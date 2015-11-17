@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for tracker
+# postinst script for tracker-webapp
 #
 # see: dh_installdeb(1)
 
@@ -8,11 +8,11 @@ set -e
 . /usr/share/debconf/confmodule
 
 # . /usr/share/dbconfig-common/dpkg/postinst 
-# dbc_generate_include='template:/etc/tracker/tracker-config.groovy'
+# dbc_generate_include='template:/etc/tracker-webapp/tracker-webapp.xml'
 # dbc_generate_include_perms="755"
 # dbc_generate_include_owner="root:root"
-# dbc_generate_include_args="-o template_infile=/etc/tracker/tracker-config.groovy.template -U"
-# dbc_go tracker $@
+# dbc_generate_include_args="-o template_infile=/etc/tracker-webapp/tracker-webapp.xml.template -U"
+# dbc_go tracker-webapp $@
 
 # summary of how this script can be called:
 #        * <postinst> `configure' <most-recently-configured-version>
@@ -31,51 +31,51 @@ case "$1" in
     configure)
 
         RET=""
-        db_get tracker-server/database_host
+        db_get tracker-webapp/database_host
         DB_HOST=$RET
         DB_HOST=$(echo "$DB_HOST" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBSERVER_/$DB_HOST/" /etc/tracker/tracker.xml
+        sed -i "s/_DBC_DBSERVER_/$DB_HOST/" /etc/tracker-webapp/tracker-webapp.xml
 
         RET=""
-        db_get tracker-server/database_port
+        db_get tracker-webapp/database_port
         DB_PORT=$RET
         DB_PORT=$(echo "$DB_PORT" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBPORT_/$DB_PORT/" /etc/tracker/tracker.xml
+        sed -i "s/_DBC_DBPORT_/$DB_PORT/" /etc/tracker-webapp/tracker-webapp.xml
 
         RET=""
-        db_get tracker-server/database_name
+        db_get tracker-webapp/database_name
         DB_NAME=$RET
         DB_NAME=$(echo "$DB_NAME" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBNAME_/$DB_NAME/" /etc/tracker/tracker.xml
+        sed -i "s/_DBC_DBNAME_/$DB_NAME/" /etc/tracker-webapp/tracker-webapp.xml
 
         RET=""
-        db_get tracker-server/database_username
+        db_get tracker-webapp/database_username
         DB_USER=$RET
         DB_USER=$(echo "$DB_USER" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBUSER_/$DB_USER/" /etc/tracker/tracker.xml
+        sed -i "s/_DBC_DBUSER_/$DB_USER/" /etc/tracker-webapp/tracker-webapp.xml
 
         RET=""
-        db_get tracker-server/database_password
+        db_get tracker-webapp/database_password
         DB_PASSWORD=$RET
         DB_PASSWORD=$(echo "$DB_PASSWORD" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBPASS_/$DB_PASSWORD/" /etc/tracker/tracker.xml
+        sed -i "s/_DBC_DBPASS_/$DB_PASSWORD/" /etc/tracker-webapp/tracker-webapp.xml
 
         # Create tracker user if it doesn't exist.
-        if ! id tracker > /dev/null 2>&1 ; then
-            adduser --system --home /usr/share/tracker --no-create-home \
-                 --disabled-password tracker
+        if ! id trackerapp > /dev/null 2>&1 ; then
+            adduser --system --home /usr/share/tracker-webapp --no-create-home \
+                 --disabled-password trackerapp
         fi
         
         ## We might have a pre-existing link created, so don't just wipe it
-        ## rm -f /usr/share/tracker
-        ## ln -s /usr/share/tracker-* /usr/share/tracker
+        ## rm -f /usr/share/tracker-webapp
+        ## ln -s /usr/share/tracker-webapp-* /usr/share/tracker-webapp
         ##
-        ## if [ ! -e /var/lib/tracker/conf ] ; then
-        ##   ln -s /etc/tracker /var/lib/tracker/conf
+        ## if [ ! -e /var/lib/tracker-webapp/conf ] ; then
+        ##   ln -s /etc/tracker-webapp /var/lib/tracker-webapp/conf
         ## fi
 
-        chown -R tracker:adm /usr/share/tracker /var/log/tracker /etc/tracker
-        chmod -R 750      /usr/share/tracker /var/log/tracker /etc/tracker
+        chown -R trackerapp:adm /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
+        chmod -R 750      /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

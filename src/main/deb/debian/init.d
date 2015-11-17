@@ -1,26 +1,26 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides:          tracker
+# Provides:          tracker-webapp
 # Required-Start:    $network $local_fs $remote_fs
 # Required-Stop:     $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Tracker
-# Description:       Tracker: simple research project tracking
+# Short-Description: Tracker webapp
+# Description:       Tracker webapp: simple research project tracking
 ### END INIT INFO
 
 # Author: Stuart Watt <stuart@morungos.com>
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC=tracker                        # Introduce a short description here
-NAME=tracker                        # Introduce the short server's name here
-TRACKER_USER=tracker                # User to use to run the service
-TRACKER_HOME=/usr/share/tracker     # Default tracker directory
-TRACKER_CONF=/etc/tracker           # Default tracker config location
-TRACKER_LOG=/var/log/tracker        # Default log location
-DAEMON=/usr/bin/daemon              # Introduce the server's location here
-DAEMON_ARGS=""                      # Arguments to run the daemon with
+DESC=tracker-webapp                        # Introduce a short description here
+NAME=tracker-webapp                        # Introduce the short server's name here
+TRACKER_USER=trackerapp                    # User to use to run the service
+TRACKER_HOME=/usr/share/tracker-webapp     # Default tracker directory
+TRACKER_CONF=/etc/tracker-webapp           # Default tracker config location
+TRACKER_LOG=/var/log/tracker-webapp        # Default log location
+DAEMON=/usr/bin/daemon                     # Introduce the server's location here
+DAEMON_ARGS=""                             # Arguments to run the daemon with
 TMPDIR=$TMPDIR/$NAME
 PIDFILE=$TMPDIR/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME

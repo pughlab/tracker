@@ -1043,8 +1043,8 @@
                                         </tstamp>
     
                                         <mkdir dir="${deb.dir}" />
-                                        <mkdir dir="${deb.dir}/usr/share/tracker" />
-                                        <mkdir dir="${deb.dir}/etc/tracker" />
+                                        <mkdir dir="${deb.dir}/usr/share/tracker-webapp" />
+                                        <mkdir dir="${deb.dir}/etc/tracker-webapp" />
     
                                         <!-- Copy the files, templating the changelog, etc., with the right date -->
                                         <copy todir="${deb.dir}">
@@ -1055,7 +1055,7 @@
                                             </filterset>
                                         </copy>
                                         
-                                        <copy todir="${deb.dir}/usr/share/tracker">
+                                        <copy todir="${deb.dir}/usr/share/tracker-webapp">
                                             <fileset dir="${basedir}/target">
                                                 <filename name="tracker-webapp-${project.version}.war"/>
                                             </fileset>
@@ -1067,7 +1067,7 @@
                                             </fileset>
                                         </copy>
     
-                                        <copy todir="${deb.dir}/etc/tracker">
+                                        <copy todir="${deb.dir}/etc/tracker-webapp">
                                             <fileset dir="${basedir}/target/generated-etc">
                                                 <filename name="*.*"/>
                                             </fileset>
@@ -1093,7 +1093,7 @@
                                     <target>
                                         <property name="deb.version" value="${project.version}" />
                                         <!-- Deploy deb file in deb repo -->
-                                        <copy todir="${basedir}/target" file="tracker-server-_${deb.version}_all.deb" />
+                                        <copy todir="${basedir}/target" file="tracker-webapp-_${deb.version}_all.deb" />
                                     </target>
                                 </configuration>
                             </execution>

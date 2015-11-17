@@ -1,5 +1,5 @@
 #!/bin/sh
-# postrm script for tracker
+# postrm script for tracker-webapp
 #
 # see: dh_installdeb(1)
 
@@ -8,7 +8,7 @@ set -e
 . /usr/share/debconf/confmodule
 
 # . /usr/share/dbconfig-common/dpkg/postrm
-# dbc_go tracker $@
+# dbc_go tracker-webapp $@
 
 # summary of how this script can be called:
 #        * <postrm> `remove'
@@ -26,9 +26,9 @@ set -e
 
 case "$1" in
     purge)
-        userdel -f tracker || true
-        rm -rf /var/log/tracker /var/run/tracker /etc/tracker /usr/share/tracker
-        ucf --purge /etc/tracker/tracker.xml
+        userdel -f trackerapp || true
+        rm -rf /var/log/tracker-webapp /var/run/tracker-webapp /etc/tracker-webapp /usr/share/tracker-webapp
+        ucf --purge /etc/tracker-webapp/tracker-webapp.xml
     ;;
 
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)

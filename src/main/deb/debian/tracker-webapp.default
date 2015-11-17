@@ -3,7 +3,7 @@
 # installed at /etc/default/tracker by the maintainer scripts
 
 # pulled in from the init script; makes things easier.
-NAME=tracker
+NAME=tracker-webapp
 
 # location of java
 JAVA=/usr/bin/java
@@ -12,16 +12,16 @@ JAVA=/usr/bin/java
 JAVA_ARGS="-Xmx1024m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled"
 
 # user id (or id:gid) to be run as
-TRACKER_USER=tracker
+TRACKER_USER=trackerapp
 
 # location of the tracker distribution file
-TRACKER_HOME=/usr/share/tracker
+TRACKER_HOME=/usr/share/tracker-webapp
 
 # tracker log directory or syslog facility
-TRACKER_LOG=/var/log/tracker
+TRACKER_LOG=/var/log/tracker-webapp
 
 # base for configuration
-TRACKER_CONF=/etc/tracker
+TRACKER_CONF=/etc/tracker-webapp
 
 # Process start arguments
-TRACKER_ARGS=-jar $TRACKER_HOME/java-server.jar $TRACKER_CONF/tracker.xml
+TRACKER_ARGS=-jar $TRACKER_HOME/java-server.jar $TRACKER_CONF/tracker-webapp.xml

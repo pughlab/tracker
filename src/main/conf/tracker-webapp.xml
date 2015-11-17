@@ -88,7 +88,7 @@
 		</Call>
 	
 		<Call name="setWar">
-			<Arg>/usr/share/tracker/tracker-webapp-${project.version}.war</Arg>
+			<Arg><SystemProperty name="TRACKER_HOME" />/tracker-webapp-${project.version}.war</Arg>
 		</Call>
 				
 		<!-- Add the JSP initializer -->
@@ -127,7 +127,7 @@
         
         <New class="org.eclipse.jetty.plus.naming.EnvEntry">
             <Arg>trackerProperties</Arg> 
-            <Arg type="java.lang.String">/etc/tracker/tracker.properties</Arg> 
+            <Arg type="java.lang.String"><SystemProperty name="TRACKER_CONF" />/tracker-webapp.properties</Arg> 
             <Arg type="boolean">true</Arg> 
         </New>
 	
