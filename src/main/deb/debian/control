@@ -9,6 +9,6 @@ Homepage: https://github.com/pughlab/tracker
 Package: tracker-webapp
 Architecture: all
 Pre-Depends: debconf, coreutils (>= 6.10)
-Depends: ${misc:Depends}, adduser, daemon, psmisc, nginx-light, openjdk-8-jre
+Depends: ${misc:Depends}, adduser, daemon, psmisc, nginx-light, openjdk-8-jre | oracle-java8-installer
 Description: Secure web application with a spreadsheet view onto
  persistent data for research project tracking.
