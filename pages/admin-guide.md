@@ -77,9 +77,9 @@ the view that contains the information they need.
 
 ### Roles
 
-Finally, roles give permissions to a certain group of users. We won't go into
+Finally, roles give permissions to a group of users. We won't go into
 that in too much detail now, as we'll cover it later in the [Security](#security)
-section. 
+section.
 
 ## <a name="security"></a> Security
 
