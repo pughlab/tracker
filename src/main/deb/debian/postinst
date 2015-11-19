@@ -83,6 +83,13 @@ case "$1" in
                  --disabled-password trackerapp
         fi
         
+        if [ ! -d /usr/share/tracker-webapp/lib ]; then
+        	mkdir -p /usr/share/tracker-webapp/lib
+        fi
+        if [ ! -d /usr/share/tracker-webapp/conf ]; then
+        	mkdir -p /usr/share/tracker-webapp/conf
+        fi
+        
         chown -R trackerapp:adm /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
         chmod -R 750      /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
     ;;
