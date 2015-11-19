@@ -29,50 +29,59 @@ set -e
 
 case "$1" in
     configure)
+    
+        ## When reconfiguring, none of the changes should matter. We handle this by
+        ## grepping to see if we need to, for each value in turn. Only if the target
+        ## exists do we need to get a value and sed it into the file. This makes
+        ## updates much safer. 
+        
+        CONFIG=/etc/tracker-webapp/tracker-webapp.xml
 
-        RET=""
-        db_get tracker-webapp/database_host
-        DB_HOST=$RET
-        DB_HOST=$(echo "$DB_HOST" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBSERVER_/$DB_HOST/" /etc/tracker-webapp/tracker-webapp.xml
+        if ! grep _DBC_DBSERVER_ $CONFIG > /dev/null 2>&1 ; then
+            RET=""
+            db_get tracker-webapp/database_host
+            DB_HOST=$RET
+            DB_HOST=$(echo "$DB_HOST" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+            sed -i "s/_DBC_DBSERVER_/$DB_HOST/" $CONFIG
+        fi
 
-        RET=""
-        db_get tracker-webapp/database_port
-        DB_PORT=$RET
-        DB_PORT=$(echo "$DB_PORT" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBPORT_/$DB_PORT/" /etc/tracker-webapp/tracker-webapp.xml
+        if ! grep _DBC_DBPORT_ $CONFIG > /dev/null 2>&1 ; then
+            RET=""
+            db_get tracker-webapp/database_port
+            DB_PORT=$RET
+            DB_PORT=$(echo "$DB_PORT" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+            sed -i "s/_DBC_DBPORT_/$DB_PORT/" $CONFIG
+        fi
+        
+        if ! grep _DBC_DBNAME_ $CONFIG > /dev/null 2>&1 ; then
+            RET=""
+            db_get tracker-webapp/database_name
+            DB_NAME=$RET
+            DB_NAME=$(echo "$DB_NAME" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+            sed -i "s/_DBC_DBNAME_/$DB_NAME/" $CONFIG
+        fi
 
-        RET=""
-        db_get tracker-webapp/database_name
-        DB_NAME=$RET
-        DB_NAME=$(echo "$DB_NAME" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBNAME_/$DB_NAME/" /etc/tracker-webapp/tracker-webapp.xml
+        if ! grep _DBC_DBUSER_ $CONFIG > /dev/null 2>&1 ; then
+            RET=""
+            db_get tracker-webapp/database_username
+            DB_USER=$RET
+            DB_USER=$(echo "$DB_USER" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+            sed -i "s/_DBC_DBUSER_/$DB_USER/" $CONFIG
+        fi
 
-        RET=""
-        db_get tracker-webapp/database_username
-        DB_USER=$RET
-        DB_USER=$(echo "$DB_USER" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBUSER_/$DB_USER/" /etc/tracker-webapp/tracker-webapp.xml
-
-        RET=""
-        db_get tracker-webapp/database_password
-        DB_PASSWORD=$RET
-        DB_PASSWORD=$(echo "$DB_PASSWORD" | perl -MHTML::Entities -ne 'print encode_entities($_)')
-        sed -i "s/_DBC_DBPASS_/$DB_PASSWORD/" /etc/tracker-webapp/tracker-webapp.xml
+        if ! grep _DBC_DBPASS_ $CONFIG > /dev/null 2>&1 ; then
+            RET=""
+            db_get tracker-webapp/database_password
+            DB_PASSWORD=$RET
+            DB_PASSWORD=$(echo "$DB_PASSWORD" | perl -MHTML::Entities -ne 'print encode_entities($_)')
+            sed -i "s/_DBC_DBPASS_/$DB_PASSWORD/" $CONFIG
+        fi
 
         # Create tracker user if it doesn't exist.
         if ! id trackerapp > /dev/null 2>&1 ; then
             adduser --system --home /usr/share/tracker-webapp --no-create-home \
                  --disabled-password trackerapp
         fi
-        
-        ## We might have a pre-existing link created, so don't just wipe it
-        ## rm -f /usr/share/tracker-webapp
-        ## ln -s /usr/share/tracker-webapp-* /usr/share/tracker-webapp
-        ##
-        ## if [ ! -e /var/lib/tracker-webapp/conf ] ; then
-        ##   ln -s /etc/tracker-webapp /var/lib/tracker-webapp/conf
-        ## fi
         
         chown -R trackerapp:adm /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
         chmod -R 750      /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
