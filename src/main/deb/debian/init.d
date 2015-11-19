@@ -40,7 +40,7 @@ SCRIPTNAME=/etc/init.d/$NAME
 . /lib/lsb/init-functions
 
 DAEMON_ARGS="--name=$NAME --user=$TRACKER_USER --pidfile=$PIDFILE --inherit --output=$TRACKER_LOG/stdout.log --chdir=$TRACKER_HOME"
-CLASSPATH="$TRACKER_HOME/lib/*"
+CLASSPATH="$TRACKER_HOME/conf:$TRACKER_HOME/lib/*"
 
 # Get the status of the daemon process
 get_daemon_status()

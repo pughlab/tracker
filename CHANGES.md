@@ -1,6 +1,11 @@
 ## Revision history
 
 
+### Version 2.1.1 - November 19th 2015
+
+ * Fixed an issue with logging configuration. See #117
+
+
 ### Version 2.1.0 - November 17th 2015
 
  * Added a Debian package. See #113
