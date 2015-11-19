@@ -37,7 +37,7 @@ case "$1" in
         
         CONFIG=/etc/tracker-webapp/tracker-webapp.xml
 
-        if ! grep _DBC_DBSERVER_ $CONFIG > /dev/null 2>&1 ; then
+        if grep _DBC_DBSERVER_ $CONFIG > /dev/null 2>&1 ; then
             RET=""
             db_get tracker-webapp/database_host
             DB_HOST=$RET
@@ -45,7 +45,7 @@ case "$1" in
             sed -i "s/_DBC_DBSERVER_/$DB_HOST/" $CONFIG
         fi
 
-        if ! grep _DBC_DBPORT_ $CONFIG > /dev/null 2>&1 ; then
+        if grep _DBC_DBPORT_ $CONFIG > /dev/null 2>&1 ; then
             RET=""
             db_get tracker-webapp/database_port
             DB_PORT=$RET
@@ -53,7 +53,7 @@ case "$1" in
             sed -i "s/_DBC_DBPORT_/$DB_PORT/" $CONFIG
         fi
         
-        if ! grep _DBC_DBNAME_ $CONFIG > /dev/null 2>&1 ; then
+        if grep _DBC_DBNAME_ $CONFIG > /dev/null 2>&1 ; then
             RET=""
             db_get tracker-webapp/database_name
             DB_NAME=$RET
@@ -61,7 +61,7 @@ case "$1" in
             sed -i "s/_DBC_DBNAME_/$DB_NAME/" $CONFIG
         fi
 
-        if ! grep _DBC_DBUSER_ $CONFIG > /dev/null 2>&1 ; then
+        if grep _DBC_DBUSER_ $CONFIG > /dev/null 2>&1 ; then
             RET=""
             db_get tracker-webapp/database_username
             DB_USER=$RET
@@ -69,7 +69,7 @@ case "$1" in
             sed -i "s/_DBC_DBUSER_/$DB_USER/" $CONFIG
         fi
 
-        if ! grep _DBC_DBPASS_ $CONFIG > /dev/null 2>&1 ; then
+        if grep _DBC_DBPASS_ $CONFIG > /dev/null 2>&1 ; then
             RET=""
             db_get tracker-webapp/database_password
             DB_PASSWORD=$RET
@@ -90,7 +90,8 @@ case "$1" in
         	mkdir -p /usr/share/tracker-webapp/conf
         fi
         
-        chown -R trackerapp:adm /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
+        ## Follow symbolic links for permissions, in case we're directed to a protected location
+        chown -RH trackerapp:adm /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
         chmod -R 750      /usr/share/tracker-webapp /var/log/tracker-webapp /etc/tracker-webapp
     ;;
 
