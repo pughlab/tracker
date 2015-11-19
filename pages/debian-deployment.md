@@ -51,7 +51,7 @@ places where confidential data may be stored.
 
 The tracker will not remove or modify these locations if they already exist, so you can secure the system in advance of installing with ecryptfs.
 
-For more on installing and setting up ecryptfs, see: https://www.howtoforge.com/how-to-encrypt-directories-partitions-with-ecryptfs-on-debian-squeeze
+For more on installing and setting up ecryptfs, see: [https://www.howtoforge.com/how-to-encrypt-directories-partitions-with-ecryptfs-on-debian-squeeze](https://www.howtoforge.com/how-to-encrypt-directories-partitions-with-ecryptfs-on-debian-squeeze).
 
 First, install ecryptfs and set up encryption for everything under `/srv`
 
@@ -127,7 +127,7 @@ Containing the following text (to enable the tracker on port 80 as a regular web
       }
     }
 
-Just a brief point on this: it's different to some older nginx configurations which had separate listen statements for IPV4 and IPV6. That no longer works. See: https://chrisjean.com/fix-nginx-emerg-bind-to-80-failed-98-address-already-in-use/
+Just a brief point on this: it's different to some older nginx configurations which had separate listen statements for IPV4 and IPV6. That no longer works. See: [https://chrisjean.com/fix-nginx-emerg-bind-to-80-failed-98-address-already-in-use/](https://chrisjean.com/fix-nginx-emerg-bind-to-80-failed-98-address-already-in-use/)
 
 Now, change the site links:
 
