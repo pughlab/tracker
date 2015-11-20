@@ -36,24 +36,24 @@ Install a MySQL server as follows
     mysql> GRANT ALL PRIVILEGES ON tracker.* TO 'tracker'@'localhost';
     mysql> quit
 
-### 4. [Optional] secure the system
+### 4. [Optional] secure the filesystem for at-rest encryption
 
 By default, data is stored in a few different locations:
 
-* /var/lib/mysql -- the MySQL persisted data
-* /var/log/tracker-webapp -- the tracker log files
-* /var/log/nginx -- the nginx HTTP log files
-* /usr/share/tracker-webapp -- the main tracker directory for code
-* /etc/tracker-webapp -- the tracker configuration directory
+* `/var/lib/mysql` -- the MySQL persisted data
+* `/var/log/tracker-webapp` -- the tracker log files
+* `/var/log/nginx` -- the nginx HTTP log files
+* `/usr/share/tracker-webapp` -- the main tracker directory for code
+* `/etc/tracker-webapp` -- the tracker configuration directory
 
 Only the first three of these really need securing, as they are the main
 places where confidential data may be stored.
 
-The tracker will not remove or modify these locations if they already exist, so you can secure the system in advance of installing with ecryptfs.
+The tracker will not remove or modify these locations if they already exist, so you can secure the system in advance of installing with `ecryptfs`.
 
-For more on installing and setting up ecryptfs, see: [https://www.howtoforge.com/how-to-encrypt-directories-partitions-with-ecryptfs-on-debian-squeeze](https://www.howtoforge.com/how-to-encrypt-directories-partitions-with-ecryptfs-on-debian-squeeze).
+For more on installing and setting up `ecryptfs`, see: [https://www.howtoforge.com/how-to-encrypt-directories-partitions-with-ecryptfs-on-debian-squeeze](https://www.howtoforge.com/how-to-encrypt-directories-partitions-with-ecryptfs-on-debian-squeeze).
 
-First, install ecryptfs and set up encryption for everything under `/srv`
+First, install `ecryptfs` and set up encryption for everything under `/srv`
 
     $ sudo apt-get install ecryptfs-utils
     $ sudo mount -t ecryptfs /srv /srv
@@ -96,9 +96,7 @@ means that the tracker application can run as a non-privileged user elsewhere,
 and it makes it easier to ensure any security updates (e.g., to SSL) can be
 applied from a better resourced team.
 
-We also recommend enabling and using SSL, if you are able to install a
-certificate appropriately, as without that, data is being sent to and from the
-tracker without encryption.
+> We also **strongly** recommend enabling and using SSL, if you are able to install a certificate appropriately, as without that, data is being sent to and from the tracker without encryption. And all the data that is encrypted at rest is still being transmitted to and from the application in clear text. And this includes the authentication credentials, unless you use a more complex authentication system like OpenID Connect.
 
     $ sudo apt-get install nginx
 
@@ -127,9 +125,9 @@ Containing the following text (to enable the tracker on port 80 as a regular web
       }
     }
 
-Just a brief point on this: it's different to some older nginx configurations which had separate listen statements for IPV4 and IPV6. That no longer works. See: [https://chrisjean.com/fix-nginx-emerg-bind-to-80-failed-98-address-already-in-use/](https://chrisjean.com/fix-nginx-emerg-bind-to-80-failed-98-address-already-in-use/)
+Just a brief point on this: it's different to some older `nginx` configurations which had separate listen statements for IPV4 and IPV6. That no longer works. See: [https://chrisjean.com/fix-nginx-emerg-bind-to-80-failed-98-address-already-in-use/](https://chrisjean.com/fix-nginx-emerg-bind-to-80-failed-98-address-already-in-use/)
 
-Now, change the site links:
+Now, change the links to enable the new site on server start:
 
     $ sudo rm /etc/nginx/sites-enabled/default
     $ sudo ln -sf /etc/nginx/sites-available/tracker-webapp -T /etc/nginx/sites-enabled/tracker-webapp
