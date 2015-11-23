@@ -1,7 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.query;
 
 import java.io.IOException;
-import java.io.Reader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +10,11 @@ import org.slf4j.LoggerFactory;
  * For convenience, we use tokens both for AST type nodes and for lexical
  * tokens. The grammar is essentially as follows.
  * <p>
- * query ::= term (term | operator term)* 
+ * query ::= term (infix_operator term)* 
  * <p>
- * term ::= token | '(' query ')'
+ * term ::= value | '(' query ')'
+ * <p>
+ * value ::= token (WS token)*
  * <p>
  * The most non-obvious feature is the "implied or" feature, in that if 
  * two terms are entered, it behaves like a kind of implicit or
@@ -27,9 +28,9 @@ public class SimpleQueryParser implements QueryParser {
 
 	private Tokenizer reader = null;
 	
-	public SimpleQueryParser(Reader input) {
+	public SimpleQueryParser(Tokenizer input) {
 		super();
-		this.reader = new Tokenizer(input);
+		this.reader = input;
 	}
 	
 	private Token token;
@@ -67,17 +68,10 @@ public class SimpleQueryParser implements QueryParser {
 				skipToken();
 				term = new ExpressionNode(term, operator, parseTerm());
 				
-			} else if (OperatorToken.isOperator(operator.getValue())) {
+			} else {
 				
 				break;
 				
-			} else {
-				
-				// Implied comma handling
-				QueryNode other = parseTerm();
-				if (other != null) {
-					term = new ExpressionNode(term, OperatorToken.OPERATOR_IMPLIED, other);
-				}				
 			}
 		}
 		

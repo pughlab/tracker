@@ -243,9 +243,9 @@ public class CaseAttributePersistence {
 		
 		String filterValue = filterJson.asText();
 		
-		QueryParser parser = queryParserFactory.newQueryParser(filterValue);
 		QueryNode node;
 		try {
+			QueryParser parser = queryParserFactory.newQueryParser(filterValue);
 			node = parser.parse();
 		} catch (IOException e) {
 			logger.error(e.getLocalizedMessage());
