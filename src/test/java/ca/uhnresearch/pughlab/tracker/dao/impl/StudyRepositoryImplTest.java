@@ -1903,6 +1903,36 @@ public class StudyRepositoryImplTest {
 
 	/**
 	 * Checks that basic filtering works, with an exact match to a string
+	 * @throws RepositoryException
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicFilteringWithSpaces() throws RepositoryException {
+		
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("physician", jsonNodeFactory.textNode("Dr. Z"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(2, dataList.size());
+		
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("DEMO-03", data.get("patientId").asText());
+	}
+
+	/**
+	 * Checks that basic filtering works, with an exact match to a string
 	 * failing to find any records at all.
 	 * @throws RepositoryException
 	 */
