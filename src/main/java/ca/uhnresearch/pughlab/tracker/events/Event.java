@@ -29,33 +29,33 @@ public class Event {
 	public static final String EVENT_JOIN = "join";
 	
 	/**
-	 * Event sent by the client to the server notifying a change to an entity field
+	 * Event sent by the server to a client notifying a change to an entity field
 	 */
 	public static final String EVENT_SET_FIELD = "field";
 
 	/**
-	 * Event sent by the client to the server notifying a change to an entity state
+	 * Event sent by the server to a client notifying a change to an entity state
 	 */
 	public static final String EVENT_STATE = "state";
 
 	/**
-	 * Event sent by the client to the server notifying a new record
+	 * Event sent by the server to a client notifying a new record
 	 */
 	public static final String EVENT_NEW_RECORD = "record";
 
 	/**
-	 * Event sent by the client to the server notifying a record is being deleted
+	 * Event sent by the server to a client notifying a record is being deleted
 	 */
 	public static final String EVENT_DELETE_RECORD = "delete";
 
 	/**
-	 * Event sent by the client to the server notifying a new user has connected 
+	 * Event sent by the server to a client notifying a new user has connected 
 	 * to the same scope
 	 */
 	public static final String EVENT_USER_CONNECTED = "userconnect";
 
 	/**
-	 * Event sent by the client to the server notifying a user has disconnected from 
+	 * Event sent by the server to a client notifying a user has disconnected from 
 	 * the same scope
 	 */
 	public static final String EVENT_USER_DISCONNECTED = "userdisconnect";

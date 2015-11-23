@@ -26,40 +26,69 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 
 public class RedactedJsonNode extends ValueNode {
 	
+	/**
+	 * The underlying value node.
+	 */
 	protected final JsonNode _value;
 	
 	private static final String REDACTED_VALUE = "REDACTED";
 	
 	private static final JsonNodeFactory factory = JsonNodeFactory.instance;
 
+	/**
+	 * Constructs a redacted node from a value node.
+	 * @param v the value node
+	 */
 	public RedactedJsonNode(JsonNode v) {
 		_value = v;
 	}
 
+	/**
+	 * Returns the node type as a JsonToken
+	 * @return  the JsonToken for a value string
+	 */
 	@Override
 	public JsonToken asToken() {
 		return JsonToken.VALUE_STRING;
 	}
 	
+	/**
+	 * Returns the underlying redactable value.
+	 * @return the value
+	 */
 	public JsonNode getValue() { 
 		return _value;
 	}
 
+	/**
+	 * Serializes this node to the redacted value, as if it is a string
+	 * @param jgen
+	 * @param provider
+	 */
 	@Override
 	public void serialize(JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
 		jgen.writeString(REDACTED_VALUE);
 	}
 
+	/**
+	 * Returns the node type. A redacted node always looks like a string.
+	 */
 	@Override
     public JsonNodeType getNodeType() {
         return JsonNodeType.STRING;
     }
 
+	/**
+	 * Returns the node as text, always the redacted value.
+	 */
 	@Override
 	public String asText() {
 		return REDACTED_VALUE;
 	}
 	
+	/**
+	 * Maps the node to a string, always the redacted value.
+	 */
 	@Override
     public String toString() {
         int len = REDACTED_VALUE.length();
@@ -71,6 +100,10 @@ public class RedactedJsonNode extends ValueNode {
         return sb.toString();
     }
 
+	/**
+	 * Two redacted nodes are equal if and only if their underlying values are equal. 
+	 * @param o the other value
+	 */
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) return true;
@@ -99,6 +132,8 @@ public class RedactedJsonNode extends ValueNode {
 	/**
 	 * Helper method to transform an ObjectNode, recursively, into
 	 * a tagged form which can be written. 
+	 * @param data the input object
+	 * @return the tagged node
 	 */
 	public static ObjectNode redactedToTagged(final ObjectNode data) {
 		ObjectNode tagged = factory.objectNode();
@@ -121,6 +156,8 @@ public class RedactedJsonNode extends ValueNode {
 	/**
 	 * Helper method to transform an tagged ObjectNode, recursively, into
 	 * a redacted form. 
+	 * @param data the input tagged node
+	 * @return the redacted object
 	 */
 	public static ObjectNode taggedToRedacted(final ObjectNode data) {
 		ObjectNode redacted = factory.objectNode();
@@ -145,6 +182,8 @@ public class RedactedJsonNode extends ValueNode {
 	/**
 	 * Helper method to transform an ObjectNode, recursively, into
 	 * a clear form. 
+	 * @param data the input object
+	 * @return a clear (unredacted) object
 	 */
 	public static ObjectNode redactedToClear(final ObjectNode data) {
 		ObjectNode tagged = factory.objectNode();

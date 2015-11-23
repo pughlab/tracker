@@ -11,10 +11,19 @@ import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 
+/**
+ * Extracts an attribute name and object data, and stores them in the request attributes.
+ * @author stuartw
+ */
 public class AttributeExtractor extends RepositoryAwareExtractor {
 	
 	private final Logger logger = LoggerFactory.getLogger(AttributeExtractor.class);
 
+	/**
+	 * Called to populate the request during extraction. This retrieves the 
+	 * attribute name, looks it up in the study using the repository, and stores both
+	 * the name and the attribute description in the request object. 
+	 */
 	protected int beforeHandle(Request request, Response response) {
 		
 		Study study = RequestAttributes.getRequestStudy(request);
