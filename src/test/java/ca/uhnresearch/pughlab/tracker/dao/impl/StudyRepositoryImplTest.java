@@ -101,6 +101,16 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testGetStudyAbout() {
+		Study s = studyRepository.getStudy("DEMO");
+		Assert.assertNotNull(s);
+		Assert.assertNotNull(s.getAbout());
+		Assert.assertEquals("### Markdown-based description", s.getAbout());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testSaveStudyNew() {
 		Study s = new Study();
 		s.setName("TEST");

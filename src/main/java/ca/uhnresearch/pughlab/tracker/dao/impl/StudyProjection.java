@@ -21,7 +21,7 @@ public class StudyProjection extends MappingProjection<Study> {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public StudyProjection(QStudy study) {
-		super(Study.class, study.id, study.name, study.description, study.options);
+		super(Study.class, study.id, study.name, study.description, study.about, study.options);
 	}
 
 	/**
@@ -36,6 +36,7 @@ public class StudyProjection extends MappingProjection<Study> {
         product.setId(tuple.get(studies.id));
         product.setName(tuple.get(studies.name));
         product.setDescription(tuple.get(studies.description));
+        product.setAbout(tuple.get(studies.about));
         
         String options = tuple.get(studies.options);
 		if (options != null) {
