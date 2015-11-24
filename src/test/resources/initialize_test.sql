@@ -399,6 +399,8 @@ CREATE TABLE "AUDIT_LOG" (
   "EVENT_TYPE" VARCHAR(12) NOT NULL,
   "EVENT_ARGS" VARCHAR(2048)
 );
+CREATE INDEX "AUDIT_LOG_CASES_CHANGES" ON "AUDIT_LOG"("STUDY_ID","CASE_ID","EVENT_TIME");
+CREATE INDEX "AUDIT_LOG_STUDY_CHANGES" ON "AUDIT_LOG"("STUDY_ID","EVENT_TIME");
 
 -- =============================================================================================
 -- Now for the users
