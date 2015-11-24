@@ -30,8 +30,8 @@ CREATE TABLE "STUDIES" (
   UNIQUE ("NAME")
 );
 
-INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION", "ABOUT") VALUES (0, 'ADMIN', 'Admin study', '### Admin study');
-INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION", "OPTIONS", "ABOUT") VALUES (1, 'DEMO', 'A demo clinical genomics study', '{"stateLabels":{"pending":"label1","returnPending":"label2"}}', '### Markdown-based description');
+INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION") VALUES (0, 'ADMIN', 'Admin study');
+INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION", "OPTIONS", "ABOUT") VALUES (1, 'DEMO', 'A demo clinical genomics study', '{"stateLabels":{"pending":"label1","returnPending":"label2"}}', '#### Markdown-based description');
 INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION", "ABOUT") VALUES (2, 'SECOND', 'A second study', '* Bulleted list description');
 
 -- =============================================================================================

@@ -105,7 +105,7 @@ public class StudyRepositoryImplTest {
 		Study s = studyRepository.getStudy("DEMO");
 		Assert.assertNotNull(s);
 		Assert.assertNotNull(s.getAbout());
-		Assert.assertEquals("### Markdown-based description", s.getAbout());
+		Assert.assertEquals("#### Markdown-based description", s.getAbout());
 	}
 	
 	@Test

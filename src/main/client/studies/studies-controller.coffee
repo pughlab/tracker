@@ -6,7 +6,7 @@ angular
     $scope.permissions = undefined
 
     ## Permissions and studies can both change when the user and/or their permissions
-    ## change. We should detect that. 
+    ## change. We should detect that.
 
     initializeStudies = () ->
       $http

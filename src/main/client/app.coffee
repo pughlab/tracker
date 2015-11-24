@@ -12,6 +12,7 @@ angular
     'tracker.authentication'
     'tracker.admin'
     'tracker.error'
+    'tracker.directives'
     'tracker-templates'
   ]
 
@@ -30,6 +31,10 @@ angular
         controller: 'StudyController'
         templateUrl: '/tracker/studies/study-views.html'
         url: '/studies/:studyName'
+      .state 'studyAbout',
+        controller: 'StudyController'
+        templateUrl: '/tracker/studies/study-about.html'
+        url: '/studies/:studyName/about'
       .state 'studyView',
         controller: 'GridTableController'
         templateUrl: '/tracker/grid/table.html'
