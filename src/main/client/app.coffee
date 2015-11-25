@@ -47,6 +47,7 @@ angular
         resolve:
           studyName: Array '$stateParams', ($stateParams) -> $stateParams.studyName
       .state 'adminStudy.settings',
+        controller: 'StudySettingsEditorController'
         templateUrl: '/tracker/admin/admin-study-settings.html'
         url: ''
       .state 'adminStudy.attributes',
@@ -61,10 +62,6 @@ angular
         controller: 'ViewEditorController'
         templateUrl: '/tracker/admin/admin-study-views.html'
         url: '/views'
-      .state 'adminStudy.about',
-        controller: 'StudyAboutEditorController'
-        templateUrl: '/tracker/admin/admin-study-about.html'
-        url: '/about'
       .state 'adminView',
         controller: 'ViewController'
         templateUrl: '/tracker/admin/admin-view.html'

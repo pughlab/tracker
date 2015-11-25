@@ -1,7 +1,7 @@
 angular
   .module 'tracker.admin'
 
-  .controller 'StudyAboutEditorController', Array '$scope', '$http', '$stateParams', '$q', '$timeout', ($scope, $http, $stateParams, $q, $timeout) ->
+  .controller 'StudySettingsEditorController', Array '$scope', '$http', '$stateParams', '$q', '$timeout', ($scope, $http, $stateParams, $q, $timeout) ->
 
     $scope.study = undefined
     originalStudy = undefined
