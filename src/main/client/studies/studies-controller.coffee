@@ -27,7 +27,7 @@ angular
     encodedStudyName = encodeURIComponent($stateParams.studyName)
 
     $http
-      .get("/api/studies/#{encodedStudyName}/views")
+      .get("/api/studies/#{encodedStudyName}")
       .success (response) ->
         $scope.study = response
       .error (response) ->
