@@ -146,6 +146,23 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testSaveStudyUpdateAbout() {
+		Study s = studyRepository.getStudy("DEMO");
+		s.setAbout("#### Markdown about text");
+				
+		Study result = studyRepository.saveStudy(s);
+		Assert.assertNotNull(result);
+		Assert.assertNotNull(result.getId());
+		Assert.assertEquals(result.getId(), s.getId());
+
+		Study second = studyRepository.getStudy("DEMO");
+		Assert.assertNotNull(second);
+		Assert.assertEquals("#### Markdown about text", second.getAbout());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testGetMissingStudy() {
 		Study s = studyRepository.getStudy("DEMOX");
 		Assert.assertNull(s);

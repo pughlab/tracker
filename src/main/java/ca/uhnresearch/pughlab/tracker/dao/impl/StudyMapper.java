@@ -24,6 +24,7 @@ public class StudyMapper extends AbstractMapper<Study> {
         values.put(studies.id, bean.getId());
         values.put(studies.name, bean.getName());
         values.put(studies.description, bean.getDescription());
+        values.put(studies.about, bean.getAbout());
         
         try {
         	JsonNode options = bean.getOptions();
