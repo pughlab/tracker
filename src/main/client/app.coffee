@@ -46,9 +46,12 @@ angular
         url: '/admin/:studyName'
         resolve:
           studyName: Array '$stateParams', ($stateParams) -> $stateParams.studyName
-      .state 'adminStudy.settings',
-        templateUrl: '/tracker/admin/admin-study-settings.html'
+      .state 'adminStudy.notes',
+        templateUrl: '/tracker/admin/admin-study-notes.html'
         url: ''
+      .state 'adminStudy.labels',
+        templateUrl: '/tracker/admin/admin-study-labels.html'
+        url: '/labels'
       .state 'adminStudy.attributes',
         templateUrl: '/tracker/admin/admin-study-attributes.html'
         url: '/attributes'

@@ -91,7 +91,6 @@ angular
       $http
         .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}")
         .then (response) ->
-          console.log "Got study", response
           originalStudy = response.data
         .catch (response) ->
           console.log "Error", response.data
@@ -110,7 +109,6 @@ angular
       $http
         .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}/roles")
         .then (response) ->
-          console.log "Got roles", response
           originalRoles = response.data
         .catch (response) ->
           console.log "Error", response.data
