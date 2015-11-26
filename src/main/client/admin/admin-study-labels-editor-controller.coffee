@@ -43,7 +43,7 @@ angular
 
     ## Safely propogate rules back into the study if they are different
     ruleWatcher = (newRules, oldRules) ->
-      if typeof newRules != 'undefined'
+      if typeof newRules != 'undefined' and $scope.study? and ! angular.equals newRules, oldRules
         $scope.study.study.options.stateRules = newRules
         $scope.$emit 'admin:modified'
 
