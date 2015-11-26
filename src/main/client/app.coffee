@@ -47,19 +47,15 @@ angular
         resolve:
           studyName: Array '$stateParams', ($stateParams) -> $stateParams.studyName
       .state 'adminStudy.settings',
-        controller: 'StudySettingsEditorController'
         templateUrl: '/tracker/admin/admin-study-settings.html'
         url: ''
       .state 'adminStudy.attributes',
-        controller: 'AttributeEditorController'
         templateUrl: '/tracker/admin/admin-study-attributes.html'
         url: '/attributes'
       .state 'adminStudy.roles',
-        controller: 'StudyRoleEditorController'
         templateUrl: '/tracker/admin/admin-study-roles.html'
         url: '/roles'
       .state 'adminStudy.views',
-        controller: 'ViewEditorController'
         templateUrl: '/tracker/admin/admin-study-views.html'
         url: '/views'
       .state 'adminView',

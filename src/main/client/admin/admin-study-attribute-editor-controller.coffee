@@ -1,10 +1,12 @@
 angular
   .module 'tracker.admin'
 
-  .controller 'AttributeEditorController', Array '$scope', ($scope) ->
+  .controller 'StudyAttributeEditorController', Array '$scope', ($scope) ->
 
     $scope.selectedAttribute = undefined
     originalSelectedAttribute = undefined
+
+    console.log "Initialized StudyAttributeEditorController"
 
     $scope.$on 'admin:reset', (e) ->
       $scope.selectedAttribute = undefined
@@ -13,14 +15,17 @@ angular
     ## Detect changes to attributes and notify as modified
     $scope.$watchCollection 'selectedAttribute', (newValue, oldValue) ->
       if ! angular.equals(newValue, originalSelectedAttribute)
+        console.log "Sending admin:modified selectedAttribute", newValue, oldValue
         $scope.$emit 'admin:modified'
 
     $scope.$watchCollection 'selectedAttribute.options.tags', (newValue, oldValue) ->
       if ! angular.equals(newValue, originalSelectedAttribute?.options?.tags)
+        console.log "Sending admin:modified selectedAttribute.options.tags", newValue, oldValue
         $scope.$emit 'admin:modified'
 
     $scope.$watchCollection 'selectedAttribute.options.values', (newValue, oldValue) ->
       if ! angular.equals(newValue, originalSelectedAttribute?.options?.values)
+        console.log "Sending admin:modified selectedAttribute.options.values", newValue, oldValue
         $scope.$emit 'admin:modified'
 
     $scope.selectAttribute = (attribute) ->
@@ -31,6 +36,7 @@ angular
       $scope.selectedAttribute = undefined
       originalSelectedAttribute = undefined
       $scope.study.attributes = $scope.study.attributes.filter (att) -> att != attribute
+      console.log "Sending admin:modified deleteAttribute", newValue, oldValue
       $scope.$emit 'admin:modified'
 
     $scope.newAttribute = () ->
@@ -38,6 +44,7 @@ angular
       $scope.study.attributes.push newAttribute
       $scope.selectedAttribute = newAttribute
       originalSelectedAttribute = angular.copy($scope.selectedAttribute)
+      console.log "Sending admin:modified newAttribute", newValue, oldValue
       $scope.$emit 'admin:modified'
 
     $scope.attributeTypes = [

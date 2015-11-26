@@ -1,66 +1,56 @@
-<div class="row">
-  <div class="col-md-12">
-    <p class="text-muted">
-      This manages the available study roles. Roles can be authorized for a
-      group of users.
-    </p>
+<div ng-controller="StudyRoleEditorController">
+  <div class="row">
+    <div class="col-md-12">
+      <p class="text-muted">
+        This manages the available study roles. Roles can be authorized for a
+        group of users.
+      </p>
+    </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-md-12">
-    <ul ng-model="roles" id="viewSortable" class="admin-list-box">
-      <li ng-repeat="role in roles" ng-class="{'list-selected' : role == selectedRole}" ng-click="selectRole(role)">{{role.name}}</li>
-    </ul>
+  <div class="row">
+    <div class="col-md-12">
+      <ul ng-model="roles" id="viewSortable" class="admin-list-box">
+        <li ng-repeat="role in roles.roles" ng-class="{'list-selected' : role == selectedRole}" ng-click="selectRole(role)">{{role.name}}</li>
+      </ul>
+    </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-md-12">
-    <form class="form-horizontal" role="form">
-      <fieldset>
+  <div class="row">
+    <div class="col-md-12">
+      <form class="form-horizontal" role="form">
+        <fieldset>
 
-        <div class="form-group">
-          <label class="col-md-3 control-label" for="role-name">Name:</label>
-          <div class="col-md-9">
-            <input id="role-name" name="role-name" type="text" placeholder="Name" class="form-control input-md" ng-model="selectedRole.name" ng-disabled="! selectedRole">
+          <div class="form-group">
+            <label class="col-md-3 control-label" for="role-name">Name:</label>
+            <div class="col-md-9">
+              <input id="role-name" name="role-name" type="text" placeholder="Name" class="form-control input-md" ng-model="selectedRole.name" ng-disabled="! selectedRole">
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label class="col-md-3 control-label" for="role-users">Users:</label>
-          <div class="col-md-9">
-            <select id="role-users" selectize-tags options="selectedRole.users" model="selectedRole.users" ></select>
+          <div class="form-group">
+            <label class="col-md-3 control-label" for="role-users">Users:</label>
+            <div class="col-md-9">
+              <select id="role-users" selectize-tags options="selectedRole.users" model="selectedRole.users" ></select>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label class="col-md-3 control-label" for="role-permissions">Permissions:</label>
-          <div class="col-md-9">
-            <select id="role-permissions" selectize-tags options="selectedRole.permissions" model="selectedRole.permissions" ></select>
+          <div class="form-group">
+            <label class="col-md-3 control-label" for="role-permissions">Permissions:</label>
+            <div class="col-md-9">
+              <select id="role-permissions" selectize-tags options="selectedRole.permissions" model="selectedRole.permissions" ></select>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <div class="col-md-3"></div>
-          <div class="col-md-9">
-          <button class="btn btn-default" ng-click="newRole()">New role</button>
-          <button class="btn" ng-class="selectedRole ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedRole" ng-click="deleteRole(selectedRole)">Delete role</button>
+          <div class="form-group">
+            <div class="col-md-3"></div>
+            <div class="col-md-9">
+            <button class="btn btn-default" ng-click="newRole()">New role</button>
+            <button class="btn" ng-class="selectedRole ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedRole" ng-click="deleteRole(selectedRole)">Delete role</button>
+            </div>
           </div>
-        </div>
-      </fieldset>
-    </form>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-md-12">
-    <hr>
-
-    <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
-
-    <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="save(study)">Save changes</button>
-    <button class="btn btn-default" ng-disabled="! modified" ng-click="reset()">Reset</button>
-
+        </fieldset>
+      </form>
+    </div>
   </div>
 </div>

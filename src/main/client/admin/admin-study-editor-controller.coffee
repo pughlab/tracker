@@ -6,9 +6,21 @@ angular
     $scope.study = undefined
     originalStudy = undefined
 
+    $scope.schema = undefined
+    originalSchema = undefined
+
+    $scope.roles = undefined
+    originalRoles = undefined
+
     $scope.modified = false
     $scope.alerts = []
     $scope.params = $stateParams
+
+    loading = true
+
+    $scope.$watchCollection 'study.study', (newValue, oldValue) ->
+      if newValue != oldValue && ! angular.equals(newValue, oldValue) && ! loading
+        $scope.$emit 'admin:modified'
 
     $scope.$on 'admin:modified', (e) ->
       $scope.modified = true
@@ -19,6 +31,12 @@ angular
       $scope.study = originalStudy
       originalStudy = angular.copy($scope.study)
 
+      $scope.schema = originalSchema
+      originalSchema = angular.copy($scope.schema)
+
+      $scope.roles = originalRoles
+      originalRoles = angular.copy($scope.roles)
+
       $timeout () ->
         $scope.modified = false
 
@@ -27,19 +45,80 @@ angular
 
     $scope.save = () ->
       $scope.alerts = []
-      $http
-        .put("/api/studies/#{encodeURIComponent($stateParams.studyName)}/schema", $scope.study)
-        .success (response) ->
-          originalStudy = response
-          $scope.reset()
-        .error (response) ->
-          message = response?.error or response
-          $scope.alerts.push {type: 'danger', msg: message}
 
-    $http
-      .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}/schema")
-      .success (schema) ->
-        originalStudy = schema
+      writeStudy = () ->
+        if angular.equals originalStudy, $scope.study
+          $q.defer()
+        else
+          $http
+            .put("/api/studies/#{encodeURIComponent($stateParams.studyName)}", $scope.study)
+            .then (response) ->
+              originalStudy = response.data
+            .catch (response) ->
+              $scope.alerts.push {type: 'danger', msg: response.data?.error or response.data}
+
+      writeSchema = () ->
+        if angular.equals originalSchema, $scope.schema
+          $q.defer()
+        else
+          $http
+            .put("/api/studies/#{encodeURIComponent($stateParams.studyName)}/schema", $scope.schema)
+            .then (response) ->
+              originalSchema = response.data
+            .catch (response) ->
+              $scope.alerts.push {type: 'danger', msg: response.data?.error or response.data}
+
+      writeRoles = () ->
+        if angular.equals originalRoles, $scope.roles
+          $q.defer()
+        else
+          $http
+            .put("/api/studies/#{encodeURIComponent($stateParams.studyName)}/roles", $scope.roles)
+            .then (response) ->
+              originalRoles = response.data
+            .catch (response) ->
+              $scope.alerts.push {type: 'danger', msg: response.data?.error or response.data}
+
+      loading = true
+      $q
+        .all [writeStudy(), writeSchema(), writeRoles()]
+        .then () ->
+          loading = false
+          $scope.reset()
+
+    readStudy = () ->
+      console.log "Called readStudy"
+      $http
+        .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}")
+        .then (response) ->
+          console.log "Got study", response
+          originalStudy = response.data
+        .catch (response) ->
+          console.log "Error", response.data
+
+    readSchema = () ->
+      console.log "Called readSchema"
+      $http
+        .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}/schema")
+        .then (response) ->
+          originalSchema = response.data
+        .catch (response) ->
+          console.log "Error", response.data
+
+    readRoles = () ->
+      console.log "Called readRoles"
+      $http
+        .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}/roles")
+        .then (response) ->
+          console.log "Got roles", response
+          originalRoles = response.data
+        .catch (response) ->
+          console.log "Error", response.data
+
+    loading = true
+    $q
+      .all [readStudy(), readSchema(), readRoles()]
+      .then () ->
+        loading = false
+        console.log "Finished loading"
         $scope.reset()
-      .error (error) ->
-        console.log "Error", error
