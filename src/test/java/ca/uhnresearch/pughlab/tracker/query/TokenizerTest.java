@@ -152,4 +152,26 @@ public class TokenizerTest {
 		Assert.assertTrue(tokens.get(1) instanceof OperatorToken);
 		Assert.assertTrue(tokens.get(3) instanceof ValueToken);
 	}
+	
+	@Test
+	public void testBeforeToken() throws IOException, InvalidTokenException {
+		
+		SimpleTokenizer tokenizer = new SimpleTokenizer(new StringReader("BEFORE"));
+		Token token = tokenizer.getNextToken();
+		Assert.assertNotNull(token);
+		Assert.assertTrue(token instanceof OperatorToken);
+		Assert.assertEquals("BEFORE", token.getValue());
+		Assert.assertTrue(OperatorToken.isPrefixOperator(token.getValue()));
+	}
+
+	@Test
+	public void testAfterToken() throws IOException, InvalidTokenException {
+		
+		SimpleTokenizer tokenizer = new SimpleTokenizer(new StringReader("AFTER"));
+		Token token = tokenizer.getNextToken();
+		Assert.assertNotNull(token);
+		Assert.assertTrue(token instanceof OperatorToken);
+		Assert.assertEquals("AFTER", token.getValue());
+		Assert.assertTrue(OperatorToken.isPrefixOperator(token.getValue()));
+	}
 }

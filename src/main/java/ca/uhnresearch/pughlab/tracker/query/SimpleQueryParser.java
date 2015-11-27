@@ -12,15 +12,12 @@ import org.slf4j.LoggerFactory;
  * <p>
  * query ::= term (infix_operator term)* 
  * <p>
- * term ::= value | '(' query ')'
+ * term ::= value | '(' query ')' | prefix_operator value
  * <p>
  * value ::= token (WS token)*
  * <p>
- * The most non-obvious feature is the "implied or" feature, in that if 
- * two terms are entered, it behaves like a kind of implicit or
- * operator. 
- * <p>
- * Precedence on operators is not implemented.
+ * Precedence on operators is not implemented, except through the syntax
+ * attaching different types of operators at different rules. 
  */
 public class SimpleQueryParser implements QueryParser {
 	
