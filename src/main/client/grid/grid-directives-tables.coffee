@@ -89,12 +89,12 @@ angular
           console.log "Called socket:welcome", e
           userControllerScope = e.targetScope
           if scope.study
-            userControllerScope.$emit 'socket:join', { "scope": scope.study.name, "time" : (new Date()).valueOf() }
+            userControllerScope.$emit 'socket:join', scope.study.name, { "time" : (new Date()).valueOf() }
 
 
         scope.$watch 'study', (study) ->
           if userControllerScope
-            userControllerScope.$emit 'socket:join', { 'scope': study.name, "time" : (new Date()).valueOf() }
+            userControllerScope.$emit 'socket:join', study.name, { "time" : (new Date()).valueOf() }
 
 
         scope.$watch 'attributes', (attributes, old) ->

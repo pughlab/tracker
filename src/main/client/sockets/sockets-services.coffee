@@ -74,9 +74,9 @@ angular
           return @
 
         ## This should transmit back through the socket
-        emit: (evt, data) =>
-          console.log "Called emit", evt, data
-          @socket.push JSON.stringify { type: evt, data: data }
+        emit: (evt, scope, data) =>
+          console.log "Called emit", evt, scope, data
+          @socket.push JSON.stringify { type: evt, scope: scope, data: data }
 
         on: (evt, handler) =>
           @addListener(evt, handler)
