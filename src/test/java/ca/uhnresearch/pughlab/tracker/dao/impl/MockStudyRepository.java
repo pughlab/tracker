@@ -454,7 +454,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public Study saveStudy(Study study) {
+	public Study saveStudy(Study study, final String userName) {
 		return study;
 	}
 	

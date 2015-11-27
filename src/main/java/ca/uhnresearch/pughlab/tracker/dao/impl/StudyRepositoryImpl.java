@@ -106,7 +106,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Writes or updates a study.
 	 */
 	@Override
-	public Study saveStudy(final Study study) {
+	public Study saveStudy(final Study study, final String userName) {
 		if (study.getId() == null) {
 			logger.info("Saving new study: {}", study.getName());
 			Integer studyId = template.insertWithKey(studies, new SqlInsertWithKeyCallback<Integer>() { 
@@ -127,6 +127,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// When we have saved a study, we can do an update on the study, the question is: how best to
 		// do this. We can easily generate an event, but we need to be a wee bit careful that the 
 		// event system can handle re-entrant. 
+		
+		Event event = newEvent(study, userName, Event.EVENT_STUDY_CHANGE);
+    	getEventSource().doEvent(event);
 		
 		return study;
 	}

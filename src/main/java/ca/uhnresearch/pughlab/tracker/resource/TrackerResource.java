@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.restlet.data.Reference;
 import org.restlet.data.ReferenceList;
@@ -49,13 +50,16 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
+		PrincipalCollection principals = currentUser.getPrincipals();
+		String userName = principals.getPrimaryPrincipal().toString();
+
     	Study savedStudy;
     	
     	try {
     		Study newStudy = converter.toObject(input, Study.class, this);
 			logger.debug("Got new studyt data {}", newStudy.toString());
 
-			savedStudy = getRepository().saveStudy(newStudy);
+			savedStudy = getRepository().saveStudy(newStudy, userName);
 	    	
     	} catch (IOException e) {
     		throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);

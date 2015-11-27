@@ -116,7 +116,7 @@ public class StudyRepositoryImplTest {
 		s.setName("TEST");
 		s.setDescription("A test study");
 				
-		studyRepository.saveStudy(s);
+		studyRepository.saveStudy(s, "morag");
 		Assert.assertNotNull(s);
 		Assert.assertNotNull(s.getId());
 		
@@ -133,7 +133,7 @@ public class StudyRepositoryImplTest {
 		Study s = studyRepository.getStudy("DEMO");
 		s.setDescription("Another test");
 				
-		Study result = studyRepository.saveStudy(s);
+		Study result = studyRepository.saveStudy(s, "morag");
 		Assert.assertNotNull(result);
 		Assert.assertNotNull(result.getId());
 		Assert.assertEquals(result.getId(), s.getId());
@@ -150,7 +150,7 @@ public class StudyRepositoryImplTest {
 		Study s = studyRepository.getStudy("DEMO");
 		s.setAbout("#### Markdown about text");
 				
-		Study result = studyRepository.saveStudy(s);
+		Study result = studyRepository.saveStudy(s, "morag");
 		Assert.assertNotNull(result);
 		Assert.assertNotNull(result.getId());
 		Assert.assertEquals(result.getId(), s.getId());

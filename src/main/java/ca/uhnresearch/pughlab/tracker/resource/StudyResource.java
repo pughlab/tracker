@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.restlet.data.Status;
 import org.restlet.ext.jackson.JacksonConverter;
@@ -40,6 +41,9 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
     	logger.debug("Called putResource() in StudyResource", input);
     	Subject currentUser = SecurityUtils.getSubject();
     	
+		PrincipalCollection principals = currentUser.getPrincipals();
+		String userName = principals.getPrimaryPrincipal().toString();
+
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	// Only administrators can save the study data
@@ -58,7 +62,7 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
 			// Set the id from the request URL, so we know which study to update
 			Study update = data.getStudy();
 			update.setId(study.getId());
-			getRepository().saveStudy(update);
+			getRepository().saveStudy(update, userName);
 			RequestAttributes.setRequestStudy(getRequest(), update);
 			
     	} catch (IOException e) {

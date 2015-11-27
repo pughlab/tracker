@@ -50,11 +50,16 @@
     <bean id="eventSource" class="ca.uhnresearch.pughlab.tracker.events.SimpleEventSource">
         <property name="handlers">
             <util:list value-type="ca.uhnresearch.pughlab.tracker.events.EventHandler">
+                <ref bean="stateChangePlugin" />
                 <ref bean="scriptEventHandler" />
                 <ref bean="auditLogEventHandler" />
                 <ref bean="socketEventHandler" />
             </util:list>
         </property>
+    </bean>
+    
+    <bean id="stateChangePlugin" class="ca.uhnresearch.pughlab.tracker.plugins.StateLabelPlugin">
+        <property name="repository" ref="studyRepository" />
     </bean>
     
     <bean id="auditLogEventHandler" class="ca.uhnresearch.pughlab.tracker.audit.AuditLogEventHandler">
