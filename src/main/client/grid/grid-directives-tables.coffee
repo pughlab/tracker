@@ -86,7 +86,6 @@ angular
 
 
         scope.$on 'socket:welcome', (e, data) ->
-          console.log "Called socket:welcome", e
           userControllerScope = e.targetScope
           if scope.study
             userControllerScope.$emit 'socket:join', scope.study.name, { "time" : (new Date()).valueOf() }
