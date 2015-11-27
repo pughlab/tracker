@@ -12,5 +12,5 @@ public interface EventHandler {
 	 * @param event
 	 * @param scope
 	 */
-	void sendMessage(Event event, String scope);
+	void sendMessage(Event event);
 }

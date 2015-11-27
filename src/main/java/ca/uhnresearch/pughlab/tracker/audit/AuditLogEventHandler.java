@@ -18,7 +18,7 @@ public class AuditLogEventHandler implements EventHandler {
 	 * @param scope the event scope
 	 */
 	@Override
-	public void sendMessage(Event event, String scope) {
+	public void sendMessage(Event event) {
 		
 		// Strip redaction here, so we write clear. There's no need to redact when writing to the
 		// audit log, although it's handy for scripting and event handling in other forms, like

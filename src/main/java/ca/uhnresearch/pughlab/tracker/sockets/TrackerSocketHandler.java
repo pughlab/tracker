@@ -63,10 +63,10 @@ public class TrackerSocketHandler {
         	
             // When we are ready, we should actually send a welcome message to the client. This starts off
             // much of the protocol.
-            
+        	            
             String primaryPrincipal = (String) subject.getPrincipals().getPrimaryPrincipal();
 			logger.info("Browser connected: {}, subject principal: {}", r.uuid(), primaryPrincipal);
-            Event event = new Event(Event.EVENT_WELCOME);
+            Event event = new Event(Event.EVENT_WELCOME, (String) null);
             event.getData().setUser(primaryPrincipal);
             getEventManager().sendMessage(event, r);
         } else {
