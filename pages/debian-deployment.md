@@ -134,7 +134,7 @@ Now, change the links to enable the new site on server start:
 
 And finally, reload `nginx`:
 
-    $ sudo invoke-rc.d nginx reload
+    $ sudo service nginx restart
 
 ### 7. Updates
 
