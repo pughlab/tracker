@@ -2196,6 +2196,90 @@ public class StudyRepositoryImplTest {
 	}
 
 	/**
+	 * Dates are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicDateFilteringAfterExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("dateEntered", jsonNodeFactory.textNode("AFTER 2014-08-23"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(13, dataList.size());
+
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("2014-08-23", data.get("dateEntered").asText());
+	}
+
+	/**
+	 * Dates are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicDateFilteringBeforeExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("dateEntered", jsonNodeFactory.textNode("BEFORE 2014-08-27"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(12, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("2014-08-20", data.get("dateEntered").asText());
+	}
+
+	/**
+	 * Dates are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicDateFilteringCombinedxpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("dateEntered", jsonNodeFactory.textNode("AFTER 2014-08-23 AND BEFORE 2014-08-27"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(5, dataList.size());
+		
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("2014-08-23", data.get("dateEntered").asText());
+	}
+
+	/**
 	 * Wildcards are another filter option, and we should check both pre and
 	 * postfix values.
 	 */
