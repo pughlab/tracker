@@ -13,7 +13,7 @@
   <ul>
     <li ng-repeat="study in studies.studies">
       <strong><a href="/studies/{{study.name}}">{{study.name}}</a></strong>
-      <span ng-show="study.access.admin"> <a ui-sref="adminStudy.settings({studyName: study.name})" type="button" class="btn btn-default btn-xs">Edit</a></span>
+      <span ng-show="study.access.admin"> <a ui-sref="adminStudy.notes({studyName: study.name})" type="button" class="btn btn-default btn-xs">Edit</a></span>
     </li>
   </ul>
   <div>

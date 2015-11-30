@@ -1,0 +1,60 @@
+<div ng-controller="StudyLabelsEditorController">
+  <div class="row">
+    <div class="col-md-12">
+      <p class="text-muted">
+        States and labels provide visual feedback on the state of a case, and allow automatic changes of state
+        based on attribute values.
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <table class="table table-condensed">
+        <tr ng-repeat="label in ['label1', 'label2', 'label3', 'label4', 'label5', 'label6', 'label7', 'label8']">
+          <td class="col-md-2" ng-class="label">{{label}}</td>
+          <td class="col-md-4"><input type="text" class="form-control" ng-model="labels[label]"></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+  <h4 class="text-center">State rules <a ng-click="addRule(0)"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></a></h4>
+
+  <div class="row">
+    <div class="col-md-3 text-center">
+      <strong>State</strong>
+    </div>
+    <div class="col-md-3 text-center">
+      <strong>Attribute</strong>
+    </div>
+    <div class="col-md-4 text-center">
+      <strong>Value</strong>
+    </div>
+    <div class="col-md-2 text-center">
+      <strong>Add/Delete</strong>
+    </div>
+  </div>
+
+  <div ng-model="rules">
+    <div class="row" ng-repeat="rule in rules">
+      <div class="form-group">
+        <div class="col-md-3">
+          <select id="rule-state-{{$index}}" name="type" selectize options="labelNames" model="rule.state"></select>
+        </div>
+        <div class="col-md-3">
+          <select id="rule-attribute-{{$index}}" name="type" selectize options="attributeNames" model="rule.attribute"></select>
+        </div>
+        <div class="col-md-4">
+          <input id="rule-value-{{$index}}" type="text" class="form-control" ng-model="rule.value">
+        </div>
+        <div class="col-md-2 text-center">
+          <a ng-click="addRule($index + 1)"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></a>
+          <a ng-click="removeRule($index)"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

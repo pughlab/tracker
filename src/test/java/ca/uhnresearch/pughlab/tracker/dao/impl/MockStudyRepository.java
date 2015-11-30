@@ -36,7 +36,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventHandler;
+import ca.uhnresearch.pughlab.tracker.events.EventSource;
 
 public class MockStudyRepository implements StudyRepository {
 
@@ -433,7 +433,7 @@ public class MockStudyRepository implements StudyRepository {
 	/**
 	 * Mocked setter for an update event manager
 	 */
-	public void setEventHandler(EventHandler manager) {
+	public void setEventSource(EventSource source) {
 		// Do nothing
 	}
 
@@ -454,7 +454,7 @@ public class MockStudyRepository implements StudyRepository {
 	}
 
 	@Override
-	public Study saveStudy(Study study) {
+	public Study saveStudy(Study study, final String userName) {
 		return study;
 	}
 	

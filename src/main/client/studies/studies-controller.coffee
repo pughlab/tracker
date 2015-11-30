@@ -6,7 +6,7 @@ angular
     $scope.permissions = undefined
 
     ## Permissions and studies can both change when the user and/or their permissions
-    ## change. We should detect that. 
+    ## change. We should detect that.
 
     initializeStudies = () ->
       $http
@@ -27,7 +27,7 @@ angular
     encodedStudyName = encodeURIComponent($stateParams.studyName)
 
     $http
-      .get("/api/studies/#{encodedStudyName}/views")
+      .get("/api/studies/#{encodedStudyName}")
       .success (response) ->
         $scope.study = response
       .error (response) ->

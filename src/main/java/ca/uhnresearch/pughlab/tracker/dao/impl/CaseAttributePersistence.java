@@ -5,6 +5,9 @@ import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +35,8 @@ import com.mysema.query.types.Expression;
 import com.mysema.query.types.Path;
 import com.mysema.query.types.QTuple;
 import com.mysema.query.types.expr.BooleanExpression;
+import com.mysema.query.types.expr.ComparableExpressionBase;
+import com.mysema.query.types.expr.TemporalExpression;
 import com.mysema.query.types.query.ListSubQuery;
 import com.mysema.query.types.query.NumberSubQuery;
 
@@ -319,11 +324,55 @@ public class CaseAttributePersistence {
 		return cAlias.getValue().stringValue().like(filterValue);
 	}
 	
+	private String getQueryNodeValue(QueryNode filterNode) {
+		if (filterNode instanceof QuotedStringToken) {
+			String filterValue = filterNode.toString();
+			return filterValue.substring(1, filterValue.length() - 1);
+		} else {
+			return filterNode.toString();
+		}
+	}
+	
+	private Date getFilterDate(QueryNode filterNode) {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		
+		String filterValue = getQueryNodeValue(filterNode);
+		try {
+			return new Date(formatter.parse(filterValue).getTime());
+		} catch (ParseException e) {
+			throw new RuntimeException("Invalid date: " + filterValue);
+		}
+	}
+	
+	private BooleanExpression getDateFilter(QCaseAttributeBase<?> cAlias, QueryNode filterNode, OperatorToken operator) {
+		Date filterValue = getFilterDate(filterNode);
+		ComparableExpressionBase<? extends Comparable<?>> value = cAlias.getValue();
+		if (value instanceof TemporalExpression) {
+			
+			@SuppressWarnings("unchecked")
+			TemporalExpression<Date> date = (TemporalExpression<Date>) value;
+
+			if (operator.equals(OperatorToken.OPERATOR_BEFORE)) {
+				filterValue.setTime(filterValue.getTime() + 1);
+				return date.before(filterValue);
+			} else if (operator.equals(OperatorToken.OPERATOR_AFTER)) {
+				filterValue.setTime(filterValue.getTime() - 1);
+				return date.after(filterValue);
+			}
+		}
+		
+		throw new RuntimeException("Invalid date filter: " + filterNode.toString());
+	}
+	
 	private BooleanExpression getExpressionFilter(QCaseAttributeBase<?> cAlias, ExpressionNode filterValue) {
 		if (filterValue.getOperator().equals(OperatorToken.OPERATOR_AND)) {
 			return getFilter(cAlias, filterValue.getOperandLeft()).and(getFilter(cAlias, filterValue.getOperandRight()));
-		} else {
+		} else if (filterValue.getOperator().equals(OperatorToken.OPERATOR_OR) || filterValue.getOperator().equals(OperatorToken.OPERATOR_COMMA)) {
 			return getFilter(cAlias, filterValue.getOperandLeft()).or(getFilter(cAlias, filterValue.getOperandRight()));
+		} else if (filterValue.getOperator().equals(OperatorToken.OPERATOR_BEFORE) || filterValue.getOperator().equals(OperatorToken.OPERATOR_AFTER)) {
+			return getDateFilter(cAlias, filterValue.getOperandRight(), (OperatorToken) filterValue.getOperator());
+		} else {
+			throw new RuntimeException("Invalid query: " + filterValue.toString());
 		}
 	}
 

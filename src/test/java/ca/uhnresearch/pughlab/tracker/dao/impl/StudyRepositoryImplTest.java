@@ -101,12 +101,22 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testGetStudyAbout() {
+		Study s = studyRepository.getStudy("DEMO");
+		Assert.assertNotNull(s);
+		Assert.assertNotNull(s.getAbout());
+		Assert.assertEquals("#### Markdown-based description", s.getAbout());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testSaveStudyNew() {
 		Study s = new Study();
 		s.setName("TEST");
 		s.setDescription("A test study");
 				
-		studyRepository.saveStudy(s);
+		studyRepository.saveStudy(s, "morag");
 		Assert.assertNotNull(s);
 		Assert.assertNotNull(s.getId());
 		
@@ -123,7 +133,7 @@ public class StudyRepositoryImplTest {
 		Study s = studyRepository.getStudy("DEMO");
 		s.setDescription("Another test");
 				
-		Study result = studyRepository.saveStudy(s);
+		Study result = studyRepository.saveStudy(s, "morag");
 		Assert.assertNotNull(result);
 		Assert.assertNotNull(result.getId());
 		Assert.assertEquals(result.getId(), s.getId());
@@ -131,6 +141,23 @@ public class StudyRepositoryImplTest {
 		Study second = studyRepository.getStudy("DEMO");
 		Assert.assertNotNull(second);
 		Assert.assertEquals("Another test", second.getDescription());
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSaveStudyUpdateAbout() {
+		Study s = studyRepository.getStudy("DEMO");
+		s.setAbout("#### Markdown about text");
+				
+		Study result = studyRepository.saveStudy(s, "morag");
+		Assert.assertNotNull(result);
+		Assert.assertNotNull(result.getId());
+		Assert.assertEquals(result.getId(), s.getId());
+
+		Study second = studyRepository.getStudy("DEMO");
+		Assert.assertNotNull(second);
+		Assert.assertEquals("#### Markdown about text", second.getAbout());
 	}
 	
 	@Test
@@ -2166,6 +2193,90 @@ public class StudyRepositoryImplTest {
 		Assert.assertNotNull(data);
 		Assert.assertTrue(data.has("patientId"));
 		Assert.assertEquals("DEMO-02", data.get("patientId").asText());
+	}
+
+	/**
+	 * Dates are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicDateFilteringAfterExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("dateEntered", jsonNodeFactory.textNode("AFTER 2014-08-23"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(13, dataList.size());
+
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("2014-08-23", data.get("dateEntered").asText());
+	}
+
+	/**
+	 * Dates are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicDateFilteringBeforeExpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("dateEntered", jsonNodeFactory.textNode("BEFORE 2014-08-27"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(12, dataList.size());
+	
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("2014-08-20", data.get("dateEntered").asText());
+	}
+
+	/**
+	 * Dates are another filter option,
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testBasicDateFilteringCombinedxpression() throws RepositoryException {
+
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		filter.replace("dateEntered", jsonNodeFactory.textNode("AFTER 2014-08-23 AND BEFORE 2014-08-27"));
+
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		Assert.assertEquals(5, dataList.size());
+		
+		JsonNode data = dataList.get(0);
+		Assert.assertNotNull(data);
+		Assert.assertTrue(data.has("patientId"));
+		Assert.assertEquals("2014-08-23", data.get("dateEntered").asText());
 	}
 
 	/**

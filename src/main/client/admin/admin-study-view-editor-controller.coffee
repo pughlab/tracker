@@ -4,7 +4,7 @@ angular
   ## Some refactoring of the editing here, mainly to make the UI better. Basically, each controller
   ## should notify when something has changed as an event, and should handle appropriate events to
   ## reset.
-  .controller 'ViewEditorController', Array '$scope', '$state', ($scope, $state) ->
+  .controller 'StudyViewEditorController', Array '$scope', '$state', ($scope, $state) ->
 
     $scope.selectedView = undefined
     originalSelectedView = undefined
@@ -20,12 +20,12 @@ angular
     $scope.deleteView = (view) ->
       $scope.selectedView = undefined
       originalSelectedView = undefined
-      $scope.study.views = $scope.study.views.filter (att) -> att != view
+      $scope.schema.views = $scope.schema.views.filter (att) -> att != view
       $scope.$emit 'admin:modified'
 
     $scope.newView = () ->
       newView = {name: 'unnamed', description: 'Untitled View'}
-      $scope.study.views.unshift newView
+      $scope.schema.views.unshift newView
       $scope.selectedView = newView
       originalSelectedView = angular.copy($scope.selectedView)
       $scope.$emit 'admin:modified'

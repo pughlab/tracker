@@ -30,8 +30,7 @@ public class AuditLogEventHandlerTest {
 	@Test
 	public void testMinimal() {
 
-		Event event = new Event(Event.EVENT_SET_FIELD);
-		event.getData().setScope("TEST");
+		Event event = new Event(Event.EVENT_SET_FIELD, "TEST");
 		event.getData().setUser("morag");
 		
 		final JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -46,7 +45,7 @@ public class AuditLogEventHandlerTest {
 		replay(repository);
 		
 		handler.setRepository(repository);
-		handler.sendMessage(event, event.getData().getScope());
+		handler.sendMessage(event);
 		
 		Assert.assertEquals("morag", capturedArgument.getValue().getEventUser());
 		Assert.assertEquals("{}", capturedArgument.getValue().getEventArgs());
@@ -55,8 +54,7 @@ public class AuditLogEventHandlerTest {
 	@Test
 	public void testUnRedacted() {
 
-		Event event = new Event(Event.EVENT_SET_FIELD);
-		event.getData().setScope("TEST");
+		Event event = new Event(Event.EVENT_SET_FIELD, "TEST");
 		event.getData().setUser("morag");
 		
 		final JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -76,7 +74,7 @@ public class AuditLogEventHandlerTest {
 		replay(repository);
 		
 		handler.setRepository(repository);
-		handler.sendMessage(event, event.getData().getScope());
+		handler.sendMessage(event);
 		
 		Assert.assertEquals("morag", capturedArgument.getValue().getEventUser());
 		Assert.assertEquals("{\"field\":\"attribute\",\"case_id\":123,\"study_id\":456,\"old\":\"secret1\",\"new\":\"secret2\"}", capturedArgument.getValue().getEventArgs());
@@ -85,8 +83,7 @@ public class AuditLogEventHandlerTest {
 	@Test
 	public void testRemoveRedaction() {
 
-		Event event = new Event(Event.EVENT_SET_FIELD);
-		event.getData().setScope("TEST");
+		Event event = new Event(Event.EVENT_SET_FIELD, "TEST");
 		event.getData().setUser("morag");
 		
 		final JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -106,7 +103,7 @@ public class AuditLogEventHandlerTest {
 		replay(repository);
 		
 		handler.setRepository(repository);
-		handler.sendMessage(event, event.getData().getScope());
+		handler.sendMessage(event);
 		
 		Assert.assertEquals("morag", capturedArgument.getValue().getEventUser());
 		Assert.assertEquals("{\"field\":\"attribute\",\"case_id\":123,\"study_id\":456,\"old\":\"secret1\",\"new\":\"secret2\"}", capturedArgument.getValue().getEventArgs());

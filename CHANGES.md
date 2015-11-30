@@ -1,6 +1,11 @@
 ## Revision history
 
 
+### Version 2.1.2 - November 30th 2015
+
+ * Fixed an issue with logging configuration. See #117
+
+
 ### Version 2.1.1 - November 19th 2015
 
  * Fixed an issue with logging configuration. See #117

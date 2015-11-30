@@ -85,13 +85,13 @@ public class SocketEventHandler implements EventHandler {
 	/**
 	 * Sends a message to all connected resources with a given scope.
 	 */
-	public void sendMessage(Event event, String scope) {
-		if (scope == null) {
+	public void sendMessage(Event event) {
+		if (event.getScope() == null) {
 			throw new IllegalArgumentException("Can't send to a null scope");
 		}
 		
-		logger.debug("Sending message to everyone watching: {}", scope);
-		List<String> resourceKeys = watcherListByScope.get(scope);
+		logger.debug("Sending message to everyone watching: {}", event.getScope());
+		List<String> resourceKeys = watcherListByScope.get(event.getScope());
 		if (resourceKeys != null) {
 			for (String uuid : new ArrayList<String>(resourceKeys)) {
 				try {
@@ -123,7 +123,7 @@ public class SocketEventHandler implements EventHandler {
         if (message.getType().equals(Event.EVENT_JOIN)) {
         	// We're joining a study, add that to our associations
         	String resourceKey = r.uuid();
-        	String scope = message.getData().getScope();
+        	String scope = message.getScope();
         	
         	// If we're already watching a scope, we should remove all the scope watching.
         	
@@ -136,10 +136,9 @@ public class SocketEventHandler implements EventHandler {
         		// Before we record this user, tell everyone else someone new has connected
         		
         		logger.debug("Sending to scope watchers");
-        		Event event = new Event(Event.EVENT_USER_CONNECTED);
+        		Event event = new Event(Event.EVENT_USER_CONNECTED, scope);
         		event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
-        		event.getData().setScope(scope);
-        		sendMessage(event, scope);
+        		sendMessage(event);
         		
         		// And now, before we add the new user, we need to tell them about everyone
         		// else. 
@@ -208,10 +207,9 @@ public class SocketEventHandler implements EventHandler {
 		// And after we have disconnected, tell everyone else we are gone.
 		if (scope != null) {
 	        Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-			Event event = new Event(Event.EVENT_USER_DISCONNECTED);
+			Event event = new Event(Event.EVENT_USER_DISCONNECTED, scope);
 			event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
-			event.getData().setScope(scope);
-			sendMessage(event, scope);
+			sendMessage(event);
 		}
 	}
 }

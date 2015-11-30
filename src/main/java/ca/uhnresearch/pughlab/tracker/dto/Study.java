@@ -11,6 +11,8 @@ public class Study {
 
     private String name;
     
+    private String about;
+    
     private JsonNode options;
 
 	@JsonProperty
@@ -53,6 +55,23 @@ public class Study {
 	 */
 	public void setOptions(JsonNode options) {
 		this.options = options;
+	}
+
+	/**
+	 * Returns the about text for the study.
+	 * @return the about
+	 */
+	@JsonProperty
+	public String getAbout() {
+		return about;
+	}
+
+	/**
+	 * Sets the about text for the study.
+	 * @param about the about to set
+	 */
+	public void setAbout(String about) {
+		this.about = about;
 	}
 }
 

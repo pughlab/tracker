@@ -68,6 +68,11 @@
 		<constructor-arg ref="apiRouter" />
 		<property name="attachments">
 	        <map>
+                <entry key="">
+                    <bean class="org.restlet.ext.spring.SpringFinder">
+                        <lookup-method name="create" bean="studyResource" />
+                    </bean>
+                </entry>
  	            <entry key="/schema">
 	            	<bean class="org.restlet.ext.spring.SpringFinder">
 	            		<lookup-method name="create" bean="studySchemaResource" />
@@ -79,11 +84,6 @@
                     </bean>
                 </entry>
                 <entry key="/roles/{roleName}" value-ref="roleExtractor" />
- 	            <entry key="/views">
-	            	<bean class="org.restlet.ext.spring.SpringFinder">
-	            		<lookup-method name="create" bean="studiesViewsResource" />
-	            	</bean>
-	            </entry>
 	            <entry key="/views/{viewName}" value-ref="viewExtractor" />
 	        </map>
 	    </property>
@@ -168,7 +168,7 @@
 	<bean id="studiesResource" class="ca.uhnresearch.pughlab.tracker.resource.TrackerResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
- 	<bean id="studiesViewsResource" class="ca.uhnresearch.pughlab.tracker.resource.StudyResource" scope="prototype">
+ 	<bean id="studyResource" class="ca.uhnresearch.pughlab.tracker.resource.StudyResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
  	<bean id="studySchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.StudySchemaResource" scope="prototype">

@@ -9,7 +9,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
-import ca.uhnresearch.pughlab.tracker.events.EventHandler;
+import ca.uhnresearch.pughlab.tracker.events.EventSource;
 
 public interface StudyRepository {
 
@@ -29,7 +29,7 @@ public interface StudyRepository {
 	 * Writes or updates a study in the repository.
 	 * @return a study
 	 */
-	Study saveStudy(Study name) throws RepositoryException;
+	Study saveStudy(Study name, String userName) throws RepositoryException;
 	
 	/**
 	 * Retrieves all the views for a study from the repository.
@@ -224,8 +224,8 @@ public interface StudyRepository {
 	List<CaseChangeInfo> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException;
 	
 	/**
-	 * Sets the event handler.
-	 * @param handler the new event handler
+	 * Sets the event source.
+	 * @param source the new event source
 	 */
-	void setEventHandler(EventHandler handler);
+	void setEventSource(EventSource source);
 }

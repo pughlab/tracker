@@ -12,6 +12,7 @@ angular
     'tracker.authentication'
     'tracker.admin'
     'tracker.error'
+    'tracker.directives'
     'tracker-templates'
   ]
 
@@ -30,6 +31,10 @@ angular
         controller: 'StudyController'
         templateUrl: '/tracker/studies/study-views.html'
         url: '/studies/:studyName'
+      .state 'studyAbout',
+        controller: 'StudyController'
+        templateUrl: '/tracker/studies/study-about.html'
+        url: '/studies/:studyName/about'
       .state 'studyView',
         controller: 'GridTableController'
         templateUrl: '/tracker/grid/table.html'
@@ -41,19 +46,19 @@ angular
         url: '/admin/:studyName'
         resolve:
           studyName: Array '$stateParams', ($stateParams) -> $stateParams.studyName
-      .state 'adminStudy.settings',
-        templateUrl: '/tracker/admin/admin-study-settings.html'
+      .state 'adminStudy.notes',
+        templateUrl: '/tracker/admin/admin-study-notes.html'
         url: ''
+      .state 'adminStudy.labels',
+        templateUrl: '/tracker/admin/admin-study-labels.html'
+        url: '/labels'
       .state 'adminStudy.attributes',
-        controller: 'AttributeEditorController'
         templateUrl: '/tracker/admin/admin-study-attributes.html'
         url: '/attributes'
       .state 'adminStudy.roles',
-        controller: 'StudyRoleEditorController'
         templateUrl: '/tracker/admin/admin-study-roles.html'
         url: '/roles'
       .state 'adminStudy.views',
-        controller: 'ViewEditorController'
         templateUrl: '/tracker/admin/admin-study-views.html'
         url: '/views'
       .state 'adminView',

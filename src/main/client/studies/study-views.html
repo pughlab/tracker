@@ -4,6 +4,10 @@
     <li>{{study.study.name}}</li>
   </ol>
 
+  <div ng-show="study.study.about">
+    <h5><a ui-sref="studyAbout({studyName: study.study.name})">Study notes</a></h5>
+  </div>
+
   <h4>Current views</h4>
 
   <ul>

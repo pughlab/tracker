@@ -54,13 +54,12 @@ public class ScriptEventHandlerTest {
 		
 		ScriptEventHandler handler = new ScriptEventHandler();
 		
-		Event event = new Event();
-		event.setType(Event.EVENT_WELCOME);
+		Event event = new Event(Event.EVENT_WELCOME, "DEMO");
 		
 		thrown.expect(RuntimeException.class);
 		thrown.expectMessage(containsString("Missing handler root"));
 
-		handler.sendMessage(event, "DEMO");
+		handler.sendMessage(event);
 	}
 
 	/**
@@ -78,8 +77,7 @@ public class ScriptEventHandlerTest {
 		JSEventHandlerRoot handlerRoot = new JSEventHandlerRoot();		
 		handler.setHandlerRoot(handlerRoot);
 		
-		Event event = new Event();
-		event.setType(Event.EVENT_WELCOME);
+		Event event = new Event(Event.EVENT_WELCOME, "DEMO");
 		
 		JSEventHandler eventFunction = createMock(JSEventHandler.class);
 		eventFunction.run(eq(event));
@@ -88,7 +86,7 @@ public class ScriptEventHandlerTest {
 		
 		handlerRoot.get("DEMO").on(Event.EVENT_WELCOME, eventFunction);
 
-		handler.sendMessage(event, "DEMO");
+		handler.sendMessage(event);
 		
 		verify();
 	}

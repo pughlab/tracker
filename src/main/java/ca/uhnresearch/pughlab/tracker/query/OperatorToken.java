@@ -36,10 +36,22 @@ public class OperatorToken extends Token {
 	 */
 	public static final OperatorToken OPERATOR_RIGHT_PARENTHESIS = new OperatorToken(")");
 
+	/**
+	 * The operator for a before date operator. 
+	 */
+	public static final OperatorToken OPERATOR_BEFORE = new OperatorToken("BEFORE");
+
+	/**
+	 * The operator for an after date operator. 
+	 */
+	public static final OperatorToken OPERATOR_AFTER = new OperatorToken("AFTER");
+
 	private static final String[] SET_VALUES = new String[] { 
 		OPERATOR_AND.getValue(), 
 		OPERATOR_OR.getValue(), 
 		OPERATOR_COMMA.getValue(), 
+		OPERATOR_BEFORE.getValue(), 
+		OPERATOR_AFTER.getValue(),
 		OPERATOR_LEFT_PARENTHESIS.getValue(), 
 		OPERATOR_RIGHT_PARENTHESIS.getValue()
 	};
@@ -50,9 +62,16 @@ public class OperatorToken extends Token {
 		OPERATOR_COMMA.getValue()
 	};
 
+	private static final String[] SET_PREFIX_VALUES = new String[] { 
+		OPERATOR_BEFORE.getValue(), 
+		OPERATOR_AFTER.getValue(),
+	};
+
 	private static final Set<String> allOperators = new HashSet<String>(Arrays.asList(SET_VALUES));
 	
 	private static final Set<String> infixOperators = new HashSet<String>(Arrays.asList(SET_INFIX_VALUES));
+
+	private static final Set<String> prefixOperators = new HashSet<String>(Arrays.asList(SET_PREFIX_VALUES));
 
 	/**
 	 * Returns true if this string corresponds to an operator.
@@ -70,6 +89,15 @@ public class OperatorToken extends Token {
 	 */
 	public static final boolean isInfixOperator(String token) {
 		return infixOperators.contains(token);
+	}
+
+	/**
+	 * Returns true if this string corresponds to an prefix operator.
+	 * @param token
+	 * @return
+	 */
+	public static final boolean isPrefixOperator(String token) {
+		return prefixOperators.contains(token);
 	}
 
 	/**

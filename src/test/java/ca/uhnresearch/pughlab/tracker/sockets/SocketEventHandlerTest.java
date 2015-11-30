@@ -125,9 +125,7 @@ public class SocketEventHandlerTest {
 
         service.registerAtmosphereResource(resource1);
 
-        Event joinEvent = new Event();
-        joinEvent.setType(Event.EVENT_JOIN);
-        joinEvent.getData().setScope("TEST");
+        Event joinEvent = new Event(Event.EVENT_JOIN, "TEST");
         
         service.receivedMessage(joinEvent, resource1);
 
@@ -147,9 +145,7 @@ public class SocketEventHandlerTest {
         service.registerAtmosphereResource(resource1);
         service.registerAtmosphereResource(resource2);
         
-        Event joinEvent = new Event();
-        joinEvent.setType(Event.EVENT_JOIN);
-        joinEvent.getData().setScope("TEST");
+        Event joinEvent = new Event(Event.EVENT_JOIN, "TEST");
         
         service.receivedMessage(joinEvent, resource1);
         service.receivedMessage(joinEvent, resource2);
@@ -172,9 +168,7 @@ public class SocketEventHandlerTest {
         service.registerAtmosphereResource(resource1);
         service.registerAtmosphereResource(resource2);
         
-        Event joinEvent = new Event();
-        joinEvent.setType(Event.EVENT_JOIN);
-        joinEvent.getData().setScope("TEST");
+        Event joinEvent = new Event(Event.EVENT_JOIN, "TEST");
         
         service.receivedMessage(joinEvent, resource1);
         service.receivedMessage(joinEvent, resource2);
@@ -196,22 +190,17 @@ public class SocketEventHandlerTest {
         
         service.registerAtmosphereResource(resource);
         
-        Event joinEvent = new Event();
-        joinEvent.setType(Event.EVENT_JOIN);
-        joinEvent.getData().setScope("TEST");
+        Event joinEvent = new Event(Event.EVENT_JOIN, "TEST");
         
-        Event otherEvent = new Event();
-        otherEvent.setType(Event.EVENT_JOIN);
-        otherEvent.getData().setScope("OTHER");
+        Event otherEvent = new Event(Event.EVENT_JOIN, "OTHER");
 
-        Event notifyEvent = new Event();
-        notifyEvent.setType(Event.EVENT_SET_FIELD);
+        Event notifyEvent = new Event(Event.EVENT_SET_FIELD, "TEST");
 
         service.receivedMessage(joinEvent, resource);
         service.receivedMessage(otherEvent, resource);
         service.receivedMessage(joinEvent, resource);
 
         service.unregisterAtmosphereResource(resource);
-        service.sendMessage(notifyEvent, "TEST");
+        service.sendMessage(notifyEvent);
    	}
 }

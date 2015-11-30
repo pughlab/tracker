@@ -1,24 +1,79 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.restlet.data.Status;
+import org.restlet.ext.jackson.JacksonConverter;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.restlet.resource.Put;
+import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
+import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.StudyViewsResponse;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
 	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private JacksonConverter converter = new JacksonConverter();
+
     @Get("json")
     public Representation getResource()  {
     	StudyViewsResponse response = new StudyViewsResponse();
     	buildResponseDTO(response);
        	return new JacksonRepresentation<StudyViewsResponse>(response);
+    }
+    
+    @Put("json")
+    public Representation putResource(Representation input) {
+    	
+    	logger.debug("Called putResource() in StudyResource", input);
+    	Subject currentUser = SecurityUtils.getSubject();
+    	
+		PrincipalCollection principals = currentUser.getPrincipals();
+		String userName = principals.getPrimaryPrincipal().toString();
+
+    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	
+    	// Only administrators can save the study data
+    	if (! currentUser.isPermitted(study.getName() + ":admin")) {
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    	}
+
+    	try {
+    		StudyViewsResponse data = converter.toObject(input, StudyViewsResponse.class, this);
+    		
+    		if (data == null) {
+    			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+    		}
+			logger.debug("Got a study views response {}", data);
+			
+			// Set the id from the request URL, so we know which study to update
+			Study update = data.getStudy();
+			update.setId(study.getId());
+			getRepository().saveStudy(update, userName);
+			RequestAttributes.setRequestStudy(getRequest(), update);
+			
+    	} catch (IOException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		} catch (NotFoundException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		} catch (RepositoryException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		}
+
+    	return getResource();
     }
 
     

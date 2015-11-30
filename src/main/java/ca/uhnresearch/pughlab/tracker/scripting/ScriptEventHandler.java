@@ -17,11 +17,11 @@ public class ScriptEventHandler implements EventHandler {
 	private JSEventHandlerRoot handlerRoot;
 
 	@Override
-	public void sendMessage(Event event, String scope) {
+	public void sendMessage(Event event) {
 		
-		logger.info("Got an event: {}, {}", event, scope);
+		logger.info("Got an event: {}, {}", event, event.getScope());
 		
-		JSEventHandlerList handlerList = getHandlerRoot().get(scope);
+		JSEventHandlerList handlerList = getHandlerRoot().get(event.getScope());
 		List<JSEventHandler> handlers = handlerList.getEventHandlers(event.getType());
 		
 		logger.debug("Found handlers: {}, {}", event.getType(), handlers);

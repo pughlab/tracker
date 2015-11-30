@@ -38,7 +38,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.Event;
-import ca.uhnresearch.pughlab.tracker.events.EventHandler;
+import ca.uhnresearch.pughlab.tracker.events.EventSource;
 import ca.uhnresearch.pughlab.tracker.events.RedactedJsonNode;
 import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
@@ -53,7 +53,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	private final Logger logger = LoggerFactory.getLogger(StudyRepositoryImpl.class);
 	
-	private EventHandler eventHandler;
+	private EventSource eventSource;
 
 	private QueryDslJdbcTemplate template;
 	
@@ -106,7 +106,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * Writes or updates a study.
 	 */
 	@Override
-	public Study saveStudy(final Study study) {
+	public Study saveStudy(final Study study, final String userName) {
 		if (study.getId() == null) {
 			logger.info("Saving new study: {}", study.getName());
 			Integer studyId = template.insertWithKey(studies, new SqlInsertWithKeyCallback<Integer>() { 
@@ -123,6 +123,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 				};
 			});
 		}
+		
+		// When we have saved a study, we can do an update on the study, the question is: how best to
+		// do this. We can easily generate an event, but we need to be a wee bit careful that the 
+		// event system can handle re-entrant. 
+		
+		Event event = newEvent(study, userName, Event.EVENT_STUDY_CHANGE);
+    	getEventSource().doEvent(event);
+		
 		return study;
 	}
 	
@@ -511,22 +519,13 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// This merits a new event, too, but it's not an attribute event, it's a state change
 		// event. That way it gets audited and can be sent through a websocket connection
 		// to a listening client. 
-
-		Event event = new Event(Event.EVENT_STATE);
-		event.getData().setScope(study.getName());
-		event.getData().setUser(userName);
 		
-		final JsonNodeFactory factory = JsonNodeFactory.instance;
-		ObjectNode parameters = factory.objectNode();
-		parameters.put("study_id", study.getId());
-		parameters.put("study", study.getName());
-		parameters.put("case_id", c.getId());
-		parameters.put("old_state", oldState);
-		parameters.put("state", state);
-		event.getData().setParameters(parameters);
+		Event event = newEvent(study, userName, Event.EVENT_STATE);
+		event.getData().getParameters().put("case_id", c.getId());
+		event.getData().getParameters().put("old_state", oldState);
+		event.getData().getParameters().put("state", state);
 
-    	EventHandler manager = getEventHandler();
-    	manager.sendMessage(event, event.getData().getScope());
+    	getEventSource().doEvent(event);
     	
     	c.setState(state);
 
@@ -536,24 +535,14 @@ public class StudyRepositoryImpl implements StudyRepository {
 	private void setQueryAttributesForField(final Study study, final String userName, final CaseChangeInfo caseChanges, final String field) {
 		
 		CaseChangeInfo.Change change = caseChanges.getChange(field);
-		
-		Event event = new Event(Event.EVENT_SET_FIELD);
-		event.getData().setScope(study.getName());
-		event.getData().setUser(userName);
-		
-		final JsonNodeFactory factory = JsonNodeFactory.instance;
-		ObjectNode parameters = factory.objectNode();
+	
+		Event event = newEvent(study, userName, Event.EVENT_SET_FIELD);
+		event.getData().getParameters().put("field", field);
+		event.getData().getParameters().put("case_id", caseChanges.getCaseId());
+		event.getData().getParameters().replace("old", new RedactedJsonNode(change.getOldValue()));
+		event.getData().getParameters().replace("new", new RedactedJsonNode(change.getNewValue()));
 
-		parameters.put("field", field);
-		parameters.put("case_id", caseChanges.getCaseId());
-		parameters.put("study_id", study.getId());
-		parameters.put("study", study.getName());
-		parameters.replace("old", new RedactedJsonNode(change.getOldValue()));
-		parameters.replace("new", new RedactedJsonNode(change.getNewValue()));
-		
-		event.getData().setParameters(parameters);
-
-		getEventHandler().sendMessage(event, event.getData().getScope());
+    	getEventSource().doEvent(event);
 	}
 
 	/**
@@ -584,16 +573,16 @@ public class StudyRepositoryImpl implements StudyRepository {
 	/**
 	 * Getter for an update event manager. 
 	 */
-	public EventHandler getEventHandler() {
-		return eventHandler;
+	public EventSource getEventSource() {
+		return eventSource;
 	}
 
 	/**
 	 * Setter for an update event manager, allowing events to be triggered from the repository.
 	 * @param manager
 	 */
-	public void setEventHandler(EventHandler manager) {
-		this.eventHandler = manager;
+	public void setEventSource(EventSource source) {
+		this.eventSource = source;
 	}
 
 	@Override
@@ -646,8 +635,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		newCase.setStudyId(study.getId());
 		newCase.setId(caseId);
 
-		Event event = new Event(Event.EVENT_NEW_RECORD);
-		event.getData().setScope(study.getName());
+		Event event = new Event(Event.EVENT_NEW_RECORD, study.getName());
 		event.getData().setUser(userName);
 		
 		final JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -656,8 +644,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		parameters.put("case_id", newCase.getId());
 		event.getData().setParameters(parameters);
 
-    	EventHandler manager = getEventHandler();
-    	manager.sendMessage(event, event.getData().getScope());
+    	getEventSource().doEvent(event);
     	
 		return newCase;
 	}
@@ -777,33 +764,54 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 	
-	private void sendDeleteCaseEvent(final Study study, final String userName, final ObjectNode data) throws RepositoryException {
+	/**
+	 * Makes a new event record for a given study, user, and event type.
+	 * @param study
+	 * @param userName
+	 * @param eventType
+	 * @return a new event
+	 */
+	private Event newEvent(final Study study, final String userName, final String eventType) {
 		
-		// This merits a new event, too, but it's not an attribute event, it's a state change
-		// event. That way it gets audited and can be sent through a websocket connection
-		// to a listening client. 
-
-		Event event = new Event(Event.EVENT_DELETE_RECORD);
-		event.getData().setScope(study.getName());
+		Event event = new Event(eventType, study.getName());
 		event.getData().setUser(userName);
 		
 		final JsonNodeFactory factory = JsonNodeFactory.instance;
 		ObjectNode parameters = factory.objectNode();
 		parameters.put("study_id", study.getId());
 		parameters.put("study", study.getName());
-		parameters.put("case_id", data.get("id").asInt());
-		parameters.replace("data", RedactedJsonNode.redactObjectNode(data));
 		event.getData().setParameters(parameters);
-
-    	EventHandler manager = getEventHandler();
-    	manager.sendMessage(event, event.getData().getScope());
+		
+		return event;
 	}
 	
-	@Override
+	
+	/**
+	 * Sends an event for deleting a case.
+	 * @param study
+	 * @param userName
+	 * @param data
+	 * @throws RepositoryException
+	 */
+	private void sendDeleteCaseEvent(final Study study, final String userName, final ObjectNode data) throws RepositoryException {
+		
+		// This merits a new event, too, but it's not an attribute event, it's a state change
+		// event. That way it gets audited and can be sent through a websocket connection
+		// to a listening client. 
+		
+		Event event = newEvent(study, userName, Event.EVENT_DELETE_RECORD);
+		event.getData().getParameters().put("case_id", data.get("id").asInt());
+		event.getData().getParameters().replace("data", RedactedJsonNode.redactObjectNode(data));
+
+    	getEventSource().doEvent(event);
+	}
+	
 	/**
 	 * Deletes a set of cases from the repository. 
 	 * @param query a query to select the cases for deletion
+	 * @param userName the user
 	 */
+	@Override
 	public void deleteCases(final StudyCaseQuery query, final String userName) throws RepositoryException {
 		if (! (query instanceof QueryStudyCaseQuery)) {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
@@ -821,4 +829,3 @@ public class StudyRepositoryImpl implements StudyRepository {
 		cap.deleteCases(template, scq);
 	}
 }
-

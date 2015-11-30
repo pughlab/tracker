@@ -132,4 +132,54 @@ public class SimpleQueryParserTest {
 		Assert.assertTrue(node instanceof ValueToken);
 		Assert.assertEquals("Dr. X", ((Token) node).getValue());
 	}
+
+	@Test
+	public void testBeforeOperator() throws IOException, InvalidTokenException {
+		
+		QueryParser parser = getParser("BEFORE 2008-12-01");
+		QueryNode node = parser.parse();
+		Assert.assertNotNull(node);
+		Assert.assertTrue(node instanceof ExpressionNode);
+		Assert.assertEquals("BEFORE", ((ExpressionNode) node).getOperator().getValue());
+		Assert.assertNull(((ExpressionNode) node).getOperandLeft());
+		Assert.assertNotNull(((ExpressionNode) node).getOperandRight());
+		Assert.assertEquals("BEFORE 2008-12-01", ((ExpressionNode) node).toString());
+	}
+
+	@Test
+	public void testAfterOperator() throws IOException, InvalidTokenException {
+		
+		QueryParser parser = getParser("AFTER 2008-12-01");
+		QueryNode node = parser.parse();
+		Assert.assertNotNull(node);
+		Assert.assertTrue(node instanceof ExpressionNode);
+		Assert.assertEquals("AFTER", ((ExpressionNode) node).getOperator().getValue());
+		Assert.assertNull(((ExpressionNode) node).getOperandLeft());
+		Assert.assertNotNull(((ExpressionNode) node).getOperandRight());
+		Assert.assertEquals("AFTER 2008-12-01", ((ExpressionNode) node).toString());
+	}
+
+	@Test
+	public void testCombinedDateOperator() throws IOException, InvalidTokenException {
+		
+		QueryParser parser = getParser("BEFORE 2010-12-01 AND AFTER 2008-12-01");
+		QueryNode node = parser.parse();
+		Assert.assertNotNull(node);
+		Assert.assertTrue(node instanceof ExpressionNode);
+		Assert.assertEquals("BEFORE 2010-12-01 AND AFTER 2008-12-01", ((ExpressionNode) node).toString());
+	}
+	
+	@Test
+	public void testAfterOperatorQuoted() throws IOException, InvalidTokenException {
+		
+		QueryParser parser = getParser("AFTER \"2008-12-01\"");
+		QueryNode node = parser.parse();
+		Assert.assertNotNull(node);
+		Assert.assertTrue(node instanceof ExpressionNode);
+		Assert.assertEquals("AFTER", ((ExpressionNode) node).getOperator().getValue());
+		Assert.assertNull(((ExpressionNode) node).getOperandLeft());
+		Assert.assertNotNull(((ExpressionNode) node).getOperandRight());
+		Assert.assertEquals("AFTER \"2008-12-01\"", ((ExpressionNode) node).toString());
+	}
+
 }

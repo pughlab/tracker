@@ -37,6 +37,7 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 import ca.uhnresearch.pughlab.tracker.resource.ViewDataResource;
 import ca.uhnresearch.pughlab.tracker.services.impl.HtmlWriterImpl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class HtmlWriterImplTest {
@@ -143,6 +144,25 @@ public class HtmlWriterImplTest {
 		thrown.expectMessage(containsString("Invalid type: xxx"));
 		
 		htmlWriter.getXMLDocument(alternate);
+	}
+	
+	@Test
+	public void excelTestWithoutState() {
+		
+    	assertNotNull(dto);
+    	JsonNode oldOptions = dto.getStudy().getOptions();
+    	
+    	try {
+    		dto.getStudy().setOptions(null);
+	    	htmlWriter.setDocumentBuilderFactory(DocumentBuilderFactory.newInstance());
+	    	Document result = htmlWriter.getXMLDocument(dto);
+			assertNotNull(result);
+			
+			String xml = getStringFromDocument(result);
+			assertNotNull(xml);
+    	} finally {
+    		dto.getStudy().setOptions(oldOptions);
+    	}
 	}
 	
 

@@ -267,7 +267,7 @@ public class TrackerResourceTest extends AbstractShiroTest {
         setSubject(subjectUnderTest);
         
         StudyRepository mock = createMock(StudyRepository.class);
-        mock.saveStudy(anyObject(Study.class));
+        mock.saveStudy(anyObject(Study.class), anyObject(String.class));
         expectLastCall().andStubThrow(new InvalidValueException("Error"));
         replay(mock);
         
@@ -300,7 +300,7 @@ public class TrackerResourceTest extends AbstractShiroTest {
         setSubject(subjectUnderTest);
         
         StudyRepository mock = createMock(StudyRepository.class);
-        mock.saveStudy(anyObject(Study.class));
+        mock.saveStudy(anyObject(Study.class), anyObject(String.class));
         expectLastCall().andStubThrow(new InvalidValueException("Error"));
         replay(mock);
         

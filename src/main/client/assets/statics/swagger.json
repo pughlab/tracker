@@ -107,11 +107,11 @@
         }
       }
     },
-    "/studies/{studyName}/views": {
+    "/studies/{studyName}": {
       "get": {
         "tags": ["views"],
-        "operationId": "getStudyViews",
-        "description": "Returns the views for a study",
+        "operationId": "getStudy",
+        "description": "Returns the study",
         "parameters": [{
           "name": "studyName",
           "in": "path",
@@ -121,9 +121,9 @@
         }],
         "responses": {
           "200": {
-            "description": "A study views response",
+            "description": "A study response",
             "schema": {
-              "$ref": "#/definitions/StudyViewsResponse"
+              "$ref": "#/definitions/StudyResponse"
             }
           }
         }
@@ -226,7 +226,7 @@
         }
       }
     },
-    "StudyViewsResponse": {
+    "StudyResponse": {
       "type": "object",
       "properties": {
         "serviceUrl": {

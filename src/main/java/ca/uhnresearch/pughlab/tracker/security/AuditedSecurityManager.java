@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.security;
 
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 
@@ -38,7 +39,8 @@ public class AuditedSecurityManager extends DefaultWebSecurityManager {
 	 */
 	@Override 
 	public void logout(Subject subject) {
-		if (subject.getPrincipals().getPrimaryPrincipal() != null) {
+		PrincipalCollection principals = subject.getPrincipals();
+		if (principals != null && principals.getPrimaryPrincipal() != null) {
 			String username = subject.getPrincipals().getPrimaryPrincipal().toString();
 			AuditLogRecord record = new AuditLogRecord();
 			record.setEventType("logout");

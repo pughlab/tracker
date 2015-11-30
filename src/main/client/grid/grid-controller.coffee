@@ -60,8 +60,8 @@ angular
       annotateEventWithUser event
       $scope.$broadcast 'socket:delete', event
 
-    $scope.$on 'socket:join', (evt, event) ->
-      socket.emit 'join', event
+    $scope.$on 'socket:join', (evt, scope, event) ->
+      socket.emit 'join', scope, event
 
     $scope.$on '$destroy', () ->
       socket.disconnect()
