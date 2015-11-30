@@ -82,30 +82,46 @@ public class SimpleQueryParser implements QueryParser {
 		logger.trace("> parseTerm");
 
 		QueryNode next = getNextToken();
-
-		while(next != null) {
-			if (next.equals(OperatorToken.OPERATOR_LEFT_PARENTHESIS)) {
-				
-				skipToken();
-				QueryNode left = parseQuery();
-				
-				next = getNextToken();
-				if (next == null || ! next.equals(OperatorToken.OPERATOR_RIGHT_PARENTHESIS)) {
-					throw new InvalidTokenException("Missing right parenthesis");
-				}
-				skipToken();
-				next = left;
-				break;
-			} else {
-
-				skipToken();
-				break;
-			}
+		
+		if (next == null) {
+			return next;
 		}
 		
-		logger.trace("< parseTerm");
+		if (! (next instanceof OperatorToken)) {
+			skipToken();
+			return next;
+		}
 		
-		return next;
+		OperatorToken nextOperator = (OperatorToken) next;
+		
+		if (nextOperator.equals(OperatorToken.OPERATOR_LEFT_PARENTHESIS)) {
+			
+			skipToken();
+			QueryNode left = parseQuery();
+			
+			next = getNextToken();
+			if (next == null || ! next.equals(OperatorToken.OPERATOR_RIGHT_PARENTHESIS)) {
+				throw new InvalidTokenException("Missing right parenthesis");
+			}
+			skipToken();
+			return left;
+
+		} else if (OperatorToken.isPrefixOperator(nextOperator.getValue())) {
+			
+			skipToken();
+			QueryNode right = getNextToken();
+			
+			if (right == null) {
+				throw new InvalidTokenException("Missing value for: " + nextOperator.getValue());
+			}
+
+			skipToken();
+			return new ExpressionNode(null, nextOperator, right);
+			
+		} else {
+			
+			throw new InvalidTokenException("Unexpected operator: " + nextOperator.getValue());
+		}
 	}
 
 	/**

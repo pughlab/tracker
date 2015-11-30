@@ -48,4 +48,18 @@ public class ExpressionNode extends QueryNode {
 			return false;
 		}
 	}
+	
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		if (operandLeft != null) {
+			builder.append(operandLeft.toString());
+			builder.append(' ');
+		}
+		builder.append(operator.toString());
+		if (operandRight != null) {
+			builder.append(' ');			
+			builder.append(operandRight.toString());
+		}
+		return builder.toString();
+	}
 }
