@@ -50,7 +50,7 @@ public abstract class AbstractXMLWriter {
 	
 	private JsonNode getStateLabels(ViewDataResponse data) {
 		JsonNode options = data.getStudy().getOptions();
-		if (! options.isObject() || ! options.has("stateLabels") || ! options.get("stateLabels").isObject()) {
+		if (options == null || ! options.isObject() || ! options.has("stateLabels") || ! options.get("stateLabels").isObject()) {
 			return NullNode.instance;
 		} else {
 			return options.get("stateLabels");
