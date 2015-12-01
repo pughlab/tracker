@@ -1,6 +1,12 @@
 ## Revision history
 
 
+### Version 2.1.3 - December 1st 2015
+
+ * Modestly incompatible change: table names are uppercase. See #128
+ * Adding missing Debian dependency for package install. See #127
+
+
 ### Version 2.1.2 - November 30th 2015
 
  * Fixed issues with Excel downloads when missing state labels. See #124
