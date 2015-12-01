@@ -1,3 +1,5 @@
+SET SESSION SQL_MODE = 'ansi,strict_all_tables';
+
 -- =============================================================================================
 -- Delete permissions due to MySQL stupid integrity ordering
 
