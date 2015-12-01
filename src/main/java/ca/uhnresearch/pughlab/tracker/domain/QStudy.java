@@ -27,7 +27,7 @@ public class QStudy extends com.mysema.query.sql.RelationalPathBase<Study> {
     public final com.mysema.query.sql.PrimaryKey<Study> primary = createPrimaryKey(id);
 
     public QStudy(String variable) {
-        super(Study.class, forVariable(variable), "null", "studies");
+        super(Study.class, forVariable(variable), "null", "STUDIES");
         addMetadata();
     }
 

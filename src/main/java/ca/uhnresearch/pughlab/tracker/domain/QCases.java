@@ -26,7 +26,7 @@ public class QCases extends com.mysema.query.sql.RelationalPathBase<Cases> {
     public final com.mysema.query.sql.PrimaryKey<Cases> primary = createPrimaryKey(id);
 
     public QCases(String variable) {
-        super(Cases.class, forVariable(variable), "null", "cases");
+        super(Cases.class, forVariable(variable), "null", "CASES");
         addMetadata();
     }
 

@@ -1,9 +1,19 @@
 ## Revision history
 
 
+### Version 2.1.3 - December 1st 2015
+
+ * Modestly incompatible change: table names are uppercase. See #128
+ * Adding missing Debian dependency for package install. See #127
+
+
 ### Version 2.1.2 - November 30th 2015
 
- * Fixed an issue with logging configuration. See #117
+ * Fixed issues with Excel downloads when missing state labels. See #124
+ * Restructured and fixed the admin editing logic. See #115, #123
+ * Allow filters to match values with spaces in. See #122
+ * Corrected Debian package database configuration. See #118
+ * Added a Markdown-based per-study description. See #116
 
 
 ### Version 2.1.1 - November 19th 2015

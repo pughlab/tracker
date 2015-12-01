@@ -36,7 +36,7 @@ public class QAuditLog extends RelationalPathBase<AuditLogRecord> {
     public final StringPath eventArgs = createString("eventArgs");
 
     public QAuditLog(String variable) {
-        super(AuditLogRecord.class, forVariable(variable), "null", "audit_log");
+        super(AuditLogRecord.class, forVariable(variable), "null", "AUDIT_LOG");
         addMetadata();
     }
     

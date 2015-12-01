@@ -22,7 +22,7 @@ public class QCaseAttributeNumbers extends QCaseAttributeBase<Double> {
     public static final QCaseAttributeNumbers caseAttributes = new QCaseAttributeNumbers("case_attribute_numbers");
 
     public QCaseAttributeNumbers(String variable) {
-        super(forVariable(variable), "null", "case_attribute_numbers");
+        super(forVariable(variable), "null", "CASE_ATTRIBUTE_NUMBERS");
     }
 
     public final NumberPath<Double> value = createNumber("value", Double.class);

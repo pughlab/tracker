@@ -34,7 +34,7 @@ public class QAttributes extends com.mysema.query.sql.RelationalPathBase<Attribu
     public final com.mysema.query.sql.PrimaryKey<Attributes> primary = createPrimaryKey(id);
 
     public QAttributes(String variable) {
-        super(Attributes.class, forVariable(variable), "null", "attributes");
+        super(Attributes.class, forVariable(variable), "null", "ATTRIBUTES");
         addMetadata();
     }
 

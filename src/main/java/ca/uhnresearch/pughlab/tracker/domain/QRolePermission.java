@@ -23,7 +23,7 @@ public class QRolePermission extends com.mysema.query.sql.RelationalPathBase<Rol
     public final StringPath permission = createString("permission");
 
     public QRolePermission(String variable) {
-        super(RolePermission.class, forVariable(variable), "null", "role_permissions");
+        super(RolePermission.class, forVariable(variable), "null", "ROLE_PERMISSIONS");
         addMetadata();
     }
 

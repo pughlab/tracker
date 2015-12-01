@@ -23,7 +23,7 @@ public class QUserRole extends com.mysema.query.sql.RelationalPathBase<UserRole>
     public final NumberPath<Integer> roleId = createNumber("roleId", Integer.class);
 
     public QUserRole(String variable) {
-        super(UserRole.class, forVariable(variable), "null", "user_roles");
+        super(UserRole.class, forVariable(variable), "null", "USER_ROLES");
         addMetadata();
     }
 
