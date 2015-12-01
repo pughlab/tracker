@@ -21,7 +21,7 @@ public class QCaseAttributeDates extends QCaseAttributeBase<java.sql.Date> {
     public static final QCaseAttributeDates caseAttributes = new QCaseAttributeDates("case_attribute_dates");
 
     public QCaseAttributeDates(String variable) {
-        super(forVariable(variable), "null", "case_attribute_dates");
+        super(forVariable(variable), "null", "CASE_ATTRIBUTE_DATES");
     }
 
     public final DatePath<java.sql.Date> value = createDate("value", java.sql.Date.class);

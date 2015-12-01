@@ -21,7 +21,7 @@ public class QCaseAttributeStrings extends QCaseAttributeBase<String> {
     public static final QCaseAttributeStrings caseAttributes = new QCaseAttributeStrings("case_attribute_strings");
 
     public QCaseAttributeStrings(String variable) {
-        super(forVariable(variable), "null", "case_attribute_strings");
+        super(forVariable(variable), "null", "CASE_ATTRIBUTE_STRINGS");
     }
 
     public final StringPath value = createString("value");

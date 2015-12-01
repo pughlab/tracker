@@ -25,7 +25,7 @@ public class QRole extends com.mysema.query.sql.RelationalPathBase<Role> {
     public final com.mysema.query.sql.PrimaryKey<Role> primary = createPrimaryKey(id);
 
     public QRole(String variable) {
-        super(Role.class, forVariable(variable), "null", "roles");
+        super(Role.class, forVariable(variable), "null", "ROLES");
         addMetadata();
     }
 

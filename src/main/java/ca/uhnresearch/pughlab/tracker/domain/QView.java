@@ -27,7 +27,7 @@ public class QView extends com.mysema.query.sql.RelationalPathBase<View> {
     public final com.mysema.query.sql.PrimaryKey<View> primary = createPrimaryKey(id);
 
     public QView(String variable) {
-        super(View.class, forVariable(variable), "null", "views");
+        super(View.class, forVariable(variable), "null", "VIEWS");
         addMetadata();
     }
 

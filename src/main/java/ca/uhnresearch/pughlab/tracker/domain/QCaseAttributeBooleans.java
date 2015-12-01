@@ -23,7 +23,7 @@ public class QCaseAttributeBooleans extends QCaseAttributeBase<Boolean> {
     public final BooleanPath value = createBoolean("value");
     
     public QCaseAttributeBooleans(String variable) {
-        super(forVariable(variable), "null", "case_attribute_booleans");
+        super(forVariable(variable), "null", "CASE_ATTRIBUTE_BOOLEANS");
     }
     
     @Override

@@ -25,7 +25,7 @@ public class QViewAttributes extends com.mysema.query.sql.RelationalPathBase<Vie
     public final com.mysema.query.sql.PrimaryKey<ViewAttributes> primary = createPrimaryKey(attributeId, viewId);
 
     public QViewAttributes(String variable) {
-        super(ViewAttributes.class, forVariable(variable), "null", "view_attributes");
+        super(ViewAttributes.class, forVariable(variable), "null", "VIEW_ATTRIBUTES");
         addMetadata();
     }
 
