@@ -60,6 +60,20 @@ sub lowercaseify {
   return $result;
 }
 
+sub camelHeader {
+  my ($string) = @_;
+  $string =~ s{\s+}{ }g;
+  $string =~ s{\b(?:the|of|in|to|by|and|for)\b}{}ig;
+  $string =~ s{\([^\)]+\)}{}g;
+  $string =~ s{\s+$}{};
+  $string =~ s{ +}{_}g;
+  $string =~ s{\#}{Num}g;
+  $string =~ s{[<>/\_:-]}{}g;
+  $string =~ s{\?}{}g;
+  $string =~ s{\&gt;}{}g;
+  return camelize($string);
+}
+
 sub write_data {
   my ($context, $cfg) = @_;
 
@@ -108,6 +122,31 @@ sub write_data {
     $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "STUDIES" WHERE "NAME" = ?}, {}, $study);
     $study_ref = lowercaseify($study_ref);
     $logger->info("Created new study: ", $study);
+  }
+
+  $logger->info("Writing attributes for: ", $study);
+  my $attributes = $cfg->{attributes};
+  my $rank = 1;
+  for my $attribute (@$attributes) {
+    $attribute->{name} //= camelHeader($attribute->{label});
+    $attribute->{type} //= "String";
+    $attribute->{name} =~ s{(^\s+|\s+$)}{};
+    $attribute->{label} =~ s{(^\s+|\s+$)}{};
+    $attribute->{type} = lc($attribute->{type});
+    $dbh->do(qq{INSERT INTO "ATTRIBUTES" ("STUDY_ID", "NAME", "LABEL", "TYPE", "RANK") VALUES (?, ?, ?, ?, ?)}, {},
+      $study_ref->{id}, $attribute->{name}, $attribute->{label}, $attribute->{type}, $rank++);
+  }
+
+  my $views = $cfg->{views};
+  for my $view (@$views) {
+    $view->{name} //= camelHeader($view->{label});
+    $dbh->do(qq{INSERT INTO "VIEWS" ("STUDY_ID", "NAME", "DESCRIPTION") VALUES (?, ?, ?)}, {},
+      $study_ref->{id}, $view->{name}, $view->{label});
+
+    my $view_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "VIEWS" WHERE "NAME" = ? AND "STUDY_ID" = ?}, {}, $view->{name}, $study_ref->{id});
+    $view_ref = lowercaseify($view_ref);
+    $view->{id} = $view_ref->{id};
+    $logger->info("Writing view: ", $view->{label});
   }
 
   $logger->info("Committing transaction");
