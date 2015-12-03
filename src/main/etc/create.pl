@@ -22,10 +22,12 @@ Log::Log4perl->init(\ <<'EOT');
       %p %F{1} %L> %m %n
 EOT
 
+my $logger = get_logger();
+
 my $help = 0;
 my $file;
 my $study;
-my $config = 'create.yml';
+my $config = 'missing';
 my $sheet = "Sheet1";
 my $database;
 my $user;
@@ -37,15 +39,20 @@ GetOptions(
 ) or die("Error in command line arguments\n");
 
 if (! -e $config) {
-  die("Can't find config file: $config");
+  $logger->error("Can't find --config argument: $config");
+  exit(1);
 }
 
-my $logger = get_logger();
 $logger->info("Reading config file: $config");
 my $cfg = Config::Any->load_files({files => [$config], use_ext => 1});
 $cfg = $cfg->[0];
 my ($filename) = keys %$cfg;
 $cfg = $cfg->{$filename};
+
+if (! $cfg->{create}) {
+  $logger->error("Sorry; this is not a study building script: $config");
+  exit(1);
+}
 
 pod2usage(1) if $help;
 
@@ -135,18 +142,93 @@ sub write_data {
     $attribute->{type} = lc($attribute->{type});
     $dbh->do(qq{INSERT INTO "ATTRIBUTES" ("STUDY_ID", "NAME", "LABEL", "TYPE", "RANK") VALUES (?, ?, ?, ?, ?)}, {},
       $study_ref->{id}, $attribute->{name}, $attribute->{label}, $attribute->{type}, $rank++);
+
+    my $attribute_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "ATTRIBUTES" WHERE "NAME" = ? AND "STUDY_ID" = ?}, {}, $attribute->{name}, $study_ref->{id});
+    $attribute_ref = lowercaseify($attribute_ref);
+    $attribute->{id} = $attribute_ref->{id};
   }
 
   my $views = $cfg->{views};
   for my $view (@$views) {
     $view->{name} //= camelHeader($view->{label});
+    $logger->info("Writing view: ", $view->{label});
     $dbh->do(qq{INSERT INTO "VIEWS" ("STUDY_ID", "NAME", "DESCRIPTION") VALUES (?, ?, ?)}, {},
       $study_ref->{id}, $view->{name}, $view->{label});
 
     my $view_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "VIEWS" WHERE "NAME" = ? AND "STUDY_ID" = ?}, {}, $view->{name}, $study_ref->{id});
     $view_ref = lowercaseify($view_ref);
     $view->{id} = $view_ref->{id};
-    $logger->info("Writing view: ", $view->{label});
+  }
+
+  ## Now we can build the view attribute mapping. Unless otherwise specified,
+  ## an attribute is in all views.
+  $logger->info("Writing view attributes for: ", $study);
+  my @view_names = map { $_->{name} } @$views;
+  my %view_ranks = ();
+  my %view_table = ();
+  for my $view (@$views) {
+    $view_ranks{$view->{name}} = 1;
+    $view_table{$view->{name}} = $view;
+  }
+  for my $attribute (@$attributes) {
+    my @views = (exists($attribute->{views})) ? @{$attribute->{views}} : keys %view_table;
+    for my $view (map { $view_table{$_} } @views) {
+      if (! $view) {
+        die("Missing view for attribute: ", @views);
+      }
+      $dbh->do(qq{INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (?, ?, ?)}, {},
+        $view->{id}, $attribute->{id}, $view_ranks{$view->{name}}++);
+    }
+  }
+
+  $logger->info("Writing roles for: ", $study);
+  if (exists($cfg->{roles})) {
+    my @roles = @{$cfg->{roles}};
+    for my $role (@roles) {
+      my $name = $role->{name};
+      my $study_name = $role->{study};
+      my $role_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "ROLES" WHERE "NAME" = ?}, {}, $name);
+      my $role_id;
+      if ($role_ref) {
+        $role_ref = lowercaseify($role_ref);
+        $logger->info("Found existing role: ", $name);
+        $logger->info("Deleting existing permissions");
+        $dbh->do(qq{DELETE FROM "ROLE_PERMISSIONS" WHERE "ROLE_ID" = ?}, {}, $role_ref->{id});
+        $logger->info("Deleting existing users");
+        $dbh->do(qq{DELETE FROM "USER_ROLES" WHERE "ROLE_ID" = ?}, {}, $role_ref->{id});
+        $role_id = $role_ref->{id};
+      } else {
+        $logger->info("Creating new role: ", $name);
+        my $role_study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "STUDIES" WHERE "NAME" = ?}, {}, $study_name);
+        if (! $role_study_ref) {
+          die("Can't find existing study: $study_name");
+        }
+        $role_study_ref = lowercaseify($role_study_ref);
+        $dbh->do(qq{INSERT INTO "ROLES" ("STUDY_ID", "NAME") VALUES (?, ?)}, {}, $role_study_ref->{id}, $name);
+        $role_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "ROLES" WHERE "NAME" = ? AND "STUDY_ID" = ?}, {}, $name, $role_study_ref->{id});
+        if (! $role_ref) {
+          die("Can't find newly created role study: name");
+        }
+        $role_ref = lowercaseify($role_ref);
+        $role_id = $role_ref->{id};
+      }
+
+      $DB::single = 1 if (! $role_id);
+
+      if (exists($role->{users})) {
+        for my $user (@{$role->{users}}) {
+          $logger->info("Adding user: ", $user);
+          $dbh->do(qq{INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES (?, ?)}, {}, $user, $role_id);
+        }
+      }
+
+      if (exists($role->{permissions})) {
+        for my $permission (@{$role->{permissions}}) {
+          $logger->info("Adding permission: ", $permission);
+          $dbh->do(qq{INSERT INTO "ROLE_PERMISSIONS" ("PERMISSION", "ROLE_ID") VALUES (?, ?)}, {}, $permission, $role_id);
+        }
+      }
+    }
   }
 
   $logger->info("Committing transaction");
