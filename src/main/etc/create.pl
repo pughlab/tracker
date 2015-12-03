@@ -146,6 +146,18 @@ sub write_data {
     my $attribute_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "ATTRIBUTES" WHERE "NAME" = ? AND "STUDY_ID" = ?}, {}, $attribute->{name}, $study_ref->{id});
     $attribute_ref = lowercaseify($attribute_ref);
     $attribute->{id} = $attribute_ref->{id};
+
+    ## Now, we might have attribute permissions to record, which we will process
+    ## later....
+
+    if (exists($attribute->{permission})) {
+      for my $permission (@{$attribute->{permission}}) {
+        foreach my $key (keys %$permission) {
+          my $role = $permission->{$key};
+          push @{$context->{attribute_permissions}->{$role}->{$key}}, $attribute->{name};
+        }
+      }
+    }
   }
 
   my $views = $cfg->{views};
@@ -178,6 +190,27 @@ sub write_data {
       }
       $dbh->do(qq{INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (?, ?, ?)}, {},
         $view->{id}, $attribute->{id}, $view_ranks{$view->{name}}++);
+    }
+  }
+
+  if (exists($context->{attribute_permissions})) {
+    foreach my $role_name (keys %{$context->{attribute_permissions}}) {
+      my $permissions = $context->{attribute_permissions}->{$role_name};
+      foreach my $key (keys %$permissions) {
+        my $values = $permissions->{$key};
+        $values = join(",", @$values);
+        my $permission = "attribute:$key:$values";
+
+        ## Now let's find the role and add a new permission...
+        if (exists($cfg->{roles})) {
+          for my $role (@{$cfg->{roles}}) {
+            if ($role->{name} eq $role_name) {
+              push @{$role->{permissions}}, $permission;
+              last;
+            }
+          }
+        }
+      }
     }
   }
 
