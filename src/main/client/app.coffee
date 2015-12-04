@@ -32,9 +32,9 @@ angular
         templateUrl: '/tracker/studies/study-views.html'
         url: '/studies/:studyName'
       .state 'studyAbout',
-        controller: 'StudyController'
+        controller: 'StudyAboutController'
         templateUrl: '/tracker/studies/study-about.html'
-        url: '/studies/:studyName/about'
+        url: '/about/:studyName'
       .state 'studyView',
         controller: 'GridTableController'
         templateUrl: '/tracker/grid/table.html'

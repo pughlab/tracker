@@ -22,6 +22,10 @@ angular
       if newValue != oldValue && ! angular.equals(newValue, oldValue) && ! loading
         $scope.$emit 'admin:modified'
 
+    $scope.$watchCollection 'study.study.options', (newValue, oldValue) ->
+      if newValue != oldValue && ! angular.equals(newValue, oldValue) && ! loading
+        $scope.$emit 'admin:modified'
+
     $scope.$on 'admin:modified', (e) ->
       $scope.modified = true
 

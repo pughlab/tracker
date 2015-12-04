@@ -10,6 +10,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.StudyAboutResponse;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class RequestAttributes {
@@ -29,6 +30,9 @@ public class RequestAttributes {
 	private static final String ATTRIBUTE_ATTRIBUTE = "attribute";
 
 	private static final String FILTER_ATTRIBUTE = "filter";
+
+	private static final String ABOUT_ATTRIBUTE = "about";
+	
 
 	/**
 	 * Helper method to read a study from a request attribute
@@ -172,5 +176,23 @@ public class RequestAttributes {
 	 */
 	public static void setRequestFilter(Request request, ObjectNode a) {
 		request.getAttributes().put(RequestAttributes.FILTER_ATTRIBUTE, a);
+	}
+
+	/**
+	 * Helper method to read an attribute from a request attribute
+	 * @param request
+	 * @return the request filter
+	 */
+	public static StudyAboutResponse getRequestStudyAbout(Request request) {
+		return (StudyAboutResponse) request.getAttributes().get(RequestAttributes.ABOUT_ATTRIBUTE);
+	}
+
+	/**
+	 * Helper method to write a study about description into a request attribute
+	 * @param request
+	 * @param a
+	 */
+	public static void setRequestStudyAbout(Request request, StudyAboutResponse a) {
+		request.getAttributes().put(RequestAttributes.ABOUT_ATTRIBUTE, a);
 	}
 }
