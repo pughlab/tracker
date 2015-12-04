@@ -119,6 +119,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     			study.setName(s.getName());
     			study.setDescription(s.getDescription());
     			study.setOptions(s.getOptions());
+    			study.setAbout(s.getAbout());
     			study.getAccess().setAdmin(studyAdminPermission);
     			study.getAccess().setView(studyViewPermission);
     			study.getAccess().setAbout(studyViewPermission || studyAboutPermission);
