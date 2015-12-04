@@ -1,6 +1,15 @@
 ## Revision history
 
 
+### Version 2.1.4 - December 1st 2015
+
+ * Make the study order display more sensible bug. See #136
+ * Make sure initially empty studies allow new cases. See #135
+ * Add a study creation script. See #134
+ * Corrected issues blocking management of study labels and states. See #132
+ * Allow access to study notes for all studies. See #131
+
+
 ### Version 2.1.3 - December 1st 2015
 
  * Modestly incompatible change: table names are uppercase. See #128

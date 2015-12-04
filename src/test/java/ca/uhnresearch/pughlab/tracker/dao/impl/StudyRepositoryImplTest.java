@@ -174,7 +174,12 @@ public class StudyRepositoryImplTest {
 	public void testGetStudies() {
 		List<Study> list = studyRepository.getAllStudies();
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());
+		Assert.assertEquals(4, list.size());
+		
+		Assert.assertEquals("ADMIN", list.get(0).getName());
+		Assert.assertEquals("ALPHABETICAL", list.get(1).getName());
+		Assert.assertEquals("DEMO", list.get(2).getName());
+		Assert.assertEquals("SECOND", list.get(3).getName());
 	}
 
 	@Test

@@ -38,6 +38,7 @@
 	            	</bean>
 	            </entry>
 	            <entry key="/studies/{studyName}" value-ref="studyExtractor" />
+                <entry key="/about/{studyName}" value-ref="studyAboutExtractor" />
 	        </map>
 	    </property>
 	</bean>
@@ -64,6 +65,15 @@
 		<property name="next" ref="studyRouter"/>
 	</bean>
 	
+    <bean id="studyAboutExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.StudyAboutExtractor">
+        <property name="repository" ref="studyRepository"/>
+        <property name="next">
+            <bean class="org.restlet.ext.spring.SpringFinder">
+                <lookup-method name="create" bean="studyAboutResource" />
+            </bean>
+        </property>
+    </bean>
+    
 	<bean id="studyRouter" class="org.restlet.ext.spring.SpringRouter">
 		<constructor-arg ref="apiRouter" />
 		<property name="attachments">
@@ -71,6 +81,11 @@
                 <entry key="">
                     <bean class="org.restlet.ext.spring.SpringFinder">
                         <lookup-method name="create" bean="studyResource" />
+                    </bean>
+                </entry>
+                <entry key="/about">
+                    <bean class="org.restlet.ext.spring.SpringFinder">
+                        <lookup-method name="create" bean="studyAboutResource" />
                     </bean>
                 </entry>
  	            <entry key="/schema">
@@ -174,6 +189,9 @@
  	<bean id="studySchemaResource" class="ca.uhnresearch.pughlab.tracker.resource.StudySchemaResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
 	</bean>
+    <bean id="studyAboutResource" class="ca.uhnresearch.pughlab.tracker.resource.StudyAboutResource" scope="prototype">
+        <property name="repository" ref="studyRepository"/>
+    </bean>
  	<bean id="viewDataResource" class="ca.uhnresearch.pughlab.tracker.resource.ViewDataResource" scope="prototype">
 		<property name="repository" ref="studyRepository"/>
         <property name="writers">

@@ -32,9 +32,10 @@ CREATE TABLE "STUDIES" (
   UNIQUE ("NAME")
 );
 
-INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION") VALUES (0, 'ADMIN', 'Admin study');
-INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION", "OPTIONS") VALUES (1, 'DEMO', 'A demo clinical genomics study', '{"stateLabels":{"pending":"label1","returnPending":"label2"}}');
-INSERT INTO "STUDIES" ("ID", "NAME", "DESCRIPTION") VALUES (2, 'SECOND', 'A second study');
+INSERT INTO "STUDIES" ("NAME", "DESCRIPTION") VALUES ('ADMIN', 'Admin study');
+UPDATE "STUDIES" SET "ID" = 0 WHERE "NAME" = 'ADMIN';
+INSERT INTO "STUDIES" ("NAME", "DESCRIPTION", "OPTIONS") VALUES ('DEMO', 'A demo clinical genomics study', '{"stateLabels":{"pending":"label1","returnPending":"label2"}}');
+INSERT INTO "STUDIES" ("NAME", "DESCRIPTION") VALUES ('SECOND', 'A second study');
 
 -- =============================================================================================
 -- Now for the attributes

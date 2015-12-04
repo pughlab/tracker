@@ -1,10 +1,13 @@
 <div>
   <ol class="breadcrumb">
     <li><a ui-sref="home">Home</a></li>
-    <li><a ui-sref="study({studyName: study.study.name})">{{study.study.name}}</a></li>
+    <li>
+      <a ng-show="study.access.view" ui-sref="study({studyName: study.name})">{{study.name}}</a>
+      <span ng-hide="study.access.view">{{study.name}}</span>
+    </li>
     <li>About</li>
   </ol>
 
-  <div markdown="study.study.about"></div>
+  <div markdown="study.about"></div>
 
 </div>

@@ -22,3 +22,11 @@ angular
           element[property]
       else
         input
+
+  .filter 'default', () ->
+    (input, value) ->
+      console.log input, value
+      if input
+        input
+      else
+        value
