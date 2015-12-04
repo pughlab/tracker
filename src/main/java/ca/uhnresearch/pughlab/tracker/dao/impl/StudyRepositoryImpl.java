@@ -75,7 +75,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     public List<Study> getAllStudies() {
 		logger.debug("Looking for all studies");
 
-    	SQLQuery sqlQuery = template.newSqlQuery().from(studies);
+    	SQLQuery sqlQuery = template.newSqlQuery().from(studies).orderBy(studies.name.asc());
     	List<Study> studyList = template.query(sqlQuery, new StudyProjection(studies));
     	logger.debug("Got some studies: {}", studyList.toString());
 

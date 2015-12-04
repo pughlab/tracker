@@ -58,20 +58,19 @@ public class JdbcAuthorizingRealmTest {
 
 	@Test
 	public void testAuthorizationWithNonAdminPrincipal() {
-		PrincipalCollection principal = new SimplePrincipalCollection("morag", "mock");
+		PrincipalCollection principal = new SimplePrincipalCollection("anca", "mock");
 		Object result = ReflectionTestUtils.invokeMethod(authorizationRealm, "doGetAuthorizationInfo", principal);
 		Assert.assertTrue(result instanceof AuthorizationInfo);
 		
 		AuthorizationInfo info = (AuthorizationInfo) result;
 		
-		Assert.assertTrue(info.getRoles().contains("ROLE_DEMO_READ"));
-		Assert.assertTrue(info.getRoles().contains("ROLE_OTHER_READ"));
-		Assert.assertEquals(2, info.getRoles().size());
+		Assert.assertTrue(info.getRoles().contains("ROLE_DEMO_TRACK"));
+		Assert.assertEquals(1, info.getRoles().size());
 		
 		Assert.assertTrue(info.getStringPermissions().contains("DEMO:view"));
 		Assert.assertTrue(info.getStringPermissions().contains("DEMO:read:track"));
-		Assert.assertTrue(info.getStringPermissions().contains("SECOND:view"));
-		Assert.assertTrue(info.getStringPermissions().contains("SECOND:write:*"));
-		Assert.assertEquals(7, info.getStringPermissions().size());
+		Assert.assertTrue(info.getStringPermissions().contains("DEMO:write:track"));
+		Assert.assertTrue(info.getStringPermissions().contains("DEMO:attribute:*:*"));
+		Assert.assertEquals(4, info.getStringPermissions().size());
 	}
 }

@@ -19,6 +19,8 @@ import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.StudyListResponse;
 import ca.uhnresearch.pughlab.tracker.dto.StudyWithAccess;
@@ -91,23 +93,35 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     		String studyAdminPermissionString = s.getName() + ":admin";
     		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
     		Boolean studyViewPermission = studyAdminPermission;
+    		Boolean studyAboutPermission = studyAdminPermission;
     		
     		if (studyAdminPermission) {
     			// Do nothing, as all permissions are already true
-    		} else {
-    			String studyViewPermissionString = s.getName() + ":view";
-    			studyViewPermission = currentUser.isPermitted(studyViewPermissionString);
+    		} else if (currentUser.isPermitted(s.getName() + ":view")) {
+    			// Check for view permission
+    			studyViewPermission = true;
+    		}
+    		
+    		if (! studyViewPermission && s.getAbout() != null && ! s.getAbout().equals("")) {
+    			// Or a public study option
+    			JsonNode options = s.getOptions();
+    			if (options != null && options.has("public") && options.get("public").asBoolean()) {
+    				studyAboutPermission = true;
+    			}
     		}
 
     		// For each study, we also ought to derive the precise nature of the
     		// allowed permissions, and embed them in a permissions DTO.
     		
-    		if (studyViewPermission) {
+    		if (studyViewPermission || studyAboutPermission) {
     			StudyWithAccess study = new StudyWithAccess();
     			study.setId(s.getId());
     			study.setName(s.getName());
     			study.setDescription(s.getDescription());
+    			study.setOptions(s.getOptions());
     			study.getAccess().setAdmin(studyAdminPermission);
+    			study.getAccess().setView(studyViewPermission);
+    			study.getAccess().setAbout(studyViewPermission || studyAboutPermission);
     			dto.getStudies().add(study);
     		}
     	}

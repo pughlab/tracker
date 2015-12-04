@@ -32,3 +32,20 @@ angular
         $scope.study = response
       .error (response) ->
         console.log "Error", response
+
+
+  ## Added a new controller that retrieves the about information for a study, but not much more.
+  ## We do this to allow a public view of the about text, independently of the rest of the
+  ## permissions system.
+
+  .controller 'StudyAboutController', Array '$scope', '$http', '$stateParams', ($scope, $http, $stateParams) ->
+    $scope.study = undefined
+    encodedStudyName = encodeURIComponent($stateParams.studyName)
+
+    $http
+      .get("/api/about/#{encodedStudyName}")
+      .success (response) ->
+        console.log "About about", response
+        $scope.study = response
+      .error (response) ->
+        console.log "Error", response

@@ -236,6 +236,14 @@ angular
               typeTable: (attribute.type for attribute in orderedAttributes)
             }
 
+            oldIsEmptyRow = handsonTable.isEmptyRow
+            handsonTable.isEmptyRow = (row) ->
+              rowCount = @countRows()
+              if rowCount < 2
+                false
+              else
+                oldIsEmptyRow(row)
+
             handsonTable.addHook 'beforeValidate', (value, row, fieldFunction, source) ->
               {"$value": value, "$source": source}
 

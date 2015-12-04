@@ -12,8 +12,14 @@
 
   <ul>
     <li ng-repeat="study in studies.studies">
-      <strong><a href="/studies/{{study.name}}">{{study.name}}</a></strong>
-      <span ng-show="study.access.admin"> <a ui-sref="adminStudy.notes({studyName: study.name})" type="button" class="btn btn-default btn-xs">Edit</a></span>
+      <strong>
+        <a ng-show="study.access.view" href="/studies/{{study.name}}">{{study.name}}</a>
+        <span ng-hide="study.access.view">{{study.name}}</span>
+      </strong>
+      <span ng-show="study.access.about">
+        &mdash; <a ui-sref="studyAbout({studyName: study.name})">{{study.options.aboutLink|default:"How to use this tracker"}}</a>
+      </span>
+      <span ng-show="study.access.admin"> <a ui-sref="adminStudy.notes({studyName: study.name})" type="button" class="btn btn-default btn-xs">Manage study</a></span>
     </li>
   </ul>
   <div>

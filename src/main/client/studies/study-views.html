@@ -5,7 +5,7 @@
   </ol>
 
   <div ng-show="study.study.about">
-    <h5><a ui-sref="studyAbout({studyName: study.study.name})">Study notes</a></h5>
+    <h5><a ui-sref="studyAbout({studyName: study.study.name})">{{study.study.options.aboutLink|default:"How to use this tracker"}}</a></h5>
   </div>
 
   <h4>Current views</h4>

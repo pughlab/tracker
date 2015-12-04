@@ -33,7 +33,7 @@ angular
 
     ## Safely propogate settings back into the study if they are different
     $scope.$watchCollection 'labels', (newLabels, oldLabels) ->
-      if typeof newLabels != 'undefined' && ! angular.equals newLabels, oldLabels
+      if typeof $scope.study != 'undefined' and typeof newLabels != 'undefined' && ! angular.equals newLabels, oldLabels
         stateLabels = {}
         for own k, v of newLabels
           stateLabels[v] = k if v? and v.length > 0

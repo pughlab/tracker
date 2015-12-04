@@ -22,6 +22,10 @@ angular
       if newValue != oldValue && ! angular.equals(newValue, oldValue) && ! loading
         $scope.$emit 'admin:modified'
 
+    $scope.$watchCollection 'study.study.options', (newValue, oldValue) ->
+      if newValue != oldValue && ! angular.equals(newValue, oldValue) && ! loading
+        $scope.$emit 'admin:modified'
+
     $scope.$on 'admin:modified', (e) ->
       $scope.modified = true
 
@@ -91,6 +95,9 @@ angular
       $http
         .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}")
         .then (response) ->
+          response.data.study.options ?= {}
+          response.data.study.options.stateRules ?= []
+          response.data.study.options.stateLabels ?= {}
           originalStudy = response.data
         .catch (response) ->
           console.log "Error", response.data
