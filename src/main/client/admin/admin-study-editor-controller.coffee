@@ -91,6 +91,9 @@ angular
       $http
         .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}")
         .then (response) ->
+          response.data.study.options ?= {}
+          response.data.study.options.stateRules ?= []
+          response.data.study.options.stateLabels ?= {}
           originalStudy = response.data
         .catch (response) ->
           console.log "Error", response.data
