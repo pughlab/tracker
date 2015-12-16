@@ -1899,7 +1899,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("pending", entry.get("eventArgs").get("state").asText());
 		
 		// Check a re-read gets the new state
-		Cases foundValue = studyRepository.getStudyCase(study, 15);
+		Cases foundValue = studyRepository.getStudyCase(study, 7);
 		Assert.assertEquals("pending", foundValue.getState());
 	}
 	
