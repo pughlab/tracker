@@ -44,7 +44,7 @@ angular
 
         scope.$on 'table:reload', (e) ->
           console.log "Requesting reload", scope.filters
-          e.stopPropagation()
+          e.stopPropagation?()
           reloadTable scope, handsonTable
 
 
@@ -54,7 +54,7 @@ angular
 
 
         scope.$on 'table:positionAtEnd', (e) ->
-          e.stopPropagation()
+          e.stopPropagation?()
           offset = Handsontable.Dom.offset(iElement[0])
           availableWidth = Handsontable.Dom.innerWidth(document.body) - offset.left + window.scrollX - 46
           availableHeight = Handsontable.Dom.innerHeight(document.body) - offset.top + window.scrollY - 100
@@ -78,7 +78,7 @@ angular
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
-          e.stopPropagation()
+          e.stopPropagation?()
           searchInTable.search handsonTable, query
 
         scope.$on 'table:search-navigation', (e, direction) ->
