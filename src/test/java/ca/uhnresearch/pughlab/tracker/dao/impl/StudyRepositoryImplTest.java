@@ -508,7 +508,7 @@ public class StudyRepositoryImplTest {
 		
 		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
 		query = studyRepository.addViewCaseMatcher(query, view);
-		query = studyRepository.addStudyCaseSelector(query, 1);
+		query = studyRepository.addStudyCaseSelector(query, 3);
 		
 		List<ObjectNode> dataList = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(dataList);

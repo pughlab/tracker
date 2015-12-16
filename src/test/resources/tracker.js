@@ -17,7 +17,7 @@ events.get("DEMO").on("field", function(event) {
         study = repository.getStudy(study);
         var c = repository.getStudyCase(study, parameters.get("case_id").asInt());
         var oldState = c.getState();
-        var newState = (newValue.toString() == "true") ? "returnPending" : null;
+        var newState = (newValue.toString() == "true") ? "returned" : null;
         if (oldState != newState) {
             repository.setStudyCaseState(study, c, event.data.user, newState);
         }
