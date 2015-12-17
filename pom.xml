@@ -651,6 +651,17 @@
                             <arguments>build-all</arguments>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>gulp test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>gulp</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>test</arguments>
+                        </configuration>
+                    </execution>
             	</executions>
 			</plugin>
 
