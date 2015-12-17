@@ -13,12 +13,12 @@ module.exports = function ( karma ) {
     ],
 
     frameworks: [ 'mocha', 'chai' ],
-    plugins: [ 'karma-mocha', 'karma-chai', 'karma-phantomjs-launcher', 'karma-junit-reporter' ],
+    plugins: [ 'karma-mocha', 'karma-chai', 'karma-phantomjs-launcher', 'karma-junit-reporter', 'karma-mocha-reporter' ],
 
     /**
      * How to report, by default.
      */
-    reporters: ['junit'],
+    reporters: ['mocha'],
 
     /**
      * Show colors in output?

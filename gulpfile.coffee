@@ -197,7 +197,8 @@ gulp.task 'test', ['karma-conf'], (cb) ->
     cb()
   instance = new karma.Server({
     configFile: __dirname + '/target/karma/karma.conf.js',
-    singleRun: true
+    singleRun: true,
+    reporters: ['junit']
   }, callback)
   instance.start()
 
