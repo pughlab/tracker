@@ -39,14 +39,17 @@ public class StateLabelPlugin implements EventHandler {
 	@Override
 	public void sendMessage(Event event) {
 		
+		// No study, no states
 		Study study = getRepository().getStudy(event.getScope());
 		if (study == null) {
 			return;
 		}
 		
+		// Handle a study update
 		if (event.getType().equals(Event.EVENT_STUDY_CHANGE)) {
 			applyLabels(study);
 			
+		// Handle a field update
 		} else if (event.getType().equals(Event.EVENT_SET_FIELD)) {
 			ObjectNode parameters = event.getData().getParameters();
 			applyCaseLabelRules(study, parameters);
@@ -56,9 +59,9 @@ public class StateLabelPlugin implements EventHandler {
 	private class StateRule {
 		private String state;
 		private String attribute;
-		private JsonNode value;
+		private String value;
 		
-		private StateRule(String state, String attribute, JsonNode value) {
+		private StateRule(String state, String attribute, String value) {
 			this.state = state;
 			this.attribute = attribute;
 			this.value = value;
@@ -92,7 +95,7 @@ public class StateLabelPlugin implements EventHandler {
 			int size = stateRules.size();
 			for(int i = 0; i < size; i++) {
 				JsonNode rule = stateRules.get(i);
-				rules.add(new StateRule(rule.get("state").asText(), rule.get("attribute").asText(), rule.get("value")));
+				rules.add(new StateRule(rule.get("state").asText(), rule.get("attribute").asText(), rule.get("value").asText()));
 			}
 		}
 
@@ -117,13 +120,18 @@ public class StateLabelPlugin implements EventHandler {
 		String userName = "system";
 
 		// Now we can apply the rules and change the states of any that need to
-		// change.
+		// change. Note that the rule value might need to be decoded depending on the
+		// attribute and its type. 
 		
 		for(ObjectNode c : cases) {
 			String state = null;
 			for(StateRule rule : rules) {
 				JsonNode value = c.get(rule.attribute);
-				if (value.equals(rule.value)) {
+				if (value == null) {
+					// Do nothing, state can't be affected by a null/empty value
+				} else if (value.isObject() && value.has("$notAvailable") && "N/A".equals(rule.value)) {
+					state = rule.state;
+				} else if (value.toString().equals(rule.value)) {
 					state = rule.state;
 				}
 			}
