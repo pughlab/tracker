@@ -1,10 +1,8 @@
 package ca.uhnresearch.pughlab.tracker.plugins;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Required;
@@ -40,16 +38,19 @@ public class StateLabelPlugin implements EventHandler {
 	 */
 	@Override
 	public void sendMessage(Event event) {
-		if (! event.getType().equals(Event.EVENT_STUDY_CHANGE)) {
-			return;
-		}
 		
 		Study study = getRepository().getStudy(event.getScope());
 		if (study == null) {
 			return;
 		}
 		
-		applyLabels(study);
+		if (event.getType().equals(Event.EVENT_STUDY_CHANGE)) {
+			applyLabels(study);
+			
+		} else if (event.getType().equals(Event.EVENT_SET_FIELD)) {
+			ObjectNode parameters = event.getData().getParameters();
+			applyCaseLabelRules(study, parameters);
+		}
 	}
 	
 	private class StateRule {
@@ -64,34 +65,57 @@ public class StateLabelPlugin implements EventHandler {
 		}
 	}
 	
-	private void applyLabels(Study study) {
-		JsonNode stateRules = study.getOptions().get("stateRules");
-		
-		String userName = "system";
+	private JsonNode getStateRuleData(Study study) {
+		return study.getOptions().get("stateRules");
+	}
+	
+	private Set<String> getAttributeNames(Study study) {
+		JsonNode stateRules = getStateRuleData(study);
 		
 		Set<String> attributeNames = new HashSet<String>();
+		if (stateRules.isArray()) {
+			int size = stateRules.size();
+			for(int i = 0; i < size; i++) {
+				JsonNode rule = stateRules.get(i);
+				attributeNames.add(rule.get("attribute").asText());
+			}
+		}
+
+		return attributeNames;
+	}
+	
+	private List<StateRule> getStateRules(Study study) {
+		JsonNode stateRules = getStateRuleData(study);
+		
 		List<StateRule> rules = new ArrayList<StateRule>();
 		if (stateRules.isArray()) {
 			int size = stateRules.size();
 			for(int i = 0; i < size; i++) {
 				JsonNode rule = stateRules.get(i);
 				rules.add(new StateRule(rule.get("state").asText(), rule.get("attribute").asText(), rule.get("value")));
-				attributeNames.add(rule.get("attribute").asText());
 			}
 		}
-		
-		StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
+
+		return rules;
+	}
+	
+	private List<Attributes> getStudyFilteredAttributes(Study study, Set<String> attributeNames) {
 		List<Attributes> attributes = getRepository().getStudyAttributes(study);
+		
 		List<Attributes> filtered = new ArrayList<Attributes>();
-		Map<String, Attributes> attributeMap = new HashMap<String, Attributes>();
 		for(Attributes a : attributes) {
 			if (attributeNames.contains(a.getName())) {
 				filtered.add(a);
-				attributeMap.put(a.getName(), a);
 			}
 		}
-		List<ObjectNode> cases = getRepository().getCaseData(query, filtered);
+
+		return filtered;
+	}
+	
+	private void applyLabelsToCases(Study study, List<ObjectNode> cases, List<StateRule> rules) {
 		
+		String userName = "system";
+
 		// Now we can apply the rules and change the states of any that need to
 		// change.
 		
@@ -111,5 +135,43 @@ public class StateLabelPlugin implements EventHandler {
 				getRepository().setStudyCaseState(study, selectedCase, userName, state);
 			}
 		}
+
+	}
+
+	private void applyLabels(Study study) {
+
+		Set<String> attributeNames = getAttributeNames(study);
+		List<StateRule> rules = getStateRules(study);
+		
+		StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
+		List<Attributes> filtered = getStudyFilteredAttributes(study, attributeNames);
+		List<ObjectNode> cases = getRepository().getCaseData(query, filtered);
+		
+		applyLabelsToCases(study, cases, rules);
+	}
+	
+	private void applyCaseLabelRules(Study study, ObjectNode parameters) {
+		
+		Set<String> attributeNames = getAttributeNames(study);
+		List<StateRule> rules = getStateRules(study);
+
+		// The rules are as follows: if we've changed anything in the rule
+		// attributes, we should reapply the rules to the case, and then if 
+		// the new state differs from the old one, generate the state change.
+		//
+		// Optimization: skip if the attribute isn't relevant
+		
+		String attribute = parameters.get("field").asText();
+		if (! attributeNames.contains(attribute)) return;
+		
+		// So now we are in a position to apply the rules. Start assuming 
+		// nothing about the state.
+		
+		StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
+		query = getRepository().addStudyCaseSelector(query, parameters.get("case_id").asInt());
+		List<Attributes> filtered = getStudyFilteredAttributes(study, attributeNames);
+		List<ObjectNode> cases = getRepository().getCaseData(query, filtered);
+		
+		applyLabelsToCases(study, cases, rules);
 	}
 }
