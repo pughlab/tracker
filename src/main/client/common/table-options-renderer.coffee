@@ -90,7 +90,25 @@ TrackerStringRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
   Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
   annotateCells cellProperties, instance, TD, row, col, prop
 
+
+TrackerDateRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
+
+  if value and value.hasOwnProperty('$notAvailable')
+    value = "N/A"
+
+  formatString = instance.trackerData?.dateFormat
+  if formatString? and value != "N/A" and value != "" and value?
+    value = moment(value).format(formatString)
+
+  Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
+  annotateCells cellProperties, instance, TD, row, col, prop
+
+
 ## And finally, deploy the various renderers.
+
+Handsontable.TrackerDateRenderer = TrackerDateRenderer
+Handsontable.renderers.TrackerDateRenderer = TrackerDateRenderer
+Handsontable.renderers.registerRenderer('trackerDate', TrackerDateRenderer)
 
 Handsontable.TrackerOptionRenderer = TrackerOptionRenderer
 Handsontable.renderers.TrackerOptionRenderer = TrackerOptionRenderer

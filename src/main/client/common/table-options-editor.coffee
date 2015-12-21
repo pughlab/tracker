@@ -24,10 +24,6 @@ TrackerDateEditor.prototype.createElements = () ->
 
   eventManager = Handsontable.eventManager(this)
 
-  ## Prevent recognizing clicking on datepicker as clicking outside of table
-  eventManager.addEventListener @datePicker, 'mousedown', (event) ->
-    Handsontable.helper.stopPropagation(event)
-
   @hideDatepicker()
 
 

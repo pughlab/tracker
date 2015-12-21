@@ -142,14 +142,33 @@ angular
           highlightElement rowElement, editingClasses
 
 
+  .factory 'handleStateCell', () ->
+    return (scope, handsonTable, entityIdentifier, state, editingClasses) ->
+      console.log "Calling handleStateCell", entityIdentifier
+      rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
+      console.log "Current rowIndex", rowIndex
+      return if !rowIndex
+
+      for entry, i in handsonTable.sortIndex
+        if entry[0] == rowIndex
+          rowIndex = i
+          break
+
+      ## Tha labels are applied to the whole entity, so we need to update
+      ## a complete row.
+
+      handsonTable.setDataAtRowProp(rowIndex, '$state', state, 'socketEvent')
+
 
   .factory 'editTableCell', Array '$timeout', 'highlightElement', '$http', ($timeout, highlightElement, $http) ->
     return (scope, handsonTable, entityIdentifier, field, editingClasses) ->
       $http
         .get scope.getStudyUrl(scope) + "/entities/#{entityIdentifier}", {}
         .success (response) ->
+          console.log 'response from editTableCell put', response
           columnIndex = handsonTable.trackerAttributeColumnTable[field]
           rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
+          console.log 'columnIndex', columnIndex, 'rowIndex', rowIndex
           return if !columnIndex or !rowIndex
 
           value = response.entity[field]
