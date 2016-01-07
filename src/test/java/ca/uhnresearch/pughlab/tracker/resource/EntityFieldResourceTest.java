@@ -232,7 +232,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		RequestAttributes.setRequestAttribute(resource.getRequest(), testAttribute);
 		
 		// This time, we need an entity value to put
-		String s = "{\"$notAvailable\":true}";
+		String s = "{\"value\":{\"$notAvailable\":true}}";
 		Reader r=new StringReader(s);
 		InputStream is=new ReaderInputStream(r);
 		InputRepresentation ir =new InputRepresentation(is);
@@ -249,7 +249,8 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		JsonObject view = data.get("view").getAsJsonObject();
 		assertEquals( "complete", view.get("name").getAsString() );		
 		
-		assertTrue( data.get("value").isJsonPrimitive() );
+		assertTrue( data.get("value").isJsonObject() );
+		assertTrue( data.getAsJsonObject("value").get("$notAvailable").getAsBoolean() );
 	}
 
 	/**
