@@ -71,7 +71,7 @@ class TrackerDateEditor extends Handsontable.editors.TextEditor
     @$datePicker = null
     @datePicker = null
     @datePickerStyle = null
-    @defaultDateFormat = 'DD/MM/YYYY'
+    @defaultDateFormat = hotInstance.trackerData?.dateFormat || 'DD/MM/YYYY'
     @isCellEdited = false
     @parentDestroyed = false
 
@@ -189,7 +189,22 @@ class TrackerDateEditor extends Handsontable.editors.TextEditor
     @instance._registerTimeout(setTimeout(timeFn, 0))
     super()
 
-  finishEditing: (isCancelled = false, ctrlDown = false) ->
+  ## This may be called from a Pikaday update, or equivalent, or
+  ## from an entered date.
+  saveValue: (val, ctrlDown) ->
+    dateFormat = @cellProperties.dateFormat || @defaultDateFormat
+    for row, i in val
+      for column, j in row
+        value = val[i][j]
+        parsed = moment(value, dateFormat, true)
+        if parsed.isValid()
+          val[i][j] = parsed.format("YYYY-MM-DD")
+
+    super(val, ctrlDown)
+
+  finishEditing: (isCancelled, ctrlDown) ->
+    isCancelled ?= false
+    ctrlDown ?= false
     if isCancelled
       value = @originalValue
 
@@ -267,7 +282,7 @@ class TrackerDateEditor extends Handsontable.editors.TextEditor
     options.reposition = options.reposition || false
     options.onSelect = (dateStr) =>
       if !isNaN(dateStr.getTime())
-        dateStr = moment(dateStr).format("YYYY-MM-DD")
+        dateStr = moment(dateStr).format(options.format)
       @setValue(dateStr)
       @hideDatepicker()
 
