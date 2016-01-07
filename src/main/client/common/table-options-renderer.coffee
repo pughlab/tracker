@@ -97,8 +97,9 @@ TrackerDateRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
     value = "N/A"
 
   formatString = instance.trackerData?.dateFormat
+
   if formatString? and value != "N/A" and value != "" and value?
-    value = moment(value).format(formatString)
+    value = moment(value, "YYYY-MM-DD").format(formatString)
 
   Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
   annotateCells cellProperties, instance, TD, row, col, prop

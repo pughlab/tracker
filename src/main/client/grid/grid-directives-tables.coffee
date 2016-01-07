@@ -116,6 +116,8 @@ angular
               if handsonTable != undefined and original.data.userNumber > 0
                 removeTableRecord scope, handsonTable, original.data.parameters.case_id
 
+            dateFormat = scope.study.options?.dateFormat || "YYYY-MM-DD"
+
             convertColumn = (attribute) ->
               result = {}
               result.data = valueManager(attribute.name)
@@ -128,7 +130,7 @@ angular
                   result.correctFormat = true
                 when 'date'
                   result.type = 'date'
-                  result.dateFormat = 'YYYY-MM-DD'
+                  result.dateFormat = dateFormat
                   result.correctFormat = true
                   result.renderer = Handsontable.TrackerDateRenderer
                   result.editor = Handsontable.editors.TrackerDateEditor
@@ -228,7 +230,7 @@ angular
             handsonTable.trackerData = {
               stateLabels: scope.study.options?.stateLabels || {}
               typeTable: (attribute.type for attribute in orderedAttributes)
-              dateFormat: scope.study.options?.dateFormat || "YYYY-MM-DD"
+              dateFormat: dateFormat
             }
 
             oldIsEmptyRow = handsonTable.isEmptyRow
