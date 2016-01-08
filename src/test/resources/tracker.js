@@ -23,3 +23,33 @@ console.log("Welcome to the", console);
 //        }
 //    }
 //});
+
+// NOTE: We assume whole days only here, not times
+// getUTCDay() returns 0 for Sunday and 6 for Saturday, helpfully
+function netWorkingDays(d1, d2) {
+    var startDay = d1.getUTCDay();
+    var elapsed = d2.getTime() - d1.getTime();  // In milliseconds
+    var elapsedDays = elapsed / (1000 * 60 * 60 * 24);
+    
+    var netDays = 0;
+    
+    // Calculate the number of weeks, and then use this to calculate full weekends
+    // Then we can subtract these from the elapsed days, so elapsed days must then
+    // be less then 7.
+    var weeks = Math.floor(elapsedDays / 7);
+    netDays = netDays + weeks * 5;
+    elapsedDays = elapsedDays - weeks * 7;
+    
+    // Adjust to make 0 Saturday
+    startDay = (startDay + 1) % 7;
+    
+    // Now we can calculate from the starting day and the number of elapsedDays.
+    var endDay = startDay + elapsedDays;
+    for(var i = startDay; i <= endDay; i++) {
+        if ((i % 7) >= 2) {
+            netDays = netDays + 1;
+        }
+    }
+    
+    return netDays;
+}
