@@ -198,7 +198,7 @@ angular
   ## sendable value.
 
   .factory 'validateTableValue', Array '$timeout', 'highlightElement', '$http', ($timeout, highlightElement, $http) ->
-    return (scope, handsonTable, col, row, value, callback) ->
+    return (scope, handsonTable, col, row, value, cellProperties, callback) ->
       changeValue = value['$value']
       changeSource = value['$source']
 
@@ -239,20 +239,18 @@ angular
         value = null if value == undefined
 
         if angular.equals value, oldValue
+          cellProperties.validationResponse = undefined
           return callback true
 
-        payload = JSON.stringify {value : fieldData[fieldName], oldValue: oldValue}
+        payload = {value : fieldData[fieldName], oldValue: oldValue}
+        cellProperties.validationData = payload
+
+        payload = JSON.stringify payload
         $http
           .put "#{baseUrl}/entities/#{encodeURIComponent(caseIdentifier)}/#{encodeURIComponent(fieldName)}", payload
-          .success (response) ->
-
-            ## We should also get back an updated set of notes, and we need to make sure that general tags and
-            ## field-specific notes are mirrored locally.
-
-            ## caseRecord['$notes'] = response.records[0]['$notes']
-
+          .then (response) ->
             callback true
-          .error (response) ->
+          .catch (response) ->
             callback false
 
 

@@ -122,8 +122,10 @@ angular
               result = {}
               result.data = valueManager(attribute.name)
               result.validator = (value, callback) ->
-                validateTableValue(scope, @instance, @col, @row, value, callback)
+                cellProperties = @
+                validateTableValue(scope, @instance, @col, @row, value, cellProperties, callback)
               result.renderer = Handsontable.TrackerStringRenderer
+              result.allowInvalid = true
               switch attribute.type
                 when 'number'
                   result.type = 'numeric'
@@ -138,7 +140,6 @@ angular
                   result.type = 'dropdown'
                   result.source = ['Yes', 'No', 'N/A']
                   result.strict = true
-                  result.allowInvalid = false
                   result.filter = false
                   result.renderer = Handsontable.TrackerOptionRenderer
                   result.data = booleanValueManager(attribute.name)
@@ -146,7 +147,6 @@ angular
                   result.type = 'dropdown'
                   result.source = attribute.options.values.concat("N/A")
                   result.strict = true
-                  result.allowInvalid = false
                   result.filter = false
                   result.renderer = Handsontable.TrackerOptionRenderer
 
