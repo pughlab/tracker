@@ -47,8 +47,6 @@ public class FieldCalculationPlugin extends AbstractRepositoryPlugin implements 
 			return;
 		}
 		
-		logger.info("Received event");
-
 		if (event.getType().equals(Event.EVENT_SET_FIELD)) {
 			ObjectNode parameters = event.getData().getParameters();
 			applyCalculations(study, parameters);
@@ -73,7 +71,6 @@ public class FieldCalculationPlugin extends AbstractRepositoryPlugin implements 
 	
 	// Main logic for the current case
 	private void applyCalculations(Study study, ObjectNode parameters) {
-
 		Integer caseId = parameters.get("case_id").asInt();
 		
 		// Now, we can read the current case. Do we have any calculated attributes
@@ -96,8 +93,6 @@ public class FieldCalculationPlugin extends AbstractRepositoryPlugin implements 
 		// Oh look, a lambda
 		List<Attributes> calculatedAttributes = attributes.stream().filter(att -> isCalculated(att)).collect(Collectors.toList());
 		
-		logger.info("In applyCalculations: checking attributes");
-
 		// Now let's apply the calculations we have
 		for(Attributes att : calculatedAttributes) {
 			String name = att.getName();
