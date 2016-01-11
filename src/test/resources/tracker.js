@@ -24,11 +24,6 @@ console.log("Welcome to the", console);
 //    }
 //});
 
-// NOTE: We assume whole days only here, not times
-function netWorkingDays(d1, d2) {
-    return netWorkingDaysInternal(new Date(Date.parse(d1)), new Date(Date.parse(d2)));
-}
-
 function netWorkingDaysInternal(d1, d2) {
     // getUTCDay() returns 0 for Sunday and 6 for Saturday, helpfully (not)
     var startDay = d1.getUTCDay();
@@ -57,3 +52,15 @@ function netWorkingDaysInternal(d1, d2) {
     
     return netDays;
 }
+
+// NOTE: We assume whole days only here, not times
+function netWorkingDays(d1, d2) {
+    var pd1 = Date.parse(d1);
+    var pd2 = Date.parse(d2);
+    if (isNaN(pd1) || isNaN(pd2)) {
+        return null;
+    } else {
+        return netWorkingDaysInternal(new Date(pd1), new Date(pd2));
+    }
+}
+
