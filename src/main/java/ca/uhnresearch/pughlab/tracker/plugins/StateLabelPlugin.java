@@ -5,32 +5,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Required;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
-import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 
-public class StateLabelPlugin implements EventHandler {
+public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventHandler {
 	
-	private StudyRepository repository;
-
-	@Required
-    public void setRepository(StudyRepository repository) {
-        this.repository = repository;
-    }
-	
-	public StudyRepository getRepository() {
-		return repository;
-	}
-
 	/** 
 	 * The main event handler detects a change to the study and 
 	 * makes sure that all cases are correctly labelled, generating
