@@ -78,7 +78,7 @@ INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VAL
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (25, 25, 1, 'insufficientDate', 'Date Tissue Deemed Insufficient', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (26, 26, 1, 'notes', 'Notes', 'string', '{"longtext":true}');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (27, 27, 1, 'study', 'Study', 'string');
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (28, 28, 1, 'diagnosticsDays', 'Days from consent to diagnostics', 'number', '{"calculated":"netWorkingDays(getValue(\"dateEntered\"), getValue(\"diagnosticsDate\"))"}');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (28, 28, 1, 'diagnosticsDays', 'Days from consent to diagnostics', 'number', '{"calculated":"netWorkingDays(record.get(\"dateEntered\"), record.get(\"diagnosticsDate\"))"}');
 
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (32, 1, 2, 'patientId', 'Patient ID', 'string');
 
