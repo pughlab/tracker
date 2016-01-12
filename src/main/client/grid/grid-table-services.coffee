@@ -165,7 +165,6 @@ angular
       $http
         .get scope.getStudyUrl(scope) + "/entities/#{entityIdentifier}", {}
         .success (response) ->
-          console.log 'response from editTableCell put', response
           columnIndex = handsonTable.trackerAttributeColumnTable[field]
           rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
           console.log 'columnIndex', columnIndex, 'rowIndex', rowIndex
@@ -184,8 +183,9 @@ angular
 
           handsonTable.setDataAtCell(rowIndex, columnIndex, renderedValue, 'socketEvent')
 
-          cellElement = handsonTable.getCell rowIndex, columnIndex
-          highlightElement cellElement, editingClasses
+          if editingClasses?
+            cellElement = handsonTable.getCell rowIndex, columnIndex
+            highlightElement cellElement, editingClasses
 
         .error (response) ->
           console.log "Error", response
@@ -288,7 +288,7 @@ angular
           for entity, i in response.records
             entityRowTable[entity.id] = i + 1
           for attribute, i in response.attributes
-            attributeColumnTable[attribute.name] = i + 1
+            attributeColumnTable[attribute.name] = i
 
           handsonTable.trackerEntityRowTable = entityRowTable
           handsonTable.trackerAttributeColumnTable = attributeColumnTable
