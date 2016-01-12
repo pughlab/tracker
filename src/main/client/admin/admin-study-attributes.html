@@ -44,6 +44,13 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label class="col-md-2 control-label" for="attribute-calculation">Calculation:</label>
+            <div class="col-md-10">
+              <input id="attribute-calculation" name="attribute-calculation" type="text" placeholder="Calculation" class="form-control input-md" ng-model="selectedAttribute.options.calculated" ng-disabled="! selectedAttribute">
+            </div>
+          </div>
+
           <div class="form-group" ng-show="selectedAttribute &amp;&amp; selectedAttribute.type == 'option'">
             <label class="col-md-2 control-label" for="attribute-values">Option values:</label>
             <div class="col-md-10">
