@@ -15,11 +15,8 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -56,7 +53,7 @@ public class MockStudyRepository implements StudyRepository {
 	List<MockCaseAttribute> dates = new ArrayList<MockCaseAttribute>();
 	List<MockCaseAttribute> booleans = new ArrayList<MockCaseAttribute>();
 	
-	Map<Integer, JsonObject> data = new HashMap<Integer, JsonObject>();
+	Map<Integer, ObjectNode> data = new HashMap<Integer, ObjectNode>();
 
 	public MockStudyRepository() {
 		
@@ -133,47 +130,52 @@ public class MockStudyRepository implements StudyRepository {
 		
 		setDataState(3, "pending");
 		
-		JsonObject notes = new JsonObject();
-		notes.addProperty("locked", true);
-		JsonArray tagArray = new JsonArray();
-		tagArray.add(new JsonPrimitive("label3"));
-		notes.add("tags", tagArray);
+		ObjectNode notes = mapper.createObjectNode();
+		notes.put("locked", true);
+		ArrayNode tagArray = mapper.createArrayNode();
+		tagArray.add("label3");
+		notes.replace("tags", tagArray);
 		
 		setDataAttributeNotes(4, "consentDate", notes);
 	}
 	
-	private JsonObject getDataObject(Integer caseId) {
+	private ObjectNode getDataObject(Integer caseId) {
 		if (! data.containsKey(caseId)) {
-			data.put(caseId, new JsonObject());
+			data.put(caseId, mapper.createObjectNode());
 		}
 		return data.get(caseId);
 	}
 	
 	private void setDataAttribute(Integer caseId, String property, String value) {
-		getDataObject(caseId).addProperty(property, value);
+		getDataObject(caseId).put(property, value);
 	}
 	
 	private void setDataAttribute(Integer caseId, String property, Date value) {
-		getDataObject(caseId).addProperty(property, value.toString());
+		getDataObject(caseId).put(property, value.toString());
 	}
 	
 	private void setDataAttribute(Integer caseId, String property, Boolean value) {
-		getDataObject(caseId).addProperty(property, value);
+		getDataObject(caseId).put(property, value);
 	}
 	
 	private void setDataState(Integer caseId, String state) {
 		setDataAttribute(caseId, "$state", state);
 	}
 
-	private void setDataAttributeNotes(Integer caseId, String property, JsonElement value) {
-		JsonObject obj = getDataObject(caseId);
+	private void setDataAttributeNotes(Integer caseId, String property, JsonNode value) {
+		ObjectNode obj = getDataObject(caseId);
 		if (! obj.has("$notes"))
-			obj.add("$notes", new JsonObject());
-		obj.getAsJsonObject("$notes").add(property, value);
+			obj.replace("$notes", mapper.createObjectNode());
+		if (obj.get("$notes").isObject()) {
+			ObjectNode notesNode = (ObjectNode) obj.get("$notes");
+			notesNode.replace(property, value);
+		} else {
+			throw new RuntimeException("Invalid notes object: " + obj.get("$notes").toString());
+		}
 	}
 
 	private void setDataAttributeNotAvailable(Integer caseId, String property) {
-		getDataObject(caseId).add(property, getNotAvailableValue());
+		getDataObject(caseId).replace(property, getNotAvailableValue());
 	}
 
 	private Cases mockCase(Integer id) {
@@ -204,7 +206,7 @@ public class MockStudyRepository implements StudyRepository {
 		study.setDescription(description);
 
 		try {
-			String optionsString = "{\"stateLabels\":{\"pending\":\"label1\",\"returnPending\":\"label2\"}}";
+			String optionsString = "{\"stateLabels\":{\"pending\":\"label1\",\"returned\":\"label2\"}}";
 			study.setOptions(mapper.readTree(optionsString));
 		} catch (Exception e) {
 			throw new RuntimeException("Test error: " + e.getMessage());
@@ -342,13 +344,13 @@ public class MockStudyRepository implements StudyRepository {
 	 * @param view
 	 * @return
 	 */
-	private Map<Integer, JsonObject> getAllData() {
+	private Map<Integer, ObjectNode> getAllData() {
 		return data;
 	}
 	
-	private JsonObject getNotAvailableValue() {
-		JsonObject value = new JsonObject();
-		value.addProperty("$notAvailable", true);
+	private ObjectNode getNotAvailableValue() {
+		ObjectNode value = mapper.createObjectNode();
+		value.put("$notAvailable", true);
 		return value;
 	}
 
@@ -358,14 +360,14 @@ public class MockStudyRepository implements StudyRepository {
 	public List<ObjectNode> getData(Study study, View view, List<? extends Attributes> attributes, CasePager query) {
 		
 		// We build all the data in Gson, because it's easier
-		Map<Integer, JsonObject> data = getAllData();
+		Map<Integer, ObjectNode> data = getAllData();
 		
 		Set<String> includedAttributes = new HashSet<String>();
 		for(Attributes a : attributes) {
 			includedAttributes.add(a.getName());
 		}
 		
-		JsonArray result = new JsonArray();
+		ArrayNode result = mapper.createArrayNode();		
 		List<Integer> keys = new ArrayList<Integer>(data.keySet());
 		Collections.sort(keys);
 		Integer offset = query.getOffset();
@@ -467,10 +469,10 @@ public class MockStudyRepository implements StudyRepository {
 	public List<ObjectNode> getCaseData(StudyCaseQuery query, View view) {
 		MockStudyCaseQuery mq = (MockStudyCaseQuery) query;
 		List<ObjectNode> result = new ArrayList<ObjectNode>();
-		Map<Integer, JsonObject> data = getAllData();
+		Map<Integer, ObjectNode> data = getAllData();
 		try {
 			for(Integer i : mq.getCases()) {
-				JsonObject caseObject = data.get(i);
+				ObjectNode caseObject = data.get(i);
 				result.add((ObjectNode) mapper.readTree(caseObject.toString()));
 			} 
 		} catch (JsonProcessingException e) {
@@ -536,6 +538,10 @@ public class MockStudyRepository implements StudyRepository {
 			while(fields.hasNext()) {
 				String field = fields.next();
 				caseChange.addValueChange(field, null, values.get(field));
+				if (! data.containsKey(caseId)) {
+					data.put(caseId, mapper.createObjectNode());
+				}
+				data.get(caseId).replace(field, values.get(field));
 			}
 			result.add(caseChange);			
 		}

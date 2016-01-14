@@ -11,12 +11,12 @@ gulpCoffee =       require 'gulp-coffee'
 gulpIgnore =       require 'gulp-ignore'
 gulpInject =       require 'gulp-inject'
 gulpMocha =        require 'gulp-mocha'
+gulpExit =         require 'gulp-exit'
 gulpRename =       require 'gulp-rename'
 gulpReplace =      require 'gulp-replace'
 gulpHtmlmin =      require 'gulp-htmlmin'
 gulpServe =        require 'gulp-serve'
 gulpNodemon =      require 'gulp-nodemon'
-gulpKarma =        require 'gulp-karma'
 gulpOrder =        require 'gulp-order'
 gulpFilter =       require 'gulp-filter'
 gulpConcat =       require 'gulp-concat'
@@ -37,6 +37,8 @@ es =               require 'event-stream'
 exec =             require('child_process').exec
 
 bower =            require './bower'
+
+karma =            require 'karma'
 
 execute = (command, callback) ->
   exec command, (error, stdout) ->
@@ -106,6 +108,12 @@ gulp.task 'vendors', () ->
   )
 
 
+gulp.task 'vendors-test', () ->
+  gulp.src(mainBowerFiles({includeDev: true}), {base: 'bower_components'})
+    .pipe gulpFilter('**/angular-mocks.js')
+    .pipe gulp.dest('./target/client-test/js')
+
+
 index = () ->
   bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components', read: false})
 
@@ -155,6 +163,44 @@ buildTemplates = () ->
 
 gulp.task 'build-all', ['styles', 'bootstrap', 'templates', 'coffee', 'vendors', 'assets'], index
 
+gulp.task 'karma-conf', ['templates', 'coffee', 'vendors', 'vendors-test'], () ->
+
+  bowerStream = gulp.src(mainBowerFiles(), {base: 'bower_components', read: false})
+
+  jsVendorFiles = bowerStream
+    .pipe(gulpFilter(['**/*.*', '!bootstrap/**/*.*', '!swagger-ui/**/*.*']))
+    .pipe(gulpFilter('**/*.js'))
+    .pipe(gulp.dest('./target/client/tmp/client/statics/vendors/js'))
+
+  vendorTestFiles = gulp.src('./target/client-test/js/**/*.js')
+
+  karmaFiles = new queue({objectMode: true})
+    .queue jsVendorFiles
+    .queue vendorTestFiles
+    .queue appFiles()
+    .queue testFiles()
+    .done()
+
+  gulp.src('./src/test/resources/karma.conf.js')
+    .pipe gulpInject karmaFiles, {
+      starttag: 'files: ['
+      endtag: ']'
+      addRootSlash: false
+      transform: (filepath, file, i, length) -> '\'' + filepath + '\'' + (if i + 1 < length then ',' else '')
+    }
+    .pipe gulp.dest('./target/karma')
+
+
+gulp.task 'test', ['karma-conf'], (cb) ->
+  callback = (err) ->
+    console.log "Errors found" if err?
+    cb()
+  instance = new karma.Server({
+    configFile: __dirname + '/target/karma/karma.conf.js',
+    singleRun: true,
+    reporters: ['junit']
+  }, callback)
+  instance.start()
 
 templateFiles = (opt) ->
   gulp.src(['./src/main/client/**/*.html', '!./src/main/client/index.html'], opt)
@@ -171,6 +217,14 @@ appFiles = () ->
     './target/client/tmp/client/statics/app/' + bower.name + '-templates.js',
     './target/client/tmp/client/statics/app/**/*.js',
     '!./target/client/tmp/client/**/*_test.js'
+  ]
+  gulp.src(files)
+    .pipe sort (a, b) -> compareStrings(a.relative, b.relative)
+    .pipe gulpAngularFilesort()
+
+testFiles = () ->
+  files = [
+    './target/client/tmp/client/**/*_test.js'
   ]
   gulp.src(files)
     .pipe sort (a, b) -> compareStrings(a.relative, b.relative)

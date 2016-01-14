@@ -12,21 +12,12 @@ angular
       $scope.selectedAttribute = undefined
       originalSelectedAttribute = undefined
 
-    ## Detect changes to attributes and notify as modified
-    $scope.$watchCollection 'selectedAttribute', (newValue, oldValue) ->
+    updater = (newValue, oldValue) ->
       if ! angular.equals(newValue, originalSelectedAttribute)
-        console.log "Sending admin:modified selectedAttribute", newValue, oldValue
         $scope.$emit 'admin:modified'
 
-    $scope.$watchCollection 'selectedAttribute.options.tags', (newValue, oldValue) ->
-      if ! angular.equals(newValue, originalSelectedAttribute?.options?.tags)
-        console.log "Sending admin:modified selectedAttribute.options.tags", newValue, oldValue
-        $scope.$emit 'admin:modified'
-
-    $scope.$watchCollection 'selectedAttribute.options.values', (newValue, oldValue) ->
-      if ! angular.equals(newValue, originalSelectedAttribute?.options?.values)
-        console.log "Sending admin:modified selectedAttribute.options.values", newValue, oldValue
-        $scope.$emit 'admin:modified'
+    ## Detect changes to attributes and notify as modified
+    $scope.$watch 'selectedAttribute', updater, true
 
     $scope.selectAttribute = (attribute) ->
       $scope.selectedAttribute = attribute

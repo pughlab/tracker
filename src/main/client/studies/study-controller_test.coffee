@@ -15,11 +15,7 @@ describe 'StudyController', ->
       $injector.get('$controller')('StudyController', $scope:scope)
 
     $httpBackend
-      .when 'GET', '/api/authorization/ping'
-      .respond {"data" : {"user" : {"username" : "guest"}}}
-
-    $httpBackend
-      .when 'GET', '/api/studies/DEMO/views'
+      .when 'GET', '/api/studies/DEMO'
       .respond {
         "views":[
           {"id":1, "name":"manage", "access":{"read":true, "modify":true}},

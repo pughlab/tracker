@@ -25,19 +25,3 @@ describe 'Filters', ->
 
       keys = $filter('keys')
       keys({a: 1, b: 2, c: 3}).should.be.instanceof(Array).and.eql(['a', 'b', 'c'])
-
-
-  describe 'mapProperty', ->
-
-    it 'should return an empty list for an empty list', () ->
-
-      mapProperty = $filter('mapProperty')
-      mapProperty([]).should.be.instanceof(Array).and.have.lengthOf(0)
-
-
-    it 'should return a complete list for a list of objects', () ->
-
-      mapProperty = $filter('mapProperty')
-      mapProperty([{a: '1'}, {a: '2'}], 'a').should.be.instanceof(Array).and.eql(['1', '2'])
-
-

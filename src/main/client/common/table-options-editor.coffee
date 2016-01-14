@@ -2,105 +2,39 @@
 ## Date editor -- one is built in, and I really like that, but it could have used a
 ## little better factoring to allow options to be set better.
 
-TrackerDateEditor = Handsontable.editors.DateEditor.prototype.extend()
+outerHeight = (elem) ->
+  if hasCaptionProblem() and elem.firstChild?.nodeName == 'CAPTION'
+    elem.offsetHeight + elem.firstChild.offsetHeight
+  else
+    elem.offsetHeight
 
-TrackerDateEditor.prototype.createElements = () ->
-  that = this
-  Handsontable.editors.TextEditor.prototype.createElements.apply(this, arguments)
+_hasCaptionProblem = undefined
 
-  @defaultDateFormat = 'DD/MM/YYYY'
-  @datePicker = document.createElement('DIV')
-  @datePickerStyle = @datePicker.style
-  @datePickerStyle.position = 'absolute'
-  @datePickerStyle.top = 0
-  @datePickerStyle.left = 0
-  @datePickerStyle.zIndex = 9999
+detectCaptionProblem = () ->
+  TABLE = document.createElement('TABLE')
+  TABLE.style.borderSpacing = 0
+  TABLE.style.borderWidth = 0
+  TABLE.style.padding = 0
+  TBODY = document.createElement('TBODY')
+  TABLE.appendChild(TBODY)
+  TBODY.appendChild(document.createElement('TR'))
+  TBODY.firstChild.appendChild(document.createElement('TD'))
+  TBODY.firstChild.firstChild.innerHTML = '<tr><td>t<br>t</td></tr>'
+  CAPTION = document.createElement('CAPTION')
+  CAPTION.innerHTML = 'c<br>c<br>c<br>c'
+  CAPTION.style.padding = 0
+  CAPTION.style.margin = 0
+  TABLE.insertBefore(CAPTION, TBODY)
+  document.body.appendChild(TABLE)
+  _hasCaptionProblem = (TABLE.offsetHeight < 2 * TABLE.lastChild.offsetHeight)
+  document.body.removeChild(TABLE)
 
-  Handsontable.Dom.addClass(@datePicker, 'htDatepickerHolder')
-  document.body.appendChild(@datePicker)
-
-  defaultOptions = @createDatePickerOptions()
-  @$datePicker = @createDatePicker(defaultOptions)
-
-  eventManager = Handsontable.eventManager(this)
-
-  ## Prevent recognizing clicking on datepicker as clicking outside of table
-  eventManager.addEventListener @datePicker, 'mousedown', (event) ->
-    Handsontable.helper.stopPropagation(event)
-
-  @hideDatepicker()
-
-
-## Factored out so the options can be set independently of the element
-## configuration.
-
-TrackerDateEditor.prototype.createDatePickerOptions = () ->
-  that = this
-  htInput = that.TEXTAREA
-
-  defaultOptions = {
-    format: that.defaultDateFormat
-    field: htInput
-    trigger: htInput
-    container: that.datePicker
-    reposition: false
-    bound: false
-    onSelect: (dateStr) ->
-      if !isNaN(dateStr.getTime())
-        dateStr = moment(dateStr).format(that.cellProperties.dateFormat || that.defaultDateFormat)
-      that.setValue(dateStr)
-      that.hideDatepicker()
-    onClose: () ->
-      that.finishEditing(false) if !that.parentDestroyed
-  }
-
-  defaultOptions
-
-
-## Monkeypatching. If we don't have an original date, we don't inform the picker
-## and we need to.
-TrackerDateEditor.prototype.showDatepicker = (event) ->
-  value = @originalValue
-  if !value
-    @$datePicker.setDate("")
-  else if value == 'N/A'
-    @$datePicker.setDate(value)
-
-  Handsontable.editors.DateEditor.prototype.showDatepicker.call(@, event)
-
-
-## And factored out so we can extend Pikaday -- at least this instance -- if needed.
+hasCaptionProblem = () ->
+  if typeof _hasCaptionProblem == "undefined"
+    detectCaptionProblem()
+  _hasCaptionProblem
 
 hasEventListeners = !!window.addEventListener
-
-addEvent = (el, e, callback, capture) ->
-  if hasEventListeners
-    el.addEventListener(e, callback, !!capture)
-  else
-    el.attachEvent('on' + e, callback)
-
-removeEvent = (el, e, callback, capture) ->
-  if hasEventListeners
-    el.removeEventListener(e, callback, !!capture)
-  else
-    el.detachEvent('on' + e, callback)
-
-isDate = (obj) ->
-  (/Date/).test(Object.prototype.toString.call(obj)) && !isNaN(obj.getTime())
-
-extend = (to, from, overwrite) ->
-  for own k, v of from
-    hasProp = v != undefined
-    if hasProp and typeof v == 'object' and v != null and v.nodeName == undefined
-      if isDate(v)
-        to[k] new Date(v.getTime()) if overwrite
-      else if Array.isArray(v)
-        to[k] = v.slice(0) if overwrite
-      else
-        to[k] = extend({}, v, overwrite)
-    else if overwrite || !hasProp
-      to[k] = v
-  to
 
 fireEvent = (el, eventName, data) ->
   if document.createEvent
@@ -115,74 +49,253 @@ fireEvent = (el, eventName, data) ->
       ev[k] = v
     el.fireEvent('on' + eventName, ev)
 
+addEvent = (el, e, callback, capture) ->
+  if hasEventListeners
+    el.addEventListener(e, callback, !!capture)
+  else
+    el.attachEvent('on' + e, callback)
+
+removeEvent = (el, e, callback, capture) ->
+  if hasEventListeners
+    el.removeEventListener(e, callback, !!capture)
+  else
+    el.detachEvent('on' + e, callback)
+
 hasClass = (el, cn) ->
   (' ' + el.className + ' ').indexOf(' ' + cn + ' ') != -1
 
 
+class TrackerDateEditor extends Handsontable.editors.TextEditor
 
-TrackerDateEditor.prototype.createDatePicker = (options) ->
-  picker = new Pikaday(options)
-  picker._na = false
+  constructor: (hotInstance) ->
+    @$datePicker = null
+    @datePicker = null
+    @datePickerStyle = null
+    @defaultDateFormat = hotInstance.trackerData?.dateFormat || 'DD/MM/YYYY'
+    @isCellEdited = false
+    @parentDestroyed = false
 
-  oldMouseDown = picker._onMouseDown
-  oldInputChange = picker._onInputChange
+    super(hotInstance)
 
-  newInputChange = (event) ->
-    if event.firedBy != picker && picker._o.field?.value == "N/A"
-      picker.setDate.call(picker, "N/A")
-    else
-      oldInputChange.call(picker, event)
+  init: () ->
+    if typeof moment != 'function'
+      throw new Error('You need to include moment.js to your project.')
 
-  newMouseDown = (event) ->
-    target = event.target || event.srcElement
-    return if !target
-    if hasClass(target, 'tracker-button')
-      if hasClass(target, 'tracker-clear-button')
-        picker.setDate.call(picker, "")
-      else if hasClass(target, 'tracker-na-button')
+    if typeof Pikaday != 'function'
+      throw new Error('You need to include Pikaday to your project.')
+
+    super()
+    @instance.addHook 'afterDestroy', () =>
+      @parentDestroyed = true
+      @destroyElements()
+
+  ## Creates the date picker. This replaces a simple new Pikaday(options)
+  ## with additional logic for patching in the new buttons that we use.
+  createDatePicker: (options) ->
+    picker = new Pikaday(options)
+    picker._na = false
+
+    oldMouseDown = picker._onMouseDown
+    oldInputChange = picker._onInputChange
+
+    newInputChange = (event) ->
+      if event.firedBy != picker && picker._o.field?.value == "N/A"
         picker.setDate.call(picker, "N/A")
+      else
+        oldInputChange.call(picker, event)
 
-      hiderFn = () ->
-        picker.hide.call(picker)
-        picker._o.field.blur() if picker._o.field
+    newMouseDown = (event) ->
+      target = event.target || event.srcElement
+      return if !target
+      if hasClass(target, 'tracker-button')
+        if hasClass(target, 'tracker-clear-button')
+          picker.setDate.call(picker, "")
+        else if hasClass(target, 'tracker-na-button')
+          picker.setDate.call(picker, "N/A")
 
-      setTimeout hiderFn, 10
+        hiderFn = () ->
+          picker.hide.call(picker)
+          picker._o.field.blur() if picker._o.field
+
+        setTimeout hiderFn, 10
+
+      else
+        oldMouseDown.call(picker, event)
+
+    picker.setDate = (date, preventOnSelect) ->
+      if typeof date == 'string' && date == 'N/A'
+        if @_o.field
+          @_d = null
+          @_na = true
+          @_o.field.value = 'N/A'
+          fireEvent(@_o.field, 'change', { firedBy: picker })
+        @draw()
+      else
+        @_na = false
+        Pikaday.prototype.setDate.call(picker, date, preventOnSelect)
+
+    ## Patch in the new event handlers
+    removeEvent(picker.el, (if 'ontouchend' in document then 'touchend' else 'mousedown'), oldMouseDown, true)
+    addEvent(picker.el, (if 'ontouchend' in document then 'touchend' else 'mousedown'), newMouseDown, true)
+    if picker._o.field
+      removeEvent(picker._o.field, 'change', oldInputChange)
+      addEvent(picker._o.field, 'change', newInputChange)
+
+    picker.render = (year, month) ->
+      body = Pikaday.prototype.render.call(@, year, month)
+      classClear = if ! @_d and ! @_na then "is-selected" else ""
+      classNA = if @_na then "is-selected" else ""
+      body +
+        "<div class='tracker-pika-button-container'>" +
+        "<div class='tracker-pika-button #{classClear}'><button class='pika-button tracker-button tracker-clear-button' type='button'>Clear</button></div>" +
+        "<div class='tracker-pika-button #{classNA}'><button class='pika-button tracker-button tracker-na-button' type='button'>N/A</button></div>" +
+        "</div>"
+
+    picker
+
+  createElements: () ->
+    super()
+
+    @datePicker = document.createElement('DIV')
+    @datePickerStyle = @datePicker.style
+    @datePickerStyle.position = 'absolute'
+    @datePickerStyle.top = 0
+    @datePickerStyle.left = 0
+    @datePickerStyle.zIndex = 9999
+
+    @datePicker.classList.add('htDatepickerHolder')
+    document.body.appendChild(@datePicker)
+
+    @$datePicker = @createDatePicker(@getDatePickerConfig())
+    eventManager = new Handsontable.eventManager(@)
+
+    eventManager.addEventListener(@datePicker, 'mousedown', (event) => event.stopPropagation())
+    @hideDatepicker()
+
+  destroyElements: () ->
+    @$datePicker.destroy()
+
+  prepare: (row, col, prop, td, originalValue, cellProperties) ->
+    @_opened = false
+    super(row, col, prop, td, originalValue, cellProperties)
+
+  open: (event) ->
+    super()
+    @showDatepicker(event)
+
+  close: () ->
+    @_opened = false
+    timeFn = () => @instance.selection.refreshBorders()
+    @instance._registerTimeout(setTimeout(timeFn, 0))
+    super()
+
+  ## This may be called from a Pikaday update, or equivalent, or
+  ## from an entered date.
+  saveValue: (val, ctrlDown) ->
+    dateFormat = @cellProperties.dateFormat || @defaultDateFormat
+    for row, i in val
+      for column, j in row
+        value = val[i][j]
+        parsed = moment(value, dateFormat, true)
+        if parsed.isValid()
+          val[i][j] = parsed.format("YYYY-MM-DD")
+
+    super(val, ctrlDown)
+
+  finishEditing: (isCancelled, ctrlDown) ->
+    isCancelled ?= false
+    ctrlDown ?= false
+    if isCancelled
+      value = @originalValue
+
+      if typeof value != "undefined"
+        @setValue(value)
+
+    @hideDatepicker()
+    super(isCancelled, ctrlDown)
+
+  showDatepicker: (event) ->
+    @$datePicker.config(@getDatePickerConfig())
+
+    offset = @TD.getBoundingClientRect()
+    dateFormat = @cellProperties.dateFormat || @defaultDateFormat
+    datePickerConfig = @$datePicker.config()
+    dateStr = undefined
+    isMouseDown = @instance.view.isMouseDown()
+    isMeta = if event then isMetaKey(event.keyCode) else false
+
+    @datePickerStyle.top = (window.pageYOffset + offset.top + outerHeight(@TD)) + 'px'
+    @datePickerStyle.left = (window.pageXOffset + offset.left) + 'px'
+
+    @$datePicker._onInputFocus = () ->
+    datePickerConfig.format = dateFormat
+
+    if @originalValue == "N/A"
+      @$datePicker.setDate(@originalValue)
+
+    else if @originalValue
+      dateStr = @originalValue
+
+      if moment(dateStr, "YYYY-MM-DD", true).isValid()
+        @$datePicker.setMoment(moment(dateStr, "YYYY-MM-DD"), true)
+      if !isMeta && !isMouseDown
+        @setValue('')
 
     else
-      oldMouseDown.call(picker, event)
+      if @cellProperties.defaultDate
+        dateStr = @cellProperties.defaultDate
 
-  ## Patch in the new event handlers
-  removeEvent(picker.el, (if 'ontouchend' in document then 'touchend' else 'mousedown'), oldMouseDown, true)
-  addEvent(picker.el, (if 'ontouchend' in document then 'touchend' else 'mousedown'), newMouseDown, true)
-  if picker._o.field
-    removeEvent(picker._o.field, 'change', oldInputChange)
-    addEvent(picker._o.field, 'change', newInputChange)
+        datePickerConfig.defaultDate = dateStr
 
-  ## Monkeypatching like a fox
-  picker.setDate = (date, preventOnSelect) ->
-    if typeof date == 'string' && date == 'N/A'
-      if @_o.field
-        @_d = null
-        @_na = true
-        @_o.field.value = 'N/A'
-        fireEvent(@_o.field, 'change', { firedBy: picker })
-      @draw()
-    else
-      @_na = false
-      Pikaday.prototype.setDate.call(picker, date, preventOnSelect)
+        if moment(dateStr, "YYYY-MM-DD", true).isValid()
+          @$datePicker.setMoment(moment(dateStr, "YYYY-MM-DD"), true)
 
-  picker.render = (year, month) ->
-    body = Pikaday.prototype.render.call(@, year, month)
-    classClear = if ! @_d and ! @_na then "is-selected" else ""
-    classNA = if @_na then "is-selected" else ""
-    body +
-      "<div class='tracker-pika-button-container'>" +
-      "<div class='tracker-pika-button #{classClear}'><button class='pika-button tracker-button tracker-clear-button' type='button'>Clear</button></div>" +
-      "<div class='tracker-pika-button #{classNA}'><button class='pika-button tracker-button tracker-na-button' type='button'>N/A</button></div>" +
-      "</div>"
+        if !isMeta && !isMouseDown
+          @setValue('')
+      else
+        ## if a default date is not defined, set a soft-default-date: display the current day and month in the
+        ## datepicker, but don't fill the editor input
+        @$datePicker.gotoToday()
 
-  picker
+    @datePickerStyle.display = 'block'
+    @$datePicker.show()
 
+  hideDatepicker: () ->
+    @datePickerStyle.display = 'none'
+    @$datePicker.hide()
+
+  getDatePickerConfig: () ->
+    htInput = @TEXTAREA
+    options = {}
+
+    if @cellProperties && @cellProperties.datePickerConfig
+      deepExtend(options, @cellProperties.datePickerConfig)
+
+    origOnSelect = options.onSelect
+    origOnClose = options.onClose
+
+    options.field = htInput
+    options.trigger = htInput
+    options.container = @datePicker
+    options.bound = false
+    options.format = options.format || @defaultDateFormat
+    options.reposition = options.reposition || false
+    options.onSelect = (dateStr) =>
+      if !isNaN(dateStr.getTime())
+        dateStr = moment(dateStr).format(options.format)
+      @setValue(dateStr)
+      @hideDatepicker()
+
+      if origOnSelect
+        origOnSelect()
+
+    options.onClose = () =>
+      if !@parentDestroyed
+        @finishEditing(false)
+      if origOnClose
+        origOnClose()
+
+    options
 
 ## =====================================================================================
 ## Register the various editors.

@@ -300,7 +300,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(28, list.size());
 	}
 
 	@Test
@@ -311,7 +311,7 @@ public class StudyRepositoryImplTest {
 		View view = studyRepository.getStudyView(study, "complete");
 		List<ViewAttributes> list = studyRepository.getViewAttributes(study, view);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(28, list.size());
 	}
 
 	@Test
@@ -508,7 +508,7 @@ public class StudyRepositoryImplTest {
 		
 		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
 		query = studyRepository.addViewCaseMatcher(query, view);
-		query = studyRepository.addStudyCaseSelector(query, 1);
+		query = studyRepository.addStudyCaseSelector(query, 3);
 		
 		List<ObjectNode> dataList = studyRepository.getCaseData(query, view);
 		Assert.assertNotNull(dataList);
@@ -1460,7 +1460,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(28, list.size());
 		
 		studyRepository.setStudyAttributes(study, list);
 
@@ -1485,7 +1485,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(28, list.size());
 		
 		studyRepository.setStudyAttributes(study, list.subList(0, 10));
 
@@ -1509,7 +1509,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<Attributes> list = studyRepository.getStudyAttributes(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(27, list.size());
+		Assert.assertEquals(28, list.size());
 		
 		Attributes att1 = new Attributes();
 		att1.setName("test");
@@ -1899,7 +1899,7 @@ public class StudyRepositoryImplTest {
 		Assert.assertEquals("pending", entry.get("eventArgs").get("state").asText());
 		
 		// Check a re-read gets the new state
-		Cases foundValue = studyRepository.getStudyCase(study, 15);
+		Cases foundValue = studyRepository.getStudyCase(study, 7);
 		Assert.assertEquals("pending", foundValue.getState());
 	}
 	

@@ -37,6 +37,16 @@ annotateCells = (cellProperties, instance, TD, row, col, prop) ->
 ## @param value Value to render (remember to escape unsafe HTML before inserting to DOM!)
 ## @param {Object} cellProperties Cell properites (shared by cell renderer and editor)
 
+
+revertValueIfNeeded = (instance, row, prop, oldValue, cellProperties) ->
+  if oldValue? and cellProperties.valid == false and cellProperties.invalidCellClassName
+    restore = () ->
+      cellProperties.valid = true
+      instance.setDataAtRowProp(row, prop(), oldValue, "revert")
+
+    setTimeout restore, 3000
+
+
 TrackerOptionRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
 
   if value and value.hasOwnProperty('$notAvailable')
@@ -44,6 +54,9 @@ TrackerOptionRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
 
   WRAPPER = clonableWRAPPER.cloneNode(true); ##this is faster than createElement
   ARROW = clonableARROW.cloneNode(true); ##this is faster than createElement
+
+  oldValue = cellProperties.validationData?.oldValue
+  revertValueIfNeeded instance, row, prop, oldValue, cellProperties
 
   Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
   annotateCells cellProperties, instance, TD, row, col, prop
@@ -72,12 +85,16 @@ TrackerOptionRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
 ## Boolean renderer, based on the option renderer
 
 TrackerBooleanRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
+
   if value == null or value == undefined
     value = ""
   else if value == false
     value = "No"
   else if value == true
     value = "Yes"
+
+  oldValue = cellProperties.validationData?.oldValue
+  revertValueIfNeeded instance, row, prop, oldValue, cellProperties
 
   TrackerOptionRenderer(instance, TD, row, col, prop, value, cellProperties)
 
@@ -87,10 +104,44 @@ TrackerStringRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
   if value and value.hasOwnProperty('$notAvailable')
     value = "N/A"
 
+  oldValue = cellProperties.validationData?.oldValue
+  revertValueIfNeeded instance, row, prop, oldValue, cellProperties
+
   Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
   annotateCells cellProperties, instance, TD, row, col, prop
 
+
+TrackerDateRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
+
+  originalValue = value
+  oldValue = undefined
+
+  if value and value.hasOwnProperty('$notAvailable')
+    value = "N/A"
+
+  formatString = instance.trackerData?.dateFormat
+
+  if formatString? and value != "N/A" and value != "" and value?
+    parsed = moment(value, "YYYY-MM-DD", true)
+    if parsed.isValid()
+      value = parsed.format(formatString)
+    else
+      oldValue = cellProperties.validationData?.oldValue
+
+  ## In the event of an invalid value, we can revert the value in a
+  ## a brief moment. That means we need to write the value back as it
+  ## was.
+  revertValueIfNeeded instance, row, prop, oldValue, cellProperties
+
+  Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
+  annotateCells cellProperties, instance, TD, row, col, prop
+
+
 ## And finally, deploy the various renderers.
+
+Handsontable.TrackerDateRenderer = TrackerDateRenderer
+Handsontable.renderers.TrackerDateRenderer = TrackerDateRenderer
+Handsontable.renderers.registerRenderer('trackerDate', TrackerDateRenderer)
 
 Handsontable.TrackerOptionRenderer = TrackerOptionRenderer
 Handsontable.renderers.TrackerOptionRenderer = TrackerOptionRenderer

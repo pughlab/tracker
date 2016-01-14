@@ -142,6 +142,23 @@ angular
           highlightElement rowElement, editingClasses
 
 
+  .factory 'handleStateCell', () ->
+    return (scope, handsonTable, entityIdentifier, state, editingClasses) ->
+      console.log "Calling handleStateCell", entityIdentifier
+      rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
+      console.log "Current rowIndex", rowIndex
+      return if !rowIndex
+
+      for entry, i in handsonTable.sortIndex
+        if entry[0] == rowIndex
+          rowIndex = i
+          break
+
+      ## Tha labels are applied to the whole entity, so we need to update
+      ## a complete row.
+
+      handsonTable.setDataAtRowProp(rowIndex, '$state', state, 'socketEvent')
+
 
   .factory 'editTableCell', Array '$timeout', 'highlightElement', '$http', ($timeout, highlightElement, $http) ->
     return (scope, handsonTable, entityIdentifier, field, editingClasses) ->
@@ -150,6 +167,7 @@ angular
         .success (response) ->
           columnIndex = handsonTable.trackerAttributeColumnTable[field]
           rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
+          console.log 'columnIndex', columnIndex, 'rowIndex', rowIndex
           return if !columnIndex or !rowIndex
 
           value = response.entity[field]
@@ -165,8 +183,9 @@ angular
 
           handsonTable.setDataAtCell(rowIndex, columnIndex, renderedValue, 'socketEvent')
 
-          cellElement = handsonTable.getCell rowIndex, columnIndex
-          highlightElement cellElement, editingClasses
+          if editingClasses?
+            cellElement = handsonTable.getCell rowIndex, columnIndex
+            highlightElement cellElement, editingClasses
 
         .error (response) ->
           console.log "Error", response
@@ -179,7 +198,7 @@ angular
   ## sendable value.
 
   .factory 'validateTableValue', Array '$timeout', 'highlightElement', '$http', ($timeout, highlightElement, $http) ->
-    return (scope, handsonTable, col, row, value, callback) ->
+    return (scope, handsonTable, col, row, value, cellProperties, callback) ->
       changeValue = value['$value']
       changeSource = value['$source']
 
@@ -220,20 +239,18 @@ angular
         value = null if value == undefined
 
         if angular.equals value, oldValue
+          cellProperties.validationResponse = undefined
           return callback true
 
-        payload = JSON.stringify {value : fieldData[fieldName], oldValue: oldValue}
+        payload = {value : fieldData[fieldName], oldValue: oldValue}
+        cellProperties.validationData = payload
+
+        payload = JSON.stringify payload
         $http
           .put "#{baseUrl}/entities/#{encodeURIComponent(caseIdentifier)}/#{encodeURIComponent(fieldName)}", payload
-          .success (response) ->
-
-            ## We should also get back an updated set of notes, and we need to make sure that general tags and
-            ## field-specific notes are mirrored locally.
-
-            ## caseRecord['$notes'] = response.records[0]['$notes']
-
+          .then (response) ->
             callback true
-          .error (response) ->
+          .catch (response) ->
             callback false
 
 
@@ -271,7 +288,7 @@ angular
           for entity, i in response.records
             entityRowTable[entity.id] = i + 1
           for attribute, i in response.attributes
-            attributeColumnTable[attribute.name] = i + 1
+            attributeColumnTable[attribute.name] = i
 
           handsonTable.trackerEntityRowTable = entityRowTable
           handsonTable.trackerAttributeColumnTable = attributeColumnTable

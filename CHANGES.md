@@ -1,6 +1,18 @@
 ## Revision history
 
 
+### Version 2.1.5 - 14th January 2016
+
+ * Allow a date format to be set for a study. See #141, #150
+ * Allow dates to be entered textually. See #149
+ * Fix internal issues when creating new cases. See #148
+ * Fixes for invalid value display. See #144, #146, #147.
+ * Fix inaccessible dropdowns at the bottom of the grid. See #145
+ * Added a new formula system for calculating values. See #143
+ * Fixed issues with physical/logical rows breaking data. See #139, #140
+ * Fixed search handling. See #138.
+
+
 ### Version 2.1.4 - December 1st 2015
 
  * Make the study order display more sensible bug. See #136

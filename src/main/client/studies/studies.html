@@ -19,7 +19,7 @@
       <span ng-show="study.access.about &amp;&amp; study.about">
         &mdash; <a ui-sref="studyAbout({studyName: study.name})">{{study.options.aboutLink|default:"How to use this tracker"}}</a>
       </span>
-      <span ng-show="study.access.admin"> <a ui-sref="adminStudy.notes({studyName: study.name})" type="button" class="btn btn-default btn-xs">Manage study</a></span>
+      <span ng-show="study.access.admin"> <a ui-sref="adminStudy.settings({studyName: study.name})" type="button" class="btn btn-default btn-xs">Manage study</a></span>
     </li>
   </ul>
   <div>

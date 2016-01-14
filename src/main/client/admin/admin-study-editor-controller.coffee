@@ -91,7 +91,6 @@ angular
           $scope.reset()
 
     readStudy = () ->
-      console.log "Called readStudy"
       $http
         .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}")
         .then (response) ->
@@ -103,7 +102,6 @@ angular
           console.log "Error", response.data
 
     readSchema = () ->
-      console.log "Called readSchema"
       $http
         .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}/schema")
         .then (response) ->
@@ -112,7 +110,6 @@ angular
           console.log "Error", response.data
 
     readRoles = () ->
-      console.log "Called readRoles"
       $http
         .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}/roles")
         .then (response) ->

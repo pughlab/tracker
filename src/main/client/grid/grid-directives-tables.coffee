@@ -5,8 +5,8 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'removeTableRecord', 'deleteCase', 'editTableCell', 'validateTableValue', 'reloadTable', \
-                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, removeTableRecord, deleteCase, editTableCell, validateTableValue, reloadTable) ->
+  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'removeTableRecord', 'deleteCase', 'editTableCell', 'handleStateCell', 'validateTableValue', 'reloadTable', \
+                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, removeTableRecord, deleteCase, editTableCell, handleStateCell, validateTableValue, reloadTable) ->
     result =
       restrict: "A"
       replace: true
@@ -29,22 +29,12 @@ angular
         contextMenu = false
         userControllerScope = false
 
-        handleStateCell = (entityIdentifier, state, editingClasses) ->
-          rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
-          return if !rowIndex
-
-          ## Tha labels are applied to the whole entity, so we need to update
-          ## a complete row.
-
-          handsonTable.setDataAtRowProp(rowIndex, '$state', state, 'socketEvent')
-
-
         ## Reloads the table data. This can be fired when the filters change,
         ## as well as when the initial table has been constructed.
 
         scope.$on 'table:reload', (e) ->
           console.log "Requesting reload", scope.filters
-          e.stopPropagation()
+          e.stopPropagation?()
           reloadTable scope, handsonTable
 
 
@@ -54,7 +44,7 @@ angular
 
 
         scope.$on 'table:positionAtEnd', (e) ->
-          e.stopPropagation()
+          e.stopPropagation?()
           offset = Handsontable.Dom.offset(iElement[0])
           availableWidth = Handsontable.Dom.innerWidth(document.body) - offset.left + window.scrollX - 46
           availableHeight = Handsontable.Dom.innerHeight(document.body) - offset.top + window.scrollY - 100
@@ -78,7 +68,7 @@ angular
         ## a highlighted selected cell.
 
         scope.$on 'table:search', (e, query) ->
-          e.stopPropagation()
+          e.stopPropagation?()
           searchInTable.search handsonTable, query
 
         scope.$on 'table:search-navigation', (e, direction) ->
@@ -105,44 +95,50 @@ angular
             ## value. Note that the value is never transmitted over the socket.
 
             scope.$on 'socket:state', (evt, original) ->
+              console.log 'on socket:state', evt, original
               if handsonTable != undefined
-                handleStateCell original.data.parameters.case_id, original.data.parameters.state, original.data.editingClasses
+                handleStateCell scope, handsonTable, original.data.parameters.case_id, original.data.parameters.state, original.data.editingClasses
 
             ## If we get a cell editing event, we need to identify the cell element, and then update
             ## the right stuff. We might need to do something similar for a row, too.
 
             scope.$on 'socket:field', (evt, original) ->
-              if handsonTable != undefined and original.data.userNumber > 0
+              if handsonTable != undefined and original.data.userNumber != 1
                 editTableCell scope, handsonTable, original.data.parameters.case_id, original.data.parameters.field, original.data.editingClasses
 
             scope.$on 'socket:record', (evt, original) ->
-              if handsonTable != undefined and original.data.userNumber > 0
+              if handsonTable != undefined and original.data.userNumber != 1
                 addTableRecord scope, handsonTable, original.data.parameters.case_id, original.data.editingClasses
 
             scope.$on 'socket:delete', (evt, original) ->
-              if handsonTable != undefined and original.data.userNumber > 0
+              console.log 'on socket:delete', evt, original
+              if handsonTable != undefined and original.data.userNumber != 1
                 removeTableRecord scope, handsonTable, original.data.parameters.case_id
+
+            dateFormat = scope.study.options?.dateFormat || "YYYY-MM-DD"
 
             convertColumn = (attribute) ->
               result = {}
               result.data = valueManager(attribute.name)
               result.validator = (value, callback) ->
-                validateTableValue(scope, @instance, @col, @row, value, callback)
+                cellProperties = @
+                validateTableValue(scope, @instance, @col, @row, value, cellProperties, callback)
               result.renderer = Handsontable.TrackerStringRenderer
+              result.allowInvalid = true
               switch attribute.type
                 when 'number'
                   result.type = 'numeric'
                   result.correctFormat = true
                 when 'date'
                   result.type = 'date'
-                  result.dateFormat = 'YYYY-MM-DD'
+                  result.dateFormat = dateFormat
                   result.correctFormat = true
+                  result.renderer = Handsontable.TrackerDateRenderer
                   result.editor = Handsontable.editors.TrackerDateEditor
                 when 'boolean'
                   result.type = 'dropdown'
                   result.source = ['Yes', 'No', 'N/A']
                   result.strict = true
-                  result.allowInvalid = false
                   result.filter = false
                   result.renderer = Handsontable.TrackerOptionRenderer
                   result.data = booleanValueManager(attribute.name)
@@ -150,7 +146,6 @@ angular
                   result.type = 'dropdown'
                   result.source = attribute.options.values.concat("N/A")
                   result.strict = true
-                  result.allowInvalid = false
                   result.filter = false
                   result.renderer = Handsontable.TrackerOptionRenderer
 
@@ -234,6 +229,7 @@ angular
             handsonTable.trackerData = {
               stateLabels: scope.study.options?.stateLabels || {}
               typeTable: (attribute.type for attribute in orderedAttributes)
+              dateFormat: dateFormat
             }
 
             oldIsEmptyRow = handsonTable.isEmptyRow

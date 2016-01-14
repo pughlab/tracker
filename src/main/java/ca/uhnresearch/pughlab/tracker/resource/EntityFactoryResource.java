@@ -83,6 +83,9 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 				throw new RuntimeException("Error creating new case");
 			}
 			
+			// Refine the query to select the new case alone.
+			query = getRepository().addStudyCaseSelector(query, newCase.getId());
+			
 			// And now we should write any attributes we have into the new
 			// case. This should probably be done as a single operation to the
 			// repository.

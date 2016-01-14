@@ -51,6 +51,7 @@
         <property name="handlers">
             <util:list value-type="ca.uhnresearch.pughlab.tracker.events.EventHandler">
                 <ref bean="stateChangePlugin" />
+                <ref bean="fieldCalculationPlugin" />
                 <ref bean="scriptEventHandler" />
                 <ref bean="auditLogEventHandler" />
                 <ref bean="socketEventHandler" />
@@ -60,6 +61,11 @@
     
     <bean id="stateChangePlugin" class="ca.uhnresearch.pughlab.tracker.plugins.StateLabelPlugin">
         <property name="repository" ref="studyRepository" />
+    </bean>
+    
+    <bean id="fieldCalculationPlugin" class="ca.uhnresearch.pughlab.tracker.plugins.FieldCalculationPlugin">
+        <property name="repository" ref="studyRepository" />
+        <property name="scriptManager" ref="scriptManager" />
     </bean>
     
     <bean id="auditLogEventHandler" class="ca.uhnresearch.pughlab.tracker.audit.AuditLogEventHandler">

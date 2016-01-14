@@ -1,5 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.events;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +64,10 @@ public class SimpleEventSource implements EventSource {
 			try {
 				handler.sendMessage(event);
 			} catch (Exception e) {
-				logger.error(e.getMessage());
+				ByteArrayOutputStream output = new ByteArrayOutputStream();
+				e.printStackTrace(new PrintStream(output));
+				logger.error(new String(output.toByteArray()));
+				return;
 			}
 		}
 	}
