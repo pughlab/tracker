@@ -103,17 +103,16 @@ angular
             ## the right stuff. We might need to do something similar for a row, too.
 
             scope.$on 'socket:field', (evt, original) ->
-              console.log 'on socket:field', evt, original
-              if handsonTable != undefined and original.data.userNumber > 0
+              if handsonTable != undefined and original.data.userNumber != 1
                 editTableCell scope, handsonTable, original.data.parameters.case_id, original.data.parameters.field, original.data.editingClasses
 
             scope.$on 'socket:record', (evt, original) ->
-              if handsonTable != undefined and original.data.userNumber > 0
+              if handsonTable != undefined and original.data.userNumber != 1
                 addTableRecord scope, handsonTable, original.data.parameters.case_id, original.data.editingClasses
 
             scope.$on 'socket:delete', (evt, original) ->
               console.log 'on socket:delete', evt, original
-              if handsonTable != undefined and original.data.userNumber > 0
+              if handsonTable != undefined and original.data.userNumber != 1
                 removeTableRecord scope, handsonTable, original.data.parameters.case_id
 
             dateFormat = scope.study.options?.dateFormat || "YYYY-MM-DD"

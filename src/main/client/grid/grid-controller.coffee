@@ -14,7 +14,7 @@ angular
 
   ## Controller to handle connected users
   .controller 'ConnectedUserController', Array '$scope', 'socketFactory', ($scope, socketFactory) ->
-    $scope.currentUsers = []
+    $scope.currentUsers = ["system"]
 
     socket = socketFactory()
 
@@ -27,13 +27,13 @@ angular
     socket.on 'userdisconnect', (event) ->
       console.log 'Got userdisconnect event', event.data.user
       $scope.$apply () ->
-        $scope.currentUsers = (user for user in $scope.currentUsers when user != event.data.user)
+        $scope.currentUsers = ["system"].concat(user for user in $scope.currentUsers when user != event.data.user)
 
     ## If we get a disconnect, we forget all users. We probably should also generate an alert to let people
     ## know that we are currently locked.
     socket.on 'disconnect', (e) ->
       $scope.$evalAsync () ->
-        $scope.currentUsers = []
+        $scope.currentUsers = ["system"]
 
     socket.on 'welcome', (event) ->
       $scope.currentUsers.push event.data.user
