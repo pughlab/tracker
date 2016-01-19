@@ -453,6 +453,7 @@ sub write_data {
 
   $logger->info("Connecting to the database");
   my $dbh = DBI->connect($database, $username, $password, {RaiseError => 1});
+
   $dbh->begin_work();
   for my $command (@$commands) {
     $dbh->do($command);
@@ -461,7 +462,7 @@ sub write_data {
   # $dbh->sqlite_trace(sub {my ($statement) = @_; $logger->info("SQL: ", $statement); });
 
   ## First find the study
-  my $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "studies" WHERE "name" = ?}, {}, $study);
+  my $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "STUDIES" WHERE "NAME" = ?}, {}, $study);
 
   if ($study_ref) {
     $study_ref = lowercaseify($study_ref);
@@ -470,8 +471,8 @@ sub write_data {
 
   ## If there isn't a study, we can create one
   if (! $study_ref) {
-    $dbh->do(qq{INSERT INTO studies (name) VALUES (?)}, {}, $study);
-    $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM studies WHERE name = ?}, {}, $study);
+    $dbh->do(qq{INSERT INTO "STUDIES" ("NAME") VALUES (?)}, {}, $study);
+    $study_ref = $dbh->selectrow_hashref(qq{SELECT * FROM "STUDIES" WHERE "NAME" = ?}, {}, $study);
     $study_ref = lowercaseify($study_ref);
     $logger->info("Created new study: ", $study);
   }
@@ -479,21 +480,21 @@ sub write_data {
   ## Right. Now let's create the attributes. But first of all, if we're overwriting, delete everything
   if ($cfg->{overwrite}) {
     $logger->info("Overwrite selected: deleting view attributes");
-    $dbh->do(qq{DELETE FROM view_attributes WHERE view_id IN (SELECT id FROM views WHERE study_id = ?)}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "VIEW_ATTRIBUTES" WHERE "VIEW_ID" IN (SELECT "ID" FROM "VIEWS" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
 
     $logger->info("Overwrite selected: deleting views");
-    $dbh->do(qq{DELETE FROM views WHERE study_id = ?}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "VIEWS" WHERE "STUDY_ID" = ?}, {}, $study_ref->{id});
 
     $logger->info("Overwrite selected: deleting case values");
-    $dbh->do(qq{DELETE FROM case_attribute_strings WHERE case_id IN (select id FROM cases WHERE study_id = ?)}, {}, $study_ref->{id});
-    $dbh->do(qq{DELETE FROM case_attribute_dates WHERE case_id IN (select id FROM cases WHERE study_id = ?)}, {}, $study_ref->{id});
-    $dbh->do(qq{DELETE FROM case_attribute_booleans WHERE case_id IN (select id FROM cases WHERE study_id = ?)}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_STRINGS" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_DATES" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_BOOLEANS" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
 
     $logger->info("Overwrite selected: deleting cases");
-    $dbh->do(qq{DELETE FROM cases WHERE study_id = ?}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "CASES" WHERE "STUDY_ID" = ?}, {}, $study_ref->{id});
 
     $logger->info("Overwrite selected: deleting attributes");
-    $dbh->do(qq{DELETE FROM attributes WHERE study_id = ?}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "ATTRIBUTES" WHERE "STUDY_ID" = ?}, {}, $study_ref->{id});
   }
 
   my $headers = $context->{all_headers};
@@ -511,8 +512,8 @@ sub write_data {
     my $label = $attribute;
     my $type = lc($header_types->{$attribute});
     my $options = $cfg->{options}->{$attribute};
-    $dbh->do(qq{INSERT INTO attributes (study_id, name, label, type, rank, options) VALUES (?, ?, ?, ?, ?, ?)}, {}, $study_ref->{id}, $attribute, $label, $type, $index++, $options);
-    my $attribute_record = $dbh->selectrow_hashref(qq{SELECT * FROM attributes WHERE study_id = ? AND name = ?}, {}, $study_ref->{id}, $attribute);
+    $dbh->do(qq{INSERT INTO "ATTRIBUTES" ("STUDY_ID", "NAME", "LABEL", "TYPE", "RANK", "OPTIONS") VALUES (?, ?, ?, ?, ?, ?)}, {}, $study_ref->{id}, $attribute, $label, $type, $index++, $options);
+    my $attribute_record = $dbh->selectrow_hashref(qq{SELECT * FROM "ATTRIBUTES" WHERE "STUDY_ID" = ? AND "NAME" = ?}, {}, $study_ref->{id}, $attribute);
     $attribute_record = lowercaseify($attribute_record);
     $attribute_ids->{$attribute} = $attribute_record->{id};
   }
@@ -523,7 +524,7 @@ sub write_data {
   foreach my $case (@$records) {
     $value_index++;
 
-    $dbh->do(qq{INSERT INTO cases (study_id) VALUES (?)}, {}, $study_ref->{id});
+    $dbh->do(qq{INSERT INTO "CASES" ("STUDY_ID", "ORDER") VALUES (?, ?)}, {}, $study_ref->{id}, $value_index);
     my $case_id = $dbh->last_insert_id(undef, undef, undef, undef);
 
     for my $attribute (@$headers) {
@@ -531,7 +532,7 @@ sub write_data {
       if (! $type) {
         croak("Invalid type for attribute: $attribute");
       }
-      my $table = "case_attribute_${type}s";
+      my $table = uc("CASE_ATTRIBUTE_${type}s");
       my $sql = $dbh->quote_identifier($table);
       my $value = $case->{$attribute};
       next if (! defined($value));
@@ -547,7 +548,7 @@ sub write_data {
       $logger->trace("Values: ", join(', ', $case_id, $attribute_ids->{$attribute}, $value, localtime(), "load", $not_available));
       my $time = localtime();
       eval {
-        $dbh->do(qq{INSERT INTO $sql (case_id, attribute_id, value, not_available) VALUES (?, ?, ?, ?)}, {},
+        $dbh->do(qq{INSERT INTO $sql ("CASE_ID", "ATTRIBUTE_ID", "VALUE", "NOT_AVAILABLE") VALUES (?, ?, ?, ?)}, {},
           $case_id, $attribute_ids->{$attribute}, $value, $not_available);
       };
       my $error = $@;
@@ -559,12 +560,12 @@ sub write_data {
 
   ## And finally, create a basic view containing all the attributes
   $logger->info("Writing primary view");
-  $dbh->do(qq{INSERT INTO views (study_id, name) VALUES (?, 'primary')}, {}, $study_ref->{id});
+  $dbh->do(qq{INSERT INTO "VIEWS" ("STUDY_ID", "NAME") VALUES (?, 'primary')}, {}, $study_ref->{id});
   my $view_ref = $dbh->selectrow_hashref(qq{SELECT * FROM views WHERE study_id = ? AND name = 'primary'}, {}, $study_ref->{id});
   $view_ref = lowercaseify($view_ref);
   my $rank = 1;
   for my $attribute (@$headers) {
-    $dbh->do(qq{INSERT INTO view_attributes (view_id, attribute_id, rank) VALUES (?, ?,  ?)}, {}, $view_ref->{id}, $attribute_ids->{$attribute}, $rank++);
+    $dbh->do(qq{INSERT INTO "VIEW_ATTRIBUTES" ("VIEW_ID", "ATTRIBUTE_ID", "RANK") VALUES (?, ?,  ?)}, {}, $view_ref->{id}, $attribute_ids->{$attribute}, $rank++);
   }
 
   $logger->info("Committing transaction");
