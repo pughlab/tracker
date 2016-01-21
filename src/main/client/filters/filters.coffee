@@ -25,7 +25,6 @@ angular
 
   .filter 'default', () ->
     (input, value) ->
-      console.log input, value
       if input
         input
       else

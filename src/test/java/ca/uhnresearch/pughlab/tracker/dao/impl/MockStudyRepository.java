@@ -111,6 +111,7 @@ public class MockStudyRepository implements StudyRepository {
 		for(Integer i = 0; i < caseCount; i++) {
 			Calendar date = Calendar.getInstance();
 			date.set(2014, 8, i + 10);
+			setDataAttribute(i, "id", i);
 			setDataAttribute(i, "dateEntered", new Date(date.getTimeInMillis()));
 			setDataAttribute(i, "consentDate", new Date(date.getTimeInMillis()));
 			setDataAttribute(i, "patientId", String.format("DEMO-%02d", i));
@@ -155,6 +156,10 @@ public class MockStudyRepository implements StudyRepository {
 	}
 	
 	private void setDataAttribute(Integer caseId, String property, Boolean value) {
+		getDataObject(caseId).put(property, value);
+	}
+	
+	private void setDataAttribute(Integer caseId, String property, Integer value) {
 		getDataObject(caseId).put(property, value);
 	}
 	
@@ -207,7 +212,7 @@ public class MockStudyRepository implements StudyRepository {
 
 		try {
 			String optionsString = "{\"stateLabels\":{\"pending\":\"label1\",\"returned\":\"label2\"}}";
-			study.setOptions(mapper.readTree(optionsString));
+			study.setOptions(mapper.readValue(optionsString, ObjectNode.class));
 		} catch (Exception e) {
 			throw new RuntimeException("Test error: " + e.getMessage());
 		}

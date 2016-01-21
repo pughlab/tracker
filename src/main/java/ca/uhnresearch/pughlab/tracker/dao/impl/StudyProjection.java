@@ -9,8 +9,8 @@ import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
 import ca.uhnresearch.pughlab.tracker.domain.QStudy;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.Tuple;
 import com.mysema.query.types.MappingProjection;
 
@@ -41,10 +41,12 @@ public class StudyProjection extends MappingProjection<Study> {
         String options = tuple.get(studies.options);
 		if (options != null) {
 			try {
-				product.setOptions(mapper.readValue(options, JsonNode.class));
+				product.setOptions(mapper.readValue(options, ObjectNode.class));
 			} catch (IOException e) {
 				logger.error("Error in JSON attribute options", e.getMessage());
 			}
+		} else {
+			product.setOptions(mapper.createObjectNode());
 		}
 
         return product;

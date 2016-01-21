@@ -1,6 +1,12 @@
 ## Revision history
 
 
+### Version 2.1.6 - 21st January 2016
+
+ * Fixed attribute creation from the UI. See #152
+ * Fixed a few small bugs in study creation from the UI
+ 
+
 ### Version 2.1.5 - 14th January 2016
 
  * Allow a date format to be set for a study. See #141, #150
