@@ -82,7 +82,8 @@ sub parse_date {
     '%e/%b/%Y',
     '%e-%b-%y',
     '%e/%b/%y',
-    '%e %b %Y'
+    '%e %b %Y',
+    '%Y-%m-%d'
   );
 
   $string =~ s{ +}{}g;
@@ -319,6 +320,15 @@ sub extract_workbook {
         }
       } elsif ($type eq 'String') {
         ## Nothing to do here...
+      } elsif ($type eq 'Number') {
+        if ($value =~ m{^[\d\.]+$}) {
+          ## Nothing to do...
+        } elsif (uc($value) eq 'N/A' || uc($value) eq 'UNKNOWN') {
+          $value = {'$notAvailable' => 1};
+        } elsif ($value) {
+          $logger->warn("Got unexpected number: ", $value, ' in field: ', $mapped);
+          $value = undef;
+        }
       } else {
         $logger->error("No type for field: ", $mapped);
       }
@@ -489,6 +499,7 @@ sub write_data {
     $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_STRINGS" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
     $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_DATES" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
     $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_BOOLEANS" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_NUMBERS" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
 
     $logger->info("Overwrite selected: deleting cases");
     $dbh->do(qq{DELETE FROM "CASES" WHERE "STUDY_ID" = ?}, {}, $study_ref->{id});
