@@ -34,7 +34,7 @@ CREATE TABLE "STUDIES" (
 
 INSERT INTO "STUDIES" ("NAME", "DESCRIPTION") VALUES ('ADMIN', 'Admin study');
 UPDATE "STUDIES" SET "ID" = 0 WHERE "NAME" = 'ADMIN';
-INSERT INTO "STUDIES" ("NAME", "DESCRIPTION", "OPTIONS", "ABOUT") VALUES ('DEMO', 'A demo clinical genomics study', '{"stateLabels":{"pending":"label1","returned":"label2"}}', '#### Markdown-based description');
+INSERT INTO "STUDIES" ("NAME", "DESCRIPTION", "OPTIONS", "ABOUT") VALUES ('DEMO', 'A demo clinical genomics study', '{"dateFormat":"D-MMM-YYYY","stateLabels":{"pending":"label1","returned":"label2"},"stateRules":[{"state":"pending","attribute":"returnRequested","value":"true"}]}', '#### Markdown-based description');
 INSERT INTO "STUDIES" ("NAME", "DESCRIPTION", "ABOUT") VALUES ('SECOND', 'A second study', '* Bulleted list description');
 INSERT INTO "STUDIES" ("NAME", "DESCRIPTION", "ABOUT") VALUES ('ALPHABETICAL', 'A third study', '* Bulleted list description');
 
@@ -81,8 +81,9 @@ INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VAL
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (25, 25, 1, 'insufficientDate', 'Date Tissue Deemed Insufficient', 'date');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (26, 26, 1, 'notes', 'Notes', 'string', '{"longtext":true}');
 INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (27, 27, 1, 'study', 'Study', 'string');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE", "OPTIONS") VALUES (28, 28, 1, 'diagnosticsDays', 'Days from consent to diagnostics', 'number', '{"calculated":"netWorkingDays(record.get(\"dateEntered\"), record.get(\"diagnosticsDate\"))"}');
 
-INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (28, 1, 2, 'patientId', 'Patient ID', 'string');
+INSERT INTO "ATTRIBUTES" ("ID", "RANK", "STUDY_ID", "NAME", "LABEL", "TYPE") VALUES (32, 1, 2, 'patientId', 'Patient ID', 'string');
 
 -- =============================================================================================
 -- Now for the views
@@ -466,7 +467,6 @@ INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES ('morungos@gmail.com', 1
 INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES ('admin', 1);
 INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES ('stuart', 2);
 INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES ('anca', 3);
-INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES ('morag', 4);
 INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES ('stuartw@ads.uhnresearch.ca', 1);
 INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES ('oidcprofile#stuartw', 1);
 INSERT INTO "USER_ROLES" ("USERNAME", "ROLE_ID") VALUES ('stuartw@ads.uhnresearch.ca', 5);
