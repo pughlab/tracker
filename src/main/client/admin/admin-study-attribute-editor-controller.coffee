@@ -6,8 +6,6 @@ angular
     $scope.selectedAttribute = undefined
     originalSelectedAttribute = undefined
 
-    console.log "Initialized StudyAttributeEditorController"
-
     $scope.$on 'admin:reset', (e) ->
       $scope.selectedAttribute = undefined
       originalSelectedAttribute = undefined
