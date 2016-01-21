@@ -188,7 +188,7 @@ public class TrackerResourceTest extends AbstractShiroTest {
 		studiesResource.postResource(ir);
 		
 		assertEquals( Status.REDIRECTION_SEE_OTHER, studiesResource.getResponse().getStatus());
-		assertEquals( "http://localhost:9998/services/api/studies/TEST/views", studiesResource.getResponse().getLocationRef().toString());		
+		assertEquals( "http://localhost:9998/services/api/studies/TEST", studiesResource.getResponse().getLocationRef().toString());		
 	}
 
 	/**

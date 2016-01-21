@@ -69,7 +69,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     		throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
     	
-    	Reference reference = getRequest().getRootRef().clone().addSegment("api").addSegment("studies").addSegment(savedStudy.getName()).addSegment("views");
+    	Reference reference = getRequest().getRootRef().clone().addSegment("api").addSegment("studies").addSegment(savedStudy.getName());
     	redirectSeeOther(reference);
     	return new ReferenceList(Arrays.asList(reference)).getTextRepresentation();
     }
