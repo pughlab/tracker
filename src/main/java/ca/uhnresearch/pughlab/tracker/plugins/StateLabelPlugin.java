@@ -62,7 +62,7 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 		JsonNode stateRules = getStateRuleData(study);
 		
 		Set<String> attributeNames = new HashSet<String>();
-		if (stateRules.isArray()) {
+		if (stateRules != null && stateRules.isArray()) {
 			int size = stateRules.size();
 			for(int i = 0; i < size; i++) {
 				JsonNode rule = stateRules.get(i);
@@ -77,7 +77,7 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 		JsonNode stateRules = getStateRuleData(study);
 		
 		List<StateRule> rules = new ArrayList<StateRule>();
-		if (stateRules.isArray()) {
+		if (stateRules != null && stateRules.isArray()) {
 			int size = stateRules.size();
 			for(int i = 0; i < size; i++) {
 				JsonNode rule = stateRules.get(i);
@@ -122,7 +122,8 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 				}
 			}
 			
-			String oldState = c.get("$state").isTextual() ? c.get("$state").asText() : null;
+			JsonNode stateField =  c.get("$state");
+			String oldState = (stateField != null && c.get("$state").isTextual()) ? c.get("$state").asText() : null;
 			if (oldState == null && state == null) continue;
 			if (oldState == null || ! oldState.equals(state)) {
 				Cases selectedCase = getRepository().getStudyCase(study, c.get("id").asInt());
