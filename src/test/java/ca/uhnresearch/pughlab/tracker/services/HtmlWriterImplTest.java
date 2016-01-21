@@ -37,7 +37,6 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewDataResponse;
 import ca.uhnresearch.pughlab.tracker.resource.ViewDataResource;
 import ca.uhnresearch.pughlab.tracker.services.impl.HtmlWriterImpl;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class HtmlWriterImplTest {
@@ -150,7 +149,7 @@ public class HtmlWriterImplTest {
 	public void excelTestWithoutState() {
 		
     	assertNotNull(dto);
-    	JsonNode oldOptions = dto.getStudy().getOptions();
+    	ObjectNode oldOptions = dto.getStudy().getOptions();
     	
     	try {
     		dto.getStudy().setOptions(null);

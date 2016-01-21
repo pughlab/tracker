@@ -207,7 +207,7 @@ public class MockStudyRepository implements StudyRepository {
 
 		try {
 			String optionsString = "{\"stateLabels\":{\"pending\":\"label1\",\"returned\":\"label2\"}}";
-			study.setOptions(mapper.readTree(optionsString));
+			study.setOptions(mapper.readValue(optionsString, ObjectNode.class));
 		} catch (Exception e) {
 			throw new RuntimeException("Test error: " + e.getMessage());
 		}

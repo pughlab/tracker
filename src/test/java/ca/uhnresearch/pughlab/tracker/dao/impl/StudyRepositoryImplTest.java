@@ -171,6 +171,16 @@ public class StudyRepositoryImplTest {
 	@Test
 	@Transactional
 	@Rollback(true)
+	public void testGetMissingStudyOptions() {
+		Study s = studyRepository.getStudy("ALPHABETICAL");
+		Assert.assertNotNull(s);
+		Object options = s.getOptions();
+		Assert.assertNotNull(options);
+	}
+	
+	@Test
+	@Transactional
+	@Rollback(true)
 	public void testGetStudies() {
 		List<Study> list = studyRepository.getAllStudies();
 		Assert.assertNotNull(list);
