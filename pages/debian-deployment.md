@@ -141,6 +141,6 @@ And finally, reload `nginx`:
 You don't need to do much to update the application:
 
     $ sudo apt-get update
-    $ sudo apt-get install tracker-webapp
+    $ sudo apt-get install --only-upgrade tracker-webapp
 
 No other configuration changes should usually be needed during this process. `nginx` can stay running.
