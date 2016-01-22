@@ -11,7 +11,7 @@ layout: default
 2. [Managing studies](#studies)
 3. [Security](#security)
     1. Authentication and authorization
-    2. Permissions
+    2. [Permissions](admin-permissions.html)
 4. [Scripting](#scripting)
 
 
