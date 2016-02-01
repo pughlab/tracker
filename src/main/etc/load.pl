@@ -286,7 +286,7 @@ sub extract_workbook {
           $value = $parsed_value;
         } elsif ($value eq '') {
           $value = undef;
-        } elsif (lc($value) eq 'unknown') {
+        } elsif (lc($value) eq 'unknown' || $value =~ m{\?+}) {
           $value = undef;
         } elsif (lc($value) eq 'n/a' || $value =~ m{^-+$}) {
           $value = {'$notAvailable' => 1};
@@ -310,7 +310,7 @@ sub extract_workbook {
           $value = ($value =~ m{^y$}i ? 1 : 0);
         } elsif ($value =~ m{^(?:n/a)$}i) {
           $value = undef;
-        } elsif (lc($value) eq 'unknown') {
+        } elsif (lc($value) eq 'unknown' || $value =~ m{\?+}) {
           $value = undef;
         } elsif (lc($value) eq 'n/a') {
           $value = {'$notAvailable' => 1};
@@ -325,7 +325,7 @@ sub extract_workbook {
       } elsif ($type eq 'Number') {
         if ($value =~ m{^[\d\.]+$}) {
           ## Nothing to do...
-        } elsif (uc($value) eq 'N/A' || uc($value) eq 'UNKNOWN') {
+        } elsif (uc($value) eq 'N/A' || uc($value) eq 'UNKNOWN' || $value =~ m{\?+}) {
           $value = {'$notAvailable' => 1};
         } elsif ($value) {
           $logger->warn("Got unexpected number: ", $value, ' in field: ', $mapped);
