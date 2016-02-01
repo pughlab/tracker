@@ -80,6 +80,7 @@ sub parse_date {
     '%e/%b/%Y %H:%M',
     '%e-%b-%Y',
     '%e/%b/%Y',
+    '%e/%m/%Y',
     '%e-%b-%y',
     '%e/%b/%y',
     '%e %b %Y',
