@@ -323,7 +323,7 @@ sub extract_workbook {
       } elsif ($type eq 'String') {
         ## Nothing to do here...
       } elsif ($type eq 'Number') {
-        if ($value =~ m{^[\d\.]+$}) {
+        if ($value =~ m{^[-+]?[\d\.]+$}) {
           ## Nothing to do...
         } elsif (uc($value) eq 'N/A' || uc($value) eq 'UNKNOWN' || $value =~ m{\?+}) {
           $value = {'$notAvailable' => 1};
