@@ -20,7 +20,7 @@ angular
           .post '/api/authentication/login', payload, config
 
           .success (response, status) ->
-            targetScope.$emit 'event:loginConfirmed', response.user
+            targetScope.$emit 'event:loginConfirmed', {user: response.user}
 
           .error (response, status) ->
             targetScope.$broadcast 'event:loginDenied', response, status

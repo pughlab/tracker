@@ -132,7 +132,7 @@ angular
     idleSecondsTimer = $interval checkIdleTime, 1000
 
 
-  .run Array '$rootScope', '$http', '$timeout', '$state', 'authenticationService', (scope, $http, $timeout, $state, authenticationService) ->
+  .run Array '$rootScope', '$http', '$timeout', '$state', '$cookies', 'authenticationService', (scope, $http, $timeout, $state, $cookies, authenticationService) ->
 
     class User
       constructor: (user) ->
@@ -159,11 +159,19 @@ angular
       scope.user = undefined
       $state.go('logout')
 
-    scope.$on 'event:loginConfirmed', (event, user) ->
-      console.log 'event:loginConfirmed'
-      scope.user = new User(user)
+    scope.$on 'event:loginConfirmed', (event, values) ->
+      originalStateName = $cookies.get 'loginStateName'
+      originalStateParams = $cookies.getObject 'loginStateParams'
+      $cookies.remove 'loginStateName'
+      $cookies.remove 'loginStateParams'
+
+      scope.user = new User(values.user)
       scope.requests401 = []
-      $state.go('home')
+
+      if originalStateName?
+        $state.go originalStateName, originalStateParams
+      else
+        $state.go('home')
 
     scope.$on 'event:loginRequest', (evt) ->
       $state.go 'home'
