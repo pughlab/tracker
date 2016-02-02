@@ -551,6 +551,8 @@ sub write_data {
       my $value = $case->{$attribute};
       next if (! defined($value));
 
+      $value = undef if ($value eq '' && uc(${type}) ne 'STRING');
+
       my $not_available = 0;
       if (ref($value) && $value->{'$notAvailable'}) {
         $not_available = 1;
