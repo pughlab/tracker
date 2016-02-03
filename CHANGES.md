@@ -1,6 +1,15 @@
 ## Revision history
 
 
+### Version 2.2.0 - 3rd February 2016
+
+ * Fixed state label rules on string values. See #140
+ * Fixed the load script to handle numbers. See #154
+ * Fixed an issue where logout didn't update connected users. See #161, #158
+ * Fix an issue with case deletion in MySQL. See #159
+ * Don't let people type in the top filter row. See #160
+ 
+
 ### Version 2.1.6 - 21st January 2016
 
  * Fixed attribute creation from the UI. See #152
