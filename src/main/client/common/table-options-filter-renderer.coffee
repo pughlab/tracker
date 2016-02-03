@@ -47,9 +47,12 @@ TrackerFilterRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
   headerName = instance.getColHeader(col)
   columnType = instance.trackerData?.typeTable?[col]
 
-  button.addEventListener "click", (evt) ->
+  handleFilterClick = (evt) ->
     myEvent = new evt.view.CustomEvent("filter", {value: value, detail: {instance: instance, text: text, value: value, property: propertyName, button: button, header: headerName, type: columnType}})
     filterAction myEvent
+
+  button.addEventListener "click", handleFilterClick
+  $(TD).on 'click', handleFilterClick
 
   while TD.firstChild
     TD.removeChild TD.firstChild
