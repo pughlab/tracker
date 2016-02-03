@@ -1,7 +1,7 @@
 angular
   .module 'tracker.authentication'
 
-  .factory 'authenticationService', Array '$rootScope', '$http', '$window', (scope, $http, $window) ->
+  .factory 'authenticationService', Array '$rootScope', '$http', '$window', '$timeout', (scope, $http, $window, $timeout) ->
 
     config =
       headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}
@@ -26,7 +26,11 @@ angular
             targetScope.$broadcast 'event:loginDenied', response, status
 
       logout: () ->
-        $http
-          .post('/api/authentication/logout', {}, config)
-          .success (response) ->
-            scope.$broadcast 'event:logoutConfirmed'
+
+        actuallyLogout = () ->
+          $http
+            .post('/api/authentication/logout', {}, config)
+            .success (response) ->
+              scope.$broadcast 'event:logoutConfirmed'
+
+        $timeout actuallyLogout, 200
