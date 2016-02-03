@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
@@ -101,6 +102,14 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 		return filtered;
 	}
 	
+	private boolean matchesNode(JsonNode value, String criterion) {
+		if (value instanceof TextNode) {
+			return ((TextNode) value).asText().equals(criterion);
+		} else {
+			return value.toString().equals(criterion);
+		}
+	}
+	
 	private void applyLabelsToCases(Study study, List<ObjectNode> cases, List<StateRule> rules) {
 		
 		String userName = "system";
@@ -117,7 +126,7 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 					// Do nothing, state can't be affected by a null/empty value
 				} else if (value.isObject() && value.has("$notAvailable") && "N/A".equals(rule.value)) {
 					state = rule.state;
-				} else if (value.toString().equals(rule.value)) {
+				} else if (matchesNode(value, rule.value)) {
 					state = rule.state;
 				}
 			}
