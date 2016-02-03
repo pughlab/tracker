@@ -4,7 +4,8 @@ angular
   .controller 'LoginController', Array '$scope', '$state', 'authenticationService', ($scope, $state, authenticationService) ->
 
     $scope.prompt = null
-    console.log "State params", $state.params
+    $scope.originalStateName = $state.params?.originalStateName
+    $scope.originalStateParams = $state.params?.originalStateparams
 
     if $state.params.prompt != 'default'
       $scope.prompt = $state.params.prompt
@@ -38,7 +39,7 @@ angular
         $scope.message = data.message
 
 
-  .controller 'AuthenticationController', Array '$scope', '$state', ($scope, $state) ->
+  .controller 'AuthenticationController', Array '$scope', '$state', '$cookies', ($scope, $state, $cookies) ->
     $scope.challenge = undefined
     $scope.username = undefined
     $scope.password = undefined
@@ -49,7 +50,12 @@ angular
       challenge = values.challenge
       prompt = values.prompt
       match = /(\w+)/.exec challenge
-      $state.go 'login', {challenge: match[1].toLowerCase(), prompt: prompt}
+
+      $cookies.put 'loginStateName', values.originalStateName
+      $cookies.putObject 'loginStateParams', values.originalStateParams
+
+      newStateParams = {challenge: match[1].toLowerCase(), prompt: prompt}
+      $state.go 'login', newStateParams
 
 
     $scope.$on 'event:loginDenied', (evt, data) ->

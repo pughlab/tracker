@@ -39,7 +39,8 @@ annotateCells = (cellProperties, instance, TD, row, col, prop) ->
 
 
 revertValueIfNeeded = (instance, row, prop, oldValue, cellProperties) ->
-  if oldValue? and cellProperties.valid == false and cellProperties.invalidCellClassName
+  oldValue = null if !oldValue?
+  if cellProperties.valid == false and cellProperties.invalidCellClassName
     restore = () ->
       cellProperties.valid = true
       instance.setDataAtRowProp(row, prop(), oldValue, "revert")

@@ -80,9 +80,11 @@ sub parse_date {
     '%e/%b/%Y %H:%M',
     '%e-%b-%Y',
     '%e/%b/%Y',
+    '%e/%m/%Y',
     '%e-%b-%y',
     '%e/%b/%y',
-    '%e %b %Y'
+    '%e %b %Y',
+    '%Y-%m-%d'
   );
 
   $string =~ s{ +}{}g;
@@ -285,7 +287,7 @@ sub extract_workbook {
           $value = $parsed_value;
         } elsif ($value eq '') {
           $value = undef;
-        } elsif (lc($value) eq 'unknown') {
+        } elsif (lc($value) eq 'unknown' || $value =~ m{\?+}) {
           $value = undef;
         } elsif (lc($value) eq 'n/a' || $value =~ m{^-+$}) {
           $value = {'$notAvailable' => 1};
@@ -305,9 +307,11 @@ sub extract_workbook {
         $value =~ s{\s+$}{};
         if ($value =~ m{^(?:yes|no)$}i) {
           $value = ($value =~ m{^yes$}i ? 1 : 0);
+        } elsif ($value =~ m{^(?:y|n)$}i) {
+          $value = ($value =~ m{^y$}i ? 1 : 0);
         } elsif ($value =~ m{^(?:n/a)$}i) {
           $value = undef;
-        } elsif (lc($value) eq 'unknown') {
+        } elsif (lc($value) eq 'unknown' || $value =~ m{\?+}) {
           $value = undef;
         } elsif (lc($value) eq 'n/a') {
           $value = {'$notAvailable' => 1};
@@ -319,6 +323,15 @@ sub extract_workbook {
         }
       } elsif ($type eq 'String') {
         ## Nothing to do here...
+      } elsif ($type eq 'Number') {
+        if ($value =~ m{^[-+]?[\d\.]+$}) {
+          ## Nothing to do...
+        } elsif (uc($value) eq 'N/A' || uc($value) eq 'UNKNOWN' || $value =~ m{\?+}) {
+          $value = {'$notAvailable' => 1};
+        } elsif ($value) {
+          $logger->warn("Got unexpected number: ", $value, ' in field: ', $mapped);
+          $value = undef;
+        }
       } else {
         $logger->error("No type for field: ", $mapped);
       }
@@ -489,6 +502,7 @@ sub write_data {
     $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_STRINGS" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
     $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_DATES" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
     $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_BOOLEANS" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
+    $dbh->do(qq{DELETE FROM "CASE_ATTRIBUTE_NUMBERS" WHERE "CASE_ID" IN (SELECT "ID" FROM "CASES" WHERE "STUDY_ID" = ?)}, {}, $study_ref->{id});
 
     $logger->info("Overwrite selected: deleting cases");
     $dbh->do(qq{DELETE FROM "CASES" WHERE "STUDY_ID" = ?}, {}, $study_ref->{id});
@@ -536,6 +550,8 @@ sub write_data {
       my $sql = $dbh->quote_identifier($table);
       my $value = $case->{$attribute};
       next if (! defined($value));
+
+      $value = undef if ($value eq '' && uc(${type}) ne 'STRING');
 
       my $not_available = 0;
       if (ref($value) && $value->{'$notAvailable'}) {

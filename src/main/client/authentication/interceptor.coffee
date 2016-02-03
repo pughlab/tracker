@@ -1,7 +1,7 @@
 angular
   .module 'tracker.authentication'
 
-  .factory 'httpInterceptor', Array '$rootScope', '$q', ($rootScope, $q) ->
+  .factory 'httpInterceptor', Array '$rootScope', '$q', '$injector', ($rootScope, $q, $injector) ->
     result =
       request: (request) ->
         if ! request.url.match(/^\/api\/authentication\b/)
@@ -31,11 +31,13 @@ angular
           if response.config.url.match(/^\/api\/authentication\b/)
             return $q.reject response
           else
+            $state = $injector.get('$state')
+            $stateParams = $injector.get('$stateParams')
             req = {config: response.config, deferred: deferred}
             challenge = response.headers('www-authenticate')
             prompt = response.headers('x-tracker-login-prompt')
             $rootScope.requests401.push(req)
-            $rootScope.$broadcast 'event:loginRequired', {challenge: challenge, prompt: prompt}
+            $rootScope.$broadcast 'event:loginRequired', {challenge: challenge, prompt: prompt, originalStateName: $state?.current?.name, originalStateParams: angular.copy($stateParams)}
             deferred.promise
         else
           $q.reject response

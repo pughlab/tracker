@@ -1,2 +1,4 @@
 angular
-  .module 'tracker.authentication', []
+  .module 'tracker.authentication', [
+    'ngCookies'
+  ]

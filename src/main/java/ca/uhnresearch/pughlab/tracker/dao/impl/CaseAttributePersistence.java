@@ -577,10 +577,18 @@ public class CaseAttributePersistence {
 				};
 			});
 		}
+
+		// MySQL is a bit stupid and can't handle deletions involving subqueries
+		// most of the time. Alarmingly, we need to pull out the identifiers and
+		// then send them back. 
+		SQLQuery caseIdQuery = template.newSqlQuery()
+				.from(caseQuery.as(cases));
 		
+		List<Integer> casesIds = template.query(caseIdQuery, cases.id);
+	
 		template.delete(cases, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
-				return sqlDeleteClause.where(cases.id.in(caseQuery)).execute();
+				return sqlDeleteClause.where(cases.id.in(casesIds)).execute();
 			};
 		});
 	}

@@ -25,9 +25,9 @@ angular
           $scope.currentUsers.push event.data.user
 
     socket.on 'userdisconnect', (event) ->
-      console.log 'Got userdisconnect event', event.data.user
       $scope.$apply () ->
-        $scope.currentUsers = ["system"].concat(user for user in $scope.currentUsers when user != event.data.user)
+        newUsers = ["system"].concat(user for user in $scope.currentUsers when user != event.data.user and user != "system")
+        $scope.currentUsers = newUsers
 
     ## If we get a disconnect, we forget all users. We probably should also generate an alert to let people
     ## know that we are currently locked.
