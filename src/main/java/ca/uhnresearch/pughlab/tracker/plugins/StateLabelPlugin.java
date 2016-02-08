@@ -134,8 +134,12 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 			JsonNode stateField =  c.get("$state");
 			String oldState = (stateField != null && c.get("$state").isTextual()) ? c.get("$state").asText() : null;
 			if (oldState == null && state == null) continue;
+			
+			JsonNode identifierValue = c.get("id");
+			if (identifierValue == null || ! identifierValue.isInt()) continue;
+			
 			if (oldState == null || ! oldState.equals(state)) {
-				Cases selectedCase = getRepository().getStudyCase(study, c.get("id").asInt());
+				Cases selectedCase = getRepository().getStudyCase(study, identifierValue.asInt());
 				getRepository().setStudyCaseState(study, selectedCase, userName, state);
 			}
 		}
