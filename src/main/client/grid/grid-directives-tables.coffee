@@ -259,8 +259,8 @@ angular
                 callback: (command, selection, evt) ->
                   start = selection.start.row
                   end = selection.end.row
-                  for i in [start .. end] by 1
-                    entityIdentifier = handsonTable.getSourceDataAtRow(i).id
+                  if start == end
+                    entityIdentifier = handsonTable.getSourceDataAtRow(start).id
                     deleteCase scope, handsonTable, entityIdentifier
               }
             handsonTable.updateSettings {
