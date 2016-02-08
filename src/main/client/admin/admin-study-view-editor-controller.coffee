@@ -23,8 +23,15 @@ angular
       $scope.schema.views = $scope.schema.views.filter (att) -> att != view
       $scope.$emit 'admin:modified'
 
-    $scope.newView = () ->
+    $scope.newGridView = () ->
       newView = {name: 'unnamed', description: 'Untitled View'}
+      $scope.schema.views.unshift newView
+      $scope.selectedView = newView
+      originalSelectedView = angular.copy($scope.selectedView)
+      $scope.$emit 'admin:modified'
+
+    $scope.newPageView = () ->
+      newView = {name: 'unnamed', description: 'Untitled View', body: '<h3>Empty view</h3>'}
       $scope.schema.views.unshift newView
       $scope.selectedView = newView
       originalSelectedView = angular.copy($scope.selectedView)

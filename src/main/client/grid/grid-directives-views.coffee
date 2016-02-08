@@ -24,7 +24,7 @@ angular
             $compile(element.contents())(scope)
 
 
-  .directive 'trackerPageView', () ->
+  .directive 'trackerPageView', Array '$compile', ($compile) ->
     result =
       restrict: "A"
       replace: true
@@ -33,6 +33,7 @@ angular
         view: '='
         attributes: '='
         permissions: '='
+      controller: 'PageViewController'
       link: (scope, element, attrs) ->
         scope.$watch 'view', (view, old) ->
           if view?.body

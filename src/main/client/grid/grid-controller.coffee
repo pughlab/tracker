@@ -1,6 +1,13 @@
 angular
   .module 'tracker.grid'
 
+  .controller 'PageViewController', Array '$scope', ($scope) ->
+
+    console.log "Initializing PageViewController"
+
+    $scope.submit = () ->
+      console.log "Pressed submit"
+
   ## Controller to handle the button used to export a record.
   .controller 'GridActionController', Array '$scope', '$modal', '$stateParams', ($scope, $modal, $stateParams) ->
 

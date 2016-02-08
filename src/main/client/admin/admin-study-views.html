@@ -11,7 +11,11 @@
   <div class="row">
     <div class="col-md-12">
       <ul ng-model="schema.views" id="viewSortable" class="admin-list-box">
-        <li ng-repeat="view in schema.views" ng-class="{'list-selected' : view == selectedView}" ng-click="selectView(view)">{{view.name}} &mdash; {{view.description}} </li>
+        <li ng-repeat="view in schema.views" ng-class="{'list-selected' : view == selectedView}" ng-click="selectView(view)">
+          <span ng-show="view.body" class="glyphicon glyphicon-file" aria-hidden="true"></span>
+          <span ng-hide="view.body" class="glyphicon glyphicon-th" aria-hidden="true"></span>
+          {{view.name}} &mdash; {{view.description}}
+        </li>
       </ul>
     </div>
   </div>
@@ -36,7 +40,8 @@
           <div class="form-group">
             <div class="col-md-2"></div>
             <div class="col-md-10">
-            <button class="btn btn-default" ng-click="newView()">New view</button>
+            <button class="btn btn-default" ng-click="newGridView()">New grid view</button>
+            <button class="btn btn-default" ng-click="newPageView()">New page view</button>
             <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView" ng-click="deleteView(selectedView)">Delete view</button>
             <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView || modified" ui-sref="adminView({studyName: study.study.name, viewName: selectedView.name})">Edit view</button>
             </div>
