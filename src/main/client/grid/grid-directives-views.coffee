@@ -17,13 +17,27 @@ angular
 
         scope.$watch 'view', (view, old) ->
           if view != old
-            console.log 'view', view, old
             if view.body?
-              element.html(view.body)
+              element.html('<div tracker-page-view study="study" view="view" attributes="attributes" permissions="permissions"></div>')
             else
               element.html('<div tracker-table-view study="study" view="view" attributes="attributes" permissions="permissions"></div>')
             $compile(element.contents())(scope)
 
+
+  .directive 'trackerPageView', () ->
+    result =
+      restrict: "A"
+      replace: true
+      scope:
+        study: '='
+        view: '='
+        attributes: '='
+        permissions: '='
+      link: (scope, element, attrs) ->
+        scope.$watch 'view', (view, old) ->
+          if view?.body
+            element.html(view.body)
+            $compile(element.contents())(scope)
 
   .directive 'trackerTableView', () ->
     result =
