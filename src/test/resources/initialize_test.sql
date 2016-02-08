@@ -90,6 +90,7 @@ CREATE TABLE "VIEWS" (
   "STUDY_ID" INTEGER NOT NULL REFERENCES "STUDIES"("ID"),
   "NAME" VARCHAR(24) NOT NULL,
   "DESCRIPTION" VARCHAR(2048),
+  "BODY" CLOB,
   "OPTIONS" VARCHAR(2048),
   UNIQUE ("STUDY_ID", "NAME")
 );
@@ -97,8 +98,9 @@ CREATE TABLE "VIEWS" (
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (1, 1, 'Manages the whole study', 'complete');
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (2, 1, 'Tracks the study', 'track');
 INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME", "OPTIONS") VALUES (3, 1, 'Tracks only secondary', 'secondary', '{"rows":[{"attribute":"study","value":"secondary"}]}');
+INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME", "BODY") VALUES (4, 1, 'Enter data', 'enter', '<h3>Enter data</h3>');
 
-INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (4, 2, 'Manages the whole study', 'complete');
+INSERT INTO "VIEWS" ("ID", "STUDY_ID", "DESCRIPTION", "NAME") VALUES (5, 2, 'Manages the whole study', 'complete');
 
 -- =============================================================================================
 -- Now for the view attributes

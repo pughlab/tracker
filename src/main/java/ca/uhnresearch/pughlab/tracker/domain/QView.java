@@ -24,6 +24,8 @@ public class QView extends com.mysema.query.sql.RelationalPathBase<View> {
 
     public final StringPath options = createString("options");
 
+    public final StringPath body = createString("body");
+
     public final com.mysema.query.sql.PrimaryKey<View> primary = createPrimaryKey(id);
 
     public QView(String variable) {
@@ -36,7 +38,8 @@ public class QView extends com.mysema.query.sql.RelationalPathBase<View> {
         addMetadata(studyId, ColumnMetadata.named("STUDY_ID").withIndex(2).ofType(Types.INTEGER).withSize(10).notNull());
         addMetadata(name, ColumnMetadata.named("NAME").withIndex(3).ofType(Types.VARCHAR).withSize(24).notNull());
         addMetadata(description, ColumnMetadata.named("DESCRIPTION").withIndex(4).ofType(Types.VARCHAR).withSize(2048));
-        addMetadata(options, ColumnMetadata.named("OPTIONS").withIndex(5).ofType(Types.VARCHAR).withSize(2048));
+        addMetadata(body, ColumnMetadata.named("BODY").withIndex(5).ofType(Types.CLOB));
+        addMetadata(options, ColumnMetadata.named("OPTIONS").withIndex(6).ofType(Types.VARCHAR).withSize(2048));
     }
 
 }

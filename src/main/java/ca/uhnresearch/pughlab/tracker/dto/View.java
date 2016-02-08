@@ -12,6 +12,8 @@ public class View {
     private String name;
 
     private Integer studyId;
+    
+    private String body;
 
     private JsonNode options;
 
@@ -52,6 +54,15 @@ public class View {
     }
 
 	@JsonProperty
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    @JsonProperty
     public JsonNode getOptions() {
         return options;
     }
