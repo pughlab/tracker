@@ -211,6 +211,11 @@ INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID", "STATE") VALUES (22, 22, 2, 'act
 INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID", "STATE") VALUES (23, 23, 2, 'pending');
 INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID", "STATE") VALUES (24, 24, 2, 'pending');
 INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID", "STATE") VALUES (25, 25, 2, 'pending');
+INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID") VALUES (26, 26, 2);
+INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID") VALUES (27, 27, 2);
+INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID") VALUES (28, 28, 2);
+INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID") VALUES (29, 29, 2);
+INSERT INTO "CASES" ("ID", "ORDER", "STUDY_ID") VALUES (30, 30, 2);
 
 -- =============================================================================================
 -- Now for the case attribute values, of all types

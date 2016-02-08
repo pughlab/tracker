@@ -57,6 +57,7 @@ public class CaseObjectBuilder {
 		for(CaseInfo info : caseInfos) {
 			ObjectNode obj = jsonNodeFactory.objectNode();
 			obj.put("$state", info.getState());
+			obj.put("id", info.getId());
 			objects.add(index++, obj);
 			table.put(info.getId(), obj);
 		}

@@ -1999,6 +1999,31 @@ public class StudyRepositoryImplTest {
 	}
 	
 	/**
+	 * Checks that empty cases still have an identifier field set.
+	 * @throws RepositoryException
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	// Regression test for #162
+	public void testEmptyCases() throws RepositoryException {
+		
+		Study study = studyRepository.getStudy("SECOND");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		for(ObjectNode node : dataList) {
+			Assert.assertTrue(node.has("id"));
+		}
+	}
+	
+	/**
 	 * Blanks are a special case. They might be NULL or they might be an
 	 * empty string, so we need to check for both in the underlying 
 	 * query that we generate. 
