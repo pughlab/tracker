@@ -4,27 +4,4 @@
   <li>{{view.name}}</li>
 </ol>
 
-<div ng-controller="ConnectedUserController">
-
-  <div search-control></div>
-
-  <h3>
-    <div ng-show="permissions.write" style="display:inline-block;">
-      <toggle-switch ng-model="editingStatus" class="switch-danger switch-small" knob-label="Editing"><toggle-switch>
-    </div>
-    <small ng-show="currentUsers.slice(1).length">
-      Connected:
-      <span ng-repeat="user in currentUsers.slice(1)" class="badge" ng-class="&apos;editorUser-&apos; + $index">{{user}}</span></small>
-  </h3>
-
-  <div tracker-error error-message="errorMessage"></div>
-
-  <div class="tracker-table-container">
-    <div tracker-table study="study" view="view" attributes="attributes" editing-status="editingStatus" permissions="permissions"></div>
-  </div>
-
-  <div ng-controller="GridActionController">
-    <button ng-show="permissions.download" class="btn btn-default" ng-click="export()">Export Spreadsheet</button>
-  </div>
-
-</div>
+<div tracker-view study="study" view="view" attributes="attributes" permissions="permissions"></div>

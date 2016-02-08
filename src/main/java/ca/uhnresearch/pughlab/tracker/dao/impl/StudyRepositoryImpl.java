@@ -142,7 +142,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      */
 	public List<View> getStudyViews(Study study) {
 		logger.debug("Looking for views for study: {}", study.getName());
-    	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.studyId.eq(study.getId()));
+    	SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.studyId.eq(study.getId())).orderBy(views.id.asc());
     	List<View> viewList = template.query(sqlQuery, new ViewProjection(views));
     	logger.debug("Got some views: {}", viewList.toString());
 
