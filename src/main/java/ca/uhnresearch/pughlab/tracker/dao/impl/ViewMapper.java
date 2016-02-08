@@ -25,6 +25,7 @@ public class ViewMapper extends AbstractMapper<View> {
         values.put(views.studyId, bean.getStudyId());
         values.put(views.name, bean.getName());
         values.put(views.description, bean.getDescription());
+        values.put(views.body, bean.getBody());
         
         try {
         	JsonNode options = bean.getOptions();
