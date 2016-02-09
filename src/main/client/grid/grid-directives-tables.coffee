@@ -263,12 +263,15 @@ angular
                     entityIdentifier = handsonTable.getSourceDataAtRow(start).id
                     deleteCase scope, handsonTable, entityIdentifier
               }
+            contextMenu = false
+            if editing and Object.keys(commands).length > 0
+              contextMenu = {
+                callback: (key, options) ->
+                items: commands
+              }
             handsonTable.updateSettings {
               readOnly: ! editing,
-              contextMenu:
-                callback: (key, options) ->
-
-                items: if editing and Object.keys(commands).length > 0 then commands else false
+              contextMenu: contextMenu
             }
 
 
