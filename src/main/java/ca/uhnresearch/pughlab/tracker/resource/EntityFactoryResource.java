@@ -27,6 +27,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
+import ca.uhnresearch.pughlab.tracker.dto.NewEntityRequestBody;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
@@ -59,7 +60,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	
     	// And now to grab the new attributes and render back.
     	try {
-    		EntityResponse caseData = converter.toObject(input, EntityResponse.class, this);
+    		NewEntityRequestBody caseData = converter.toObject(input, NewEntityRequestBody.class, this);
 			logger.debug("Got new case data {}", caseData);
 			
 			ObjectNode attributes = caseData.getEntity();
@@ -76,9 +77,14 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 	        	}
 			}
 			
+			Cases beforeCase = null;
+			if (caseData.getBeforeId() != null) {
+				beforeCase = getRepository().getStudyCase(study, caseData.getBeforeId());
+			}
+			
 			PrincipalCollection principals = currentUser.getPrincipals();
 			String user = principals.getPrimaryPrincipal().toString();
-			Cases newCase = getRepository().newStudyCase(study, user);
+			Cases newCase = getRepository().newStudyCase(study, user, beforeCase);
 			if (newCase == null) {
 				throw new RuntimeException("Error creating new case");
 			}

@@ -596,11 +596,11 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 * @return the new case
 	 */
 	@Override
-	public Cases newStudyCase(final Study study, final String userName, final Cases afterCase) throws RepositoryException {
+	public Cases newStudyCase(final Study study, final String userName, final Cases beforeCase) throws RepositoryException {
 		
 		Integer orderPoint = 1;
-		if (afterCase != null) {
-			orderPoint = afterCase.getOrder();
+		if (beforeCase != null) {
+			orderPoint = beforeCase.getOrder();
 		} else {
 			SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()));
 			orderPoint = template.queryForObject(sqlQuery, cases.order.max());

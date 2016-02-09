@@ -195,13 +195,13 @@ public interface StudyRepository {
 	void setStudyCaseState(Study study, Cases cases, String userName, String state);
 	
 	/**
-	 * Makes a new, empty, case. The new case will be added after afterCase
+	 * Makes a new, empty, case. The new case will be added before beforeCase
 	 * and the others reordered. If afterCase is null or not passed, the new case will be added at the
 	 * beginning of the case list, which is only sometimes what you want.
 	 * @return the case identifier
 	 * @throws RepositoryException
 	 */
-	Cases newStudyCase(Study study, String userName, Cases afterCase) throws RepositoryException;
+	Cases newStudyCase(Study study, String userName, Cases beforeCase) throws RepositoryException;
 	
 	/**
 	 * Makes a new, empty, case. The new case will be added at the
