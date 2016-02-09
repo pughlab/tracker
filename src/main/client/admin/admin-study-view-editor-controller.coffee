@@ -6,6 +6,7 @@ angular
   ## reset.
   .controller 'StudyViewEditorController', Array '$scope', '$state', ($scope, $state) ->
 
+    $scope.$state = $state
     $scope.selectedView = undefined
     originalSelectedView = undefined
 

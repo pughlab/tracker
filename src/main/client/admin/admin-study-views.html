@@ -43,7 +43,13 @@
             <button class="btn btn-default" ng-click="newGridView()">New grid view</button>
             <button class="btn btn-default" ng-click="newPageView()">New page view</button>
             <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView" ng-click="deleteView(selectedView)">Delete view</button>
-            <button class="btn" ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;" ng-disabled="! selectedView || modified" ui-sref="adminView({studyName: study.study.name, viewName: selectedView.name})">Edit view</button>
+            <button
+              class="btn"
+              ng-class="selectedView ? &apos;btn-warn&apos; : &apos;btn-default&apos;"
+              ng-disabled="! selectedView || modified"
+              ng-click="$state.go((selectedView.body ? 'adminView.page' : 'adminView.grid'), {studyName: study.study.name, viewName: selectedView.name})">
+              Edit view
+            </button>
             </div>
           </div>
         </fieldset>
