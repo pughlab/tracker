@@ -64,7 +64,7 @@ angular
         removeUsedAttributes()
 
     $scope.$watch 'view.view.body', (body) ->
-      if body != $scope.originalView.view.body
+      if body != $scope.originalView?.view?.body
         $scope.modified = true
 
     $scope.$watchCollection 'selectedAttribute.options', (value) ->
