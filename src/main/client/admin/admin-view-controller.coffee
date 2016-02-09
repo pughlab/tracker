@@ -63,6 +63,10 @@ angular
       if value != undefined and $scope.study?.attributes? and ! $scope.initializedAttributes
         removeUsedAttributes()
 
+    $scope.$watch 'view.view.body', (body) ->
+      if body != $scope.originalView.view.body
+        $scope.modified = true
+
     $scope.$watchCollection 'selectedAttribute.options', (value) ->
       if ! angular.equals(value, $scope.originalSelectedAttribute?.options)
         $scope.modified = true
