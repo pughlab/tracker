@@ -34,11 +34,17 @@ angular
         attributes: '='
         permissions: '='
       controller: 'PageViewController'
+      template:
+        '<div>' +
+        '  <uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.message}}</uib-alert>' +
+        '  <div class="page-view-body"></div>' +
+        '</div>'
       link: (scope, element, attrs) ->
         scope.$watch 'view', (view, old) ->
           if view?.body
-            element.html(view.body)
-            $compile(element.contents())(scope)
+            page = $(element).find(".page-view-body")
+            page.html(view.body)
+            $compile(page.contents())(scope)
 
   .directive 'trackerTableView', () ->
     result =

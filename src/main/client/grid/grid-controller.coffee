@@ -3,10 +3,15 @@ angular
 
   .controller 'PageViewController', Array '$scope', ($scope) ->
 
-    console.log "Initializing PageViewController"
+    $scope.alerts = []
+    $scope.page = {}
+
+    $scope.closeAlert = (index) ->
+      $scope.alerts.splice(index, 1)
 
     $scope.submit = () ->
-      console.log "Pressed submit"
+      $scope.alerts.push {type: 'success', message: "Pressed submit OK"}
+
 
   ## Controller to handle the button used to export a record.
   .controller 'GridActionController', Array '$scope', '$modal', '$stateParams', ($scope, $modal, $stateParams) ->
