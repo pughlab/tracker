@@ -69,12 +69,14 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			// Check permissions before we create a new case
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
+
+				if (currentUser.isPermitted(study.getName() + ":write:" + view.getName())) continue;
+
 				String attributeName = field.getKey();
 				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
-		    	if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName()) ||
-	        		! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
-	        		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
-	        	}
+				if (currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) continue;
+				
+				throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
 			}
 			
 			Cases beforeCase = null;

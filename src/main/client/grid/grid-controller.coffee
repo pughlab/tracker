@@ -1,7 +1,10 @@
 angular
   .module 'tracker.grid'
 
-  .controller 'PageViewController', Array '$scope', ($scope) ->
+  .controller 'PageViewController', Array '$scope', '$http', ($scope, $http) ->
+
+    $scope.getStudyUrl = () ->
+      "/api/studies/#{$scope.study.name}/views/#{$scope.view.name}"
 
     $scope.alerts = []
     $scope.page = {}
@@ -13,7 +16,15 @@ angular
       $scope.page = {}
 
     $scope.submit = () ->
-      $scope.alerts.push {type: 'success', message: "Pressed submit OK"}
+      baseUrl = $scope.getStudyUrl()
+      payload = $scope.page
+      $http
+        .post "#{baseUrl}/entities", JSON.stringify {entity: payload}
+        .success (response) =>
+          $scope.alerts.push {type: 'success', message: "New record written successfully"}
+        .error (response) ->
+          $scope.alerts.push {type: 'danger', message: "Error writing new record: " + JSON.stringify(response)}
+
 
 
   ## Controller to handle the button used to export a record.
