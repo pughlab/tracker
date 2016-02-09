@@ -9,6 +9,9 @@ angular
     $scope.closeAlert = (index) ->
       $scope.alerts.splice(index, 1)
 
+    $scope.reset = () ->
+      $scope.page = {}
+
     $scope.submit = () ->
       $scope.alerts.push {type: 'success', message: "Pressed submit OK"}
 
