@@ -28,7 +28,7 @@ angular
 
 
   ## Controller to handle the button used to export a record.
-  .controller 'GridActionController', Array '$scope', '$modal', '$stateParams', ($scope, $modal, $stateParams) ->
+  .controller 'GridActionController', Array '$scope', '$stateParams', ($scope, $stateParams) ->
 
     $scope.message = undefined
     $scope.identifier = undefined
