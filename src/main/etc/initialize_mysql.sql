@@ -35,8 +35,11 @@ CREATE TABLE "STUDIES" (
 INSERT INTO "STUDIES" ("NAME", "DESCRIPTION") VALUES ('ADMIN', 'Admin study');
 UPDATE "STUDIES" SET "ID" = 0 WHERE "NAME" = 'ADMIN';
 INSERT INTO "STUDIES" ("NAME", "DESCRIPTION", "OPTIONS", "ABOUT") VALUES ('DEMO', 'A demo clinical genomics study', '{"dateFormat":"D-MMM-YYYY","stateLabels":{"pending":"label1","returned":"label2"},"stateRules":[{"state":"pending","attribute":"returnRequested","value":"true"}]}', '#### Markdown-based description');
+UPDATE "STUDIES" SET "ID" = 1 WHERE "NAME" = 'DEMO';
 INSERT INTO "STUDIES" ("NAME", "DESCRIPTION", "ABOUT") VALUES ('SECOND', 'A second study', '* Bulleted list description');
+UPDATE "STUDIES" SET "ID" = 2 WHERE "NAME" = 'SECOND';
 INSERT INTO "STUDIES" ("NAME", "DESCRIPTION", "ABOUT") VALUES ('ALPHABETICAL', 'A third study', '* Bulleted list description');
+UPDATE "STUDIES" SET "ID" = 3 WHERE "NAME" = 'ALPHABETICAL';
 
 -- =============================================================================================
 -- Now for the attributes
