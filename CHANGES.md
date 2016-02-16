@@ -1,6 +1,14 @@
 ## Revision history
 
 
+### Version 2.2.1 - 16th February 2016
+
+ * Fixed a nasty bug where deleting could remove all cases. See #165
+ * Added page views. See #164
+ * Fixed NPEs in the state changing plugin. See #163
+ * Make sure empty cases contain the identifier. See #162
+ 
+
 ### Version 2.2.0 - 3rd February 2016
 
  * Fixed state label rules on string values. See #140
