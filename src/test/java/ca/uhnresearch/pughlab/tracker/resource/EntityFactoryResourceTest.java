@@ -160,6 +160,7 @@ public class EntityFactoryResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.isPermitted("DEMO:create")).andStubReturn(true);
         expect(subjectUnderTest.isPermitted("DEMO:write:complete")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:attribute:write:patientId")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
