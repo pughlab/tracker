@@ -21,6 +21,10 @@ public class User {
 	
 	private String displayName;
 	
+	private String givenName;
+
+	private String familyName;
+
 	public User() { 
 		this(SecurityUtils.getSubject());
 	}
@@ -43,6 +47,8 @@ public class User {
 			} else if (p instanceof LdapProfile) {
 				LdapProfile profile = (LdapProfile) p;
 				setDisplayName(profile.getDisplayName());
+				setGivenName(profile.getGivenName());
+				setFamilyName(profile.getFamilyName());
 				setEmail(profile.getEmail());
 			} else if (p instanceof OidcProfile) {
 				OidcProfile profile = (OidcProfile) p;
@@ -110,5 +116,35 @@ public class User {
 	 */
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+
+	/**
+	 * @return the givenName
+	 */
+	@JsonProperty
+	public String getGivenName() {
+		return givenName;
+	}
+
+	/**
+	 * @param givenName the givenName to set
+	 */
+	public void setGivenName(String givenName) {
+		this.givenName = givenName;
+	}
+
+	/**
+	 * @return the familyName
+	 */
+	@JsonProperty
+	public String getFamilyName() {
+		return familyName;
+	}
+
+	/**
+	 * @param familyName the familyName to set
+	 */
+	public void setFamilyName(String familyName) {
+		this.familyName = familyName;
 	}
 }

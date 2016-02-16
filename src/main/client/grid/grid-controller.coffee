@@ -1,8 +1,38 @@
 angular
   .module 'tracker.grid'
 
+  .controller 'PageViewController', Array '$scope', '$rootScope', '$http', ($scope, $rootScope, $http) ->
+
+    $scope.getStudyUrl = () ->
+      "/api/studies/#{$scope.study.name}/views/#{$scope.view.name}"
+
+    $scope.alerts = []
+    $scope.page = {}
+
+    $scope.user = $rootScope.user
+
+    $scope.moment = moment()
+
+    $scope.closeAlert = (index) ->
+      $scope.alerts.splice(index, 1)
+
+    $scope.reset = () ->
+      $scope.page = {}
+
+    $scope.submit = () ->
+      baseUrl = $scope.getStudyUrl()
+      payload = $scope.page
+      $http
+        .post "#{baseUrl}/entities", JSON.stringify {entity: payload}
+        .success (response) =>
+          $scope.alerts.push {type: 'success', message: "New record written successfully"}
+        .error (response) ->
+          $scope.alerts.push {type: 'danger', message: "Error writing new record: " + JSON.stringify(response)}
+
+
+
   ## Controller to handle the button used to export a record.
-  .controller 'GridActionController', Array '$scope', '$modal', '$stateParams', ($scope, $modal, $stateParams) ->
+  .controller 'GridActionController', Array '$scope', '$stateParams', ($scope, $stateParams) ->
 
     $scope.message = undefined
     $scope.identifier = undefined

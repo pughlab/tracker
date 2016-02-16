@@ -132,6 +132,8 @@ public class DomainLdapContextTest {
 		Entry resultEntry = createMock(Entry.class);
 		expect(resultEntry.get("displayName")).andStubReturn(new DefaultAttribute("displayName", "Stuart Watt"));
 		expect(resultEntry.get("mail")).andStubReturn(new DefaultAttribute("mail", "stuart@morungos.com"));
+		expect(resultEntry.get("givenName")).andStubReturn(new DefaultAttribute("givenName", "Stuart"));
+		expect(resultEntry.get("sn")).andStubReturn(new DefaultAttribute("sn", "Watt"));
 		replay(resultEntry);
 		
 		EntryCursor cursor = createMock(EntryCursor.class);

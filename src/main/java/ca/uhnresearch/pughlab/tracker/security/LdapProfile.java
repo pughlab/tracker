@@ -10,6 +10,10 @@ public class LdapProfile {
 	
 	private String displayName;
 	
+	private String givenName;
+
+	private String familyName;
+
 	private String email;
 	
 	public String toString() {
@@ -56,5 +60,33 @@ public class LdapProfile {
 	 */
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	/**
+	 * @return the givenName
+	 */
+	public String getGivenName() {
+		return givenName;
+	}
+
+	/**
+	 * @param givenName the givenName to set
+	 */
+	public void setGivenName(String givenName) {
+		this.givenName = givenName;
+	}
+
+	/**
+	 * @return the familyName
+	 */
+	public String getFamilyName() {
+		return familyName;
+	}
+
+	/**
+	 * @param familyName the familyName to set
+	 */
+	public void setFamilyName(String familyName) {
+		this.familyName = familyName;
 	}
 }

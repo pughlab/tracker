@@ -86,6 +86,7 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
 			
 			// And write the view options if we should
 			view.setOptions(schema.getView().getOptions());
+			view.setBody(schema.getView().getBody());
 			getRepository().setStudyView(study, view);
 			
 		} catch (NotFoundException e) {

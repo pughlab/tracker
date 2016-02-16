@@ -5,43 +5,43 @@
 </ol>
 
 <alert ng-show="user.force_password_change &amp;&amp; ! enabled.force_password_change" type="danger">
-  Your account has been marked for an immediate change of password. 
-  Please change your password now. 
+  Your account has been marked for an immediate change of password.
+  Please change your password now.
 </alert>
 
 <form class="form-horizontal" role="form" name="userForm">
   <fieldset>
 
     <div class="form-group">
-      <label class="col-md-2 control-label" for="user-username">Username:</label>  
+      <label class="col-md-2 control-label" for="user-username">Username:</label>
       <div class="col-md-4">
         <input id="user-username" type="text" class="form-control" ng-model="user.username" ng-disabled="! enabled.username">
       </div>
     </div>
 
     <div class="form-group">
-      <label class="col-md-2 control-label" for="user-email">Email address:</label>  
+      <label class="col-md-2 control-label" for="user-email">Email address:</label>
       <div class="col-md-4">
         <input id="user-email" type="text" class="form-control" ng-model="user.email" ng-disabled="! enabled.email">
       </div>
     </div>
 
     <div class="form-group" ng-show="enabled.password">
-      <label class="col-md-2 control-label" for="user-current-password">Current password:</label>  
+      <label class="col-md-2 control-label" for="user-current-password">Current password:</label>
       <div class="col-md-4">
         <input id="user-current-password" type="password" class="form-control" ng-model="user.currentPassword">
       </div>
     </div>
 
     <div class="form-group" ng-show="enabled.password">
-      <label class="col-md-2 control-label" for="user-password">New password:</label>  
+      <label class="col-md-2 control-label" for="user-password">New password:</label>
       <div class="col-md-4">
         <input id="user-password" type="password" class="form-control" ng-model="user.password">
       </div>
     </div>
 
     <div class="form-group" ng-show="enabled.password">
-      <label class="col-md-2 control-label" for="user-verify">Verify new password:</label>  
+      <label class="col-md-2 control-label" for="user-verify">Verify new password:</label>
       <div class="col-md-4">
         <input id="user-verify" name="verify" type="password" class="form-control" ng-model="user.verify" data-match="user.password">
         <span class="error" ng-show="userForm.verify.$error.match">Fields do not match!</span>
@@ -49,7 +49,7 @@
      </div>
 
     <div class="form-group" ng-show="enabled.locked">
-      <div class="col-md-2"></div>  
+      <div class="col-md-2"></div>
       <div class="col-md-4 checkbox">
         <label>
           <input id="user-locked" type="checkbox" ng-model="user.locked">
@@ -59,7 +59,7 @@
     </div>
 
     <div class="form-group" ng-show="enabled.expired">
-      <div class="col-md-2"></div>  
+      <div class="col-md-2"></div>
       <div class="col-md-4 checkbox">
         <label>
           <input id="user-expired" type="checkbox" ng-model="user.expired">
@@ -69,7 +69,7 @@
     </div>
 
     <div class="form-group" ng-show="enabled.force_password_change">
-      <div class="col-md-2"></div>  
+      <div class="col-md-2"></div>
       <div class="col-md-4 checkbox">
         <label>
           <input id="user-force-password-change" type="checkbox" ng-model="user.force_password_change">
@@ -80,12 +80,12 @@
 
     <div class="form-group">
       <div class="col-md-12">
-        <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+        <uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</uib-alert>
       </div>
     </div>
 
     <div class="form-group">
-      <div class="col-md-2"></div>  
+      <div class="col-md-2"></div>
       <div class="col-md-10">
       <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="saveUser(user)">Save changes</button>
       <button class="btn btn-warn" ng-click="reset(user) "ng-disabled="! enabled.reset || (! user.email || modified)">Request password reset</button>

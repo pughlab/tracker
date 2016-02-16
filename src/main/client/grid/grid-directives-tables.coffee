@@ -259,16 +259,19 @@ angular
                 callback: (command, selection, evt) ->
                   start = selection.start.row
                   end = selection.end.row
-                  for i in [start .. end] by 1
-                    entityIdentifier = handsonTable.getSourceDataAtRow(i).id
+                  if start == end
+                    entityIdentifier = handsonTable.getSourceDataAtRow(start).id
                     deleteCase scope, handsonTable, entityIdentifier
+              }
+            contextMenu = false
+            if editing and Object.keys(commands).length > 0
+              contextMenu = {
+                callback: (key, options) ->
+                items: commands
               }
             handsonTable.updateSettings {
               readOnly: ! editing,
-              contextMenu:
-                callback: (key, options) ->
-
-                items: if editing and Object.keys(commands).length > 0 then commands else false
+              contextMenu: contextMenu
             }
 
 

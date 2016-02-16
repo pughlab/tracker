@@ -75,7 +75,7 @@ merge_data($context, $cfg);
 write_data($context, $cfg);
 
 sub parse_date {
-  my ($string) = @_;
+  my ($cfg, $string) = @_;
   my @formats = (
     '%e/%b/%Y %H:%M',
     '%e-%b-%Y',
@@ -86,6 +86,7 @@ sub parse_date {
     '%e %b %Y',
     '%Y-%m-%d'
   );
+  push @formats, $cfg->{force_date_format} if (exists($cfg->{force_date_format}));
 
   $string =~ s{ +}{}g;
 
@@ -291,7 +292,7 @@ sub extract_workbook {
           $value = undef;
         } elsif (lc($value) eq 'n/a' || $value =~ m{^-+$}) {
           $value = {'$notAvailable' => 1};
-        } elsif (my $parsed = parse_date($value)) {
+        } elsif (my $parsed = parse_date($cfg, $value)) {
           $logger->trace("Parsed string date: $value -> $parsed");
           my $parsed_value = DateTime::Format::ISO8601->parse_datetime($parsed)->iso8601();
           $value = $parsed_value;

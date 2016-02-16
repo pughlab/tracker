@@ -66,8 +66,15 @@ angular
         url: '/views'
       .state 'adminView',
         controller: 'ViewController'
+        abstract: true
         templateUrl: '/tracker/admin/admin-view.html'
-        url: '/admin/:studyName/views/:viewName/edit'
+        url: '/admin/:studyName/views/:viewName'
+      .state 'adminView.grid',
+        templateUrl: '/tracker/admin/admin-grid-view.html'
+        url: '/grid'
+      .state 'adminView.page',
+        templateUrl: '/tracker/admin/admin-page-view.html'
+        url: '/page'
       .state 'logout',
         controller: 'PageController'
         templateUrl: '/tracker/authentication/logout.html'

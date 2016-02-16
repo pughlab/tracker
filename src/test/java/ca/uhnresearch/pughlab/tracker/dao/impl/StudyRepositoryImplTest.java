@@ -199,7 +199,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<View> list = studyRepository.getStudyViews(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());
+		Assert.assertEquals(4, list.size());
 	}
 
 	@Test
@@ -1558,7 +1558,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<View> list = studyRepository.getStudyViews(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());
+		Assert.assertEquals(4, list.size());
 		
 		studyRepository.setStudyViews(study, list);
 
@@ -1581,10 +1581,11 @@ public class StudyRepositoryImplTest {
 	@Transactional
 	@Rollback(true)
 	public void testSetStudyViewsUpdateKey() throws RepositoryException {
+		
 		Study study = studyRepository.getStudy("DEMO");
 		List<View> list = studyRepository.getStudyViews(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());
+		Assert.assertEquals(4, list.size());
 		
 		View oldView = list.remove(2);
 		View newView = new View();
@@ -1593,8 +1594,8 @@ public class StudyRepositoryImplTest {
 		newView.setOptions(oldView.getOptions());
 		newView.setName("testView");
 		newView.setDescription("Test View");
-		list.add(newView);
-		Assert.assertEquals(3, list.size());
+		list.add(2, newView);
+		Assert.assertEquals(4, list.size());
 		
 		studyRepository.setStudyViews(study, list);
 
@@ -1604,8 +1605,8 @@ public class StudyRepositoryImplTest {
 		int size = list.size();
 		for(int i = 0; i < size; i++) {
 			View oldViewRead = list.get(i);
-			View newViewREad = listAgain.get(i);
-			Assert.assertTrue(EqualsBuilder.reflectionEquals(oldViewRead, newViewREad));
+			View newViewRead = listAgain.get(i);
+			Assert.assertTrue(EqualsBuilder.reflectionEquals(oldViewRead, newViewRead));
 		}
 	}
 	
@@ -1619,7 +1620,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<View> list = studyRepository.getStudyViews(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());
+		Assert.assertEquals(4, list.size());
 		
 		studyRepository.setStudyViews(study, list.subList(0, 2));
 
@@ -1643,7 +1644,7 @@ public class StudyRepositoryImplTest {
 		Study study = studyRepository.getStudy("DEMO");
 		List<View> list = studyRepository.getStudyViews(study);
 		Assert.assertNotNull(list);
-		Assert.assertEquals(3, list.size());
+		Assert.assertEquals(4, list.size());
 		
 		View v1 = new View();
 		v1.setName("test");
@@ -1996,6 +1997,31 @@ public class StudyRepositoryImplTest {
 		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
 		Assert.assertNotNull(dataList);
 		Assert.assertEquals(0, dataList.size());
+	}
+	
+	/**
+	 * Checks that empty cases still have an identifier field set.
+	 * @throws RepositoryException
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	// Regression test for #162
+	public void testEmptyCases() throws RepositoryException {
+		
+		Study study = studyRepository.getStudy("SECOND");
+		View view = studyRepository.getStudyView(study, "complete");
+
+		StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+		
+		ObjectNode filter = jsonNodeFactory.objectNode();
+		StudyCaseQuery filteredQuery = studyRepository.addStudyCaseFilterSelector(query, filter);
+		
+		List<ObjectNode> dataList = studyRepository.getCaseData(filteredQuery, view);
+		Assert.assertNotNull(dataList);
+		for(ObjectNode node : dataList) {
+			Assert.assertTrue(node.has("id"));
+		}
 	}
 	
 	/**

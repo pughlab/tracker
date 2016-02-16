@@ -27,6 +27,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
+import ca.uhnresearch.pughlab.tracker.dto.NewEntityRequestBody;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
@@ -59,7 +60,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	
     	// And now to grab the new attributes and render back.
     	try {
-    		EntityResponse caseData = converter.toObject(input, EntityResponse.class, this);
+    		NewEntityRequestBody caseData = converter.toObject(input, NewEntityRequestBody.class, this);
 			logger.debug("Got new case data {}", caseData);
 			
 			ObjectNode attributes = caseData.getEntity();
@@ -68,17 +69,24 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			// Check permissions before we create a new case
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
+
+				if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName())) 
+					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+
 				String attributeName = field.getKey();
 				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
-		    	if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName()) ||
-	        		! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
-	        		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
-	        	}
+				if (! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName()))
+					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			}
+			
+			Cases beforeCase = null;
+			if (caseData.getBeforeId() != null) {
+				beforeCase = getRepository().getStudyCase(study, caseData.getBeforeId());
 			}
 			
 			PrincipalCollection principals = currentUser.getPrincipals();
 			String user = principals.getPrimaryPrincipal().toString();
-			Cases newCase = getRepository().newStudyCase(study, user);
+			Cases newCase = getRepository().newStudyCase(study, user, beforeCase);
 			if (newCase == null) {
 				throw new RuntimeException("Error creating new case");
 			}

@@ -24,7 +24,7 @@ public class ViewProjection extends MappingProjection<View> {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public ViewProjection(QView views) {
-        super(View.class, views.id, views.studyId, views.name, views.description, views.options);
+        super(View.class, views.id, views.studyId, views.name, views.description, views.body, views.options);
     }
 
     @Override
@@ -35,6 +35,7 @@ public class ViewProjection extends MappingProjection<View> {
         product.setStudyId(tuple.get(views.studyId));
         product.setName(tuple.get(views.name));
         product.setDescription(tuple.get(views.description));
+        product.setBody(tuple.get(views.body));
         
         String options = tuple.get(views.options);
 		if (options != null) {
