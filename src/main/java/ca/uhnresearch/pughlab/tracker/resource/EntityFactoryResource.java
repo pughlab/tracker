@@ -75,6 +75,9 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 
 				String attributeName = field.getKey();
 				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
+				if (attribute == null)
+					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Can't write attribute: " + attributeName);
+				
 				if (! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName()))
 					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
 			}
@@ -111,9 +114,9 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	} catch (NotFoundException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		} catch (RepositoryException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getMessage());
 		};
 		
 		// Now we should locate the new entity and return it using the same response
