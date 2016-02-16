@@ -55,6 +55,10 @@ public class DomainLdapContext implements LdapContext {
 	
 	private String displayNameAttribute = "displayName";
 	
+	private String givenNameAttribute = "givenName";
+	
+	private String familyNameAttribute = "sn";
+	
 	private String emailAttribute = "mail";
 	
 	/**
@@ -124,6 +128,28 @@ public class DomainLdapContext implements LdapContext {
 				Attribute attribute = entry.get(displayNameAttribute);
 				if (attribute != null) {
 					profile.setDisplayName(attribute.getString());
+				}
+			}
+		} catch (LdapInvalidAttributeValueException e) {
+			// No nothing
+		}
+		
+		try {
+			if (givenNameAttribute != null) {
+				Attribute attribute = entry.get(givenNameAttribute);
+				if (attribute != null) {
+					profile.setGivenName(attribute.getString());
+				}
+			}
+		} catch (LdapInvalidAttributeValueException e) {
+			// No nothing
+		}
+		
+		try {
+			if (familyNameAttribute != null) {
+				Attribute attribute = entry.get(familyNameAttribute);
+				if (attribute != null) {
+					profile.setFamilyName(attribute.getString());
 				}
 			}
 		} catch (LdapInvalidAttributeValueException e) {
