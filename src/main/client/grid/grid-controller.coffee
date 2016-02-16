@@ -1,13 +1,17 @@
 angular
   .module 'tracker.grid'
 
-  .controller 'PageViewController', Array '$scope', '$http', ($scope, $http) ->
+  .controller 'PageViewController', Array '$scope', '$rootScope', '$http', ($scope, $rootScope, $http) ->
 
     $scope.getStudyUrl = () ->
       "/api/studies/#{$scope.study.name}/views/#{$scope.view.name}"
 
     $scope.alerts = []
     $scope.page = {}
+
+    $scope.user = $rootScope.user
+
+    $scope.moment = moment()
 
     $scope.closeAlert = (index) ->
       $scope.alerts.splice(index, 1)
