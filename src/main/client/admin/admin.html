@@ -19,7 +19,7 @@
     <hr>
     <div class="row">
       <div class="col-md-12">
-        <uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+        <uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</uib-alert>
         <button class="btn" ng-class="modified ? &apos;btn-danger&apos; : &apos;btn-default&apos;" ng-disabled="! modified" ng-click="save(study)">Save changes</button>
         <button class="btn btn-default" ng-disabled="! modified" ng-click="reset()">Reset</button>
         <button ng-show="study.audit" ng-disabled="modified" class="btn btn-default" ui-sref="adminAudit({studyName: study.name})">Show study audit log</button>
