@@ -6,7 +6,6 @@ angular
       restrict: "A"
       require: '?ngModel'
       link: (scope, element, attrs, ngModel) ->
-        console.log "Called trackerDateInput", ngModel, scope.study?.options?.dateFormat
         return if ! ngModel
 
         dateFormat = scope.study?.options?.dateFormat || "YYYY-MM-DD"
