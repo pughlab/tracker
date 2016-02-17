@@ -1,6 +1,11 @@
 ## Revision history
 
 
+### Version 2.2.2 - 17th February 2016
+
+ * Handle formatted dates in forms. See #168
+
+
 ### Version 2.2.1 - 16th February 2016
 
  * Fixed a nasty bug where deleting could remove all cases. See #165
