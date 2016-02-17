@@ -7,17 +7,26 @@ angular
       "/api/studies/#{$scope.study.name}/views/#{$scope.view.name}"
 
     $scope.alerts = []
+    $scope.defaults = {}
     $scope.page = {}
 
     $scope.user = $rootScope.user
 
     $scope.moment = moment()
 
+    $scope.saved = false
+
+    $scope.$watchCollection 'defaults', (newValue, oldValue) ->
+      return if newValue == oldValue
+      for own k, v of newValue
+        $scope.page[k] = v
+
     $scope.closeAlert = (index) ->
       $scope.alerts.splice(index, 1)
 
     $scope.reset = () ->
-      $scope.page = {}
+      $scope.page = angular.copy($scope.defaults)
+      $scope.saved = false
 
     $scope.submit = () ->
       baseUrl = $scope.getStudyUrl()
@@ -26,6 +35,7 @@ angular
         .post "#{baseUrl}/entities", JSON.stringify {entity: payload}
         .success (response) =>
           $scope.alerts.push {type: 'success', message: "New record written successfully"}
+          $scope.saved = true
         .error (response) ->
           description = if response?.description then response.description else JSON.stringify(response)
           $scope.alerts.push {type: 'danger', message: "Error writing new record: " + description}
