@@ -1,6 +1,12 @@
 ## Revision history
 
 
+### Version 2.2.3 - 17th February 2016
+
+ * Allow form dates to be empty. See #172
+ * Forms can switch to a read only display on save. See #171
+
+
 ### Version 2.2.2 - 17th February 2016
 
  * Handle formatted dates in forms. See #168

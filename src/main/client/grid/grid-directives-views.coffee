@@ -36,7 +36,7 @@ angular
       controller: 'PageViewController'
       template:
         '<div>' +
-        '  <uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.message}}</uib-alert>' +
+        '  <uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.message}}: <b><a href="#" ng-click="closeAlert($index); reset();">Clear and reset form</a></b></uib-alert>' +
         '  <div class="page-view-body"></div>' +
         '</div>'
       link: (scope, element, attrs) ->
