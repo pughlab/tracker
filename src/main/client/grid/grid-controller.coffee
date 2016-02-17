@@ -27,7 +27,8 @@ angular
         .success (response) =>
           $scope.alerts.push {type: 'success', message: "New record written successfully"}
         .error (response) ->
-          $scope.alerts.push {type: 'danger', message: "Error writing new record: " + JSON.stringify(response)}
+          description = if response?.description then response.description else JSON.stringify(response)
+          $scope.alerts.push {type: 'danger', message: "Error writing new record: " + description}
 
 
 
