@@ -11,9 +11,13 @@ angular
         dateFormat = scope.study?.options?.dateFormat || "YYYY-MM-DD"
 
         formatter = (v) ->
-          moment(v).format(dateFormat)
+          if v?
+            moment(v).format(dateFormat)
+          else
+            ""
 
         parser = (v) ->
+          return undefined if !v? or v == ""
           value = moment(v, dateFormat)
           if value.isValid()
             value.format("YYYY-MM-DD")
