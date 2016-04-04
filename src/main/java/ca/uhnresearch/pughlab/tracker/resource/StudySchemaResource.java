@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +61,8 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
 
     	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
     	try {
@@ -80,11 +82,11 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
 			getRepository().setStudyAttributes(study, attributes);
 			getRepository().setStudyViews(study, views);
 		} catch (NotFoundException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, e.getLocalizedMessage());
 		} catch (RepositoryException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		}
     	
     	return getResource();
@@ -103,7 +105,8 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	Subject currentUser = SecurityUtils.getSubject();
     	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
     	// Query the database for views

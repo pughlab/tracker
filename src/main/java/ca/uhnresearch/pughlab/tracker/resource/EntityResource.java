@@ -48,7 +48,7 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 
     	Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete");
     	if (! deletePermitted) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, "No delete permission for this resource");
     	}
 
 		PrincipalCollection principals = currentUser.getPrincipals();
@@ -59,7 +59,7 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
     	} catch (NotFoundException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		} catch (RepositoryException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		};
 	}
 	

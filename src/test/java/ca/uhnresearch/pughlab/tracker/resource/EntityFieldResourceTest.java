@@ -471,6 +471,7 @@ public class EntityFieldResourceTest extends AbstractShiroTest {
 		RequestAttributes.setRequestAttribute(resource.getRequest(), testAttribute);
 		
 		RepositoryException error = createMock(RepositoryException.class);
+		expect(error.getLocalizedMessage()).andStubReturn("Some random error");
 		replay(error);
 		StudyRepository repository = createMock(StudyRepository.class);
 		repository.setQueryAttributes(anyObject(StudyCaseQuery.class), eq("stuart"), anyObject(ObjectNode.class));

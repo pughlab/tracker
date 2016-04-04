@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.uhnresearch.pughlab.tracker.dao.CasePager;
+import ca.uhnresearch.pughlab.tracker.dao.DataIntegrityException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -437,7 +438,7 @@ public class AuthorizationRepositoryImplTest {
 		Role role = new Role();
 		role.setName("ROLE_DEMO_TRACK");
 		
-		thrown.expect(RuntimeException.class);
+		thrown.expect(DataIntegrityException.class);
 
 		authorizationRepository.saveStudyRole(study, role);
 	}

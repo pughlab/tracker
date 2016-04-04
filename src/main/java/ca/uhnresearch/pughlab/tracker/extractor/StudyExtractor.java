@@ -1,5 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
+import java.text.MessageFormat;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -27,8 +29,9 @@ public class StudyExtractor extends RepositoryAwareExtractor {
 		
 		// If we don't find a value, we can fail at this stage.
 		if (s == null) {
-			logger.warn("Can't find study: {}", value);
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			String message = MessageFormat.format("Can't find study: {}", value);
+			logger.warn(message);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, message);
 		}
 		
 		// Permissions checking might also be a sensible idea

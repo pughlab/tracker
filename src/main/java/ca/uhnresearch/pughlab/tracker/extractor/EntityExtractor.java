@@ -27,7 +27,7 @@ public class EntityExtractor extends RepositoryAwareExtractor {
 		try {
 			caseId = Integer.parseInt(idValue);
 		} catch (NumberFormatException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		}
 		
 		query = getRepository().addStudyCaseSelector(query, caseId);

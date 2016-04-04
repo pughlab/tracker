@@ -2,6 +2,7 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.MessageFormat;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -58,9 +59,9 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
 			RequestAttributes.setRequestRole(getRequest(), role);
 			
 		} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		} catch (RepositoryException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, e.getLocalizedMessage());
 		}
     	
     	return getResource();
@@ -95,7 +96,8 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No access to study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
     	User user = new User(currentUser);

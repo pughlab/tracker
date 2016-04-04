@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,8 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	boolean createUser = currentUser.isPermitted(study.getName() + ":create");
     	if (! createUser) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No create access for study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
     	View view = RequestAttributes.getRequestView(getRequest());
@@ -70,16 +72,21 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 			while(fieldIterator.hasNext()) {
 				Map.Entry<String,JsonNode> field = fieldIterator.next();
 
-				if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName())) 
-					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+				if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName())) {
+					String message = MessageFormat.format("Forbidden: no write access for study: {0}, view: {1}", study.getName(), view.getName());
+					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
+				}
 
 				String attributeName = field.getKey();
 				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
-				if (attribute == null)
+				if (attribute == null) {
 					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Can't write attribute: " + attributeName);
+				}
 				
-				if (! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName()))
-					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+				if (! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
+					String message = MessageFormat.format("No write access for study: {0}, attribute: {1}", study.getName(), attribute.getName());
+					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
+				}
 			}
 			
 			Cases beforeCase = null;

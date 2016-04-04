@@ -2,6 +2,7 @@ package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,14 +49,15 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No access to study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
     	try {
     		RoleListResponse data = converter.toObject(input, RoleListResponse.class, this);
     		
     		if (data == null) {
-    			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+    			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid data for request");
     		}
 			logger.debug("Got a new role response {}", data);
 			
@@ -105,10 +107,10 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 			
     	} catch (IOException e) {
     		logger.error("IOException: " + e.getLocalizedMessage());
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		} catch (RepositoryException e) {
     		logger.error("RepositoryException: " + e.getLocalizedMessage());
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		}
     	
     	return getResource();
@@ -145,7 +147,8 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     	Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No access to study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
     	CasePager query = RequestAttributes.getRequestCasePager(getRequest());

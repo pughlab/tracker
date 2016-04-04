@@ -82,7 +82,7 @@ public class RoleExtractorTest extends AbstractShiroTest {
 		
 		Study study = createMock(Study.class);
 		expect(study.getId()).andReturn(1);
-		expect(study.getName()).andReturn("DEMO");
+		expect(study.getName()).andStubReturn("DEMO");
 		replay(study);
 
         Subject subjectUnderTest = createMock(Subject.class);
