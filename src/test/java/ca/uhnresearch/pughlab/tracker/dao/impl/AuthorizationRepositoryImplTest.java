@@ -31,6 +31,7 @@ import ca.uhnresearch.pughlab.tracker.dao.DataIntegrityException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.User;
 import ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -533,5 +534,87 @@ public class AuthorizationRepositoryImplTest {
 		Assert.assertEquals(2, list.size());
 		Assert.assertEquals("X:read", list.get(0));
 		Assert.assertEquals("X:write", list.get(1));
+	}
+	
+	/**
+	 * Checks that a simple user is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetUser() throws RepositoryException {
+		User user = authorizationRepository.getUserByUsername("admin");
+		Assert.assertNotNull(user);
+		
+		Assert.assertEquals("admin", user.getUsername());
+	}
+
+	/**
+	 * Checks that a simple user is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetDetailedUser() throws RepositoryException {
+		User user = authorizationRepository.getUserByUsername("stuart");
+		Assert.assertNotNull(user);
+		
+		Assert.assertEquals("stuart", user.getUsername());
+		Assert.assertEquals("Stuart", user.getGivenName());
+		Assert.assertEquals("Watt", user.getFamilyName());
+	}
+
+	/**
+	 * Checks that a missing user is returned correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testGetMissingUser() throws RepositoryException {
+		User user = authorizationRepository.getUserByUsername("lionel");
+		Assert.assertNull(user);
+	}
+
+	/**
+	 * Checks that a new user is saved correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSaveNewUser() throws RepositoryException {
+		User save = new User("lionel");
+		save.setGivenName("Lionel");
+		save.setFamilyName("McKillop");
+		authorizationRepository.saveUser(save);
+		
+		User user = authorizationRepository.getUserByUsername("lionel");
+		Assert.assertNotNull(user);
+		
+		Assert.assertEquals("lionel", user.getUsername());
+		Assert.assertEquals("Lionel", user.getGivenName());
+		Assert.assertEquals("McKillop", user.getFamilyName());
+	}
+
+	/**
+	 * Checks that a user is updated correctly.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testUpdateUser() throws RepositoryException {
+		User save = new User("lionel");
+		save.setGivenName("Lionel");
+		save.setFamilyName("McKillop");
+		authorizationRepository.saveUser(save);
+		
+		save.setFamilyName("Watt");
+		authorizationRepository.saveUser(save);
+		
+		User user = authorizationRepository.getUserByUsername("lionel");
+		Assert.assertNotNull(user);
+		
+		Assert.assertEquals("lionel", user.getUsername());
+		Assert.assertEquals("Lionel", user.getGivenName());
+		Assert.assertEquals("Watt", user.getFamilyName());
 	}
 }

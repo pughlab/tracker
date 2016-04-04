@@ -2,7 +2,6 @@ package ca.uhnresearch.pughlab.tracker.dto;
 
 import java.util.Iterator;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -26,14 +25,16 @@ public class User {
 	private String familyName;
 
 	public User() { 
-		this(SecurityUtils.getSubject());
+
 	}
 
 	public User(String username) {
+		this();
 		setUsername(username);
 	}
 	
 	public User(Subject subject) {
+		this();
 		
 		PrincipalCollection principals = subject.getPrincipals();
 		
@@ -54,6 +55,12 @@ public class User {
 				OidcProfile profile = (OidcProfile) p;
 				setUsername(profile.getAttribute("preferred_username").toString());
 				setDisplayName(profile.getAttribute("name").toString());
+				if (profile.getAttribute("given_name") != null) {
+					setGivenName(profile.getAttribute("given_name").toString());
+				}
+				if (profile.getAttribute("family_name") != null) {
+					setFamilyName(profile.getAttribute("family_name").toString());
+				}
 				setEmail(profile.getAttribute("email").toString());
 			} else {
 				throw new RuntimeException("Unexpected principal type: " + p.getClass().getCanonicalName());
