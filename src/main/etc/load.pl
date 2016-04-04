@@ -139,6 +139,7 @@ sub camelHeader {
 sub extract {
   my ($context, $cfg, $file) = @_;
   my $path = $file->{path};
+  $path = File::Spec->rel2abs($path);
   $logger->info("Opening spreadsheet: $path");
   my $workbook;
   if ($path =~ m{\.xls\b}i) {
