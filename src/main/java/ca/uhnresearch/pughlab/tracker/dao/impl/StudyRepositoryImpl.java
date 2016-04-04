@@ -309,11 +309,23 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void updateAttribute(final Attributes a) {
+		
+    	SQLQuery sqlQuery = template.newSqlQuery().from(attributes).where(attributes.id.eq(a.getId()));
+    	String oldType = template.queryForObject(sqlQuery, attributes.type);
+		if (oldType != null && oldType != a.getType()) {
+			cap.deleteAllAttributes(template, a);
+		}
+		
 		template.update(attributes, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(attributes.id.eq(a.getId())).populate(a, new AttributeMapper()).execute();
 			};
 		});
+		
+		// If an attribute type has changed, we should make sure that all existing
+		// values that are active for that attribute are no longer marked active. 
+		// Same is true for deletion, actually. Deletion is a bit easier, though, as
+		// we can do it in all cases, and oh look: we do.
 	}
 
 	private void deleteAttribute(final Attributes a) {
