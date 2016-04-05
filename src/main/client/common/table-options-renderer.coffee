@@ -108,7 +108,23 @@ TrackerStringRenderer = (instance, TD, row, col, prop, value, cellProperties) ->
   oldValue = cellProperties.validationData?.oldValue
   revertValueIfNeeded instance, row, prop, oldValue, cellProperties
 
-  Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
+  escaped = Handsontable.helper.stringify(value)
+  if instance.trackerData?.editingStatus != true && /^\s*(?:https?|ftp|smb):/.test(escaped)
+
+    element = document.createElement('A')
+    element.href = value
+    element.textContent = value
+    element.setAttribute "target", "_blank"
+    Handsontable.Dom.addEvent element, 'mousedown', (e) ->
+      e.preventDefault()
+
+    Handsontable.Dom.empty(TD)
+    TD.appendChild(element)
+
+  else
+
+    Handsontable.renderers.TextRenderer(instance, TD, row, col, prop, value, cellProperties)
+
   annotateCells cellProperties, instance, TD, row, col, prop
 
 
