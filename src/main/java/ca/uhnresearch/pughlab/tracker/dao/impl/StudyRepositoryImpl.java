@@ -3,6 +3,7 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -635,7 +636,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		// And now let's insert a new case, with the right break value
 		Integer caseId = template.insertWithKey(cases, new SqlInsertWithKeyCallback<Integer>() { 
 			public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.columns(cases.studyId, cases.order).values(study.getId(), orderValue).executeWithKey(cases.id);
+				return sqlInsertClause.columns(cases.studyId, cases.guid, cases.order).values(study.getId(), UUID.randomUUID().toString(), orderValue).executeWithKey(cases.id);
 			};
 		});
 		
