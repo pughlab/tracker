@@ -15,7 +15,8 @@
 
     <!-- Always extract a user, as it can be used everywhere -->
     <bean id="userExtractor" class="ca.uhnresearch.pughlab.tracker.extractor.UserExtractor">
-        <property name="next" ref="apiRoot"/>
+        <property name="repository" ref="authorizationRepository"/>
+        <property name="next" ref="casePagerExtractor"/>
     </bean>
 
 	<!-- Always extract a case query, as it can be used everywhere -->

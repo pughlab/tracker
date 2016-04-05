@@ -300,22 +300,27 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		// If the user doesn't exist, we should create it. Otherwise we can update it.
 		// Essentially this allows us to start building a populated user table on login. 
 		
-		long updateCount = template.update(users, new SqlUpdateCallback() { 
-			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-				return sqlUpdateClause.where(users.username.eq(user.getUsername())).populate(user).execute();
-			};
-		});
-		
-		if (updateCount >= 1) return;
-		updateCount = template.insert(users, new SqlInsertCallback() { 
-			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
-				return sqlInsertClause.populate(user).execute();
-			};
-		});
-		
-		if (updateCount == 1) return;
-		String message = MessageFormat.format("Failed to create or update a user: {0}", user.getUsername());
-		throw new DataIntegrityException(message);
+		try {
+			long updateCount = template.update(users, new SqlUpdateCallback() { 
+				public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+					return sqlUpdateClause.where(users.username.eq(user.getUsername())).populate(user).execute();
+				};
+			});
+			
+			if (updateCount >= 1) return;
+			updateCount = template.insert(users, new SqlInsertCallback() { 
+				public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+					return sqlInsertClause.populate(user).execute();
+				};
+			});
+			
+			if (updateCount == 1) return;
+			String message = MessageFormat.format("Failed to create or update a user: {0}", user.getUsername());
+			throw new DataIntegrityException(message);
+			
+		} catch (DataIntegrityViolationException e) {
+			throw new DataIntegrityException(e.getMessage());
+		}
 	}
 
 }

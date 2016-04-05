@@ -1,9 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
 import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.Matchers.containsString;
 
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -20,16 +17,10 @@ import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
-import org.restlet.data.Status;
-import org.restlet.resource.ResourceException;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
-import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
-import ca.uhnresearch.pughlab.tracker.dto.Role;
-import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.User;
-import ca.uhnresearch.pughlab.tracker.resource.RequestAttributes;
 import ca.uhnresearch.pughlab.tracker.security.LdapProfile;
 import ca.uhnresearch.pughlab.tracker.test.AbstractShiroTest;
 
