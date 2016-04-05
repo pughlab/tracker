@@ -25,7 +25,7 @@ angular
       $scope.selectedAttribute = undefined
       originalSelectedAttribute = undefined
       $scope.schema.attributes = $scope.schema.attributes.filter (att) -> att != attribute
-      console.log "Sending admin:modified deleteAttribute", newValue, oldValue
+      console.log "Sending admin:modified deleteAttribute", attribute
       $scope.$emit 'admin:modified'
 
     $scope.newAttribute = () ->
@@ -33,7 +33,7 @@ angular
       $scope.schema.attributes.push newAttribute
       $scope.selectedAttribute = newAttribute
       originalSelectedAttribute = angular.copy($scope.selectedAttribute)
-      console.log "Sending admin:modified newAttribute", newValue, oldValue
+      console.log "Sending admin:modified newAttribute", newAttribute
       $scope.$emit 'admin:modified'
 
     $scope.attributeTypes = [
