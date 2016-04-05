@@ -29,7 +29,7 @@ angular
       $scope.$emit 'admin:modified'
 
     $scope.newAttribute = () ->
-      newAttribute = {id: undefined, name: 'unnamed', label: 'Untitled Attribute'}
+      newAttribute = {id: undefined, type: 'string', name: 'unnamed', label: 'Untitled Attribute'}
       $scope.schema.attributes.push newAttribute
       $scope.selectedAttribute = newAttribute
       originalSelectedAttribute = angular.copy($scope.selectedAttribute)
