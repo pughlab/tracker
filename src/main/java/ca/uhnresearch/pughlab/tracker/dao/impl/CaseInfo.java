@@ -4,11 +4,14 @@ public class CaseInfo {
 	
 	private int id;
 	
+	private String guid;
+
 	private String state;
 
-	public CaseInfo(int id, String state) {
+	public CaseInfo(int id, String guid, String state) {
 		super();
 		this.id = id;
+		this.guid = guid;
 		this.state = state;
 	}
 
@@ -24,6 +27,20 @@ public class CaseInfo {
 	 */
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	/**
+	 * @return the GUID
+	 */
+	public String getGuid() {
+		return guid;
+	}
+
+	/**
+	 * @param guid the guid to set
+	 */
+	public void setGuid(String guid) {
+		this.guid = guid;
 	}
 
 	/**
@@ -45,5 +62,4 @@ public class CaseInfo {
 	 */
 	public void setState(String state) {
 		this.state = state;
-	}
-}
+	}}
