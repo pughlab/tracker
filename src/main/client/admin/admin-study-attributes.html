@@ -28,12 +28,16 @@
             <label class="col-md-2 control-label" for="attribute-type">Data type:</label>
             <div class="col-md-4">
               <select id="attribute-type" name="type" selectize options="attributeTypes" model="selectedAttribute.type" ng-disabled="! selectedAttribute"></select>
-              <span class="error" ng-show="selectedAttribute &amp;&amp; ! selectedAttribute.type">This field is required</span>
+              <span class="error text-danger" ng-show="selectedAttribute &amp;&amp; ! selectedAttribute.type">A type is required</span>
             </div>
 
-            <label class="col-md-2 control-label" for="attribute-name">Key:</label>
+            <label class="col-md-2 control-label" for="attributeName">Key:</label>
             <div class="col-md-4">
-              <input id="attribute-name" name="attribute-name" type="text" placeholder="Key" class="form-control input-md" ng-model="selectedAttribute.name" ng-disabled="! selectedAttribute">
+              <input id="attributeName" name="attributeName" type="text" placeholder="Key" class="form-control input-md"
+                     ng-model="selectedAttribute.name" ng-disabled="! selectedAttribute"
+                     pattern="^[A-Za-z0-9_-]+$">
+              <span class="error text-danger" ng-show="attributeForm.attributeName.$error.required">A key is required</span>
+              <span class="error text-danger" ng-show="attributeForm.attributeName.$error.pattern">Must consist only of alphanumerics, underscores and hyphens</span>
             </div>
           </div>
 
