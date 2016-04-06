@@ -139,6 +139,7 @@ sub camelHeader {
 sub extract {
   my ($context, $cfg, $file) = @_;
   my $path = $file->{path};
+  $path = File::Spec->rel2abs($path);
   $logger->info("Opening spreadsheet: $path");
   my $workbook;
   if ($path =~ m{\.xls\b}i) {
@@ -290,7 +291,7 @@ sub extract_workbook {
           $value = undef;
         } elsif (lc($value) eq 'unknown' || $value =~ m{\?+}) {
           $value = undef;
-        } elsif (lc($value) eq 'n/a' || $value =~ m{^-+$}) {
+        } elsif ($value =~ m{^(?:n/a|not available)$}i || $value =~ m{^-+$}) {
           $value = {'$notAvailable' => 1};
         } elsif (my $parsed = parse_date($cfg, $value)) {
           $logger->trace("Parsed string date: $value -> $parsed");
@@ -306,11 +307,11 @@ sub extract_workbook {
       } elsif ($type eq 'Boolean') {
         $value =~ s{^\s+}{};
         $value =~ s{\s+$}{};
-        if ($value =~ m{^(?:yes|no)$}i) {
+        if ($value =~ m{^(?:yes|no|none)$}i) {
           $value = ($value =~ m{^yes$}i ? 1 : 0);
         } elsif ($value =~ m{^(?:y|n)$}i) {
           $value = ($value =~ m{^y$}i ? 1 : 0);
-        } elsif ($value =~ m{^(?:n/a)$}i) {
+        } elsif ($value =~ m{^(?:n/a|not available)$}i) {
           $value = undef;
         } elsif (lc($value) eq 'unknown' || $value =~ m{\?+}) {
           $value = undef;
@@ -327,7 +328,7 @@ sub extract_workbook {
       } elsif ($type eq 'Number') {
         if ($value =~ m{^[-+]?[\d\.]+$}) {
           ## Nothing to do...
-        } elsif (uc($value) eq 'N/A' || uc($value) eq 'UNKNOWN' || $value =~ m{\?+}) {
+        } elsif ($value =~ m{^(?:n/a|not available|unknown)$}i || $value =~ m{\?+}) {
           $value = {'$notAvailable' => 1};
         } elsif ($value) {
           $logger->warn("Got unexpected number: ", $value, ' in field: ', $mapped);

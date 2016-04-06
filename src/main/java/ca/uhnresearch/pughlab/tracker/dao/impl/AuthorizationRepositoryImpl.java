@@ -4,7 +4,9 @@ import static ca.uhnresearch.pughlab.tracker.domain.QRole.roles;
 import static ca.uhnresearch.pughlab.tracker.domain.QUserRole.userRoles;
 import static ca.uhnresearch.pughlab.tracker.domain.QRolePermission.rolePermissions;
 import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
+import static ca.uhnresearch.pughlab.tracker.domain.QUser.users;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.shiro.subject.PrincipalCollection;
@@ -12,6 +14,7 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jdbc.query.QueryDslJdbcTemplate;
 import org.springframework.data.jdbc.query.SqlDeleteCallback;
 import org.springframework.data.jdbc.query.SqlInsertCallback;
@@ -25,10 +28,12 @@ import com.mysema.query.sql.dml.SQLUpdateClause;
 
 import ca.uhnresearch.pughlab.tracker.dao.AuthorizationRepository;
 import ca.uhnresearch.pughlab.tracker.dao.CasePager;
+import ca.uhnresearch.pughlab.tracker.dao.DataIntegrityException;
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.User;
 import ca.uhnresearch.pughlab.tracker.security.JdbcAuthorizingRealm;
 
 public class AuthorizationRepositoryImpl implements AuthorizationRepository {
@@ -165,35 +170,39 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	@Override
 	public void saveStudyRole(Study study, final Role role) throws RepositoryException {
 		
-		// Make sure the study id is correct
-		role.setStudyId(study.getId());
-		
-		if (role.getId() != null) {
-
+		try {
+			// Make sure the study id is correct
+			role.setStudyId(study.getId());
+			
+			if (role.getId() != null) {
+	
+				clearRoleAuthorizationCache(role);
+				
+				// We have an identifier, so we're updating the role -- basically this is a rename
+				template.update(roles, new SqlUpdateCallback() { 
+					public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+						return sqlUpdateClause.where(roles.id.eq(role.getId())).populate(role).execute();
+					};
+				});
+				
+			} else {
+				
+				Integer roleId = template.insertWithKey(roles, new SqlInsertWithKeyCallback<Integer>() { 
+					public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
+						return sqlInsertClause.populate(role).executeWithKey(roles.id);
+					};
+				});
+				
+				role.setId(roleId);
+			}
+			
+			saveRoleUsers(role);
+			saveRolePermissions(role);
+	
 			clearRoleAuthorizationCache(role);
-			
-			// We have an identifier, so we're updating the role -- basically this is a rename
-			template.update(roles, new SqlUpdateCallback() { 
-				public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
-					return sqlUpdateClause.where(roles.id.eq(role.getId())).populate(role).execute();
-				};
-			});
-			
-		} else {
-			
-			Integer roleId = template.insertWithKey(roles, new SqlInsertWithKeyCallback<Integer>() { 
-				public Integer doInSqlInsertWithKeyClause(SQLInsertClause sqlInsertClause) {
-					return sqlInsertClause.populate(role).executeWithKey(roles.id);
-				};
-			});
-			
-			role.setId(roleId);
+		} catch (DataIntegrityViolationException e) {
+			throw new DataIntegrityException(e.getMessage());
 		}
-		
-		saveRoleUsers(role);
-		saveRolePermissions(role);
-
-		clearRoleAuthorizationCache(role);
 	}
 	
 	private void clearRoleAuthorizationCache(final Role role) throws RepositoryException {
@@ -277,6 +286,41 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 				}
 			};
 		});
+	}
+
+	@Override
+	public User getUserByUsername(String username) throws RepositoryException {
+    	SQLQuery sqlQuery = template.newSqlQuery().from(users).where(users.username.eq(username));
+    	User user = template.queryForObject(sqlQuery, users);
+		return user;
+	}
+
+	@Override
+	public void saveUser(final User user) throws RepositoryException {
+		// If the user doesn't exist, we should create it. Otherwise we can update it.
+		// Essentially this allows us to start building a populated user table on login. 
+		
+		try {
+			long updateCount = template.update(users, new SqlUpdateCallback() { 
+				public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
+					return sqlUpdateClause.where(users.username.eq(user.getUsername())).populate(user).execute();
+				};
+			});
+			
+			if (updateCount >= 1) return;
+			updateCount = template.insert(users, new SqlInsertCallback() { 
+				public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
+					return sqlInsertClause.populate(user).execute();
+				};
+			});
+			
+			if (updateCount == 1) return;
+			String message = MessageFormat.format("Failed to create or update a user: {0}", user.getUsername());
+			throw new DataIntegrityException(message);
+			
+		} catch (DataIntegrityViolationException e) {
+			throw new DataIntegrityException(e.getMessage());
+		}
 	}
 
 }

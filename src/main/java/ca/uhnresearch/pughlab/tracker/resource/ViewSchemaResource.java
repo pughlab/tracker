@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +69,8 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
 
     	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
     	// And now to grab the new attributes and render back.
@@ -92,9 +94,9 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
 		} catch (NotFoundException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		} catch (RepositoryException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		}
     	
     	return getResource();
@@ -116,7 +118,8 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	// Only administrators can get the schema
     	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
     	dto.setStudy(study);

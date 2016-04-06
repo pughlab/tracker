@@ -1,5 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
+import java.text.MessageFormat;
+
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
@@ -36,8 +38,9 @@ public class AttributeExtractor extends RepositoryAwareExtractor {
 		
 		// If we don't find a value, we can fail at this stage.
 		if (attribute == null) {
-			logger.warn("Can't find attribute: {} in study {}", value, study.getName());
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			String message = MessageFormat.format("Can't find attribute: {} in study {}", value, study.getName());
+			logger.warn(message);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, message);
 		}
 		
 		logger.debug("OK, continuing with the attribute: {}", attribute.getName());

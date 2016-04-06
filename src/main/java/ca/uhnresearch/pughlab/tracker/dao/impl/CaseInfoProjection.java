@@ -9,7 +9,7 @@ import com.mysema.query.types.MappingProjection;
 public class CaseInfoProjection extends MappingProjection<CaseInfo>{
 
 	public CaseInfoProjection(QCases cases) {
-		super(CaseInfo.class, cases.id, cases.state);
+		super(CaseInfo.class, cases.id, cases.guid, cases.state);
 	}
 
 	/**
@@ -19,6 +19,6 @@ public class CaseInfoProjection extends MappingProjection<CaseInfo>{
 
 	@Override
 	protected CaseInfo map(Tuple tuple) {
-		return new CaseInfo(tuple.get(cases.id), tuple.get(cases.state));
+		return new CaseInfo(tuple.get(cases.id), tuple.get(cases.guid), tuple.get(cases.state));
 	}
 }

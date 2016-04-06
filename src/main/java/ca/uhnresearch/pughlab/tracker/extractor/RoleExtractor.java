@@ -1,5 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
+import java.text.MessageFormat;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.restlet.Request;
@@ -49,7 +51,8 @@ public class RoleExtractor extends Extractor {
 		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
 		
 		if (! studyAdminPermission) {
-			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
 		}
 
 		String name = (String) request.getAttributes().get("roleName");
@@ -64,8 +67,9 @@ public class RoleExtractor extends Extractor {
 
 		// If we don't find a value, we can fail at this stage.
 		if (role == null) {
-			logger.warn("Can't find role: {}", name);
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			String message = MessageFormat.format("Can't find role: {0}", name);
+			logger.warn(message);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, message);
 		}
 		
 		RequestAttributes.setRequestRole(request, role);

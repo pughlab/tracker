@@ -42,7 +42,7 @@ public class CaseObjectBuilderTest {
 	@Before
 	public void initialize() {
 		List<CaseInfo> cases = new ArrayList<CaseInfo>();
-		CaseInfo c = new CaseInfo(1, "test");
+		CaseInfo c = new CaseInfo(1, "5AFA957B-1D64-450A-BC94-0167F10EB9CE", "test");
 		cases.add(c);
 		builder = new CaseObjectBuilder(cases);
 	}
@@ -63,6 +63,7 @@ public class CaseObjectBuilderTest {
 		assertEquals(1, result.size());
 		
 		assertTrue(result.get(0).has("id"));
+		assertEquals("5AFA957B-1D64-450A-BC94-0167F10EB9CE", result.get(0).get("$guid").asText());
 		assertEquals(1, result.get(0).get("id").asInt());
 		assertEquals("value", result.get(0).get("test").asText());
 	}
@@ -80,6 +81,7 @@ public class CaseObjectBuilderTest {
 		assertEquals(1, result.size());
 		
 		assertTrue(result.get(0).has("id"));
+		assertEquals("5AFA957B-1D64-450A-BC94-0167F10EB9CE", result.get(0).get("$guid").asText());
 		assertEquals(1, result.get(0).get("id").asInt());
 		assertEquals(newDate.toString(), result.get(0).get("test").asText());
 	}
@@ -96,6 +98,7 @@ public class CaseObjectBuilderTest {
 		assertEquals(1, result.size());
 		
 		assertTrue(result.get(0).has("id"));
+		assertEquals("5AFA957B-1D64-450A-BC94-0167F10EB9CE", result.get(0).get("$guid").asText());
 		assertEquals(1, result.get(0).get("id").asInt());
 		assertEquals("false", result.get(0).get("test").asText());
 	}
@@ -112,6 +115,7 @@ public class CaseObjectBuilderTest {
 		assertEquals(1, result.size());
 		
 		assertTrue(result.get(0).has("id"));
+		assertEquals("5AFA957B-1D64-450A-BC94-0167F10EB9CE", result.get(0).get("$guid").asText());
 		assertEquals(1, result.get(0).get("id").asInt());
 		assertTrue(result.get(0).get("test").isObject());
 		assertTrue(result.get(0).get("test").has("$notAvailable"));
@@ -131,6 +135,7 @@ public class CaseObjectBuilderTest {
 		assertEquals(1, result.size());
 		
 		assertTrue(result.get(0).has("id"));
+		assertEquals("5AFA957B-1D64-450A-BC94-0167F10EB9CE", result.get(0).get("$guid").asText());
 		assertEquals(1, result.get(0).get("id").asInt());
 		assertEquals("false", result.get(0).get("test").asText());
 	}
@@ -172,6 +177,7 @@ public class CaseObjectBuilderTest {
 		assertEquals(1, result.size());
 		
 		assertTrue(result.get(0).has("id"));
+		assertEquals("5AFA957B-1D64-450A-BC94-0167F10EB9CE", result.get(0).get("$guid").asText());
 		assertEquals(1, result.get(0).get("id").asInt());
 		assertEquals("false", result.get(0).get("test").asText());
 		
@@ -197,6 +203,7 @@ public class CaseObjectBuilderTest {
 		assertEquals(1, result.size());
 		
 		assertTrue(result.get(0).has("id"));
+		assertEquals("5AFA957B-1D64-450A-BC94-0167F10EB9CE", result.get(0).get("$guid").asText());
 		assertEquals(1, result.get(0).get("id").asInt());
 		
 		assertTrue(result.get(0).has("$notes"));
@@ -229,6 +236,7 @@ public class CaseObjectBuilderTest {
 		assertEquals(1, result.size());
 		
 		assertTrue(result.get(0).has("id"));
+		assertEquals("5AFA957B-1D64-450A-BC94-0167F10EB9CE", result.get(0).get("$guid").asText());
 		assertEquals(1, result.get(0).get("id").asInt());
 		assertEquals("value1", result.get(0).get("test1").asText());
 		assertTrue(! result.get(0).has("test2"));

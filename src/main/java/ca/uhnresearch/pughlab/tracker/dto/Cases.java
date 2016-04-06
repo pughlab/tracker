@@ -12,6 +12,8 @@ public class Cases {
 
     private Integer id;
 
+    private String guid;
+
     private String state;
 
     private Integer studyId;
@@ -25,6 +27,15 @@ public class Cases {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+	@JsonProperty
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
 
 	@JsonProperty

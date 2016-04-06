@@ -226,11 +226,11 @@ angular
               outsideClickDeselects: false
             })
 
-            handsonTable.trackerData = {
-              stateLabels: scope.study.options?.stateLabels || {}
-              typeTable: (attribute.type for attribute in orderedAttributes)
-              dateFormat: dateFormat
-            }
+            handsonTable.trackerData ?= {}
+            handsonTable.trackerData.stateLabels = scope.study.options?.stateLabels || {}
+            handsonTable.trackerData.typeTable = (attribute.type for attribute in orderedAttributes)
+            handsonTable.trackerData.dateFormat = dateFormat
+            handsonTable.trackerData.editingStatus = if scope.editingStatus? then scope.editingStatus else false
 
             oldIsEmptyRow = handsonTable.isEmptyRow
             handsonTable.isEmptyRow = (row) ->
@@ -248,6 +248,8 @@ angular
 
 
         scope.$watch 'editingStatus', (editing, old) ->
+          handsonTable.trackerData ?= {}
+          handsonTable.trackerData.editingStatus = editing
           if handsonTable
             commands = {}
             if scope.permissions?.create

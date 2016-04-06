@@ -120,7 +120,7 @@ public class AuditResourceTest extends AbstractShiroTest{
 		RequestAttributes.setRequestView(resource.getRequest(), testView);
 				
 		thrown.expect(ResourceException.class);
-		thrown.expectMessage(containsString("Forbidden"));
+		thrown.expectMessage(containsString("No administrator access"));
 
 		resource.getResource();
 		return;

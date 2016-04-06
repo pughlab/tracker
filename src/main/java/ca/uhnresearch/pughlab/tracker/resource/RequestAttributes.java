@@ -11,6 +11,7 @@ import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.StudyAboutResponse;
+import ca.uhnresearch.pughlab.tracker.dto.User;
 import ca.uhnresearch.pughlab.tracker.dto.View;
 
 public class RequestAttributes {
@@ -33,6 +34,7 @@ public class RequestAttributes {
 
 	private static final String ABOUT_ATTRIBUTE = "about";
 	
+	private static final String USER_ATTRIBUTE = "user";
 
 	/**
 	 * Helper method to read a study from a request attribute
@@ -188,11 +190,29 @@ public class RequestAttributes {
 	}
 
 	/**
-	 * Helper method to write a study about description into a request attribute
+	 * Helper method to write an attribute into a request attribute
 	 * @param request
 	 * @param a
 	 */
 	public static void setRequestStudyAbout(Request request, StudyAboutResponse a) {
 		request.getAttributes().put(RequestAttributes.ABOUT_ATTRIBUTE, a);
+	}
+
+	/**
+	 * Helper method to read a user from a request attribute
+	 * @param request
+	 * @return the request filter
+	 */
+	public static User getRequestUser(Request request) {
+		return (User) request.getAttributes().get(RequestAttributes.USER_ATTRIBUTE);
+	}
+
+	/**
+	 * Helper method to write a user into a request attribute
+	 * @param request
+	 * @param a
+	 */
+	public static void setRequestUser(Request request, User a) {
+		request.getAttributes().put(RequestAttributes.USER_ATTRIBUTE, a);
 	}
 }

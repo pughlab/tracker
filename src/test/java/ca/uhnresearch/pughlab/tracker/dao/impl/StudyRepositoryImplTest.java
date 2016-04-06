@@ -352,7 +352,7 @@ public class StudyRepositoryImplTest {
 	}
 	
 	/**
-	 * Regression test for #53 -- checks that only lrgitimate view attributes are 
+	 * Regression test for #53 -- checks that only legitimate view attributes are 
 	 * returned.
 	 */
 	@Test
@@ -1483,6 +1483,96 @@ public class StudyRepositoryImplTest {
 			Attributes newAttribute = listAgain.get(i);
 			Assert.assertTrue(EqualsBuilder.reflectionEquals(oldAttribute, newAttribute));
 		}
+	}
+	
+	/**
+	 * Simple test of writing the exact same attributes back into the study. After
+	 * we do this, a second call should retrieve the exact same data.
+	 */
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetStudyAttributeType() throws RepositoryException {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		List<Attributes> list = studyRepository.getStudyAttributes(study);
+
+		Assert.assertNotNull(list);
+		List<Attributes> copy = new ArrayList<Attributes>();
+		copy.addAll(list);
+		Attributes attribute = copy.get(4);
+		Attributes newAttribute = new Attributes();
+		newAttribute.setId(attribute.getId());
+		newAttribute.setStudyId(attribute.getStudyId());
+		newAttribute.setName(attribute.getName());
+		newAttribute.setLabel(attribute.getLabel());
+		newAttribute.setDescription(attribute.getDescription());
+		newAttribute.setOptions(attribute.getOptions());
+		newAttribute.setRank(attribute.getRank());
+		newAttribute.setType("string");
+		copy.set(4, newAttribute);
+		
+		JsonNode oldData = getCaseAttributeValue(study, view, 1);
+
+		studyRepository.setStudyAttributes(study, copy);
+
+		List<Attributes> listAgain = studyRepository.getStudyAttributes(study);
+		Assert.assertEquals(listAgain.size(), list.size());
+		
+		JsonNode newData = getCaseAttributeValue(study, view, 1);
+		Assert.assertTrue(oldData.has("consentDate"));
+		Assert.assertFalse(newData.has("consentDate"));
+	}
+	
+	/**
+	 * Simple test of writing the exact same attributes back into the study. After
+	 * we do this, we should be able to write and read data correctly. 
+	 */
+	// Regression test for #179
+	@Test
+	@Transactional
+	@Rollback(true)
+	public void testSetStudyAttributeTypeAndWrite() throws RepositoryException {
+		Study study = studyRepository.getStudy("DEMO");
+		View view = studyRepository.getStudyView(study, "track");
+		List<Attributes> list = studyRepository.getStudyAttributes(study);
+
+		Assert.assertNotNull(list);
+		List<Attributes> copy = new ArrayList<Attributes>();
+		copy.addAll(list);
+		Attributes attribute = copy.get(4);
+		Attributes newAttribute = new Attributes();
+		newAttribute.setId(attribute.getId());
+		newAttribute.setStudyId(attribute.getStudyId());
+		newAttribute.setName(attribute.getName());
+		newAttribute.setLabel(attribute.getLabel());
+		newAttribute.setDescription(attribute.getDescription());
+		newAttribute.setOptions(attribute.getOptions());
+		newAttribute.setRank(attribute.getRank());
+		newAttribute.setType("string");
+		copy.set(4, newAttribute);
+		
+		JsonNode oldData = getCaseAttributeValue(study, view, 1);
+		Assert.assertTrue(oldData.has("consentDate"));
+
+		studyRepository.setStudyAttributes(study, copy);
+
+		// Now try to write a string
+		try {
+			StudyCaseQuery query = studyRepository.newStudyCaseQuery(study);
+			query = studyRepository.addViewCaseMatcher(query, view);
+			query = studyRepository.addStudyCaseSelector(query, 1);
+			ObjectNode values = jsonNodeFactory.objectNode();
+			values.replace("consentDate", jsonNodeFactory.textNode("Test"));
+			studyRepository.setQueryAttributes(query, "stuart", values);
+		} catch (RepositoryException e) {
+			Assert.fail(e.getMessage());
+		}
+		
+		// And now check we get the new value back
+		JsonNode newData = getCaseAttributeValue(study, view, 1);
+		Assert.assertTrue(newData.has("consentDate"));
+		Assert.assertEquals("Test", newData.get("consentDate").asText());
 	}
 	
 	/**

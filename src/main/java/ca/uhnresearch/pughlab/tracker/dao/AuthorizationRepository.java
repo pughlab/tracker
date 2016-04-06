@@ -4,6 +4,7 @@ import java.util.List;
 
 import ca.uhnresearch.pughlab.tracker.dto.Role;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
+import ca.uhnresearch.pughlab.tracker.dto.User;
 
 /**
  * Interface for access to the authorization storage. This deliberately doesn't
@@ -65,4 +66,18 @@ public interface AuthorizationRepository {
 	 * @throws RepositoryException if a repository exception occurred
 	 */
 	void saveStudyRole(Study study, Role role) throws RepositoryException;
+	
+	/**
+	 * Retrieves a user by username.
+	 * @param username username
+	 * @throws RepositoryException if a repository exception occurred
+	 */
+	User getUserByUsername(String username) throws RepositoryException;
+	
+	/**
+	 * Saves (and possibly creates) a user.
+	 * @param user user
+	 * @throws RepositoryException if a repository exception occurred
+	 */
+	void saveUser(User user) throws RepositoryException;
 }

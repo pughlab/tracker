@@ -119,11 +119,18 @@ public class RoleResourceTest extends AbstractShiroTest {
         expect(subjectUnderTest.hasRole("ROLE_ADMIN")).andStubReturn(false);
         expect(subjectUnderTest.getPrincipals()).andStubReturn(new SimplePrincipalCollection("stuart", "test"));
         expect(subjectUnderTest.isPermitted("admin")).andStubReturn(false);
+        expect(subjectUnderTest.isPermitted("DEMO:admin")).andStubReturn(false);
         replay(subjectUnderTest);
         setSubject(subjectUnderTest);
         
+		Study study = createMock(Study.class);
+		expect(study.getId()).andReturn(1);
+		expect(study.getName()).andStubReturn("DEMO");
+		replay(study);
+		RequestAttributes.setRequestStudy(resource.getRequest(), study);
+        
 		Role role = new Role();
-		role.setName("ROLE_CAT_HERDER");
+		role.setName("ROLE_DEMO_TRACK");
 		role.setId(1234);
 		role.setUsers(new ArrayList<String>());
 		role.getUsers().add("user1");
@@ -234,7 +241,7 @@ public class RoleResourceTest extends AbstractShiroTest {
 		resource.setRepository(mock);
 		
 		thrown.expect(ResourceException.class);
-		thrown.expectMessage(containsString("Forbidden"));
+		thrown.expectMessage(containsString("No access to study"));
 
 		resource.getResource();
 	}

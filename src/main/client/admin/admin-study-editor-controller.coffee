@@ -59,7 +59,7 @@ angular
             .then (response) ->
               originalStudy = response.data
             .catch (response) ->
-              $scope.alerts.push {type: 'danger', msg: response.data?.error or response.data}
+              $scope.alerts.push {type: 'danger', msg: response.data?.description or response.data}
 
       writeSchema = () ->
         if angular.equals originalSchema, $scope.schema
@@ -70,7 +70,7 @@ angular
             .then (response) ->
               originalSchema = response.data
             .catch (response) ->
-              $scope.alerts.push {type: 'danger', msg: response.data?.error or response.data}
+              $scope.alerts.push {type: 'danger', msg: response.data?.description or response.data}
 
       writeRoles = () ->
         if angular.equals originalRoles, $scope.roles
@@ -81,7 +81,7 @@ angular
             .then (response) ->
               originalRoles = response.data
             .catch (response) ->
-              $scope.alerts.push {type: 'danger', msg: response.data?.error or response.data}
+              $scope.alerts.push {type: 'danger', msg: response.data?.description or response.data}
 
       loading = true
       $q

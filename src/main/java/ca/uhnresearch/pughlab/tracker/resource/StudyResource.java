@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
@@ -48,14 +49,15 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
     	
     	// Only administrators can save the study data
     	if (! currentUser.isPermitted(study.getName() + ":admin")) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No administrator access to study: {}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
     	try {
     		StudyViewsResponse data = converter.toObject(input, StudyViewsResponse.class, this);
     		
     		if (data == null) {
-    			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+    			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Missing or invalid request body");
     		}
 			logger.debug("Got a study views response {}", data);
 			
@@ -66,11 +68,11 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
 			RequestAttributes.setRequestStudy(getRequest(), update);
 			
     	} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		} catch (NotFoundException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, e.getLocalizedMessage());
 		} catch (RepositoryException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		}
 
     	return getResource();

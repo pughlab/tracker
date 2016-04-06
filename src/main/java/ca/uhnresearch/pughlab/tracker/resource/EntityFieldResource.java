@@ -1,6 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
@@ -49,12 +50,13 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	
     	if (study == null || view == null || attribute == null) {
-    		throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+    		throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Missing study, view, or attribute");
     	}
     	
     	if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName()) ||
     		! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No write access to attribute: {0}", attribute.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
     	JsonNode data;
@@ -62,7 +64,7 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     	try {
 			data = converter.toObject(input, JsonNode.class, this);
 		} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		}
 
     	// Write the value, handling exceptions we might get, and converting them to
@@ -76,11 +78,11 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     		values.replace(attribute.getName(), data.get("value"));
 			getRepository().setQueryAttributes(query, user, values);
 		} catch (InvalidValueException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getLocalizedMessage());
 		} catch (NotFoundException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, e.getLocalizedMessage());
 		} catch (RepositoryException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Internal Server Error: " + e.getLocalizedMessage());
 		}
     	
     	return getResource();
@@ -108,7 +110,8 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     	// Add support for the permissions. It's very simple here
     	if (! currentUser.isPermitted(study.getName() + ":attribute:read:" + attribute.getName())) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No read access to attribute: {0}", attribute.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
     	List<ObjectNode> cases = getRepository().getCaseData(query, view);

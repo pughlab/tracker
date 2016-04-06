@@ -21,6 +21,15 @@ public class CustomSpringSessionAuthenticator extends Authenticator {
     public CustomSpringSessionAuthenticator(Restlet parent) {
         super(parent.getContext());
     }
+    
+    private void setChallengeResponse(Request request, Object principal) {
+		User user = new User(principal.toString());
+		request.getClientInfo().setUser(user);
+		
+		ChallengeResponse challenge = new ChallengeResponse(ChallengeScheme.CUSTOM);
+		challenge.setIdentifier(user.getIdentifier());
+		request.setChallengeResponse(challenge);
+    }
 
 	@Override
 	protected boolean authenticate(Request request, Response response) {
@@ -37,17 +46,12 @@ public class CustomSpringSessionAuthenticator extends Authenticator {
 		if (principals == null) {
 			return false;
 		}
-
+		
+		// With a principal, we are authenticated
 		Object principal = principals.getPrimaryPrincipal(); 
 		if (principal != null) {
-			User user = new User(principal.toString());
-			request.getClientInfo().setUser(user);
-			
-			ChallengeResponse challenge = new ChallengeResponse(ChallengeScheme.CUSTOM);
-			challenge.setIdentifier(user.getIdentifier());
-			request.setChallengeResponse(challenge);
-			return true;
-			
+			setChallengeResponse(request, principal);
+			return true;			
 		} else {
 			return false;
 		}

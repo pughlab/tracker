@@ -1,5 +1,6 @@
 package ca.uhnresearch.pughlab.tracker.resource;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.shiro.SecurityUtils;
@@ -37,7 +38,8 @@ public class AuditResource extends AuditLogRepositoryResource<AuditLogResponse> 
     	
     	// Only administrators can get the audit log
     	if (! adminUser) {
-    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+    		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
  
     	// Get the data from the repository

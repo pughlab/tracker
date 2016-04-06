@@ -1,5 +1,7 @@
 package ca.uhnresearch.pughlab.tracker.extractor;
 
+import java.text.MessageFormat;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.restlet.Request;
@@ -65,8 +67,9 @@ public class ViewExtractor extends RepositoryAwareExtractor {
 		
 		// If we don't find a value, we can fail at this stage.
 		if (v == null) {
-			logger.warn("Can't find view: {} in study {}", value, study.getName());
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			String message = MessageFormat.format("Can't find view: {} in study {}", value, study.getName());
+			logger.warn(message);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, message);
 		}
 		
 		// We should allow access based on a read permission for the view, or 

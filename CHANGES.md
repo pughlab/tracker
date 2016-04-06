@@ -1,6 +1,15 @@
 ## Revision history
 
 
+### Version 2.2.4 - 6th April 2016
+
+ * Add link rendering to cells. See #180
+ * Fixed an issue where changing attribute types could break editing. See #179
+ * Improved error reporting from the front and the back end. See #178
+ * Made role names unique per study rather than globally. See #177
+ * Reduced form validation issues when creating new attributes. See #174
+
+
 ### Version 2.2.3 - 17th February 2016
 
  * Allow form dates to be empty. See #172
