@@ -88,7 +88,7 @@ sub parse_date {
   );
   push @formats, $cfg->{force_date_format} if (exists($cfg->{force_date_format}));
 
-  $string =~ s{ +}{}g;
+  $string =~ s{ +}{ }g;
 
   ## Apply some crappy fixes
   $string =~ s{\bsept\b}{sep}i;
@@ -101,11 +101,6 @@ sub parse_date {
       $date = Time::Piece->strptime($string, $format);
     };
     if (defined($date)) {
-
-      if ($date->year() < 1990) {
-        $date = undef;
-        next;
-      }
 
       ## See if we are almost the same as the original
       my $reformatted = $date->strftime($format);
