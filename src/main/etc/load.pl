@@ -21,6 +21,7 @@ use List::MoreUtils qw(first_index all);
 use Algorithm::Diff qw(traverse_sequences);
 use DBI;
 use JSON::XS qw(encode_json);
+use Data::UUID;
 
 use Carp;
 use Getopt::Long;
@@ -537,7 +538,7 @@ sub write_data {
   foreach my $case (@$records) {
     $value_index++;
 
-    $dbh->do(qq{INSERT INTO "CASES" ("STUDY_ID", "ORDER") VALUES (?, ?)}, {}, $study_ref->{id}, $value_index);
+    $dbh->do(qq{INSERT INTO "CASES" ("STUDY_ID", "GUID", "ORDER") VALUES (?, ?, ?)}, {}, $study_ref->{id}, Data::UUID->new()->create_str(), $value_index);
     my $case_id = $dbh->last_insert_id(undef, undef, undef, undef);
 
     for my $attribute (@$headers) {
