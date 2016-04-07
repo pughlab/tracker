@@ -311,6 +311,8 @@ sub extract_workbook {
           $value = ($value =~ m{^yes$}i ? 1 : 0);
         } elsif ($value =~ m{^(?:y|n)$}i) {
           $value = ($value =~ m{^y$}i ? 1 : 0);
+        } elsif ($value =~ m{^(?:1|0)$}i) {
+          $value = ($value =~ m{^1$}i ? 1 : 0);
         } elsif ($value =~ m{^(?:n/a|not available)$}i) {
           $value = undef;
         } elsif (lc($value) eq 'unknown' || $value =~ m{\?+}) {
