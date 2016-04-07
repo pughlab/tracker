@@ -313,7 +313,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 		
     	SQLQuery sqlQuery = template.newSqlQuery().from(attributes).where(attributes.id.eq(a.getId()));
     	String oldType = template.queryForObject(sqlQuery, attributes.type);
-		if (oldType != null && oldType != a.getType()) {
+		if (oldType != null && !oldType.equals(a.getType())) {
 			cap.deleteAllAttributes(template, a);
 		}
 		

@@ -21,6 +21,7 @@ use List::MoreUtils qw(first_index all);
 use Algorithm::Diff qw(traverse_sequences);
 use DBI;
 use JSON::XS qw(encode_json);
+use Data::UUID;
 
 use Carp;
 use Getopt::Long;
@@ -88,7 +89,7 @@ sub parse_date {
   );
   push @formats, $cfg->{force_date_format} if (exists($cfg->{force_date_format}));
 
-  $string =~ s{ +}{}g;
+  $string =~ s{ +}{ }g;
 
   ## Apply some crappy fixes
   $string =~ s{\bsept\b}{sep}i;
@@ -101,11 +102,6 @@ sub parse_date {
       $date = Time::Piece->strptime($string, $format);
     };
     if (defined($date)) {
-
-      if ($date->year() < 1990) {
-        $date = undef;
-        next;
-      }
 
       ## See if we are almost the same as the original
       my $reformatted = $date->strftime($format);
@@ -311,6 +307,8 @@ sub extract_workbook {
           $value = ($value =~ m{^yes$}i ? 1 : 0);
         } elsif ($value =~ m{^(?:y|n)$}i) {
           $value = ($value =~ m{^y$}i ? 1 : 0);
+        } elsif ($value =~ m{^(?:1|0)$}i) {
+          $value = ($value =~ m{^1$}i ? 1 : 0);
         } elsif ($value =~ m{^(?:n/a|not available)$}i) {
           $value = undef;
         } elsif (lc($value) eq 'unknown' || $value =~ m{\?+}) {
@@ -540,7 +538,7 @@ sub write_data {
   foreach my $case (@$records) {
     $value_index++;
 
-    $dbh->do(qq{INSERT INTO "CASES" ("STUDY_ID", "ORDER") VALUES (?, ?)}, {}, $study_ref->{id}, $value_index);
+    $dbh->do(qq{INSERT INTO "CASES" ("STUDY_ID", "GUID", "ORDER") VALUES (?, ?, ?)}, {}, $study_ref->{id}, Data::UUID->new()->create_str(), $value_index);
     my $case_id = $dbh->last_insert_id(undef, undef, undef, undef);
 
     for my $attribute (@$headers) {

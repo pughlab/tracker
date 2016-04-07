@@ -1,6 +1,11 @@
 ## Revision history
 
 
+### Version 2.2.5 - 7th April 2016
+
+ * Fix critical issue in schema changes. See #182
+
+
 ### Version 2.2.4 - 6th April 2016
 
  * Add link rendering to cells. See #180
