@@ -119,7 +119,7 @@ angular
 
   .run Array '$rootScope', '$interval', '$document', (scope, $interval, $document) ->
 
-    IDLE_TIMEOUT = 15 * 60
+    IDLE_TIMEOUT = 30 * 60
     idleSecondsTimer = null
     idleSecondsCounter = 0
 

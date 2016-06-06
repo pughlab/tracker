@@ -1,6 +1,12 @@
 ## Revision history
 
 
+### Version 2.2.6 - 6th June 2016
+
+ * Allow floats to be handled better. 
+ * Increase the user timeout, See #183
+
+
 ### Version 2.2.5 - 7th April 2016
 
  * Fix critical issue in schema changes. See #182
