@@ -332,9 +332,10 @@ sub extract_workbook {
       } elsif ($type eq 'String') {
         ## Nothing to do here...
       } elsif ($type eq 'Number') {
+        $value =~ s{\s*%$}{};
         if ($value =~ m{^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$}) {
           ## Nothing to do...
-        } elsif ($value =~ m{^(?:n/a|not available|unknown)$}i || $value =~ m{\?+}) {
+        } elsif ($value =~ m{^(?:n/a|not available|unknown|not recorded|not processed)$}i || $value =~ m{\?+}) {
           $value = {'$notAvailable' => 1};
         } elsif ($value) {
           $logger->warn("Got unexpected number: ", $value, ' in field: ', $mapped);
