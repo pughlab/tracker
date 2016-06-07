@@ -186,7 +186,15 @@ sub extract_workbook {
       my $values = '';
       for my $col ($col_min .. $col_max) {
         my $cell = $worksheet->get_cell($row, $col);
-        my $value = $cell && $cell->value();
+        my $value;
+        if ($cell) {
+          if ($cell->type() eq 'Date') {
+            $value = $cell->unformatted();
+          } else {
+            $value = $cell->value();
+          }
+        }
+
         # next if ($value =~ m{<row });
         # $value = XML::Entities::decode('all', $value) if (defined($value));
 
