@@ -212,7 +212,7 @@ sub extract_workbook {
   }
 
   if (@records == 0) {
-    croak("Failing because no records loaded from: $file");
+    die("Failing because no records loaded from: $file");
   }
 
   my $headerTypes = {};
@@ -552,7 +552,7 @@ sub write_data {
     for my $attribute (@$headers) {
       my $type = lc($header_types->{$attribute});
       if (! $type) {
-        croak("Invalid type for attribute: $attribute");
+        die("Invalid type for attribute: $attribute");
       }
       my $table = uc("CASE_ATTRIBUTE_${type}s");
       my $sql = $dbh->quote_identifier($table);
