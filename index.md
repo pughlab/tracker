@@ -13,7 +13,9 @@ with the data persisted, and different users seeing different data.
  * [User Guide](pages/user-guide.html)
  * [Administration Guide](pages/admin-guide.html)
  * [Deployment Guide](pages/deployment-guide.html)
- * [Developer Guide](pages/developer-guide.html)
+ * [Developer Quick Start](pages/developer-quick-start.html)
+ * [Importing Data](pages/importing-data.html)
+ * [Architecture Overview](pages/architecture-overview.html)
 
 # Intended use
 
