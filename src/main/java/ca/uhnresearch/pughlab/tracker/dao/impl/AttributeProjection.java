@@ -31,7 +31,7 @@ final class AttributeProjection extends MappingProjection<Attributes> {
 
     @Override
     protected Attributes map(Tuple tuple) {
-    	Attributes product = new Attributes();
+    	final Attributes product = new Attributes();
 
         product.setId(tuple.get(attributes.id));
         product.setStudyId(tuple.get(attributes.studyId));
@@ -41,7 +41,7 @@ final class AttributeProjection extends MappingProjection<Attributes> {
         product.setRank(tuple.get(attributes.rank));
         product.setType(tuple.get(attributes.type));
         
-        String options = tuple.get(attributes.options);
+        final String options = tuple.get(attributes.options);
 		if (options != null) {
 			try {
 				product.setOptions(mapper.readValue(options, JsonNode.class));

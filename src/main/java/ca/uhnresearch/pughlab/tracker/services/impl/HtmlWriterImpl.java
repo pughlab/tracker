@@ -21,14 +21,14 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 	
 	@Override
 	protected void write(Document doc, ViewDataResponse data) {
-		Element rootElement = doc.createElement("html");
+		final Element rootElement = doc.createElement("html");
 		doc.appendChild(rootElement);
 		
-		Element headElement = doc.createElement("head");
+		final Element headElement = doc.createElement("head");
 		rootElement.appendChild(headElement);
 		writeStyles(doc, headElement);
 
-		Element bodyElement = doc.createElement("body");
+		final Element bodyElement = doc.createElement("body");
 		rootElement.appendChild(bodyElement);
 		
 		writeData(doc, bodyElement, data);
@@ -36,7 +36,7 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 
 	@Override
 	protected void writeData(Document doc, Element parent, ViewDataResponse data) {
-		Element table = doc.createElement("table");
+		final Element table = doc.createElement("table");
 		parent.appendChild(table);
 		
 		writeTableBody(doc, table, data);
@@ -44,14 +44,14 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 
 	@Override
 	protected Element makeRowElement(Document doc, Element parent) {
-		Element start = doc.createElement("tr");
+		final Element start = doc.createElement("tr");
 		parent.appendChild(start);
 		return start;
 	}
 	
 	@Override
 	protected Element makeCellElement(Document doc, Element parent) {
-		Element start = doc.createElement("td");
+		final Element start = doc.createElement("td");
 		parent.appendChild(start);
 		return start;
 
@@ -59,7 +59,7 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 	
 	@Override
 	protected Element makeHeaderCellElement(Document doc, Element parent) {
-		Element start = doc.createElement("th");
+		final Element start = doc.createElement("th");
 		parent.appendChild(start);
 		return start;
 
@@ -71,7 +71,7 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 	
 	@Override
 	protected void writeStringCell(Document doc, Element cell, String data) {
-		String newlinedData = data.replace("\n", "<br>\n");
+		final String newlinedData = data.replace("\n", "<br>\n");
 		writeRawStringCell(doc, cell, newlinedData);
 	}
 	
@@ -102,7 +102,7 @@ public class HtmlWriterImpl extends AbstractXMLWriter implements Writer {
 	
 	@Override
 	protected void writeStyles(Document doc, Element parent) {
-		Element styles = doc.createElement("style");
+		final Element styles = doc.createElement("style");
 		styles.setAttribute("type", "text/css");
 		
 		// Now let's add some CSS code for the styles

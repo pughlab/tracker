@@ -16,7 +16,7 @@ public class MergingTokenizer implements Tokenizer {
 		
 		// First collect all the tokens
 		while(true) {
-			Token token = input.getNextToken();
+			final Token token = input.getNextToken();
 			if (token == null) break;
 			tokens.add(token);
 		}
@@ -24,11 +24,11 @@ public class MergingTokenizer implements Tokenizer {
 		// Now merge the tokens, repeatedly applying VALUE WS VALUE -> VALUE
 		int index = 0;
 		while (index++ < tokens.size() - 2) {
-			Token t1 = tokens.get(index - 1);
+			final Token t1 = tokens.get(index - 1);
 			if (! (t1 instanceof ValueToken)) continue;
-			Token t2 = tokens.get(index + 0);
+			final Token t2 = tokens.get(index + 0);
 			if (! (t2 instanceof WhitespaceToken)) continue;
-			Token t3 = tokens.get(index + 1);
+			final Token t3 = tokens.get(index + 1);
 			if (! (t3 instanceof ValueToken)) continue;
 			
 			t1.setValue(t1.getValue() + t2.getValue() + t3.getValue());
@@ -41,7 +41,7 @@ public class MergingTokenizer implements Tokenizer {
 		// And finally, remove the whitespace
 		index = 0;
 		while (index < tokens.size()) {
-			Token t1 = tokens.get(index);
+			final Token t1 = tokens.get(index);
 			if (t1 instanceof WhitespaceToken) {
 				tokens.remove(index);
 			} else {

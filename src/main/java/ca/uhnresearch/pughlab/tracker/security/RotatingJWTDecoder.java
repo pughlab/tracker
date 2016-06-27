@@ -37,7 +37,7 @@ public class RotatingJWTDecoder implements JWTDecoder {
 
 		@Override
 		public int compareTo(KeySelector o2) {
-			int alg = algorithm.getName().compareTo(o2.algorithm.getName());
+			final int alg = algorithm.getName().compareTo(o2.algorithm.getName());
 			if (alg != 0) {
 				return alg;
 			} else {
@@ -94,7 +94,7 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	public void addJWSVerifier(final JWSVerifier verifier, final String kid) {
 	
 		for (JWSAlgorithm alg: verifier.getAcceptedAlgorithms()) {
-			KeySelector selector = new KeySelector(alg, kid);
+			final KeySelector selector = new KeySelector(alg, kid);
 			jwsVerifiers.put(selector, verifier);
 		}
 	}
@@ -110,30 +110,30 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	public void addJWEDecrypter(final JWEDecrypter decrypter, final String kid) {
 	
 		for (JWEAlgorithm alg: decrypter.getAcceptedAlgorithms()) {
-			KeySelector selector = new KeySelector(alg, kid);
+			final KeySelector selector = new KeySelector(alg, kid);
 			jweDecrypters.put(selector, decrypter);
 		}
 	}
 	
 	
 	protected KeySelector getKeySelector(final SignedJWT signedJWT) {
-		JWSAlgorithm alg = signedJWT.getHeader().getAlgorithm();
-		String kid = signedJWT.getHeader().getKeyID();
+		final JWSAlgorithm alg = signedJWT.getHeader().getAlgorithm();
+		final String kid = signedJWT.getHeader().getKeyID();
 		return new KeySelector(alg, kid);
 	}
 	
 	
 	protected KeySelector getKeySelector(final EncryptedJWT encryptedJWT) {
-		JWEAlgorithm alg = encryptedJWT.getHeader().getAlgorithm();
-		String kid = encryptedJWT.getHeader().getKeyID();
+		final JWEAlgorithm alg = encryptedJWT.getHeader().getAlgorithm();
+		final String kid = encryptedJWT.getHeader().getKeyID();
 		return new KeySelector(alg, kid);
 	}
 	
 	
 	protected JWSVerifier getJWSVerifier(final SignedJWT signedJWT) {
-		KeySelector selector = getKeySelector(signedJWT);
+		final KeySelector selector = getKeySelector(signedJWT);
 		
-		JWSVerifier verifier = jwsVerifiers.get(selector);
+		final JWSVerifier verifier = jwsVerifiers.get(selector);
 		if (verifier == null) {
 			
 			// If we can'ty find a verifier, that probably means that we need to check for new
@@ -145,9 +145,9 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	}
 	
 	protected JWEDecrypter getJWEDecrypter(final EncryptedJWT encryptedJWT) {
-		KeySelector selector = getKeySelector(encryptedJWT);
+		final KeySelector selector = getKeySelector(encryptedJWT);
 		
-		JWEDecrypter decrypter = jweDecrypters.get(selector);
+		final JWEDecrypter decrypter = jweDecrypters.get(selector);
 		if (decrypter == null) {
 			
 			// If we can'ty find a verifier, that probably means that we need to check for new
@@ -173,7 +173,7 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	private ReadOnlyJWTClaimsSet verify(final SignedJWT signedJWT)
 		throws JOSEException, ParseException {
 		
-		JWSVerifier verifier = getJWSVerifier(signedJWT);
+		final JWSVerifier verifier = getJWSVerifier(signedJWT);
 		
 		boolean verified;
 
@@ -210,7 +210,7 @@ public class RotatingJWTDecoder implements JWTDecoder {
 	private ReadOnlyJWTClaimsSet decrypt(final EncryptedJWT encryptedJWT)
 		throws JOSEException, ParseException {
 		
-		JWEDecrypter decrypter = getJWEDecrypter(encryptedJWT);
+		final JWEDecrypter decrypter = getJWEDecrypter(encryptedJWT);
 
 		try {
 			encryptedJWT.decrypt(decrypter);
@@ -230,19 +230,19 @@ public class RotatingJWTDecoder implements JWTDecoder {
 		
 		if (jwt instanceof PlainJWT) {
 		
-			PlainJWT plainJWT = (PlainJWT)jwt;
+			final PlainJWT plainJWT = (PlainJWT)jwt;
 			
 			return plainJWT.getJWTClaimsSet();
 		
 		} else if (jwt instanceof SignedJWT) {
 		
-			SignedJWT signedJWT = (SignedJWT)jwt;
+			final SignedJWT signedJWT = (SignedJWT)jwt;
 			
 			return verify(signedJWT);
 
 		} else if (jwt instanceof EncryptedJWT) {
 		
-			EncryptedJWT encryptedJWT = (EncryptedJWT)jwt;
+			final EncryptedJWT encryptedJWT = (EncryptedJWT)jwt;
 			
 			return decrypt(encryptedJWT);
 			

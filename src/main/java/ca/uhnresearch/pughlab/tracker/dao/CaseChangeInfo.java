@@ -39,7 +39,7 @@ public class CaseChangeInfo {
 	}
 	
 	/**
-	 * Retrieves a specific change, located by field name
+	 * Retrieves a specific change, located by field name.
 	 * @param field the field name
 	 * @return a change 
 	 */
@@ -48,16 +48,16 @@ public class CaseChangeInfo {
 	}
 	
 	/**
-	 * An object for an individual change, 
+	 * An object for an individual change.
 	 */
 	public class Change {
 		
 		JsonNode oldValue;
 		JsonNode newValue;
 		
-		private Change(JsonNode oldValue, JsonNode newValue) {
-			this.newValue = newValue;
-			this.oldValue = oldValue;
+		private Change(JsonNode oldVal, JsonNode newVal) {
+			this.newValue = newVal;
+			this.oldValue = oldVal;
 		}
 		
 		/**

@@ -239,18 +239,22 @@ public class CaseAttributePersistence {
 	 * Returns a boolean expression that can be used in an attribute filter. The 
 	 * nature of the boolean expression is fairly open. 
 	 * 
-	 * @param cAlias
-	 * @param a
-	 * @param filterJson
-	 * @return
+	 * @param sq the input subquery
+	 * @param ca the case attribute
+	 * @param a the attribute
+	 * @param filterJson the filter JSON node
+	 * @param fIndex the filter index
+	 * @return the filtered subquery
 	 */
-	private SQLSubQuery getFilterExpression(SQLSubQuery sq, QCaseAttributeBase<?> ca, Attributes a, JsonNode filterJson, Integer fIndex) throws ReflectiveOperationException {
+	private SQLSubQuery getFilterExpression(SQLSubQuery sq, QCaseAttributeBase<?> ca, 
+			                                Attributes a, JsonNode filterJson, Integer fIndex) 
+			            throws ReflectiveOperationException {
 		
-		String filterValue = filterJson.asText();
+		final String filterValue = filterJson.asText();
 		
 		QueryNode node;
 		try {
-			QueryParser parser = queryParserFactory.newQueryParser(filterValue);
+			final QueryParser parser = queryParserFactory.newQueryParser(filterValue);
 			node = parser.parse();
 		} catch (IOException e) {
 			logger.error(e.getLocalizedMessage());
@@ -419,17 +423,17 @@ public class CaseAttributePersistence {
 	 * the query, but with modified values returned. If we get back a list of values where
 	 * there are no keys, nothing changed. 
 	 * 
-	 * @param template
-	 * @param query
-	 * @param values
+	 * @param template the query template
+	 * @param query the query selector
+	 * @param values the set of values to set
 	 * @return a list of case change records
 	 */
 	public List<CaseChangeInfo> setQueryAttributes(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, ObjectNode values) throws RepositoryException {
 		
 		// Because we need to insert or update per case, we need to map the query to a list of cases
 		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
-		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
-		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
+		final SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
+		final List<Integer> caseIds = template.query(caseIdQuery, cases.id);
 		
 		// For each case, we need to find the old values for each object
 		Study study = query.getStudy();
@@ -438,33 +442,33 @@ public class CaseAttributePersistence {
 				.from(attributes)
 				.where(attributes.studyId.eq(study.getId()));
 		
-		List<Attributes> atts = template.query(sqlQuery, new AttributeProjection(attributes));
-		List<Attributes> filteredAtts = new ArrayList<Attributes>();
+		final List<Attributes> atts = template.query(sqlQuery, new AttributeProjection(attributes));
+		final List<Attributes> filteredAtts = new ArrayList<Attributes>();
 		
 		for(Attributes a : atts) {
 			if (values.has(a.getName())) filteredAtts.add(a);
 		}
 
-		List<ObjectNode> oldValues = getJsonData(template, query, filteredAtts);
-		List<CaseChangeInfo> result = new ArrayList<CaseChangeInfo>();
+		final List<ObjectNode> oldValues = getJsonData(template, query, filteredAtts);
+		final List<CaseChangeInfo> result = new ArrayList<CaseChangeInfo>();
 		
 		// Right, now we can do an update and check to see what actually we wanted to change. This
 		// should do a check to see whether we need to update, first.
 		
 		for(Integer caseId : caseIds) {
-			ObjectNode oldCase = oldValues.remove(0);
-			CaseChangeInfo newCaseChange = new CaseChangeInfo(caseId);
+			final ObjectNode oldCase = oldValues.remove(0);
+			final CaseChangeInfo newCaseChange = new CaseChangeInfo(caseId);
 			result.add(newCaseChange);
 			for(Attributes a : filteredAtts) {
-				String name = a.getName();
-				JsonNode oldValue = oldCase.get(name);
-				JsonNode newValue = values.get(name);
+				final String name = a.getName();
+				final JsonNode oldValue = oldCase.get(name);
+				final JsonNode newValue = values.get(name);
 				if (oldValue != null && oldValue.equals(newValue)) continue;
 				
 				newCaseChange.addValueChange(name, oldValue, newValue);
 				
-				ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
-				WritableValue value = validator.validate(a, newValue);
+				final ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
+				final WritableValue value = validator.validate(a, newValue);
 				
 				// Now we can do the actual update...
 				writeCaseAttributeValue(template, study, caseId, name, value);
@@ -541,11 +545,11 @@ public class CaseAttributePersistence {
 			.unique(attributes.id);
 		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
 
-		SQLQuery sq = template.newSqlQuery().from(cases).innerJoin(atts).on(cases.id.eq(atts.caseId)).where(cases.id.in(caseQuery).and(atts.attributeId.eq(attributeQuery)));
-		Tuple oldValue = template.queryForObject(sq, new QTuple(atts.getValue(), atts.notAvailable));
+		final SQLQuery sq = template.newSqlQuery().from(cases).innerJoin(atts).on(cases.id.eq(atts.caseId)).where(cases.id.in(caseQuery).and(atts.attributeId.eq(attributeQuery)));
+		final Tuple oldValue = template.queryForObject(sq, new QTuple(atts.getValue(), atts.notAvailable));
 		
-    	Object oldRawValue = oldValue == null ? null : oldValue.get(0, cls);
-    	Boolean oldNotAvailable = oldValue == null ? false : oldValue.get(1, Boolean.class);
+		final Object oldRawValue = oldValue == null ? null : oldValue.get(0, cls);
+		final Boolean oldNotAvailable = oldValue == null ? false : oldValue.get(1, Boolean.class);
     	if (oldNotAvailable) {
     		return SpecialValues.NOT_AVAILABLE;
     	} else {
@@ -561,7 +565,7 @@ public class CaseAttributePersistence {
 	 */
 	public void deleteCases(QueryDslJdbcTemplate template, QueryStudyCaseQuery query) throws RepositoryException {
 		
-		SQLQuery caseSelectionQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
+		final SQLQuery caseSelectionQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
 		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
 		
 		if (logger.isDebugEnabled()) {
@@ -581,10 +585,10 @@ public class CaseAttributePersistence {
 		// MySQL is a bit stupid and can't handle deletions involving subqueries
 		// most of the time. Alarmingly, we need to pull out the identifiers and
 		// then send them back. 
-		SQLQuery caseIdQuery = template.newSqlQuery()
+		final SQLQuery caseIdQuery = template.newSqlQuery()
 				.from(caseQuery.as(cases));
 		
-		List<Integer> casesIds = template.query(caseIdQuery, cases.id);
+		final List<Integer> casesIds = template.query(caseIdQuery, cases.id);
 	
 		template.delete(cases, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {

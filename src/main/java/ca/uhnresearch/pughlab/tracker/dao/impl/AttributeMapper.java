@@ -3,6 +3,7 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.validation.BooleanValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.DateValueValidator;
@@ -10,7 +11,6 @@ import ca.uhnresearch.pughlab.tracker.validation.NumberValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.OptionValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.StringValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.ValueValidator;
-import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,7 +39,7 @@ public class AttributeMapper extends AbstractMapper<Attributes> {
 
 	@Override
     public Map<Path<?>, Object> createMap(RelationalPath<?> entity, Attributes bean) {
-        Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
+        final Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
         values.put(attributes.id, bean.getId());
         values.put(attributes.studyId, bean.getStudyId());
         values.put(attributes.name, bean.getName());
@@ -49,7 +49,7 @@ public class AttributeMapper extends AbstractMapper<Attributes> {
         values.put(attributes.type, bean.getType());
         
         try {
-        	JsonNode options = bean.getOptions();
+        	final JsonNode options = bean.getOptions();
         	if (options != null)
         		values.put(attributes.options, mapper.writeValueAsString(options));
 		} catch (JsonProcessingException e) {

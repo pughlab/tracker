@@ -8,7 +8,7 @@ package ca.uhnresearch.pughlab.tracker.dao;
 public class CasePager {
 	
 	/**
-	 * Allows the ordre direction to be specified.
+	 * Allows the order direction to be specified.
 	 */
 	public enum OrderDirection {
 		ASC, DESC
@@ -53,8 +53,8 @@ public class CasePager {
 	/**
 	 * @param offset the offset to set
 	 */
-	public void setOffset(Integer offset) {
-		this.offset = offset;
+	public void setOffset(Integer offsetValue) {
+		this.offset = offsetValue;
 	}
 
 	/**
@@ -74,8 +74,8 @@ public class CasePager {
 	/**
 	 * @param limit the limit to set
 	 */
-	public void setLimit(Integer limit) {
-		this.limit = limit;
+	public void setLimit(Integer limitValue) {
+		this.limit = limitValue;
 	}
 
 	/**
@@ -88,8 +88,8 @@ public class CasePager {
 	/**
 	 * @param orderField the orderField to set
 	 */
-	public void setOrderField(String orderField) {
-		this.orderField = orderField;
+	public void setOrderField(String orderFieldValue) {
+		this.orderField = orderFieldValue;
 	}
 
 	/**
@@ -102,8 +102,8 @@ public class CasePager {
 	/**
 	 * @param orderDirection the orderDirection to set
 	 */
-	public void setOrderDirection(OrderDirection orderDirection) {
-		this.orderDirection = orderDirection;
+	public void setOrderDirection(OrderDirection orderDirectionValue) {
+		this.orderDirection = orderDirectionValue;
 	}
 
 }

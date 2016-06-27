@@ -40,7 +40,7 @@ public abstract class Token extends QueryNode {
 	 */
 	public boolean equals(Object other) {
 		if (other instanceof Token) {
-			String otherValue = ((Token) other).getValue();
+			final String otherValue = ((Token) other).getValue();
 			return getClass().equals(other.getClass()) && getValue().equals(otherValue);
 		} else {
 			return false;

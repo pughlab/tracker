@@ -46,8 +46,8 @@ public class SimpleTokenizer implements Tokenizer {
 		tokenBuilder.setLength(0);
 		
 		while(true) {
-			int tokenStart = getNextCharacter();
-			char tokenChar = (char) tokenStart;
+			final int tokenStart = getNextCharacter();
+			final char tokenChar = (char) tokenStart;
 			
 			if (tokenStart == PEEK_EMPTY) {
 				
@@ -59,8 +59,8 @@ public class SimpleTokenizer implements Tokenizer {
 				// Handles a quoted string.
 				tokenBuilder.append(tokenChar);
 				while(true) {
-					int constituent = getNextCharacter();
-					char constituentChar = (char) constituent;
+					final int constituent = getNextCharacter();
+					final char constituentChar = (char) constituent;
 					if (constituent == PEEK_EMPTY) {
 						throw new InvalidTokenException("Missing end quote");
 					} else if (constituentChar != '"') {
@@ -77,14 +77,14 @@ public class SimpleTokenizer implements Tokenizer {
 				
 				tokenBuilder.append(tokenChar);
 				while(true) {
-					int constituent = getNextCharacter();
-					char constituentChar = (char) constituent;
+					final int constituent = getNextCharacter();
+					final char constituentChar = (char) constituent;
 					if (constituent != PEEK_EMPTY && Character.isWhitespace(constituentChar)) {
 						tokenBuilder.append(constituentChar);
 					} else {
 						ungetCharacter(constituent);
 						
-						String token = tokenBuilder.toString();
+						final String token = tokenBuilder.toString();
 						return new WhitespaceToken(token);
 					}
 				}
@@ -101,15 +101,15 @@ public class SimpleTokenizer implements Tokenizer {
 				
 				tokenBuilder.append(tokenChar);
 				while(true) {
-					int constituent = getNextCharacter();
-					char constituentChar = (char) constituent;
+					final int constituent = getNextCharacter();
+					final char constituentChar = (char) constituent;
 					if (constituent == PEEK_EMPTY || constituentChar == '(' || constituentChar == ')' || constituentChar == ',' || Character.isWhitespace(constituentChar)) {
 						
 						// At the end, so put back the thing we just found
 						ungetCharacter(constituent);
 						
 						// Now what we have might be an operator
-						String token = tokenBuilder.toString();
+						final String token = tokenBuilder.toString();
 						if (OperatorToken.isOperator(token)) {
 							return new OperatorToken(token);
 						} else {

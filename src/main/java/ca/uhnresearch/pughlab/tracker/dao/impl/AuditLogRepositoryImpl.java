@@ -66,11 +66,11 @@ public class AuditLogRepositoryImpl implements AuditLogRepository {
 			sq = sq.limit(query.getLimit());
 		}
 	
-    	List<AuditLogRecord> data = template.query(sq, auditLog);
-    	List<JsonNode> result = new ArrayList<JsonNode>();
+    	final List<AuditLogRecord> data = template.query(sq, auditLog);
+    	final List<JsonNode> result = new ArrayList<JsonNode>();
     	
     	for(AuditLogRecord audit : data) {
-    		ObjectNode obj = jsonNodeFactory.objectNode();
+    		final ObjectNode obj = jsonNodeFactory.objectNode();
     		obj.put("caseId", audit.getCaseId());
     		obj.put("attribute", audit.getAttribute());
     		obj.put("eventTime", audit.getEventTime().toString());
