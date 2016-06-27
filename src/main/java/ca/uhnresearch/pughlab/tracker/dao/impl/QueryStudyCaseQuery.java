@@ -10,9 +10,9 @@ public class QueryStudyCaseQuery implements StudyCaseQuery {
 	private SQLSubQuery query;
 	private Study study;
 
-	public QueryStudyCaseQuery(Study study, SQLSubQuery query) {
-		this.query = query;
-		this.study = study;
+	public QueryStudyCaseQuery(Study studyValue, SQLSubQuery queryValue) {
+		this.query = queryValue;
+		this.study = studyValue;
 	}
 
 	/**
@@ -23,10 +23,10 @@ public class QueryStudyCaseQuery implements StudyCaseQuery {
 	}
 
 	/**
-	 * @param query the query to set
+	 * @param queryValue the query to set
 	 */
-	public void setQuery(SQLSubQuery query) {
-		this.query = query;
+	public void setQuery(SQLSubQuery queryValue) {
+		this.query = queryValue;
 	}
 
 	/**
@@ -38,11 +38,11 @@ public class QueryStudyCaseQuery implements StudyCaseQuery {
 	}
 
 	/**
-	 * @param study the study to set
+	 * @param studyValue the study to set
 	 */
 	@Override
-	public void setStudy(Study study) {
-		this.study = study;
+	public void setStudy(Study studyValue) {
+		this.study = studyValue;
 	}
 
 }

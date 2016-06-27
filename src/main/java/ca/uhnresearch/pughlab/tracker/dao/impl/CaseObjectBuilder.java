@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.Tuple;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CaseObjectBuilder {
 
@@ -45,7 +45,7 @@ public class CaseObjectBuilder {
 	}
 
 	private JsonNode getNotAvailableValue() {
-		ObjectNode marked = jsonNodeFactory.objectNode();
+		final ObjectNode marked = jsonNodeFactory.objectNode();
 		marked.put("$notAvailable", Boolean.TRUE);
 		return marked;
 	}
@@ -55,7 +55,7 @@ public class CaseObjectBuilder {
 		
 		Integer index = 0;
 		for(CaseInfo info : caseInfos) {
-			ObjectNode obj = jsonNodeFactory.objectNode();
+			final ObjectNode obj = jsonNodeFactory.objectNode();
 			obj.put("$state", info.getState());
 			obj.put("$guid", info.getGuid());
 			obj.put("id", info.getId());
@@ -75,13 +75,13 @@ public class CaseObjectBuilder {
 	 */
 	public void addTupleAttributes(List<Tuple> values) {
 		for(Tuple v : values) {
-			Integer caseId = v.get(0, Integer.class);
-			String attributeName = v.get(1, String.class);
-			Object value = v.get(2, Object.class);
-			Boolean notAvailable = v.get(3, Boolean.class);
-			String notes = v.get(4, String.class);
+			final Integer caseId = v.get(0, Integer.class);
+			final String attributeName = v.get(1, String.class);
+			final Object value = v.get(2, Object.class);
+			final Boolean notAvailable = v.get(3, Boolean.class);
+			final String notes = v.get(4, String.class);
 			
-			ObjectNode obj = table.get(caseId);
+			final ObjectNode obj = table.get(caseId);
 			
 			// Add the case identifier
 			obj.put("id", caseId);

@@ -29,7 +29,7 @@ public class ViewProjection extends MappingProjection<View> {
 
     @Override
     protected View map(Tuple tuple) {
-    	View product = new View();
+    	final View product = new View();
 
         product.setId(tuple.get(views.id));
         product.setStudyId(tuple.get(views.studyId));
@@ -37,7 +37,7 @@ public class ViewProjection extends MappingProjection<View> {
         product.setDescription(tuple.get(views.description));
         product.setBody(tuple.get(views.body));
         
-        String options = tuple.get(views.options);
+        final String options = tuple.get(views.options);
 		if (options != null) {
 			try {
 				product.setOptions(mapper.readValue(options, JsonNode.class));
