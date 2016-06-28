@@ -716,6 +716,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 					.on(c.caseId.eq(cases.id).and(c.attributeId.eq(attributeQuery)));
 			OrderSpecifier<?> ordering = c.getValueOrderSpecifier(pager.getOrderDirection() == CasePager.OrderDirection.ASC);
 			sq = sq.orderBy(ordering);
+		} else {
+			sq = sq.orderBy(cases.order.asc());
 		}
 		
 		if (pager.hasOffset()) {

@@ -17,7 +17,7 @@ public class CaseInfoProjection extends MappingProjection<CaseInfo>{
 	 * @param cases
 	 */
 	public CaseInfoProjection(QCases cases) {
-		super(CaseInfo.class, cases.id, cases.guid, cases.state);
+		super(CaseInfo.class, cases.id, cases.guid, cases.order, cases.state);
 	}
 
 	/**
@@ -33,6 +33,6 @@ public class CaseInfoProjection extends MappingProjection<CaseInfo>{
 	@Override
 	protected CaseInfo map(Tuple tuple) {
 		final QCases cases = QCases.cases;
-		return new CaseInfo(tuple.get(cases.id), tuple.get(cases.guid), tuple.get(cases.state));
+		return new CaseInfo(tuple.get(cases.id), tuple.get(cases.guid), tuple.get(cases.order), tuple.get(cases.state));
 	}
 }

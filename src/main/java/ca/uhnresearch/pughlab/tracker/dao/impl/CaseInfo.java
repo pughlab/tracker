@@ -18,6 +18,11 @@ public class CaseInfo {
 	private String guid;
 
 	/**
+	 * The natural order key.
+	 */
+	private int order;
+	
+	/**
 	 * The state.
 	 */
 	private String state;
@@ -28,10 +33,11 @@ public class CaseInfo {
 	 * @param guidValue the new guid value
 	 * @param stateValue the new state value
 	 */
-	public CaseInfo(int idValue, String guidValue, String stateValue) {
+	public CaseInfo(int idValue, String guidValue, int orderValue, String stateValue) {
 		super();
 		this.id = idValue;
 		this.guid = guidValue;
+		this.order = orderValue;
 		this.state = stateValue;
 	}
 
@@ -61,6 +67,20 @@ public class CaseInfo {
 	 */
 	public void setGuid(String guidValue) {
 		this.guid = guidValue;
+	}
+
+	/**
+	 * @return the order
+	 */
+	public int getOrder() {
+		return order;
+	}
+
+	/**
+	 * @param idValue the id to set
+	 */
+	public void setOrder(int orderValue) {
+		this.order = orderValue;
 	}
 
 	/**

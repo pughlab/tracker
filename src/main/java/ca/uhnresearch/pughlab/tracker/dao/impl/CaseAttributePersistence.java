@@ -110,7 +110,7 @@ public class CaseAttributePersistence {
 	 */
 	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, List<? extends Attributes> attributeFilter) {
 		
-		final SQLQuery caseInfoQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
+		final SQLQuery caseInfoQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id))).orderBy(cases.order.asc());
 		final List<CaseInfo> caseInfos = template.query(caseInfoQuery, new CaseInfoProjection(cases));
 		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
 		final CaseObjectBuilder builder = new CaseObjectBuilder(caseInfos);

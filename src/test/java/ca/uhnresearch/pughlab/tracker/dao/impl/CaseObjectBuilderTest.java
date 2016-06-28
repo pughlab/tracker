@@ -42,7 +42,7 @@ public class CaseObjectBuilderTest {
 	@Before
 	public void initialize() {
 		List<CaseInfo> cases = new ArrayList<CaseInfo>();
-		CaseInfo c = new CaseInfo(1, "5AFA957B-1D64-450A-BC94-0167F10EB9CE", "test");
+		CaseInfo c = new CaseInfo(1, "5AFA957B-1D64-450A-BC94-0167F10EB9CE", 1, "test");
 		cases.add(c);
 		builder = new CaseObjectBuilder(cases);
 	}
