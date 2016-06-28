@@ -94,6 +94,5 @@ angular
       socket = new SocketEventEmitter(protocol, host, port)
 
       socket.on 'newListener', (data...) ->
-        console.log "Added listener", data
 
       socket
