@@ -9,8 +9,7 @@ public interface EventHandler {
 	
 	/**
 	 * Handles an event for a given scope, which is typically a study name.
-	 * @param event
-	 * @param scope
+	 * @param event the event
 	 */
 	void sendMessage(Event event);
 }

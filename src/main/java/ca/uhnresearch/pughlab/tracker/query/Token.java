@@ -35,7 +35,7 @@ public abstract class Token extends QueryNode {
 	
 	/**
 	 * Tests two tokens for equality.
-	 * @param the other token
+	 * @param other the other token
 	 * @return true if the tokens are equal
 	 */
 	public boolean equals(Object other) {

@@ -592,7 +592,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 	/**
 	 * Setter for an update event manager, allowing events to be triggered from the repository.
-	 * @param manager
+	 * @param source the source
 	 */
 	public void setEventSource(EventSource source) {
 		this.eventSource = source;

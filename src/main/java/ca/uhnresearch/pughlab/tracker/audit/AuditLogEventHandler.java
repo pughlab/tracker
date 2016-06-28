@@ -38,7 +38,6 @@ public class AuditLogEventHandler implements EventHandler {
 	/**
 	 * Handles a message by writing a new audit log record.
 	 * @param event the event
-	 * @param scope the event scope
 	 */
 	@Override
 	public void sendMessage(Event event) {

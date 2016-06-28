@@ -36,8 +36,7 @@ public class SimpleEventSource implements EventSource {
 
 	/**
 	 * Send the message to all the event handlers
-	 * @param event
-	 * @param scope
+	 * @param event the event
 	 */
 	@Override
 	public void doEvent(Event event) {
