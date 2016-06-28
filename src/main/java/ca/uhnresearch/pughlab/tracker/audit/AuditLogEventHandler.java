@@ -1,18 +1,38 @@
 package ca.uhnresearch.pughlab.tracker.audit;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import ca.uhnresearch.pughlab.tracker.dao.AuditLogRepository;
 import ca.uhnresearch.pughlab.tracker.dto.AuditLogRecord;
 import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.EventHandler;
 import ca.uhnresearch.pughlab.tracker.events.RedactedJsonNode;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+/**
+ * Handles events and puts them into the audit log.
+ * 
+ * @author stuartw
+ */
 public class AuditLogEventHandler implements EventHandler {
 	
+	/**
+	 * Field name for the attribute.
+	 */
 	private static final String FIELD = "field";
+	
+	/**
+	 * Field name for the case identifier.
+	 */
 	private static final String CASE_ID = "case_id";
+	
+	/**
+	 * field name for the study identifier.
+	 */
 	private static final String STUDY_ID = "study_id";
+	
+	/**
+	 * The {@link AuditLogRepository}, which will be injected.
+	 */
 	private AuditLogRepository repository;
 
 	/**
@@ -27,7 +47,7 @@ public class AuditLogEventHandler implements EventHandler {
 		// audit log, although it's handy for scripting and event handling in other forms, like
 		// socket data.
 		final ObjectNode parameters = 
-				RedactedJsonNode.redactedToClear(event.getData().getParameters());
+						 RedactedJsonNode.redactedToClear(event.getData().getParameters());
 		
 		final AuditLogRecord record = new AuditLogRecord();
 		if (parameters.has(STUDY_ID)) {
@@ -55,7 +75,7 @@ public class AuditLogEventHandler implements EventHandler {
 
 	/**
 	 * Sets the audit log repository.
-	 * @param repository the repository to set
+	 * @param r the repository to set
 	 */
 	public void setRepository(AuditLogRepository r) {
 		this.repository = r;

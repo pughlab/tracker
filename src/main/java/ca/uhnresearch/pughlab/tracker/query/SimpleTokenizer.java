@@ -13,17 +13,37 @@ import java.io.Reader;
  */
 public class SimpleTokenizer implements Tokenizer {
 	
+	/**
+	 * Behind the simple tokenizer, there is a {@link Reader} for the
+	 * input.
+	 */
 	private final Reader input;
 	
-	private int peek = -1;
-	
+	/**
+	 * If the peek is empty, it'll contain this.
+	 */
 	private static final int PEEK_EMPTY = -1;
 	
+	/**
+	 * If we peeked, we'll store what we peeked at here.
+	 */
+	private int peek = PEEK_EMPTY;
+	
+	/**
+	 * To assemble a token, we use an inner {@link StringBuilder}.
+	 */
 	private StringBuilder tokenBuilder = new StringBuilder();
 	
+	/**
+	 * Returns the next character, managing peeking logic if we have 
+	 * used it.
+	 * 
+	 * @return the next character
+	 * @throws IOException
+	 */
 	private int getNextCharacter() throws IOException {
 		if (peek != PEEK_EMPTY) {
-			int result = peek;
+			final int result = peek;
 			peek = PEEK_EMPTY;
 			return result;
 		} else {
@@ -31,17 +51,29 @@ public class SimpleTokenizer implements Tokenizer {
 		}
 	}
 	
+	/**
+	 * Marks a character as unread.
+	 * @param character
+	 */
 	private void ungetCharacter(int character) {
 		if (character != PEEK_EMPTY) {
 			peek = character;
 		}
 	}
 	
+	/**
+	 * Basic constructor, which takes a reader and wraps it in a tokenizer.
+	 * @param input the reader
+	 */
 	public SimpleTokenizer(Reader input) {
 		super();
 		this.input = input;
 	}
 
+	/**
+	 * Returns the next token from the tokenizer.
+	 * @return the next token
+	 */
 	public Token getNextToken() throws IOException, InvalidTokenException {
 		tokenBuilder.setLength(0);
 		

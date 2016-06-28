@@ -17,22 +17,55 @@ import com.mysema.query.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Builder class to translate a set of case objects into populated values that can be 
+ * returned. This includes applying an attribute-level filter so that confidential
+ * information is not passed back to the front end. 
+ * 
+ * @author stuartw
+ */
 public class CaseObjectBuilder {
 
+	/**
+	 * A logger.
+	 */
 	@SuppressWarnings("unused")
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * Factory to make new JSON nodes.
+	 */
 	private static JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
 
+	/**
+	 * The mapper to translate from JSON.
+	 */
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
+	/**
+	 * A table mapping internal identities with object nodes.
+	 */
 	private Map<Integer, ObjectNode> table = new HashMap<Integer, ObjectNode>();
 
+	/**
+	 * The list of objects being built.
+	 */
 	private List<ObjectNode> objects = new ArrayList<ObjectNode>();
 	
+	/**
+	 * True if an attribute name filter is being applied.
+	 */
 	private boolean attributeNameFilter = false;
+	
+	/**
+	 * The attribute name set.
+	 */
 	private Set<String> attributeNameSet = new HashSet<String>();
 	
+	/**
+	 * Sets an attribute name filter
+	 * @param attributeNames the list of attribute names
+	 */
 	public void setAttributeNameFilter(List<String> attributeNames) {
 		for(String attribute : attributeNames) {
 			attributeNameSet.add(attribute);
@@ -40,16 +73,29 @@ public class CaseObjectBuilder {
 		attributeNameFilter = true;
 	}
 	
+	/**
+	 * Tests if an attribute name matches the filter.
+	 * @param name the attribute name
+	 * @return true if this attribute is not filtered
+	 */
 	private boolean attributeNameIncluded(String name) {
 		return (! attributeNameFilter) || attributeNameSet.contains(name);
 	}
 
+	/**
+	 * Generates an N/A value.
+	 * @return the new N/A value
+	 */
 	private JsonNode getNotAvailableValue() {
 		final ObjectNode marked = jsonNodeFactory.objectNode();
 		marked.put("$notAvailable", Boolean.TRUE);
 		return marked;
 	}
 	
+	/**
+	 * Makes a new builder for a set of {@link CaseInfo} records.
+	 * @param caseInfos
+	 */
 	public CaseObjectBuilder(List<CaseInfo> caseInfos) {
 		objects.clear();
 		
@@ -64,8 +110,64 @@ public class CaseObjectBuilder {
 		}
 	}
 	
+	/**
+	 * Returns the list of case objects
+	 * @return the case objects
+	 */
 	public List<ObjectNode> getCaseObjects() {
 		return objects;
+	}
+	
+	/**
+	 * Add the value into the returned object
+	 * @param obj the object
+	 * @param attributeName the attribute
+	 * @param notAvailable is this N/A
+	 * @param value the value
+	 */
+	private void addValue(ObjectNode obj, String attributeName, Boolean notAvailable, Object value) {
+		if (notAvailable != null && notAvailable) {
+			obj.replace(attributeName, getNotAvailableValue());
+		} else if (value == null) {
+			obj.put(attributeName, (String) null);
+		} else if (value instanceof String) {
+			obj.put(attributeName, (String) value);
+		} else if (value instanceof Date) {
+			obj.put(attributeName, ((Date) value).toString());
+		} else if (value instanceof Boolean) {
+			obj.put(attributeName, (Boolean) value);
+		} else if (value instanceof Double) {
+			obj.put(attributeName, (Double) value);
+		} else {
+			throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
+		}
+	}
+	
+	/**
+	 * Add notes into the returned object value.
+	 * @param obj the object
+	 * @param attributeName the attribute
+	 * @param notes the notes
+	 */
+	private void addNotes(ObjectNode obj, String attributeName, String notes) {
+		if (notes == null) return;
+		
+		JsonNode notesNode = null;
+		try {
+			notesNode = objectMapper.readTree(notes);
+		} catch (Exception e) {
+			throw new RuntimeException("Invalid JSON: " + e.getMessage() + ": " + notes);
+		}
+		
+		ObjectNode recordNotesNode;
+		
+		if (! obj.has("$notes")) {
+			recordNotesNode = jsonNodeFactory.objectNode();
+			obj.set("$notes", recordNotesNode);
+		} else {
+			recordNotesNode = (ObjectNode) obj.get("$notes");
+		}
+		recordNotesNode.set(attributeName, notesNode);
 	}
 	
 	/**
@@ -90,43 +192,8 @@ public class CaseObjectBuilder {
 				continue;
 			}
 			
-			// Add the value
-			if (notAvailable != null && notAvailable) {
-				obj.replace(attributeName, getNotAvailableValue());
-			} else if (value == null) {
-				obj.put(attributeName, (String) null);
-			} else if (value instanceof String) {
-				obj.put(attributeName, (String) value);
-			} else if (value instanceof Date) {
-				obj.put(attributeName, ((Date) value).toString());
-			} else if (value instanceof Boolean) {
-				obj.put(attributeName, (Boolean) value);
-			} else if (value instanceof Double) {
-				obj.put(attributeName, (Double) value);
-			} else {
-				throw new RuntimeException("Invalid attribute type: " + value.getClass().getCanonicalName());
-			}
-			
-			// If we have notes, we need to add them. They are added in a per-record
-			// holder attribute, $notes, and need to be decoded from JSON. 
-			if (notes != null) {
-				JsonNode notesNode = null;
-				try {
-					notesNode = objectMapper.readTree(notes);
-				} catch (Exception e) {
-					throw new RuntimeException("Invalid JSON: " + e.getMessage() + ": " + notes);
-				}
-				
-				ObjectNode recordNotesNode;
-				
-				if (! obj.has("$notes")) {
-					recordNotesNode = jsonNodeFactory.objectNode();
-					obj.set("$notes", recordNotesNode);
-				} else {
-					recordNotesNode = (ObjectNode) obj.get("$notes");
-				}
-				recordNotesNode.set(attributeName, notesNode);
-			}
+			addValue(obj, attributeName, notAvailable, value);
+			addNotes(obj, attributeName, notes);
 		}
 	}
 }
