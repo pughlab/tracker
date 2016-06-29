@@ -3,7 +3,7 @@ package ca.uhnresearch.pughlab.tracker.dao.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
+import ca.uhnresearch.pughlab.tracker.domain.QAttributes;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.validation.BooleanValueValidator;
 import ca.uhnresearch.pughlab.tracker.validation.DateValueValidator;
@@ -19,9 +19,18 @@ import com.mysema.query.sql.RelationalPath;
 import com.mysema.query.sql.dml.AbstractMapper;
 import com.mysema.query.types.Path;
 
+/**
+ * Maps attributes into a form which can be written into the database.
+ * 
+ * @author stuartw
+ */
 public class AttributeMapper extends AbstractMapper<Attributes> {
 
-	private static final Map<String, ValueValidator> validators = new HashMap<String, ValueValidator>();
+	/**
+	 * The list of available validators.
+	 */
+	private static final Map<String, ValueValidator> validators = 
+			new HashMap<String, ValueValidator>();
 	
 	static {
 		validators.put(Attributes.ATTRIBUTE_TYPE_STRING, new StringValueValidator());
@@ -31,14 +40,29 @@ public class AttributeMapper extends AbstractMapper<Attributes> {
 		validators.put(Attributes.ATTRIBUTE_TYPE_NUMBER, new NumberValueValidator());
 	}
 	
+	/**
+	 * Retrieves the appropriate validator.
+	 * @param type the type
+	 * @return the validator
+	 */
 	public static ValueValidator getAttributeValidator(String type) {
 		return validators.get(type);
 	}
 
+	/**
+	 * Mapper to serialize Java values.
+	 */
 	private static ObjectMapper mapper = new ObjectMapper();
 
+	/**
+	 * Main method to initialize a map for writing from the given bean.
+	 * @param entity the entity
+	 * @param bean the attribute object
+	 * @return a map of paths to writable values
+	 */
 	@Override
     public Map<Path<?>, Object> createMap(RelationalPath<?> entity, Attributes bean) {
+		final QAttributes attributes = QAttributes.attributes;
         final Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
         values.put(attributes.id, bean.getId());
         values.put(attributes.studyId, bean.getStudyId());

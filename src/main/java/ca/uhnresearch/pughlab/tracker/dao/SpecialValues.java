@@ -14,6 +14,6 @@ public class SpecialValues {
 	 * An object which represents N/A.
 	 */
 	public static final ObjectNode NOT_AVAILABLE = 
-			JsonNodeFactory.instance.objectNode().put("$notAvailable", Boolean.TRUE);
+					JsonNodeFactory.instance.objectNode().put("$notAvailable", Boolean.TRUE);
 
 }

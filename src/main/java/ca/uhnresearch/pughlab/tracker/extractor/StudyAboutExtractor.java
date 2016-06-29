@@ -24,25 +24,25 @@ public class StudyAboutExtractor extends RepositoryAwareExtractor {
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		String value = (String) request.getAttributes().get("studyName");
+		final String value = (String) request.getAttributes().get("studyName");
 		
 		// Now we can extract the study and write it as a new attribute
-		Study s = getRepository().getStudy(value);
+		final Study s = getRepository().getStudy(value);
 		
 		// If we don't find a value, we can fail at this stage.
 		if (s == null) {
-			String message = MessageFormat.format("Can't find study: {}", value);
+			final String message = MessageFormat.format("Can't find study: {}", value);
 			logger.warn(message);
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, message);
 		}
 		
 		// Permissions checking might also be a sensible idea
-    	Subject currentUser = SecurityUtils.getSubject();
-		PrincipalCollection principals = currentUser.getPrincipals();
-		String user = principals.getPrimaryPrincipal().toString();
+		final Subject currentUser = SecurityUtils.getSubject();
+		final PrincipalCollection principals = currentUser.getPrincipals();
+		final String user = principals.getPrimaryPrincipal().toString();
     	logger.debug("Authenticated as: {}", user);
     	
-    	Boolean viewPermitted = currentUser.isPermitted(s.getName() + ":view");
+    	final Boolean viewPermitted = currentUser.isPermitted(s.getName() + ":view");
     	Boolean accessPermitted = viewPermitted;
     	
     	if (! accessPermitted) {
@@ -57,7 +57,7 @@ public class StudyAboutExtractor extends RepositoryAwareExtractor {
     	}
     	
     	logger.debug("OK, continuing with the study about: {}", s.getName());
-    	StudyAboutResponse about = new StudyAboutResponse();
+    	final StudyAboutResponse about = new StudyAboutResponse();
     	about.setId(s.getId());
     	about.setName(s.getName());
     	about.setDescription(s.getDescription());

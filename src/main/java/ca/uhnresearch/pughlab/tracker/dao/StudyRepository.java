@@ -11,6 +11,11 @@ import ca.uhnresearch.pughlab.tracker.events.EventSource;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * The general interface for a study repository.
+ * 
+ * @author stuartw
+ */
 public interface StudyRepository {
 
 	/**
@@ -29,7 +34,9 @@ public interface StudyRepository {
 	/**
 	 * Writes or updates a study in the repository.
 	 * @param name the study name
+	 * @param userName the username
 	 * @return a study
+	 * @throws RepositoryException if there's an exception
 	 */
 	Study saveStudy(Study name, String userName) throws RepositoryException;
 	
@@ -43,7 +50,8 @@ public interface StudyRepository {
 	/**
 	 * Writes the views for a study into the repository.
 	 * @param study the study
-	 * @throws RepositoryException
+	 * @param views a list of views
+	 * @throws RepositoryException if there's an exception
 	 */
 	void setStudyViews(Study study, List<View> views) throws RepositoryException;
 
@@ -57,6 +65,7 @@ public interface StudyRepository {
 	/**
 	 * Retrieves a single named attribute for a study from the repository.
 	 * @param study the study
+	 * @param name the attribute name
 	 * @return the attribute
 	 */
 	Attributes getStudyAttribute(Study study, String name);
@@ -64,13 +73,15 @@ public interface StudyRepository {
 	/**
 	 * Writes the attributes for a study to the repository.
 	 * @param study the study
-	 * @throws RepositoryException
+	 * @param attributes a list of attributes
+	 * @throws RepositoryException if there's an exception
 	 */
 	void setStudyAttributes(Study study, List<Attributes> attributes) throws RepositoryException;
 
 	/**
 	 * Retrieves a single specified view for a study from the repository.
 	 * @param study the study
+	 * @param name the view name
 	 * @return a view
 	 */
 	View getStudyView(Study study, String name);
@@ -79,7 +90,7 @@ public interface StudyRepository {
 	 * Updates a single view for the study.
 	 * @param study the study
 	 * @param view the view
-	 * @throws RepositoryException
+	 * @throws RepositoryException if there's an exception
 	 */
 	void setStudyView(Study study, View view) throws RepositoryException;
 	
@@ -96,9 +107,10 @@ public interface StudyRepository {
 	 * @param study the study
 	 * @param view the view
 	 * @param attributes the attributes
-	 * @throws RepositoryException
+	 * @throws RepositoryException if there's an exception
 	 */
-	void setViewAttributes(Study study, View view, List<ViewAttributes> attributes) throws RepositoryException;
+	void setViewAttributes(Study study, View view, List<ViewAttributes> attributes) 
+			throws RepositoryException;
 	
 	/**
 	 * Retrieves the record count for a specified study/view from the repository.
@@ -130,6 +142,8 @@ public interface StudyRepository {
 	 * Deletes a set of cases from the repository.
 	 *
 	 * @param query the query to select cases
+	 * @param userName the username
+	 * @throws RepositoryException if there's an exception
 	 */
 	void deleteCases(StudyCaseQuery query, String userName) throws RepositoryException;
 
@@ -208,6 +222,7 @@ public interface StudyRepository {
 	/**
 	 * Retrieves a single specified case for a study and view from the repository.
 	 * @param study the study
+	 * @param caseId a case id to locate
 	 * @return a case
 	 */
 	Cases getStudyCase(Study study, Integer caseId);
@@ -227,12 +242,15 @@ public interface StudyRepository {
 	
 	/**
 	 * Makes a new, empty, case. The new case will be added before beforeCase
-	 * and the others reordered. If afterCase is null or not passed, the new case will be added at the
-	 * beginning of the case list, which is only sometimes what you want.
+	 * and the others reordered. If afterCase is null or not passed, the new case 
+	 * will be added at the beginning of the case list, which is only sometimes what 
+	 * you want.
 	 * 
 	 * @param study the study
+	 * @param userName the user name
+	 * @param beforeCase if supplied, inserts the case before this specified case
 	 * @return the case identifier
-	 * @throws RepositoryException
+	 * @throws RepositoryException if there's an exception
 	 */
 	Cases newStudyCase(Study study, String userName, Cases beforeCase) throws RepositoryException;
 	
@@ -242,7 +260,7 @@ public interface StudyRepository {
 	 * @param study the study
 	 * @param userName the user name
 	 * @return a new case
-	 * @throws RepositoryException 
+	 * @throws RepositoryException if there's an exception
 	 */
 	Cases newStudyCase(Study study, String userName) throws RepositoryException;
 	
@@ -254,7 +272,8 @@ public interface StudyRepository {
 	 * @return a list of CaseChangeInfo records
 	 * @throws RepositoryException
 	 */
-	List<CaseChangeInfo> setQueryAttributes(StudyCaseQuery query, String userName, ObjectNode values) throws RepositoryException;
+	List<CaseChangeInfo> setQueryAttributes(StudyCaseQuery query, String userName, 
+			                                ObjectNode values) throws RepositoryException;
 	
 	/**
 	 * Sets the event source.

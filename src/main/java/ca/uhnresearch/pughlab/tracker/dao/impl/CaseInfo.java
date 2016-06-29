@@ -77,7 +77,7 @@ public class CaseInfo {
 	}
 
 	/**
-	 * @param idValue the id to set
+	 * @param orderValue the order to set
 	 */
 	public void setOrder(int orderValue) {
 		this.order = orderValue;

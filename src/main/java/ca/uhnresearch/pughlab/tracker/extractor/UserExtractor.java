@@ -36,8 +36,8 @@ public class UserExtractor extends Extractor {
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		Subject currentUser = SecurityUtils.getSubject();
-		User user = new User(currentUser);
+		final Subject currentUser = SecurityUtils.getSubject();
+		final User user = new User(currentUser);
 		
 		try {
 			getRepository().saveUser(user);

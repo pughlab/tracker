@@ -52,7 +52,7 @@ public class SimpleEventSource implements EventSource {
 	private void sendQueuedEvents() {
 		handlingEvents = true;
 		while(! events.isEmpty()) {
-			Event next = events.remove(0);
+			final Event next = events.remove(0);
 			sendQueuedEvent(next);
 		}
 		handlingEvents = false;
@@ -63,7 +63,7 @@ public class SimpleEventSource implements EventSource {
 			try {
 				handler.sendMessage(event);
 			} catch (Exception e) {
-				ByteArrayOutputStream output = new ByteArrayOutputStream();
+				final ByteArrayOutputStream output = new ByteArrayOutputStream();
 				e.printStackTrace(new PrintStream(output));
 				logger.error(new String(output.toByteArray()));
 				return;

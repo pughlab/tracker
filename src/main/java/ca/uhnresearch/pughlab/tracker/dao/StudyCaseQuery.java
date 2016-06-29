@@ -18,7 +18,7 @@ public interface StudyCaseQuery {
 	
 	/**
 	 * Sets the study.
-	 * @param study
+	 * @param study the study
 	 */
 	void setStudy(Study study);
 	

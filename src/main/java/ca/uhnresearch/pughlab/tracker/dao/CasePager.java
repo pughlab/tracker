@@ -11,7 +11,16 @@ public class CasePager {
 	 * Allows the order direction to be specified.
 	 */
 	public enum OrderDirection {
-		ASC, DESC
+		
+		/**
+		 * Ascending order.
+		 */
+		ASC, 
+		
+		/**
+		 * Descending order.
+		 */
+		DESC
 	}
 	
 	/**
