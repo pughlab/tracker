@@ -27,7 +27,7 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 	
 	/**
-	 * A logger
+	 * A logger.
 	 */
 	private final Logger logger = LoggerFactory.getLogger(EntityResource.class);
 	
@@ -69,11 +69,11 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 		
     	logger.debug("Called getResource() in EntityResource");
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
-    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final View view = RequestAttributes.getRequestView(getRequest());
+    	final StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	
-        List<ObjectNode> cases = getRepository().getCaseData(query, view);
+    	final List<ObjectNode> cases = getRepository().getCaseData(query, view);
         if (cases.isEmpty()) {
     		throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     	}

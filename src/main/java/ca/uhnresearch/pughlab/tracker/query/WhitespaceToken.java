@@ -9,7 +9,7 @@ public class WhitespaceToken extends Token {
 
 	/**
 	 * Constructs a new WhitespaceToken from a string of characters.
-	 * @param value
+	 * @param value the value
 	 */
 	public WhitespaceToken(String value) {
 		super(value);

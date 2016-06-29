@@ -18,19 +18,19 @@ import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
-import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
+import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.EntityResponse;
 import ca.uhnresearch.pughlab.tracker.dto.NewEntityRequestBody;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 import ca.uhnresearch.pughlab.tracker.dto.View;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class EntityFactoryResource extends StudyRepositoryResource<EntityResponse> {
 
@@ -44,16 +44,16 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     public Representation postResource(Representation input) {
     	
     	// Permissions -- write permission is needed to create a new record
-    	Subject currentUser = SecurityUtils.getSubject();
+    	final Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	boolean createUser = currentUser.isPermitted(study.getName() + ":create");
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final boolean createUser = currentUser.isPermitted(study.getName() + ":create");
     	if (! createUser) {
-			String message = MessageFormat.format("No create access for study: {0}", study.getName());
+    		final String message = MessageFormat.format("No create access for study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
-    	View view = RequestAttributes.getRequestView(getRequest());
+    	final View view = RequestAttributes.getRequestView(getRequest());
     	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
 
     	// First of all, we should try to deserialize what we have as an input.
@@ -62,7 +62,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
     	
     	// And now to grab the new attributes and render back.
     	try {
-    		NewEntityRequestBody caseData = converter.toObject(input, NewEntityRequestBody.class, this);
+    		final NewEntityRequestBody caseData = converter.toObject(input, NewEntityRequestBody.class, this);
 			logger.debug("Got new case data {}", caseData);
 			
 			ObjectNode attributes = caseData.getEntity();
@@ -70,15 +70,15 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 
 			// Check permissions before we create a new case
 			while(fieldIterator.hasNext()) {
-				Map.Entry<String,JsonNode> field = fieldIterator.next();
+				final Map.Entry<String,JsonNode> field = fieldIterator.next();
 
 				if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName())) {
 					String message = MessageFormat.format("Forbidden: no write access for study: {0}, view: {1}", study.getName(), view.getName());
 					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
 				}
 
-				String attributeName = field.getKey();
-				Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
+				final String attributeName = field.getKey();
+				final Attributes attribute = getRepository().getStudyAttribute(study, attributeName);
 				if (attribute == null) {
 					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Can't write attribute: " + attributeName);
 				}
@@ -94,9 +94,9 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 				beforeCase = getRepository().getStudyCase(study, caseData.getBeforeId());
 			}
 			
-			PrincipalCollection principals = currentUser.getPrincipals();
-			String user = principals.getPrimaryPrincipal().toString();
-			Cases newCase = getRepository().newStudyCase(study, user, beforeCase);
+			final PrincipalCollection principals = currentUser.getPrincipals();
+			final String user = principals.getPrimaryPrincipal().toString();
+			final Cases newCase = getRepository().newStudyCase(study, user, beforeCase);
 			if (newCase == null) {
 				throw new RuntimeException("Error creating new case");
 			}
@@ -129,7 +129,7 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 		// Now we should locate the new entity and return it using the same response
 		// type. This is a little problematic. 
     	
-    	EntityResponse response = new EntityResponse();
+		final EntityResponse response = new EntityResponse();
     	buildResponseDTO(response);
         return new JacksonRepresentation<EntityResponse>(response);
     }
@@ -141,11 +141,11 @@ public class EntityFactoryResource extends StudyRepositoryResource<EntityRespons
 		
     	logger.debug("Called getResource() in EntityResource");
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
-    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final View view = RequestAttributes.getRequestView(getRequest());
+    	final StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	
-    	List<ObjectNode> cases = getRepository().getCaseData(query, view);
+    	final List<ObjectNode> cases = getRepository().getCaseData(query, view);
     	if (cases.isEmpty()) {
     		throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     	}

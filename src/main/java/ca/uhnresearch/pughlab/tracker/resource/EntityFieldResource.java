@@ -55,7 +55,7 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     	
     	if (! currentUser.isPermitted(study.getName() + ":write:" + view.getName()) ||
     		! currentUser.isPermitted(study.getName() + ":attribute:write:" + attribute.getName())) {
-			String message = MessageFormat.format("No write access to attribute: {0}", attribute.getName());
+    		final String message = MessageFormat.format("No write access to attribute: {0}", attribute.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	

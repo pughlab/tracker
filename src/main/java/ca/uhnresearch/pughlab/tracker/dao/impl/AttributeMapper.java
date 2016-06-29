@@ -30,7 +30,7 @@ public class AttributeMapper extends AbstractMapper<Attributes> {
 	 * The list of available validators.
 	 */
 	private static final Map<String, ValueValidator> validators = 
-			new HashMap<String, ValueValidator>();
+					new HashMap<String, ValueValidator>();
 	
 	static {
 		validators.put(Attributes.ATTRIBUTE_TYPE_STRING, new StringValueValidator());

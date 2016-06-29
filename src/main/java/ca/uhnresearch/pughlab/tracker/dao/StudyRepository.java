@@ -270,7 +270,7 @@ public interface StudyRepository {
 	 * @param userName the user name
 	 * @param values the values
 	 * @return a list of CaseChangeInfo records
-	 * @throws RepositoryException
+	 * @throws RepositoryException if there's an exception
 	 */
 	List<CaseChangeInfo> setQueryAttributes(StudyCaseQuery query, String userName, 
 			                                ObjectNode values) throws RepositoryException;
