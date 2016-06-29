@@ -42,12 +42,12 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     public Representation putResource(Representation input) {
     	
     	logger.debug("Called putResource() in EntityFieldResource", input);
-    	Subject currentUser = SecurityUtils.getSubject();
+    	final Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
-    	Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
-    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final View view = RequestAttributes.getRequestView(getRequest());
+    	final Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
+    	final StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	
     	if (study == null || view == null || attribute == null) {
     		throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Missing study, view, or attribute");
@@ -70,11 +70,11 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
     	// Write the value, handling exceptions we might get, and converting them to
     	// appropriate server responses.
     	
-		PrincipalCollection principals = currentUser.getPrincipals();
-		String user = principals.getPrimaryPrincipal().toString();
+    	final PrincipalCollection principals = currentUser.getPrincipals();
+    	final String user = principals.getPrimaryPrincipal().toString();
     	
     	try {
-    		ObjectNode values = jsonNodeFactory.objectNode();
+    		final ObjectNode values = jsonNodeFactory.objectNode();
     		values.replace(attribute.getName(), data.get("value"));
 			getRepository().setQueryAttributes(query, user, values);
 		} catch (InvalidValueException e) {
@@ -91,7 +91,7 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 
     @Get("json")
     public Representation getResource()  {
-    	EntityValueResponse response = new EntityValueResponse();
+    	final EntityValueResponse response = new EntityValueResponse();
     	buildResponseDTO(response);
         return new JacksonRepresentation<EntityValueResponse>(response);
     }
@@ -101,28 +101,28 @@ public class EntityFieldResource extends StudyRepositoryResource<EntityValueResp
 	public void buildResponseDTO(EntityValueResponse dto) {
 		super.buildResponseDTO(dto);
 
-		Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
-    	Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
-    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+		final Study study = RequestAttributes.getRequestStudy(getRequest());
+		final View view = RequestAttributes.getRequestView(getRequest());
+		final Attributes attribute = RequestAttributes.getRequestAttribute(getRequest());
+		final StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
 
     	// Add support for the permissions. It's very simple here
     	if (! currentUser.isPermitted(study.getName() + ":attribute:read:" + attribute.getName())) {
-			String message = MessageFormat.format("No read access to attribute: {0}", attribute.getName());
+    		final String message = MessageFormat.format("No read access to attribute: {0}", attribute.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
-    	List<ObjectNode> cases = getRepository().getCaseData(query, view);
+    	final List<ObjectNode> cases = getRepository().getCaseData(query, view);
     	if (cases.isEmpty()) {
     		throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     	}
     	
-    	ObjectNode result = cases.get(0);
+    	final ObjectNode result = cases.get(0);
     	
     	// Get the value and build an appropriate response
-    	JsonNode val = result.get(attribute.getName());
+    	final JsonNode val = result.get(attribute.getName());
     	
     	dto.setStudy(study);
     	dto.setView(view);

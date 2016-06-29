@@ -12,7 +12,7 @@ public class DefaultingFilterFactoryBean implements FactoryBean<DefaultingFilter
 
 	@Override
 	public DefaultingFilter getObject() throws Exception {
-		DefaultingFilter filter = new DefaultingFilter(component.getContext(), next);
+		final DefaultingFilter filter = new DefaultingFilter(component.getContext(), next);
 		filter.setDefaultPath(defaultPath);
         return filter;
 	}

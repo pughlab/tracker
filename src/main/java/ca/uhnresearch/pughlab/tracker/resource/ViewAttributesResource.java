@@ -27,14 +27,14 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
 	public void buildResponseDTO(ViewAttributesResponse dto) {
 		super.buildResponseDTO(dto);
 		    	
-		Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
-    	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
+		final Study study = RequestAttributes.getRequestStudy(getRequest());
+		final View view = RequestAttributes.getRequestView(getRequest());
+		final List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
     	
     	// Security should also apply here, and this requires a wee bit of fiddling
-    	List<ViewAttributes> readable = new ArrayList<ViewAttributes>();
+		final List<ViewAttributes> readable = new ArrayList<ViewAttributes>();
     	for(ViewAttributes va : attributes) {
     		if (currentUser.isPermitted(study.getName() + ":attribute:read:" + va.getName())) {
     			readable.add(va);
@@ -45,17 +45,16 @@ public class ViewAttributesResource extends StudyRepositoryResource<ViewAttribut
     	dto.setView(view);
     	dto.setAttributes(readable);
     	
-    	Boolean createPermitted = currentUser.isPermitted(study.getName() + ":create");
-    	Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete");
+    	final Boolean createPermitted = currentUser.isPermitted(study.getName() + ":create");
+    	final Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete");
     	dto.getPermissions().setCreate(createPermitted); 
     	dto.getPermissions().setDelete(deletePermitted); 
 
-    	Boolean readPermitted = currentUser.isPermitted(study.getName() + ":read:" + view.getName());
-    	Boolean writePermitted = currentUser.isPermitted(study.getName() + ":write:" + view.getName());
-    	Boolean downloadPermitted = currentUser.isPermitted(study.getName() + ":download:" + view.getName());
-    	readPermitted = readPermitted || writePermitted;
+    	final Boolean readPermitted = currentUser.isPermitted(study.getName() + ":read:" + view.getName());
+    	final Boolean writePermitted = currentUser.isPermitted(study.getName() + ":write:" + view.getName());
+    	final Boolean downloadPermitted = currentUser.isPermitted(study.getName() + ":download:" + view.getName());
     	
-    	dto.getPermissions().setRead(readPermitted); 
+    	dto.getPermissions().setRead(readPermitted || writePermitted); 
     	dto.getPermissions().setWrite(writePermitted); 
     	dto.getPermissions().setDownload(downloadPermitted); 
 	}

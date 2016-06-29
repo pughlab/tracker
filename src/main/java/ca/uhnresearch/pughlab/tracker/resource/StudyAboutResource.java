@@ -10,7 +10,7 @@ public class StudyAboutResource extends StudyRepositoryResource<StudyAboutRespon
 	
     @Get("json")
     public Representation getResource()  {
-    	StudyAboutResponse response = RequestAttributes.getRequestStudyAbout(getRequest());
+    	final StudyAboutResponse response = RequestAttributes.getRequestStudyAbout(getRequest());
     	buildResponseDTO(response);
        	return new JacksonRepresentation<StudyAboutResponse>(response);
     }

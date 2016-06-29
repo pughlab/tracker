@@ -25,9 +25,9 @@ public class AuthorizationRepositoryResource<T extends AbstractResponse> extends
 	}
 
 	public void buildResponseDTO(T dto) {
-    	Subject currentUser = SecurityUtils.getSubject();
-    	User user = new User(currentUser);
-    	URL url = getRequest().getRootRef().toUrl();
+		final Subject currentUser = SecurityUtils.getSubject();
+		final User user = new User(currentUser);
+		final URL url = getRequest().getRootRef().toUrl();
 
     	dto.setUser(user);
     	dto.setServiceUrl(url);

@@ -40,7 +40,7 @@ public class ExpressionNode extends QueryNode {
 	 */
 	public boolean equals(Object other) {
 		if (other instanceof ExpressionNode) {
-			ExpressionNode otherExpression = (ExpressionNode) other;
+			final ExpressionNode otherExpression = (ExpressionNode) other;
 			return operandLeft.equals(otherExpression.getOperandLeft()) &&
 					operator.equals(otherExpression.getOperator()) &&
 					operandRight.equals(otherExpression.getOperandRight());
@@ -50,7 +50,7 @@ public class ExpressionNode extends QueryNode {
 	}
 	
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		if (operandLeft != null) {
 			builder.append(operandLeft.toString());
 			builder.append(' ');

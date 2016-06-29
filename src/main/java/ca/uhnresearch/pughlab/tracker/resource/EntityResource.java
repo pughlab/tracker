@@ -33,26 +33,26 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 	
     @Get("json")
     public Representation getResource() {
-    	EntityResponse response = new EntityResponse();
+    	final EntityResponse response = new EntityResponse();
     	buildResponseDTO(response);
         return new JacksonRepresentation<EntityResponse>(response);
     }
 
 	@Delete()
 	public void deleteResource()  {
-		Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 		
-		Request request = getRequest();
-    	Study study = RequestAttributes.getRequestStudy(request);
-    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(request);
+		final Request request = getRequest();
+		final Study study = RequestAttributes.getRequestStudy(request);
+		final StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(request);
 
-    	Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete");
+		final Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete");
     	if (! deletePermitted) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, "No delete permission for this resource");
     	}
 
-		PrincipalCollection principals = currentUser.getPrincipals();
-		String user = principals.getPrimaryPrincipal().toString();
+    	final PrincipalCollection principals = currentUser.getPrincipals();
+    	final String user = principals.getPrimaryPrincipal().toString();
 
     	try {
 			getRepository().deleteCases(query, user);

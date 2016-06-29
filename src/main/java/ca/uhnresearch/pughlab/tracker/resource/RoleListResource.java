@@ -37,7 +37,7 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 
     @Get("json")
     public Representation getResource() {
-    	RoleListResponse response = new RoleListResponse();
+    	final RoleListResponse response = new RoleListResponse();
     	buildResponseDTO(response);
        	return new JacksonRepresentation<RoleListResponse>(response);
     }
@@ -45,16 +45,16 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     @Put("json")
     public Representation putResource(Representation input)  {
     	
-    	Subject currentUser = SecurityUtils.getSubject();
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final Subject currentUser = SecurityUtils.getSubject();
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
-			String message = MessageFormat.format("No access to study: {0}", study.getName());
+    		final String message = MessageFormat.format("No access to study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
     	try {
-    		RoleListResponse data = converter.toObject(input, RoleListResponse.class, this);
+    		final RoleListResponse data = converter.toObject(input, RoleListResponse.class, this);
     		
     		if (data == null) {
     			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid data for request");
@@ -66,9 +66,9 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
 			// indexed by identifier, so we know which ones we have been asked 
 			// to delete. 
 			
-			CasePager query = new CasePager();
-			List<Role> oldRoles = getRepository().getStudyRoles(study, query);
-			Map<Integer, Role> roleTable = new HashMap<Integer, Role>();
+			final CasePager query = new CasePager();
+			final List<Role> oldRoles = getRepository().getStudyRoles(study, query);
+			final Map<Integer, Role> roleTable = new HashMap<Integer, Role>();
 			for(Role oldRole : oldRoles) {
 				roleTable.put(oldRole.getId(), oldRole);
 			}
@@ -137,33 +137,31 @@ public class RoleListResource extends AuthorizationRepositoryResource<RoleListRe
     }
     
 	public void buildResponseDTO(RoleListResponse dto) {
-    	Subject currentUser = SecurityUtils.getSubject();
-    	User user = new User(currentUser);
-    	URL url = getRequest().getRootRef().toUrl();
+		final Subject currentUser = SecurityUtils.getSubject();
+		final User user = new User(currentUser);
+		final URL url = getRequest().getRootRef().toUrl();
 
     	dto.setUser(user);
     	dto.setServiceUrl(url);
     	
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
 			String message = MessageFormat.format("No access to study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
-    	CasePager query = RequestAttributes.getRequestCasePager(getRequest());
+    	final CasePager query = RequestAttributes.getRequestCasePager(getRequest());
     	
-    	Long roleCount = getRepository().getStudyRoleCount(study, query);
+    	final Long roleCount = getRepository().getStudyRoleCount(study, query);
     	dto.getCounts().setTotal(roleCount);
     	
     	// Query the database for views
-    	List<Role> roles;
 		try {
-			roles = getRepository().getStudyRoles(study, query);
+			final List<Role> roles = getRepository().getStudyRoles(study, query);
+	    	dto.setRoles(roles);
 		} catch (RepositoryException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
-
-    	dto.setRoles(roles);
 	};
 }

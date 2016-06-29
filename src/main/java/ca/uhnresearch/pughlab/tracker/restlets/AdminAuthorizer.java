@@ -18,7 +18,7 @@ public class AdminAuthorizer extends Authorizer {
 	 */
 	@Override
 	protected boolean authorize(Request request, Response response) {
-		Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 		return currentUser.isPermitted("admin");
 	}
 

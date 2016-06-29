@@ -40,7 +40,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     @Get("json")
     public Representation getResource()  {
     	
-    	StudySchemaResponse response = new StudySchemaResponse();
+    	final StudySchemaResponse response = new StudySchemaResponse();
     	buildResponseDTO(response);
     	return new JacksonRepresentation<StudySchemaResponse>(response);    	
     }
@@ -56,25 +56,25 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     public Representation putResource(Representation input) {
     	logger.debug("Called putResource() in EntityFieldResource", input);
     	
-    	Subject currentUser = SecurityUtils.getSubject();
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final Subject currentUser = SecurityUtils.getSubject();
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
 
-    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
+    	final boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
-			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+    		final String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
     	try {
-			StudySchemaResponse schema = converter.toObject(input, StudySchemaResponse.class, this);
+    		final StudySchemaResponse schema = converter.toObject(input, StudySchemaResponse.class, this);
 			logger.debug("Got a new schema {}", schema);
 			
-			List<Attributes> attributes = new ArrayList<Attributes>();
+			final List<Attributes> attributes = new ArrayList<Attributes>();
 			for(Attributes a : schema.getAttributes()) {
 				attributes.add(a);
 			}
 			
-			List<View> views = new ArrayList<View>();
+			final List<View> views = new ArrayList<View>();
 			for(View v : schema.getViews()) {
 				views.add(v);
 			}
@@ -100,17 +100,17 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
 	public void buildResponseDTO(StudySchemaResponse dto) throws ResourceException {
 		super.buildResponseDTO(dto);
 		
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+		final Study study = RequestAttributes.getRequestStudy(getRequest());
     	
-    	Subject currentUser = SecurityUtils.getSubject();
-    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
+		final Subject currentUser = SecurityUtils.getSubject();
+		final boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
 			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
     	// Query the database for views
-    	List<View> viewList = getRepository().getStudyViews(study);
+    	final List<View> viewList = getRepository().getStudyViews(study);
     	
     	// Now translate into DTOs
     	for(View v : viewList) {
@@ -118,7 +118,7 @@ public class StudySchemaResource extends StudyRepositoryResource<StudySchemaResp
     	}
     	
     	// And get the attributes for the study
-    	List<Attributes> attributes = getRepository().getStudyAttributes(study);
+    	final List<Attributes> attributes = getRepository().getStudyAttributes(study);
     	for(Attributes a : attributes) {
     		dto.getAttributes().add(a);
 		}
