@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -17,6 +14,8 @@ import org.springframework.data.jdbc.query.SqlInsertCallback;
 import org.springframework.data.jdbc.query.SqlInsertWithKeyCallback;
 import org.springframework.data.jdbc.query.SqlUpdateCallback;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.SQLSubQuery;
 import com.mysema.query.sql.dml.SQLDeleteClause;
@@ -32,7 +31,12 @@ import ca.uhnresearch.pughlab.tracker.dao.NotFoundException;
 import ca.uhnresearch.pughlab.tracker.dao.RepositoryException;
 import ca.uhnresearch.pughlab.tracker.dao.StudyCaseQuery;
 import ca.uhnresearch.pughlab.tracker.dao.StudyRepository;
-import ca.uhnresearch.pughlab.tracker.domain.*;
+import ca.uhnresearch.pughlab.tracker.domain.QAttributes;
+import ca.uhnresearch.pughlab.tracker.domain.QCaseAttributeStrings;
+import ca.uhnresearch.pughlab.tracker.domain.QCases;
+import ca.uhnresearch.pughlab.tracker.domain.QStudy;
+import ca.uhnresearch.pughlab.tracker.domain.QViewAttributes;
+import ca.uhnresearch.pughlab.tracker.domain.QView;
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 import ca.uhnresearch.pughlab.tracker.dto.Cases;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
@@ -41,30 +45,50 @@ import ca.uhnresearch.pughlab.tracker.dto.ViewAttributes;
 import ca.uhnresearch.pughlab.tracker.events.Event;
 import ca.uhnresearch.pughlab.tracker.events.EventSource;
 import ca.uhnresearch.pughlab.tracker.events.RedactedJsonNode;
-import static ca.uhnresearch.pughlab.tracker.domain.QAttributes.attributes;
-import static ca.uhnresearch.pughlab.tracker.domain.QCases.cases;
-import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
-import static ca.uhnresearch.pughlab.tracker.domain.QViewAttributes.viewAttributes;
-import static ca.uhnresearch.pughlab.tracker.domain.QView.views;
 
 // Don't warn about the Law of Demeter here, as we use extensive method chaining in
 // the Querydsl implementation. And I do mean extensive. 
+/**
+ * The main study repository implementation class.
+ * 
+ * @author stuartw
+ */
 @SuppressWarnings("PMD.LawOfDemeter")
 public class StudyRepositoryImpl implements StudyRepository {
 	
+	/**
+	 * A logger.
+	 */
 	private final Logger logger = LoggerFactory.getLogger(StudyRepositoryImpl.class);
 	
+	/**
+	 * The event source.
+	 */
 	private EventSource eventSource;
 
+	/**
+	 * The SQL templates for query handling.
+	 */
 	private QueryDslJdbcTemplate template;
 	
+	/**
+	 * The helper instance used to manage case attributes of various types. 
+	 */
 	private CaseAttributePersistence cap = new CaseAttributePersistence();
 
+	/**
+	 * Setter for the SQL templates.
+	 * @param template the templates
+	 */
 	@Required
     public void setTemplate(QueryDslJdbcTemplate template) {
         this.template = template;
     }
 
+    /**
+     * Retrieves the SQL template.
+     * @return the templates
+     */
     public QueryDslJdbcTemplate getTemplate() {
         return template;
     }
@@ -76,6 +100,7 @@ public class StudyRepositoryImpl implements StudyRepository {
     public List<Study> getAllStudies() {
 		logger.debug("Looking for all studies");
 
+		final QStudy studies = QStudy.studies;
 		final SQLQuery sqlQuery = template.newSqlQuery().from(studies).orderBy(studies.name.asc());
 		final List<Study> studyList = template.query(sqlQuery, new StudyProjection(studies));
     	logger.debug("Got some studies: {}", studyList.toString());
@@ -90,6 +115,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      */
 	public Study getStudy(String name) {
 		logger.debug("Looking for study by name: {}", name);
+		final QStudy studies = QStudy.studies;
 		final SQLQuery sqlQuery = template.newSqlQuery().from(studies).where(studies.name.eq(name));
 		final Study study = template.queryForObject(sqlQuery, new StudyProjection(studies));
     	
@@ -105,9 +131,12 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 	/**
 	 * Writes or updates a study.
+	 * @param study the study
+	 * @param userName the user name
 	 */
 	@Override
 	public Study saveStudy(final Study study, final String userName) {
+		final QStudy studies = QStudy.studies;
 		if (study.getId() == null) {
 			logger.info("Saving new study: {}", study.getName());
 			final Integer studyId = template.insertWithKey(studies, new SqlInsertWithKeyCallback<Integer>() { 
@@ -142,6 +171,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @return a list of views
      */
 	public List<View> getStudyViews(Study study) {
+		final QView views = QView.views;
 		logger.debug("Looking for views for study: {}", study.getName());
 		final SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.studyId.eq(study.getId())).orderBy(views.id.asc());
 		final List<View> viewList = template.query(sqlQuery, new ViewProjection(views));
@@ -152,6 +182,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 	@Override
 	public void setStudyViews(Study study, List<View> newViewsList) {
+		final QView views = QView.views;
 		logger.debug("Writing views for study: {}", study.getName());
 				
 		final SQLQuery sqlQuery = template.newSqlQuery().from(views)
@@ -192,6 +223,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @return a view
      */
 	public View getStudyView(Study study, String name) {
+		final QView views = QView.views;
 		logger.debug("Looking for study by name: {}", name);
 		final SQLQuery sqlQuery = template.newSqlQuery().from(views).where(views.name.eq(name).and(views.studyId.eq(study.getId())));
 		final View view = template.queryForObject(sqlQuery, new ViewProjection(views));
@@ -224,6 +256,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @return a list of attributes
      */
 	public List<Attributes> getStudyAttributes(Study study) {
+		final QAttributes attributes = QAttributes.attributes;
 		logger.debug("Looking for study attributes");
 		
 		final SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
@@ -243,6 +276,7 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @return a named attribute
      */
 	public Attributes getStudyAttribute(Study study, String name) {
+		final QAttributes attributes = QAttributes.attributes;
 		logger.debug("Looking for study attribute: {}", name);
 		
 		SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
@@ -258,6 +292,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	@Override
 	public Cases getStudyCase(Study study, Integer caseId) {
+		final QCases cases = QCases.cases;
 		logger.debug("Looking for case by identifier: {}", caseId);
 		final SQLQuery sqlQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()).and(cases.id.eq(caseId)));
 		final Cases caseValue = template.queryForObject(sqlQuery, cases);
@@ -273,6 +308,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	
 
 	private void insertView(final View v) {
+		final QView views = QView.views;
 		template.insert(views, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.populate(v, new ViewMapper()).execute();
@@ -281,6 +317,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void updateView(final View v) {
+		final QView views = QView.views;
 		template.update(views, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(views.id.eq(v.getId())).populate(v, new ViewMapper()).execute();
@@ -289,6 +326,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void deleteView(final View v) {
+		final QView views = QView.views;
+		final QViewAttributes viewAttributes = QViewAttributes.viewAttributes;
 		template.delete(viewAttributes, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
 				return sqlDeleteClause.where(viewAttributes.viewId.eq(v.getId())).execute();
@@ -302,6 +341,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void insertAttribute(final Attributes a) {
+		final QAttributes attributes = QAttributes.attributes;
 		template.insert(attributes, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.populate(a, new AttributeMapper()).execute();
@@ -310,6 +350,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void updateAttribute(final Attributes a) {
+		final QAttributes attributes = QAttributes.attributes;
 		
 		final SQLQuery sqlQuery = template.newSqlQuery().from(attributes).where(attributes.id.eq(a.getId()));
 		final String oldType = template.queryForObject(sqlQuery, attributes.type);
@@ -330,6 +371,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void deleteAttribute(final Attributes a) {
+		final QAttributes attributes = QAttributes.attributes;
+		final QViewAttributes viewAttributes = QViewAttributes.viewAttributes;
 		cap.deleteAllAttributes(template, a);
 		template.delete(viewAttributes, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
@@ -344,6 +387,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 	
 	private void insertViewAttribute(final View v, final ViewAttributes va) {
+		final QViewAttributes viewAttributes = QViewAttributes.viewAttributes;
 		template.insert(viewAttributes, new SqlInsertCallback() { 
 			public long doInSqlInsertClause(SQLInsertClause sqlInsertClause) {
 				return sqlInsertClause.populate(va, new ViewAttributeMapper(v)).execute();
@@ -352,6 +396,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void deleteViewAttribute(final View v, final ViewAttributes va) {
+		final QViewAttributes viewAttributes = QViewAttributes.viewAttributes;
 		template.delete(viewAttributes, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {
 				return sqlDeleteClause.where(viewAttributes.viewId.eq(v.getId()).and(viewAttributes.attributeId.eq(va.getId()))).execute();
@@ -360,6 +405,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	}
 
 	private void updateViewAttribute(final View v, final ViewAttributes va) throws RepositoryException {
+		final QViewAttributes viewAttributes = QViewAttributes.viewAttributes;
 		template.update(viewAttributes, new SqlUpdateCallback() { 
 			public long doInSqlUpdateClause(SQLUpdateClause sqlUpdateClause) {
 				return sqlUpdateClause.where(viewAttributes.viewId.eq(v.getId()).and(viewAttributes.attributeId.eq(va.getId()))).populate(va, new ViewAttributeMapper(v)).execute();
@@ -370,6 +416,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 	@Override
 	public void setStudyAttributes(Study study, List<Attributes> atts) {
+		final QAttributes attributes = QAttributes.attributes;
 		logger.debug("Updating study attributes");
 		
 		final SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
@@ -411,6 +458,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 	@Override
 	public void setViewAttributes(Study study, View view, List<ViewAttributes> newAttributes) throws RepositoryException {
+		final QAttributes attributes = QAttributes.attributes;
+		final QViewAttributes viewAttributes = QViewAttributes.viewAttributes;
+
 		// First, we need the list of all available attributes in the study.
 		final List<Attributes> studyAttributes = getStudyAttributes(study);
 		final Map<Integer, Attributes> studyAttributesTable = new HashMap<Integer, Attributes>();
@@ -481,7 +531,10 @@ public class StudyRepositoryImpl implements StudyRepository {
      * @return a list of view attributes
      */
 	public List<ViewAttributes> getViewAttributes(Study study, View view) {
-		
+		final QAttributes attributes = QAttributes.attributes;
+		final QViewAttributes viewAttributes = QViewAttributes.viewAttributes;
+		final QView views = QView.views;
+
 		logger.debug("Looking for view attributes");
 		
 		final SQLQuery sqlQuery = template.newSqlQuery().from(attributes)
@@ -500,6 +553,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	@Override
 	public Long getRecordCount(Study study, View view) {
+		final QCases cases = QCases.cases;
 		final SQLQuery recordQuery = template.newSqlQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		return template.count(recordQuery);
 	}
@@ -517,6 +571,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	@Override
 	public void setStudyCaseState(final Study study, final Cases c, final String userName, final String state) {
+		final QCases cases = QCases.cases;
 		logger.debug("Updating a case: {}", c.getId());
 		
 		final String oldState = c.getState();
@@ -610,6 +665,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	@Override
 	public Cases newStudyCase(final Study study, final String userName, final Cases beforeCase) throws RepositoryException {
+		final QCases cases = QCases.cases;
 		
 		Integer orderPoint = 1;
 		if (beforeCase != null) {
@@ -678,6 +734,7 @@ public class StudyRepositoryImpl implements StudyRepository {
 
 	@Override
 	public QueryStudyCaseQuery newStudyCaseQuery(Study study) {
+		final QCases cases = QCases.cases;
 		final SQLSubQuery sq = new SQLSubQuery().from(cases).where(cases.studyId.eq(study.getId()));
 		return new QueryStudyCaseQuery(study, sq);
 	}
@@ -697,6 +754,9 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	@Override
 	public QueryStudyCaseQuery applyPager(StudyCaseQuery query, CasePager pager) {
+		final QCases cases = QCases.cases;
+		final QAttributes attributes = QAttributes.attributes;
+
 		if (! (query instanceof QueryStudyCaseQuery)) {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
 		}
@@ -747,6 +807,8 @@ public class StudyRepositoryImpl implements StudyRepository {
 	 */
 	@Override
 	public StudyCaseQuery addStudyCaseSelector(StudyCaseQuery query, Integer caseId) {
+		final QCases cases = QCases.cases;
+
 		if (! (query instanceof QueryStudyCaseQuery)) {
 			throw new RuntimeException("Invalid type of StudyCaseQuery: " + query.getClass().getCanonicalName());
 		}

@@ -71,10 +71,10 @@ public class DomainLdapContext implements LdapContext {
 			return pool;
 		}
 		
-		LdapConnectionConfig config = new LdapConnectionConfig();
+		final LdapConnectionConfig config = new LdapConnectionConfig();
 		config.setLdapHost(ldapHost);
 		config.setLdapPort(ldapPort);
-		LdapApiService service = new StandaloneLdapApiService();
+		final LdapApiService service = new StandaloneLdapApiService();
 		pool = new LdapConnectionPool(config, service, timeout);
 		pool.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
 		pool.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
@@ -82,16 +82,16 @@ public class DomainLdapContext implements LdapContext {
 	}
 	
 	private AuthenticationInfo queryInternal(String username, char[] password, Realm realm) throws LdapException, Exception {
-		LdapConnectionPool pool = getConnectionPool();
-		LdapConnection connection = pool.getConnection();
+		final LdapConnectionPool pool = getConnectionPool();
+		final LdapConnection connection = pool.getConnection();
 		AuthenticationInfo info = null;
 		
-		BindRequest bindRequest=new BindRequestImpl();
+		final BindRequest bindRequest=new BindRequestImpl();
 		bindRequest.setName(username);
 		bindRequest.setCredentials((new String(password)).getBytes());
 		
-		BindResponse response = connection.bind(bindRequest);
-		LdapResult result = response.getLdapResult();
+		final BindResponse response = connection.bind(bindRequest);
+		final LdapResult result = response.getLdapResult();
 		if (! ResultCodeEnum.SUCCESS.equals(result.getResultCode())) {
 			getConnectionPool().releaseConnection(connection);
 			throw new AuthenticationException("Failed to authenticate: " + result.getDiagnosticMessage());
@@ -102,13 +102,13 @@ public class DomainLdapContext implements LdapContext {
 			throw new AuthenticationException("Failed to authenticate");
 		}
 		
-		String search = MessageFormat.format(searchTemplate, username);
-		String filter = MessageFormat.format(filterTemplate, username);
+		final String search = MessageFormat.format(searchTemplate, username);
+		final String filter = MessageFormat.format(filterTemplate, username);
 		
 		// Do a search to make sure we can find the object somehow
-		EntryCursor cursor = connection.search(search, filter, SearchScope.SUBTREE);
+		final EntryCursor cursor = connection.search(search, filter, SearchScope.SUBTREE);
 		if (cursor.next()) {
-			Entry entry = cursor.get();
+			final Entry entry = cursor.get();
 			log.debug("Found LDAP entry: " + entry.toString());
 			final LdapProfile profile = getLdapProfile(username, entry);
 			final List<? extends Object> principals = Arrays.asList(username, profile);
@@ -121,11 +121,11 @@ public class DomainLdapContext implements LdapContext {
 	}
 	
 	private LdapProfile getLdapProfile(String username, Entry entry) {
-		LdapProfile profile = new LdapProfile(username);
+		final LdapProfile profile = new LdapProfile(username);
 		
 		try {
 			if (displayNameAttribute != null) {
-				Attribute attribute = entry.get(displayNameAttribute);
+				final Attribute attribute = entry.get(displayNameAttribute);
 				if (attribute != null) {
 					profile.setDisplayName(attribute.getString());
 				}
@@ -136,7 +136,7 @@ public class DomainLdapContext implements LdapContext {
 		
 		try {
 			if (givenNameAttribute != null) {
-				Attribute attribute = entry.get(givenNameAttribute);
+				final Attribute attribute = entry.get(givenNameAttribute);
 				if (attribute != null) {
 					profile.setGivenName(attribute.getString());
 				}
@@ -147,7 +147,7 @@ public class DomainLdapContext implements LdapContext {
 		
 		try {
 			if (familyNameAttribute != null) {
-				Attribute attribute = entry.get(familyNameAttribute);
+				final Attribute attribute = entry.get(familyNameAttribute);
 				if (attribute != null) {
 					profile.setFamilyName(attribute.getString());
 				}
@@ -177,11 +177,11 @@ public class DomainLdapContext implements LdapContext {
 			throw new AuthenticationException("Expecting a username and a password: " + token.toString());
 		}
 		
-		UsernamePasswordToken userToken = (UsernamePasswordToken) token;
+		final UsernamePasswordToken userToken = (UsernamePasswordToken) token;
 	    String username = userToken.getUsername();
-	    char[] password = userToken.getPassword();
+	    final char[] password = userToken.getPassword();
 	    
-        String[] parts = username.split("@");
+	    final String[] parts = username.split("@");
         if (parts.length == 1) {
         	username = username + "@" + domain;
         }
@@ -197,16 +197,16 @@ public class DomainLdapContext implements LdapContext {
 
 	@Override
 	public boolean canAuthenticate(AuthenticationToken token, Realm realm) {
-	    Object principal = token.getPrincipal();
+		final Object principal = token.getPrincipal();
         log.debug("Verifying authentication of user '{}' through LDAP for domain '{}'", principal, domain);
         
-        String sPrincipal = (String) principal;
-        String[] parts = sPrincipal.split("@", 2);
+        final String sPrincipal = (String) principal;
+        final String[] parts = sPrincipal.split("@", 2);
         
         if (parts.length == 1) {
         	return true;
         } else {
-        	String tokenDomain = parts[1];
+        	final String tokenDomain = parts[1];
         	return domain.equals(tokenDomain);
         }
 	}

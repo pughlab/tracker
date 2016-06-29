@@ -37,11 +37,11 @@ public class RedirectForAuthenticationFilter extends AdviceFilter {
      */
     protected void issueRedirect(ServletRequest request, ServletResponse response, String redirectUrl) throws Exception {
     	
-    	HttpServletRequest httpRequest = (HttpServletRequest) request;
-    	HttpServletResponse httpResponse = (HttpServletResponse) response;
+    	final HttpServletRequest httpRequest = (HttpServletRequest) request;
+    	final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-    	String acrHeaders = httpRequest.getHeader("Access-Control-Request-Headers");
-    	String acrMethod = httpRequest.getHeader("Access-Control-Request-Method");
+    	final String acrHeaders = httpRequest.getHeader("Access-Control-Request-Headers");
+    	final String acrMethod = httpRequest.getHeader("Access-Control-Request-Method");
 
     	if (acrHeaders != null) {
     		httpResponse.setHeader("Access-Control-Allow-Headers", acrHeaders);
@@ -58,20 +58,20 @@ public class RedirectForAuthenticationFilter extends AdviceFilter {
 
     public String getSeeOtherUrl(ServletRequest request, ServletResponse response) throws Exception {
     	
-    	HttpServletRequest httpRequest = (HttpServletRequest) request;
-    	HttpServletResponse httpResponse = (HttpServletResponse) response;
-    	String clientNames[] = request.getParameterValues("client_name");
+    	final HttpServletRequest httpRequest = (HttpServletRequest) request;
+    	final HttpServletResponse httpResponse = (HttpServletResponse) response;
+    	final String clientNames[] = request.getParameterValues("client_name");
     	
     	if (clientNames == null || clientNames.length != 1) {
     		throw new RuntimeException("Can't find client_name query parameter for login request redirection");
     	}
     	
-    	ShiroWebContext context = new ShiroWebContext(httpRequest, httpResponse);
+    	final ShiroWebContext context = new ShiroWebContext(httpRequest, httpResponse);
     	
     	@SuppressWarnings("rawtypes")
-		BaseClient client = (BaseClient) clients.findClient(clientNames[0]);
+    	final BaseClient client = (BaseClient) clients.findClient(clientNames[0]);
     	
-    	String location = client.getRedirectAction(context, false, false).getLocation();
+    	final String location = client.getRedirectAction(context, false, false).getLocation();
     	logger.debug("Redirecting to: " + location);
     	
     	return location;
