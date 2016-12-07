@@ -26,8 +26,8 @@
 		<jackson.version>2.4.4</jackson.version>
         <apache-ldap-api.version>1.0.0-M31</apache-ldap-api.version>
         
-        <node.version>v0.12.7</node.version>
-        <npm.version>3.3.6</npm.version>
+        <node.version>v4.5.0</node.version>
+        <npm.version>2.15.9</npm.version>
         
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
