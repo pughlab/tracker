@@ -9,6 +9,8 @@ angular
       host = $location.host()
       port = $location.port()
 
+      $log.debug "Reading from", protocol, host, port
+
       ## In some rare cases, this might need to be overridden, especially during development
       ## where the Gulp proxying system is borked. That means we need to handle things specially
       ## during the Gulp code. We can pounce on this chance to actually show the exact version
@@ -27,7 +29,7 @@ angular
           @atmosphere = atmosphere
 
           @request = {
-            url: "http://#{host}:#{port}/events"
+            url: "#{protocol}://#{host}:#{port}/events"
             contentType: "application/json"
             logLevel: 'debug'
             transport: 'websocket'
