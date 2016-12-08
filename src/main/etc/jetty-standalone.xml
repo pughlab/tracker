@@ -143,10 +143,10 @@
       <Arg>jdbc/TrackerDB</Arg>
       <Arg>
         <New class="org.apache.commons.dbcp.BasicDataSource">
-          <Set name="driverClassName">org.hsqldb.jdbc.JDBCDriver</Set>
-          <Set name="url">jdbc:hsqldb:file:tracker_test;default_schema=true;shutdown=true</Set>
-          <Set name="username">sa</Set>
-          <Set name="password"></Set>
+          <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
+          <Set name="url">jdbc:mysql://localhost:3306/tracker?sessionVariables=sql_mode=ansi</Set>
+          <Set name="username">tracker</Set>
+          <Set name="password">tracker</Set>
           <Set name="testOnBorrow">true</Set>
           <Set name="validationQuery">SELECT 1</Set>
           <Set name="timeBetweenEvictionRunsMillis">120000</Set>
