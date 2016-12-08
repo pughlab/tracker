@@ -1,7 +1,7 @@
 angular
   .module 'tracker.sockets'
 
-  .factory 'socketFactory', Array '$location', '$timeout', ($location, $timeout) ->
+  .factory 'socketFactory', Array '$location', '$timeout', '$log', ($location, $timeout, $log) ->
 
     () ->
 
@@ -36,22 +36,22 @@ angular
           }
 
           @request.onOpen = (response) ->
-            console.log "Called onOpen", response
+            $log.debug "Called onOpen", response
 
           @request.onReopen = (response) ->
-            console.log "Called onReopen", response
+            $log.debug "Called onReopen", response
 
           @request.onReconnect = (response) ->
-            console.log "Called onReconnect", response
+            $log.debug "Called onReconnect", response
 
           @request.onError = (response) ->
-            console.log "Called onError", response
+            $log.debug "Called onError", response
 
           @request.onClose = (response) ->
-            console.log "Called onClose", response
+            $log.debug "Called onClose", response
 
           @request.onMessage = (response) =>
-            console.log "Called onMessage", response
+            $log.debug "Called onMessage", response
             decoded = JSON.parse response.responseBody
             if @events[decoded.type]
               listener decoded for listener in @events[decoded.type]
@@ -88,7 +88,7 @@ angular
           return @
 
         disconnect: () ->
-          console.log "Disconnect requested"
+          $log.debug "Disconnect requested"
           @atmosphere.unsubscribeUrl @request.url
 
       socket = new SocketEventEmitter(protocol, host, port)

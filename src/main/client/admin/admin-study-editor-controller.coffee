@@ -1,7 +1,7 @@
 angular
   .module 'tracker.admin'
 
-  .controller 'StudyEditorController', Array '$scope', '$http', '$stateParams', '$q', '$timeout', ($scope, $http, $stateParams, $q, $timeout) ->
+  .controller 'StudyEditorController', Array '$scope', '$http', '$stateParams', '$q', '$timeout', '$log', ($scope, $http, $stateParams, $q, $timeout, $log) ->
 
     $scope.study = undefined
     originalStudy = undefined
@@ -99,7 +99,7 @@ angular
           response.data.study.options.stateLabels ?= {}
           originalStudy = response.data
         .catch (response) ->
-          console.log "Error", response.data
+          $log.error "Error", response.data
 
     readSchema = () ->
       $http
@@ -107,7 +107,7 @@ angular
         .then (response) ->
           originalSchema = response.data
         .catch (response) ->
-          console.log "Error", response.data
+          $log.error "Error", response.data
 
     readRoles = () ->
       $http
@@ -115,12 +115,12 @@ angular
         .then (response) ->
           originalRoles = response.data
         .catch (response) ->
-          console.log "Error", response.data
+          $log.error "Error", response.data
 
     loading = true
     $q
       .all [readStudy(), readSchema(), readRoles()]
       .then () ->
         loading = false
-        console.log "Finished loading"
+        $log.debug "Finished loading"
         $scope.reset()
