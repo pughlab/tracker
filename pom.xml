@@ -652,6 +652,7 @@
                         </configuration>
                     </execution>
 
+                    <!-- 
                     <execution>
                         <id>gulp test</id>
                         <phase>test</phase>
@@ -662,6 +663,7 @@
                             <arguments>test</arguments>
                         </configuration>
                     </execution>
+                    -->
             	</executions>
 			</plugin>
 
