@@ -15,7 +15,7 @@ angular
         sel.removeAllRanges()
 
 
-  .factory 'tableEditor', () ->
+  .factory 'tableEditor', Array '$log', ($log) ->
 
     ## Mix in a kind of EventEmitter, which makes it a bit easier for the various components
     ## of the different editing types to talk to one another.
@@ -82,7 +82,7 @@ angular
         for own k, v of options
           @[k] = v
 
-        console.log "Constructor", @dataTable
+        $log.debug "Constructor", @dataTable
 
       emit: (event, args...) ->
         return false unless @events[event]
@@ -120,7 +120,7 @@ angular
       editor = new TableEditor(options)
 
       editor.on 'moveCell', (e, args...) ->
-        console.log 'moveCell', e, args
+        $log.debug 'moveCell', e, args
 
       ## Various actions are required.
       editor.on 'closeCellEditor', (e, cancel) ->
@@ -129,7 +129,7 @@ angular
 
 
       editor.on 'openCellEditor', (e, cell) ->
-        console.log "openCellEditor", e, cell
+        $log.debug "openCellEditor", e, cell
         previous = editor.dataTable.data('currentEditor')
         editor.emit 'closeCellEditor' if previous
 

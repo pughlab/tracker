@@ -1,7 +1,7 @@
 angular
   .module 'tracker.admin'
 
-  .controller 'ViewController', Array '$scope', '$http', '$stateParams', ($scope, $http, $stateParams) ->
+  .controller 'ViewController', Array '$scope', '$http', '$stateParams', '$log', ($scope, $http, $stateParams, $log) ->
 
     $scope.study = undefined
     $scope.view = undefined
@@ -45,7 +45,7 @@ angular
           $scope.initializedAttribute = false
 
         .error (response) ->
-          console.log "Error", response
+          $log.error "Error", response
 
     removeUsedAttributes = () ->
       used = {}
@@ -79,7 +79,7 @@ angular
       .success (response) ->
         $scope.study = response
       .error (response) ->
-        console.log "Error", response
+        $log.error "Error", response
 
     $http
       .get("/api/studies/#{encodeURIComponent($stateParams.studyName)}/views/#{encodeURIComponent($stateParams.viewName)}/schema")
@@ -87,4 +87,4 @@ angular
         $scope.view = response
         $scope.originalView = angular.copy($scope.view)
       .error (response) ->
-        console.log "Error", response
+        $log.error "Error", response

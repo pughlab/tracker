@@ -1,7 +1,7 @@
 angular
   .module 'tracker.admin'
 
-  .controller 'AdminAuditController', Array '$scope', '$http', '$stateParams', ($scope, $http, $stateParams) ->
+  .controller 'AdminAuditController', Array '$scope', '$http', '$stateParams', '$log', ($scope, $http, $stateParams, $log) ->
 
     $scope.study = {name: $stateParams.studyName}
     $scope.totalItems = 1
@@ -19,7 +19,7 @@ angular
           $scope.page = result.audit
           $scope.totalItems = result.counts.total
         .error (error) ->
-          console.log "Error", error
+          $log.error "Error", error
 
     handlePaginationChange $scope.pagination
 

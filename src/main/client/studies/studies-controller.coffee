@@ -1,7 +1,7 @@
 angular
   .module 'tracker.studies'
 
-  .controller 'StudiesController', Array '$scope', '$http', ($scope, $http) ->
+  .controller 'StudiesController', Array '$scope', '$http', '$log', ($scope, $http, $log) ->
     $scope.studies = undefined
     $scope.permissions = undefined
 
@@ -14,7 +14,7 @@ angular
         .success (response) ->
           $scope.studies = response
         .error (response) ->
-          console.log "Error", response
+          $log.error "Error", response
 
     $scope.$on 'event:loginConfirmed', (e) ->
       initializeStudies()
@@ -31,7 +31,7 @@ angular
       .success (response) ->
         $scope.study = response
       .error (response) ->
-        console.log "Error", response
+        $log.error "Error", response
 
 
   ## Added a new controller that retrieves the about information for a study, but not much more.
@@ -45,7 +45,7 @@ angular
     $http
       .get("/api/about/#{encodedStudyName}")
       .success (response) ->
-        console.log "About about", response
+        $log.debug "About about", response
         $scope.study = response
       .error (response) ->
-        console.log "Error", response
+        $log.error "Error", response

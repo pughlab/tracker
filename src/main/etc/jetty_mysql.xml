@@ -6,45 +6,45 @@
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
 
-	<Call class="org.eclipse.jetty.util.log.Log" name="getRootLogger">
-		<Call id="logMgr" class="java.util.logging.LogManager" name="getLogManager">
-			<Call name="readConfiguration">
-				<Arg class="java.io.InputStream">
-					<New class="java.io.FileInputStream">
-						<Arg class="java.lang.String">src/main/resources/logging.properties</Arg>
-					</New>
-				</Arg>
-			</Call>
-		</Call>
-	</Call>
-	
-    <!-- HSQLDB -->
-	<New id="trackerDatasource" class="org.eclipse.jetty.plus.jndi.Resource">
-        <Arg>jdbc/TrackerDB</Arg>
-        <Arg>
-            <New class="org.apache.commons.dbcp.BasicDataSource">
-                <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
-                <Set name="url">jdbc:mysql://localhost:3306/tracker?sessionVariables=sql_mode=ansi</Set>
-                <Set name="username">tracker</Set>
-                <Set name="password">tracker</Set>
-                <Set name="testOnBorrow">true</Set>
-                <Set name="validationQuery">SELECT 1</Set>
-                <Set name="timeBetweenEvictionRunsMillis">120000</Set>
-                <Set name="minEvictableIdleTimeMillis">120000</Set>
-            </New>
+  <Call class="org.eclipse.jetty.util.log.Log" name="getRootLogger">
+    <Call id="logMgr" class="java.util.logging.LogManager" name="getLogManager">
+      <Call name="readConfiguration">
+        <Arg class="java.io.InputStream">
+          <New class="java.io.FileInputStream">
+            <Arg class="java.lang.String">src/main/resources/logging.properties</Arg>
+          </New>
         </Arg>
-    </New>
-    
-    <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
-        <Arg>trackerProperties</Arg> 
-        <Arg type="java.lang.String"><SystemProperty name="jetty.home" default="file:."/>/tracker.properties</Arg> 
-        <Arg type="boolean">true</Arg> 
-    </New>
-    
-    <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
-        <Arg>trackerScript</Arg> 
-        <Arg type="java.lang.String"><SystemProperty name="jetty.home" default="file:src/test/resources"/>/tracker.js</Arg> 
-        <Arg type="boolean">true</Arg> 
-    </New>
-        
+      </Call>
+    </Call>
+  </Call>
+
+    <!-- HSQLDB -->
+  <New id="trackerDatasource" class="org.eclipse.jetty.plus.jndi.Resource">
+    <Arg>jdbc/TrackerDB</Arg>
+    <Arg>
+      <New class="org.apache.commons.dbcp.BasicDataSource">
+        <Set name="driverClassName">com.mysql.jdbc.Driver</Set>
+        <Set name="url">jdbc:mysql://localhost:3306/tracker?sessionVariables=sql_mode=ansi</Set>
+        <Set name="username">tracker</Set>
+        <Set name="password">tracker</Set>
+        <Set name="testOnBorrow">true</Set>
+        <Set name="validationQuery">SELECT 1</Set>
+        <Set name="timeBetweenEvictionRunsMillis">120000</Set>
+        <Set name="minEvictableIdleTimeMillis">120000</Set>
+      </New>
+    </Arg>
+  </New>
+
+  <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
+    <Arg>trackerProperties</Arg>
+    <Arg type="java.lang.String"><SystemProperty name="jetty.home" default="file:."/>/tracker.properties</Arg>
+    <Arg type="boolean">true</Arg>
+  </New>
+
+  <New class="org.eclipse.jetty.plus.jndi.EnvEntry">
+    <Arg>trackerScript</Arg>
+    <Arg type="java.lang.String"><SystemProperty name="jetty.home" default="file:src/test/resources"/>/tracker.js</Arg>
+    <Arg type="boolean">true</Arg>
+  </New>
+
 </Configure>
