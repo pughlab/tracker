@@ -20,7 +20,7 @@ Intended use
 
 As a replacement for Excel for tracking project data, especially involving time, in an
 environment that requires data to be kept confidential. So it's a bit like Google Docs,
-but with a local install to deliver security, and a slightly more database like 
+but with a local install to deliver security, and a slightly more database like
 structure.
 
 
@@ -36,12 +36,12 @@ Features
 Installation and Launch
 =======================
 
-There are two ways to install and run tracker: using Docker or by installing it 
+There are two ways to install and run tracker: using Docker or by installing it
 yourself.
 
 Docker
 --------
-Download and install the latest version of [Docker](http://docker.com) and 
+Download and install the latest version of [Docker](http://docker.com) and
 build the container.
 
     sudo docker build -t tracker .
@@ -52,7 +52,7 @@ Then you can launch it using the following:
 
 Manual installation
 -------------------
-Tracker requires Java 8 and Maven 3.1+. Once the dependencies are in place, 
+Tracker requires Java 8 and Maven 3.1+. Once the dependencies are in place,
 you can build tracker using
 
     mvn install
@@ -63,3 +63,13 @@ The WAR can be deployed on any web server. You can also test it using Jetty.
 
 Regardless of whether you use Docker or Maven/Jetty, the tracker will be running
 at http://localhost:9999. Use admin:admin to access the test data.
+
+Standalone
+----------
+
+Run the tracker standalone using something like:
+
+    java -DTRACKER_CONF=/Users/stuart/git/tracker/src/main/conf/ \
+    -DTRACKER_HOME=target/ \
+    -DJETTY_CONFIG=src/main/etc/jetty-standalone.xml \
+    -jar target/java-server-1.0.4.jar
