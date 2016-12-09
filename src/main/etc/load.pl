@@ -186,7 +186,15 @@ sub extract_workbook {
       my $values = '';
       for my $col ($col_min .. $col_max) {
         my $cell = $worksheet->get_cell($row, $col);
-        my $value = $cell && $cell->value();
+        my $value;
+        if ($cell) {
+          if ($cell->type() eq 'Date') {
+            $value = $cell->unformatted();
+          } else {
+            $value = $cell->value();
+          }
+        }
+
         # next if ($value =~ m{<row });
         # $value = XML::Entities::decode('all', $value) if (defined($value));
 
@@ -204,7 +212,7 @@ sub extract_workbook {
   }
 
   if (@records == 0) {
-    croak("Failing because no records loaded from: $file");
+    die("Failing because no records loaded from: $file");
   }
 
   my $headerTypes = {};
@@ -324,9 +332,10 @@ sub extract_workbook {
       } elsif ($type eq 'String') {
         ## Nothing to do here...
       } elsif ($type eq 'Number') {
+        $value =~ s{\s*%$}{};
         if ($value =~ m{^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$}) {
           ## Nothing to do...
-        } elsif ($value =~ m{^(?:n/a|not available|unknown)$}i || $value =~ m{\?+}) {
+        } elsif ($value =~ m{^(?:n/a|not available|unknown|not recorded|not processed)$}i || $value =~ m{\?+}) {
           $value = {'$notAvailable' => 1};
         } elsif ($value) {
           $logger->warn("Got unexpected number: ", $value, ' in field: ', $mapped);
@@ -544,7 +553,7 @@ sub write_data {
     for my $attribute (@$headers) {
       my $type = lc($header_types->{$attribute});
       if (! $type) {
-        croak("Invalid type for attribute: $attribute");
+        die("Invalid type for attribute: $attribute");
       }
       my $table = uc("CASE_ATTRIBUTE_${type}s");
       my $sql = $dbh->quote_identifier($table);

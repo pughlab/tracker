@@ -110,16 +110,16 @@ public class CaseAttributePersistence {
 	 */
 	public List<ObjectNode> getJsonData(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, List<? extends Attributes> attributeFilter) {
 		
-		SQLQuery caseInfoQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
-		List<CaseInfo> caseInfos = template.query(caseInfoQuery, new CaseInfoProjection(cases));
-		ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
-		CaseObjectBuilder builder = new CaseObjectBuilder(caseInfos);
+		final SQLQuery caseInfoQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id))).orderBy(cases.order.asc());
+		final List<CaseInfo> caseInfos = template.query(caseInfoQuery, new CaseInfoProjection(cases));
+		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
+		final CaseObjectBuilder builder = new CaseObjectBuilder(caseInfos);
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Selecting cases: {}", caseInfoQuery.toString());
 		}
 		
-		List<String> filter = new ArrayList<String>();
+		final List<String> filter = new ArrayList<String>();
 		for(Attributes a : attributeFilter) {
 			filter.add(a.getName());
 		}
@@ -128,13 +128,13 @@ public class CaseAttributePersistence {
 		for(Class<?> cls : types.keySet()) {
 			
 			// We can use raw access to the map here, as we're iterating through the keys
-			QCaseAttributeBase<?> atts = types.get(cls);
+			final QCaseAttributeBase<?> atts = types.get(cls);
 			
-			SQLQuery sqlQuery = template.newSqlQuery()
+			final SQLQuery sqlQuery = template.newSqlQuery()
 					.from(caseQuery.as(cases))
 					.innerJoin(atts).on(cases.id.eq(atts.caseId))
 					.innerJoin(attributes).on(atts.attributeId.eq(attributes.id));
-			List<Tuple> values = template.query(sqlQuery, new QTuple(atts.caseId, attributes.name, atts.getValue(), atts.notAvailable, atts.notes));
+			final List<Tuple> values = template.query(sqlQuery, new QTuple(atts.caseId, attributes.name, atts.getValue(), atts.notAvailable, atts.notes));
 			builder.addTupleAttributes(values);
 		}
 		
@@ -143,6 +143,8 @@ public class CaseAttributePersistence {
 	
 	/**
 	 * Removes all attribute values associated with a given attribute.
+	 * @param template the SQL templates
+	 * @param attribute the attribute
 	 */
 	public void deleteAllAttributes(QueryDslJdbcTemplate template, final Attributes attribute) {
 		for(Class<?> cls : types.keySet()) {
@@ -155,11 +157,16 @@ public class CaseAttributePersistence {
 		}
 	}
 	
+	/**
+	 * Builds a filter map from an {@link ObjectNode}.
+	 * @param filter the incoming filters
+	 * @return a map of keyed {@link JsonNode}s.
+	 */
 	private Map<String, JsonNode> getFilterMap(ObjectNode filter) {
-		Map<String, JsonNode> filterMap = new HashMap<String, JsonNode>();
-		Iterator<Map.Entry<String,JsonNode>> filterIterator = filter.fields();
+		final Map<String, JsonNode> filterMap = new HashMap<String, JsonNode>();
+		final Iterator<Map.Entry<String,JsonNode>> filterIterator = filter.fields();
 		while(filterIterator.hasNext()) {
-			Map.Entry<String,JsonNode> field = filterIterator.next();
+			final Map.Entry<String,JsonNode> field = filterIterator.next();
 			filterMap.put(field.getKey(), field.getValue());
 		}
 
@@ -169,16 +176,16 @@ public class CaseAttributePersistence {
 	public SQLSubQuery filterQuery(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, ObjectNode filter) {
 		
 		// Work within the given study and query
-		Study study = query.getStudy();
+		final Study study = query.getStudy();
 		SQLSubQuery sq = query.getQuery();
 		
-		Map<String, JsonNode> filterMap = getFilterMap(filter);
+		final Map<String, JsonNode> filterMap = getFilterMap(filter);
 
 		Integer fIndex = 0;
 		
 		for(Attributes attribute : getStudyAttributes(template, study)) {
 			if (filterMap.containsKey(attribute.getName())) {
-				JsonNode filterJson = filterMap.get(attribute.getName());
+				final JsonNode filterJson = filterMap.get(attribute.getName());
 				
 				// If it's an empty string, completely, (not \"\") then skip the filter
 				// Resolves #102
@@ -203,12 +210,12 @@ public class CaseAttributePersistence {
 	 * Retrieves the attributes for a study, used to derive the filters. 
 	 * The easiest way to do this is to pull out all the attributes for
 	 * the study, which should be more efficient than repeated queries.
-	 * @param template
-	 * @param study
-	 * @return
+	 * @param template the SQL template
+	 * @param study the study
+	 * @return a list of attributes
 	 */
 	private List<Attributes> getStudyAttributes(QueryDslJdbcTemplate template, Study study) {
-		SQLQuery sqlQuery = template.newSqlQuery()
+		final SQLQuery sqlQuery = template.newSqlQuery()
 				.from(attributes)
 				.where(attributes.studyId.eq(study.getId()));
 
@@ -216,8 +223,8 @@ public class CaseAttributePersistence {
 	}
 	
 	private QCaseAttributeBase<?> newAlias(QCaseAttributeBase<?> ca, Integer fIndex) throws ReflectiveOperationException {
-		Class<?> caClass = ca.getClass();
-		Constructor<?> caConstructor = caClass.getConstructor(new Class[]{String.class});
+		final Class<?> caClass = ca.getClass();
+		final Constructor<?> caConstructor = caClass.getConstructor(new Class[]{String.class});
 		return (QCaseAttributeBase<?>) caConstructor.newInstance("flv" + fIndex);
 	}
 	
@@ -231,7 +238,7 @@ public class CaseAttributePersistence {
 	 * @return
 	 */
 	private SQLSubQuery addFilter(SQLSubQuery sq, Attributes a, JsonNode filterJson, Integer fIndex) throws ReflectiveOperationException {
-		QCaseAttributeBase<?> ca = getStringCaseAttribute(a.getType());
+		final QCaseAttributeBase<?> ca = getStringCaseAttribute(a.getType());
 		return getFilterExpression(sq, ca, a, filterJson, fIndex);
 	}
 	
@@ -239,18 +246,22 @@ public class CaseAttributePersistence {
 	 * Returns a boolean expression that can be used in an attribute filter. The 
 	 * nature of the boolean expression is fairly open. 
 	 * 
-	 * @param cAlias
-	 * @param a
-	 * @param filterJson
-	 * @return
+	 * @param sq the input subquery
+	 * @param ca the case attribute
+	 * @param a the attribute
+	 * @param filterJson the filter JSON node
+	 * @param fIndex the filter index
+	 * @return the filtered subquery
 	 */
-	private SQLSubQuery getFilterExpression(SQLSubQuery sq, QCaseAttributeBase<?> ca, Attributes a, JsonNode filterJson, Integer fIndex) throws ReflectiveOperationException {
+	private SQLSubQuery getFilterExpression(SQLSubQuery sq, QCaseAttributeBase<?> ca, 
+			                                Attributes a, JsonNode filterJson, Integer fIndex) 
+			            throws ReflectiveOperationException {
 		
-		String filterValue = filterJson.asText();
+		final String filterValue = filterJson.asText();
 		
 		QueryNode node;
 		try {
-			QueryParser parser = queryParserFactory.newQueryParser(filterValue);
+			final QueryParser parser = queryParserFactory.newQueryParser(filterValue);
 			node = parser.parse();
 		} catch (IOException e) {
 			logger.error(e.getLocalizedMessage());
@@ -265,14 +276,14 @@ public class CaseAttributePersistence {
 	
 	private Expression<? super Comparable<?>> getFilterConstant(Class<?> caClass, String filterValue) {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Expression<? super Comparable<?>> filterConstant = new ConstantImpl(caClass, filterValue);
+		final Expression<? super Comparable<?>> filterConstant = new ConstantImpl(caClass, filterValue);
 		return filterConstant;
 	}
 	
 	private SQLSubQuery getFilterExpression(SQLSubQuery sq, QCaseAttributeBase<?> ca, Attributes a, QueryNode filterNode, Integer fIndex) throws ReflectiveOperationException {
 		
-		QCaseAttributeBase<?> cAlias = newAlias(ca, fIndex);
-		QAttributes attAlias = new QAttributes("flt" + fIndex);
+		final QCaseAttributeBase<?> cAlias = newAlias(ca, fIndex);
+		final QAttributes attAlias = new QAttributes("flt" + fIndex);
 		
 		return sq.innerJoin(attAlias)
 			.on(attAlias.id.eq(a.getId()).and(attAlias.studyId.eq(cases.studyId)))
@@ -315,18 +326,18 @@ public class CaseAttributePersistence {
 	}
 	
 	private BooleanExpression getExactStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
-		Class<?> caClass = cAlias.getClass();
+		final Class<?> caClass = cAlias.getClass();
 		return cAlias.getValue().eq(getFilterConstant(caClass, filterValue));
 	}
 	
 	private BooleanExpression getWildcardStringFilter(QCaseAttributeBase<?> cAlias, String filterValue) {
-		filterValue = filterValue.replaceAll("\\*", "%");
-		return cAlias.getValue().stringValue().like(filterValue);
+		final String replacedValue = filterValue.replaceAll("\\*", "%");
+		return cAlias.getValue().stringValue().like(replacedValue);
 	}
 	
 	private String getQueryNodeValue(QueryNode filterNode) {
 		if (filterNode instanceof QuotedStringToken) {
-			String filterValue = filterNode.toString();
+			final String filterValue = filterNode.toString();
 			return filterValue.substring(1, filterValue.length() - 1);
 		} else {
 			return filterNode.toString();
@@ -334,9 +345,9 @@ public class CaseAttributePersistence {
 	}
 	
 	private Date getFilterDate(QueryNode filterNode) {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		
-		String filterValue = getQueryNodeValue(filterNode);
+		final String filterValue = getQueryNodeValue(filterNode);
 		try {
 			return new Date(formatter.parse(filterValue).getTime());
 		} catch (ParseException e) {
@@ -345,12 +356,12 @@ public class CaseAttributePersistence {
 	}
 	
 	private BooleanExpression getDateFilter(QCaseAttributeBase<?> cAlias, QueryNode filterNode, OperatorToken operator) {
-		Date filterValue = getFilterDate(filterNode);
-		ComparableExpressionBase<? extends Comparable<?>> value = cAlias.getValue();
+		final Date filterValue = getFilterDate(filterNode);
+		final ComparableExpressionBase<? extends Comparable<?>> value = cAlias.getValue();
 		if (value instanceof TemporalExpression) {
 			
 			@SuppressWarnings("unchecked")
-			TemporalExpression<Date> date = (TemporalExpression<Date>) value;
+			final TemporalExpression<Date> date = (TemporalExpression<Date>) value;
 
 			if (operator.equals(OperatorToken.OPERATOR_BEFORE)) {
 				filterValue.setTime(filterValue.getTime() + 1);
@@ -378,7 +389,7 @@ public class CaseAttributePersistence {
 
 
 	private BooleanExpression getValueFilter(QCaseAttributeBase<?> cAlias, ValueToken filterNode) {
-		String filterValue = filterNode.getValue();
+		final String filterValue = filterNode.getValue();
 		if (filterValue.equals("N/A")) {
 			return cAlias.notAvailable.isTrue();
 		} else if (filterValue.equals("")) {
@@ -419,52 +430,52 @@ public class CaseAttributePersistence {
 	 * the query, but with modified values returned. If we get back a list of values where
 	 * there are no keys, nothing changed. 
 	 * 
-	 * @param template
-	 * @param query
-	 * @param values
+	 * @param template the query template
+	 * @param query the query selector
+	 * @param values the set of values to set
 	 * @return a list of case change records
 	 */
 	public List<CaseChangeInfo> setQueryAttributes(QueryDslJdbcTemplate template, QueryStudyCaseQuery query, ObjectNode values) throws RepositoryException {
 		
 		// Because we need to insert or update per case, we need to map the query to a list of cases
 		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
-		SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
-		List<Integer> caseIds = template.query(caseIdQuery, cases.id);
+		final SQLQuery caseIdQuery = template.newSqlQuery().from(caseQuery.as(cases));
+		final List<Integer> caseIds = template.query(caseIdQuery, cases.id);
 		
 		// For each case, we need to find the old values for each object
-		Study study = query.getStudy();
+		final Study study = query.getStudy();
 		
-		SQLQuery sqlQuery = template.newSqlQuery()
+		final SQLQuery sqlQuery = template.newSqlQuery()
 				.from(attributes)
 				.where(attributes.studyId.eq(study.getId()));
 		
-		List<Attributes> atts = template.query(sqlQuery, new AttributeProjection(attributes));
-		List<Attributes> filteredAtts = new ArrayList<Attributes>();
+		final List<Attributes> atts = template.query(sqlQuery, new AttributeProjection(attributes));
+		final List<Attributes> filteredAtts = new ArrayList<Attributes>();
 		
 		for(Attributes a : atts) {
 			if (values.has(a.getName())) filteredAtts.add(a);
 		}
 
-		List<ObjectNode> oldValues = getJsonData(template, query, filteredAtts);
-		List<CaseChangeInfo> result = new ArrayList<CaseChangeInfo>();
+		final List<ObjectNode> oldValues = getJsonData(template, query, filteredAtts);
+		final List<CaseChangeInfo> result = new ArrayList<CaseChangeInfo>();
 		
 		// Right, now we can do an update and check to see what actually we wanted to change. This
 		// should do a check to see whether we need to update, first.
 		
 		for(Integer caseId : caseIds) {
-			ObjectNode oldCase = oldValues.remove(0);
-			CaseChangeInfo newCaseChange = new CaseChangeInfo(caseId);
+			final ObjectNode oldCase = oldValues.remove(0);
+			final CaseChangeInfo newCaseChange = new CaseChangeInfo(caseId);
 			result.add(newCaseChange);
 			for(Attributes a : filteredAtts) {
-				String name = a.getName();
-				JsonNode oldValue = oldCase.get(name);
-				JsonNode newValue = values.get(name);
+				final String name = a.getName();
+				final JsonNode oldValue = oldCase.get(name);
+				final JsonNode newValue = values.get(name);
 				if (oldValue != null && oldValue.equals(newValue)) continue;
 				
 				newCaseChange.addValueChange(name, oldValue, newValue);
 				
-				ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
-				WritableValue value = validator.validate(a, newValue);
+				final ValueValidator validator = AttributeMapper.getAttributeValidator(a.getType());
+				final WritableValue value = validator.validate(a, newValue);
 				
 				// Now we can do the actual update...
 				writeCaseAttributeValue(template, study, caseId, name, value);
@@ -541,11 +552,11 @@ public class CaseAttributePersistence {
 			.unique(attributes.id);
 		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
 
-		SQLQuery sq = template.newSqlQuery().from(cases).innerJoin(atts).on(cases.id.eq(atts.caseId)).where(cases.id.in(caseQuery).and(atts.attributeId.eq(attributeQuery)));
-		Tuple oldValue = template.queryForObject(sq, new QTuple(atts.getValue(), atts.notAvailable));
+		final SQLQuery sq = template.newSqlQuery().from(cases).innerJoin(atts).on(cases.id.eq(atts.caseId)).where(cases.id.in(caseQuery).and(atts.attributeId.eq(attributeQuery)));
+		final Tuple oldValue = template.queryForObject(sq, new QTuple(atts.getValue(), atts.notAvailable));
 		
-    	Object oldRawValue = oldValue == null ? null : oldValue.get(0, cls);
-    	Boolean oldNotAvailable = oldValue == null ? false : oldValue.get(1, Boolean.class);
+		final Object oldRawValue = oldValue == null ? null : oldValue.get(0, cls);
+		final Boolean oldNotAvailable = oldValue == null ? false : oldValue.get(1, Boolean.class);
     	if (oldNotAvailable) {
     		return SpecialValues.NOT_AVAILABLE;
     	} else {
@@ -561,7 +572,7 @@ public class CaseAttributePersistence {
 	 */
 	public void deleteCases(QueryDslJdbcTemplate template, QueryStudyCaseQuery query) throws RepositoryException {
 		
-		SQLQuery caseSelectionQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
+		final SQLQuery caseSelectionQuery = template.newSqlQuery().from(cases).where(cases.id.in(query.getQuery().list(cases.id)));
 		final ListSubQuery<Integer> caseQuery = query.getQuery().list(cases.id);
 		
 		if (logger.isDebugEnabled()) {
@@ -581,10 +592,10 @@ public class CaseAttributePersistence {
 		// MySQL is a bit stupid and can't handle deletions involving subqueries
 		// most of the time. Alarmingly, we need to pull out the identifiers and
 		// then send them back. 
-		SQLQuery caseIdQuery = template.newSqlQuery()
+		final SQLQuery caseIdQuery = template.newSqlQuery()
 				.from(caseQuery.as(cases));
 		
-		List<Integer> casesIds = template.query(caseIdQuery, cases.id);
+		final List<Integer> casesIds = template.query(caseIdQuery, cases.id);
 	
 		template.delete(cases, new SqlDeleteCallback() { 
 			public long doInSqlDeleteClause(SQLDeleteClause sqlDeleteClause) {

@@ -40,21 +40,21 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
     public Representation putResource(Representation input) {
     	
     	logger.debug("Called putResource() in StudyResource", input);
-    	Subject currentUser = SecurityUtils.getSubject();
+    	final Subject currentUser = SecurityUtils.getSubject();
     	
-		PrincipalCollection principals = currentUser.getPrincipals();
-		String userName = principals.getPrimaryPrincipal().toString();
+    	final PrincipalCollection principals = currentUser.getPrincipals();
+    	final String userName = principals.getPrimaryPrincipal().toString();
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	// Only administrators can save the study data
     	if (! currentUser.isPermitted(study.getName() + ":admin")) {
-			String message = MessageFormat.format("No administrator access to study: {}", study.getName());
+    		final String message = MessageFormat.format("No administrator access to study: {}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
 
     	try {
-    		StudyViewsResponse data = converter.toObject(input, StudyViewsResponse.class, this);
+    		final StudyViewsResponse data = converter.toObject(input, StudyViewsResponse.class, this);
     		
     		if (data == null) {
     			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Missing or invalid request body");
@@ -62,7 +62,7 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
 			logger.debug("Got a study views response {}", data);
 			
 			// Set the id from the request URL, so we know which study to update
-			Study update = data.getStudy();
+			final Study update = data.getStudy();
 			update.setId(study.getId());
 			getRepository().saveStudy(update, userName);
 			RequestAttributes.setRequestStudy(getRequest(), update);
@@ -84,14 +84,14 @@ public class StudyResource extends StudyRepositoryResource<StudyViewsResponse> {
 		super.buildResponseDTO(dto);
 		
     	// Query the database for studies
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+		final Study study = RequestAttributes.getRequestStudy(getRequest());
     	dto.setStudy(study);
     	
-    	Subject currentUser = SecurityUtils.getSubject();
-    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
+    	final Subject currentUser = SecurityUtils.getSubject();
+    	final boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
 
     	// Query the database for views
-    	List<View> viewList = getRepository().getStudyViews(study);
+    	final List<View> viewList = getRepository().getStudyViews(study);
     	
     	// Now translate into DTOs
     	for(View v : viewList) {

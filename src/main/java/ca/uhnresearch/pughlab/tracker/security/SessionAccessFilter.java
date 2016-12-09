@@ -46,9 +46,9 @@ public class SessionAccessFilter extends UserFilter {
      */
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
         logger.debug("Authentication required: sending 401 Authentication challenge response.");
-        HttpServletResponse httpResponse = WebUtils.toHttp(response);
+        final HttpServletResponse httpResponse = WebUtils.toHttp(response);
         httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        String authcHeader = getAuthcScheme() + " realm=\"" + getApplicationName() + "\"";
+        final String authcHeader = getAuthcScheme() + " realm=\"" + getApplicationName() + "\"";
         httpResponse.setHeader(AUTHENTICATE_HEADER, authcHeader);
         if (prompt != null) {
         	httpResponse.setHeader(PROMPT_HEADER, prompt);

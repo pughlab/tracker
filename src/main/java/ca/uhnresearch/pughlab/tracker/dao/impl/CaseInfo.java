@@ -1,18 +1,44 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
+/**
+ * A case information record.
+ * 
+ * @author stuartw
+ */
 public class CaseInfo {
 	
+	/**
+	 * The internal case identity.
+	 */
 	private int id;
 	
+	/**
+	 * The GUID.
+	 */
 	private String guid;
 
+	/**
+	 * The natural order key.
+	 */
+	private int order;
+	
+	/**
+	 * The state.
+	 */
 	private String state;
 
-	public CaseInfo(int id, String guid, String state) {
+	/**
+	 * Standard constructor for a new CaseInfo.
+	 * @param idValue the new id value
+	 * @param guidValue the new guid value
+	 * @param stateValue the new state value
+	 */
+	public CaseInfo(int idValue, String guidValue, int orderValue, String stateValue) {
 		super();
-		this.id = id;
-		this.guid = guid;
-		this.state = state;
+		this.id = idValue;
+		this.guid = guidValue;
+		this.order = orderValue;
+		this.state = stateValue;
 	}
 
 	/**
@@ -23,10 +49,10 @@ public class CaseInfo {
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param idValue the id to set
 	 */
-	public void setId(int id) {
-		this.id = id;
+	public void setId(int idValue) {
+		this.id = idValue;
 	}
 
 	/**
@@ -37,10 +63,24 @@ public class CaseInfo {
 	}
 
 	/**
-	 * @param guid the guid to set
+	 * @param guidValue the guid to set
 	 */
-	public void setGuid(String guid) {
-		this.guid = guid;
+	public void setGuid(String guidValue) {
+		this.guid = guidValue;
+	}
+
+	/**
+	 * @return the order
+	 */
+	public int getOrder() {
+		return order;
+	}
+
+	/**
+	 * @param orderValue the order to set
+	 */
+	public void setOrder(int orderValue) {
+		this.order = orderValue;
 	}
 
 	/**
@@ -58,8 +98,10 @@ public class CaseInfo {
 	}
 
 	/**
-	 * @param state the state to set
+	 * @param stateValue the state to set
 	 */
-	public void setState(String state) {
-		this.state = state;
-	}}
+	public void setState(String stateValue) {
+		this.state = stateValue;
+	}
+}
+

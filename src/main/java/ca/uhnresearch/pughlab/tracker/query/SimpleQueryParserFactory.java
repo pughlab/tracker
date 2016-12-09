@@ -7,7 +7,7 @@ public class SimpleQueryParserFactory implements QueryParserFactory {
 
 	@Override
 	public QueryParser newQueryParser(String query) throws IOException, InvalidTokenException {
-		Tokenizer input = new MergingTokenizer(new SimpleTokenizer(new StringReader(query)));
+		final Tokenizer input = new MergingTokenizer(new SimpleTokenizer(new StringReader(query)));
 		return new SimpleQueryParser(input);
 	}
 

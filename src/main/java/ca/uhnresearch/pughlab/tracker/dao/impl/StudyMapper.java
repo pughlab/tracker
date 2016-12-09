@@ -1,10 +1,9 @@
 package ca.uhnresearch.pughlab.tracker.dao.impl;
 
-import static ca.uhnresearch.pughlab.tracker.domain.QStudy.studies;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import ca.uhnresearch.pughlab.tracker.domain.QStudy;
 import ca.uhnresearch.pughlab.tracker.dto.Study;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,14 +19,15 @@ public class StudyMapper extends AbstractMapper<Study> {
 
 	@Override
     public Map<Path<?>, Object> createMap(RelationalPath<?> entity, Study bean) {
-        Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
+        final Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
+        final QStudy studies = QStudy.studies;
         values.put(studies.id, bean.getId());
         values.put(studies.name, bean.getName());
         values.put(studies.description, bean.getDescription());
         values.put(studies.about, bean.getAbout());
         
         try {
-        	JsonNode options = bean.getOptions();
+        	final JsonNode options = bean.getOptions();
         	if (options != null)
         		values.put(studies.options, mapper.writeValueAsString(options));
 		} catch (JsonProcessingException e) {

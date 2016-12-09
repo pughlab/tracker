@@ -8,10 +8,19 @@ package ca.uhnresearch.pughlab.tracker.dao;
 public class CasePager {
 	
 	/**
-	 * Allows the ordre direction to be specified.
+	 * Allows the order direction to be specified.
 	 */
 	public enum OrderDirection {
-		ASC, DESC
+		
+		/**
+		 * Ascending order.
+		 */
+		ASC, 
+		
+		/**
+		 * Descending order.
+		 */
+		DESC
 	}
 	
 	/**
@@ -37,6 +46,7 @@ public class CasePager {
 	private OrderDirection orderDirection;
 
 	/**
+	 * Returns the offset for this pager.
 	 * @return the offset
 	 */
 	public Integer getOffset() {
@@ -44,6 +54,7 @@ public class CasePager {
 	}
 
 	/**
+	 * Returns true if there is an offset for this pager.
 	 * @return the existence of the offset
 	 */
 	public boolean hasOffset() {
@@ -51,13 +62,15 @@ public class CasePager {
 	}
 
 	/**
-	 * @param offset the offset to set
+	 * Sets the offset for this pager.
+	 * @param offsetValue the offset to set
 	 */
-	public void setOffset(Integer offset) {
-		this.offset = offset;
+	public void setOffset(Integer offsetValue) {
+		this.offset = offsetValue;
 	}
 
 	/**
+	 * Returns the limit for this pager.
 	 * @return the limit
 	 */
 	public Integer getLimit() {
@@ -65,6 +78,7 @@ public class CasePager {
 	}
 
 	/**
+	 * Returns true if there is a limit for this pager.
 	 * @return the existence of the limit
 	 */
 	public boolean hasLimit() {
@@ -72,13 +86,15 @@ public class CasePager {
 	}
 
 	/**
-	 * @param limit the limit to set
+	 * Sets the limit for this pager.
+	 * @param limitValue the limit to set
 	 */
-	public void setLimit(Integer limit) {
-		this.limit = limit;
+	public void setLimit(Integer limitValue) {
+		this.limit = limitValue;
 	}
 
 	/**
+	 * Returns the order field for this pager.
 	 * @return the orderField
 	 */
 	public String getOrderField() {
@@ -86,13 +102,15 @@ public class CasePager {
 	}
 
 	/**
-	 * @param orderField the orderField to set
+	 * Sets the order field for this pager.
+	 * @param orderFieldValue the orderField to set
 	 */
-	public void setOrderField(String orderField) {
-		this.orderField = orderField;
+	public void setOrderField(String orderFieldValue) {
+		this.orderField = orderFieldValue;
 	}
 
 	/**
+	 * Returns the order direction for this pager.
 	 * @return the orderDirection
 	 */
 	public OrderDirection getOrderDirection() {
@@ -100,10 +118,11 @@ public class CasePager {
 	}
 
 	/**
-	 * @param orderDirection the orderDirection to set
+	 * Sets the order direction for this pager.
+	 * @param orderDirectionValue the orderDirection to set
 	 */
-	public void setOrderDirection(OrderDirection orderDirection) {
-		this.orderDirection = orderDirection;
+	public void setOrderDirection(OrderDirection orderDirectionValue) {
+		this.orderDirection = orderDirectionValue;
 	}
 
 }

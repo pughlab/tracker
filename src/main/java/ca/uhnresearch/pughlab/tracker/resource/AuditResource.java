@@ -21,7 +21,7 @@ public class AuditResource extends AuditLogRepositoryResource<AuditLogResponse> 
 
     @Get("json")
     public Representation getResource()  {
-    	AuditLogResponse response = new AuditLogResponse();
+    	final AuditLogResponse response = new AuditLogResponse();
     	buildResponseDTO(response);
     	return new JacksonRepresentation<AuditLogResponse>(response);
     }
@@ -31,20 +31,20 @@ public class AuditResource extends AuditLogRepositoryResource<AuditLogResponse> 
 		super.buildResponseDTO(dto);
 		
     	// Query the database for studies
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+		final Study study = RequestAttributes.getRequestStudy(getRequest());
     	
-    	Subject currentUser = SecurityUtils.getSubject();
-    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
+		final Subject currentUser = SecurityUtils.getSubject();
+		final boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	
     	// Only administrators can get the audit log
     	if (! adminUser) {
-			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+    		final String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
  
     	// Get the data from the repository
-		CasePager query = RequestAttributes.getRequestCasePager(getRequest());
-    	List<JsonNode> auditData = getRepository().getAuditData(study, query);
+    	final CasePager query = RequestAttributes.getRequestCasePager(getRequest());
+    	final List<JsonNode> auditData = getRepository().getAuditData(study, query);
 
     	// Build the response
     	dto.setStudy(study);

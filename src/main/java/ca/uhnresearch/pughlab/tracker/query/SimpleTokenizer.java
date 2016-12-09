@@ -13,17 +13,37 @@ import java.io.Reader;
  */
 public class SimpleTokenizer implements Tokenizer {
 	
+	/**
+	 * Behind the simple tokenizer, there is a {@link Reader} for the
+	 * input.
+	 */
 	private final Reader input;
 	
-	private int peek = -1;
-	
+	/**
+	 * If the peek is empty, it'll contain this.
+	 */
 	private static final int PEEK_EMPTY = -1;
 	
+	/**
+	 * If we peeked, we'll store what we peeked at here.
+	 */
+	private int peek = PEEK_EMPTY;
+	
+	/**
+	 * To assemble a token, we use an inner {@link StringBuilder}.
+	 */
 	private StringBuilder tokenBuilder = new StringBuilder();
 	
+	/**
+	 * Returns the next character, managing peeking logic if we have 
+	 * used it.
+	 * 
+	 * @return the next character
+	 * @throws IOException
+	 */
 	private int getNextCharacter() throws IOException {
 		if (peek != PEEK_EMPTY) {
-			int result = peek;
+			final int result = peek;
 			peek = PEEK_EMPTY;
 			return result;
 		} else {
@@ -31,23 +51,35 @@ public class SimpleTokenizer implements Tokenizer {
 		}
 	}
 	
+	/**
+	 * Marks a character as unread.
+	 * @param character
+	 */
 	private void ungetCharacter(int character) {
 		if (character != PEEK_EMPTY) {
 			peek = character;
 		}
 	}
 	
+	/**
+	 * Basic constructor, which takes a reader and wraps it in a tokenizer.
+	 * @param input the reader
+	 */
 	public SimpleTokenizer(Reader input) {
 		super();
 		this.input = input;
 	}
 
+	/**
+	 * Returns the next token from the tokenizer.
+	 * @return the next token
+	 */
 	public Token getNextToken() throws IOException, InvalidTokenException {
 		tokenBuilder.setLength(0);
 		
 		while(true) {
-			int tokenStart = getNextCharacter();
-			char tokenChar = (char) tokenStart;
+			final int tokenStart = getNextCharacter();
+			final char tokenChar = (char) tokenStart;
 			
 			if (tokenStart == PEEK_EMPTY) {
 				
@@ -59,8 +91,8 @@ public class SimpleTokenizer implements Tokenizer {
 				// Handles a quoted string.
 				tokenBuilder.append(tokenChar);
 				while(true) {
-					int constituent = getNextCharacter();
-					char constituentChar = (char) constituent;
+					final int constituent = getNextCharacter();
+					final char constituentChar = (char) constituent;
 					if (constituent == PEEK_EMPTY) {
 						throw new InvalidTokenException("Missing end quote");
 					} else if (constituentChar != '"') {
@@ -77,14 +109,14 @@ public class SimpleTokenizer implements Tokenizer {
 				
 				tokenBuilder.append(tokenChar);
 				while(true) {
-					int constituent = getNextCharacter();
-					char constituentChar = (char) constituent;
+					final int constituent = getNextCharacter();
+					final char constituentChar = (char) constituent;
 					if (constituent != PEEK_EMPTY && Character.isWhitespace(constituentChar)) {
 						tokenBuilder.append(constituentChar);
 					} else {
 						ungetCharacter(constituent);
 						
-						String token = tokenBuilder.toString();
+						final String token = tokenBuilder.toString();
 						return new WhitespaceToken(token);
 					}
 				}
@@ -101,15 +133,15 @@ public class SimpleTokenizer implements Tokenizer {
 				
 				tokenBuilder.append(tokenChar);
 				while(true) {
-					int constituent = getNextCharacter();
-					char constituentChar = (char) constituent;
+					final int constituent = getNextCharacter();
+					final char constituentChar = (char) constituent;
 					if (constituent == PEEK_EMPTY || constituentChar == '(' || constituentChar == ')' || constituentChar == ',' || Character.isWhitespace(constituentChar)) {
 						
 						// At the end, so put back the thing we just found
 						ungetCharacter(constituent);
 						
 						// Now what we have might be an operator
-						String token = tokenBuilder.toString();
+						final String token = tokenBuilder.toString();
 						if (OperatorToken.isOperator(token)) {
 							return new OperatorToken(token);
 						} else {

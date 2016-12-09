@@ -23,10 +23,10 @@ public class CustomSpringSessionAuthenticator extends Authenticator {
     }
     
     private void setChallengeResponse(Request request, Object principal) {
-		User user = new User(principal.toString());
+    	final User user = new User(principal.toString());
 		request.getClientInfo().setUser(user);
 		
-		ChallengeResponse challenge = new ChallengeResponse(ChallengeScheme.CUSTOM);
+		final ChallengeResponse challenge = new ChallengeResponse(ChallengeScheme.CUSTOM);
 		challenge.setIdentifier(user.getIdentifier());
 		request.setChallengeResponse(challenge);
     }
@@ -34,7 +34,7 @@ public class CustomSpringSessionAuthenticator extends Authenticator {
 	@Override
 	protected boolean authenticate(Request request, Response response) {
 		
-		Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 		
 		if (currentUser == null) {
 			throw new IllegalStateException("Invalid subject: SecurityUtils.getSubject() returned null");
@@ -42,13 +42,13 @@ public class CustomSpringSessionAuthenticator extends Authenticator {
 		
 		
 		// If we have no principals, we're not authenticated
-		PrincipalCollection principals = currentUser.getPrincipals();
+		final PrincipalCollection principals = currentUser.getPrincipals();
 		if (principals == null) {
 			return false;
 		}
 		
 		// With a principal, we are authenticated
-		Object principal = principals.getPrimaryPrincipal(); 
+		final Object principal = principals.getPrimaryPrincipal(); 
 		if (principal != null) {
 			setChallengeResponse(request, principal);
 			return true;			

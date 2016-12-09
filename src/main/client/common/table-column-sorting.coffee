@@ -222,8 +222,6 @@ TrackerHandsontableColumnSorting = () ->
 
     colOffset = @colOffset()
 
-    console.log '@sort', @sortColumn, @sortIndex, colOffset
-
     columnData = @getDataAtCol(@sortColumn + colOffset)
     ilen = @countRows() - instance.getSettings()['minSpareRows']
     for i in [0..(if ilen == 0 then 0 else ilen - 1)]

@@ -35,12 +35,12 @@ public abstract class Token extends QueryNode {
 	
 	/**
 	 * Tests two tokens for equality.
-	 * @param the other token
+	 * @param other the other token
 	 * @return true if the tokens are equal
 	 */
 	public boolean equals(Object other) {
 		if (other instanceof Token) {
-			String otherValue = ((Token) other).getValue();
+			final String otherValue = ((Token) other).getValue();
 			return getClass().equals(other.getClass()) && getValue().equals(otherValue);
 		} else {
 			return false;

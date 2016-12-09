@@ -22,10 +22,10 @@ public class StudyExtractor extends RepositoryAwareExtractor {
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		String value = (String) request.getAttributes().get("studyName");
+		final String value = (String) request.getAttributes().get("studyName");
 		
 		// Now we can extract the study and write it as a new attribute
-		Study s = getRepository().getStudy(value);
+		final Study s = getRepository().getStudy(value);
 		
 		// If we don't find a value, we can fail at this stage.
 		if (s == null) {
@@ -35,13 +35,13 @@ public class StudyExtractor extends RepositoryAwareExtractor {
 		}
 		
 		// Permissions checking might also be a sensible idea
-    	Subject currentUser = SecurityUtils.getSubject();
-		PrincipalCollection principals = currentUser.getPrincipals();
-		String user = principals.getPrimaryPrincipal().toString();
+		final Subject currentUser = SecurityUtils.getSubject();
+		final PrincipalCollection principals = currentUser.getPrincipals();
+		final String user = principals.getPrimaryPrincipal().toString();
     	logger.debug("Authenticated as: {}", user);
 
     	// Explicitly block access when there's not at least study read access
-    	String permission = s.getName() + ":view";
+    	final String permission = s.getName() + ":view";
     	logger.debug("Checking permission for: {}", permission);
     	
     	if (! currentUser.isPermitted(permission)) {
@@ -55,7 +55,7 @@ public class StudyExtractor extends RepositoryAwareExtractor {
 		// that can be used to pull out the data. Store this as a query
 		// attribute. 
 		
-		StudyCaseQuery query = getRepository().newStudyCaseQuery(s);
+    	final StudyCaseQuery query = getRepository().newStudyCaseQuery(s);
 		request.getAttributes().put("query", query);
 				
 		return CONTINUE;

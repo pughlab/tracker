@@ -1,13 +1,15 @@
 angular
   .module 'tracker.sockets'
 
-  .factory 'socketFactory', Array '$location', '$timeout', ($location, $timeout) ->
+  .factory 'socketFactory', Array '$location', '$timeout', '$log', ($location, $timeout, $log) ->
 
     () ->
 
       protocol = $location.protocol()
       host = $location.host()
       port = $location.port()
+
+      $log.debug "Reading from", protocol, host, port
 
       ## In some rare cases, this might need to be overridden, especially during development
       ## where the Gulp proxying system is borked. That means we need to handle things specially
@@ -27,7 +29,7 @@ angular
           @atmosphere = atmosphere
 
           @request = {
-            url: "http://#{host}:#{port}/events"
+            url: "#{protocol}://#{host}:#{port}/events"
             contentType: "application/json"
             logLevel: 'debug'
             transport: 'websocket'
@@ -36,22 +38,22 @@ angular
           }
 
           @request.onOpen = (response) ->
-            console.log "Called onOpen", response
+            $log.debug "Called onOpen", response
 
           @request.onReopen = (response) ->
-            console.log "Called onReopen", response
+            $log.debug "Called onReopen", response
 
           @request.onReconnect = (response) ->
-            console.log "Called onReconnect", response
+            $log.debug "Called onReconnect", response
 
           @request.onError = (response) ->
-            console.log "Called onError", response
+            $log.debug "Called onError", response
 
           @request.onClose = (response) ->
-            console.log "Called onClose", response
+            $log.debug "Called onClose", response
 
           @request.onMessage = (response) =>
-            console.log "Called onMessage", response
+            $log.debug "Called onMessage", response
             decoded = JSON.parse response.responseBody
             if @events[decoded.type]
               listener decoded for listener in @events[decoded.type]
@@ -88,12 +90,11 @@ angular
           return @
 
         disconnect: () ->
-          console.log "Disconnect requested"
+          $log.debug "Disconnect requested"
           @atmosphere.unsubscribeUrl @request.url
 
       socket = new SocketEventEmitter(protocol, host, port)
 
       socket.on 'newListener', (data...) ->
-        console.log "Added listener", data
 
       socket

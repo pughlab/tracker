@@ -37,7 +37,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
 
     @Get("json")
     public Representation getResource()  {
-    	StudyListResponse response = new StudyListResponse();
+    	final StudyListResponse response = new StudyListResponse();
     	buildResponseDTO(response);
        	return new JacksonRepresentation<StudyListResponse>(response);
     }
@@ -47,18 +47,18 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     public Representation postResource(Representation input) {
     	
     	// Permissions -- admin permission is needed to create a new study
-    	Subject currentUser = SecurityUtils.getSubject();
+    	final Subject currentUser = SecurityUtils.getSubject();
     	if (! currentUser.isPermitted("admin")) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     	}
     	
-		PrincipalCollection principals = currentUser.getPrincipals();
-		String userName = principals.getPrimaryPrincipal().toString();
+    	final PrincipalCollection principals = currentUser.getPrincipals();
+    	final String userName = principals.getPrimaryPrincipal().toString();
 
-    	Study savedStudy;
+    	final Study savedStudy;
     	
     	try {
-    		Study newStudy = converter.toObject(input, Study.class, this);
+    		final Study newStudy = converter.toObject(input, Study.class, this);
 			logger.debug("Got new studyt data {}", newStudy.toString());
 
 			savedStudy = getRepository().saveStudy(newStudy, userName);
@@ -69,7 +69,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     		throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
     	
-    	Reference reference = getRequest().getRootRef().clone().addSegment("api").addSegment("studies").addSegment(savedStudy.getName());
+    	final Reference reference = getRequest().getRootRef().clone().addSegment("api").addSegment("studies").addSegment(savedStudy.getName());
     	redirectSeeOther(reference);
     	return new ReferenceList(Arrays.asList(reference)).getTextRepresentation();
     }
@@ -79,19 +79,19 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
 	public void buildResponseDTO(StudyListResponse dto) {
 		super.buildResponseDTO(dto);
 		
-    	Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
     	
     	if (currentUser.isPermitted("admin")) {
-    		Reference reference = getRequest().getRootRef().clone().addSegment("api").addSegment("studies");
+    		final Reference reference = getRequest().getRootRef().clone().addSegment("api").addSegment("studies");
     		dto.getActions().put("create", reference.toUrl());
     	}
     	
     	// Query the database for studies
-    	List<Study> studyList = getRepository().getAllStudies();
+    	final List<Study> studyList = getRepository().getAllStudies();
     	for(Study s : studyList) {
     		
-    		String studyAdminPermissionString = s.getName() + ":admin";
-    		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
+    		final String studyAdminPermissionString = s.getName() + ":admin";
+    		final Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
     		Boolean studyViewPermission = studyAdminPermission;
     		Boolean studyAboutPermission = studyAdminPermission;
     		
@@ -104,7 +104,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     		
     		if (! studyViewPermission && s.getAbout() != null && ! s.getAbout().equals("")) {
     			// Or a public study option
-    			JsonNode options = s.getOptions();
+    			final JsonNode options = s.getOptions();
     			if (options != null && options.has("public") && options.get("public").asBoolean()) {
     				studyAboutPermission = true;
     			}
@@ -114,7 +114,7 @@ public class TrackerResource extends StudyRepositoryResource<StudyListResponse> 
     		// allowed permissions, and embed them in a permissions DTO.
     		
     		if (studyViewPermission || studyAboutPermission) {
-    			StudyWithAccess study = new StudyWithAccess();
+    			final StudyWithAccess study = new StudyWithAccess();
     			study.setId(s.getId());
     			study.setName(s.getName());
     			study.setDescription(s.getDescription());

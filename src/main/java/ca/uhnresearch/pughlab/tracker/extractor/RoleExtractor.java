@@ -36,7 +36,7 @@ public class RoleExtractor extends Extractor {
 
 	protected int beforeHandle(Request request, Response response) {
 
-		Study study = RequestAttributes.getRequestStudy(request);
+		final Study study = RequestAttributes.getRequestStudy(request);
 		
 		// No study => send a 400 error
 		if (study == null) {
@@ -45,17 +45,17 @@ public class RoleExtractor extends Extractor {
 
 		// We should allow access based on a read permission for the view, or 
 		// any permission on the study
-    	Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 
-		String studyAdminPermissionString = study.getName() + ":admin";
-		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
+		final String studyAdminPermissionString = study.getName() + ":admin";
+		final Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
 		
 		if (! studyAdminPermission) {
-			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
+			final String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
 			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
 		}
 
-		String name = (String) request.getAttributes().get("roleName");
+		final String name = (String) request.getAttributes().get("roleName");
 
 		// Now we can extract the study and write it as a new attribute
 		Role role = null;
@@ -67,7 +67,7 @@ public class RoleExtractor extends Extractor {
 
 		// If we don't find a value, we can fail at this stage.
 		if (role == null) {
-			String message = MessageFormat.format("Can't find role: {0}", name);
+			final String message = MessageFormat.format("Can't find role: {0}", name);
 			logger.warn(message);
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, message);
 		}

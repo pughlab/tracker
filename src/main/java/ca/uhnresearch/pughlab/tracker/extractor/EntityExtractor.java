@@ -18,7 +18,7 @@ public class EntityExtractor extends RepositoryAwareExtractor {
 		
 		StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(request);
 		
-		String idValue = (String) request.getAttributes().get("entityId");
+		final String idValue = (String) request.getAttributes().get("entityId");
 		if (logger.isDebugEnabled()) {
 			logger.debug("Continuing with the entity: {}", idValue);
 		}

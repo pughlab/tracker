@@ -27,9 +27,9 @@ public class FilterExtractor extends RepositoryAwareExtractor {
 		extractFromQuery("q", "q", true);
 		super.beforeHandle(request, response);
 
-		Map<String, Object> attributes = request.getAttributes();
+		final Map<String, Object> attributes = request.getAttributes();
 		if (attributes.containsKey("q")) {
-			String query = (String) attributes.get("q");
+			final String query = (String) attributes.get("q");
 			try {
 				handleQuery(request, query);
 			} catch (JsonParseException e) {
@@ -46,15 +46,15 @@ public class FilterExtractor extends RepositoryAwareExtractor {
 	}
 	
 	private void handleQuery(Request request, String query) throws JsonParseException, JsonMappingException, IOException  {
-		ObjectNode queryObject = mapper.readValue(query, ObjectNode.class);
+		final ObjectNode queryObject = mapper.readValue(query, ObjectNode.class);
 		
 		// Now we ought to be able to add filters into the query that we generate
 		// through the repository. Don't do this if we don't have a real filter
 		// value that makes sense. 
 		
 		if (queryObject != null) { 
-			StudyCaseQuery caseQuery = RequestAttributes.getRequestCaseQuery(request);
-			StudyCaseQuery filteredCaseQuery = getRepository().addStudyCaseFilterSelector(caseQuery, queryObject);
+			final StudyCaseQuery caseQuery = RequestAttributes.getRequestCaseQuery(request);
+			final StudyCaseQuery filteredCaseQuery = getRepository().addStudyCaseFilterSelector(caseQuery, queryObject);
 			RequestAttributes.setRequestCaseQuery(request, filteredCaseQuery);
 		}
 		

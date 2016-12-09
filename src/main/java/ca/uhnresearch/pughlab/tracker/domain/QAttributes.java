@@ -1,13 +1,13 @@
 package ca.uhnresearch.pughlab.tracker.domain;
 
-import static com.mysema.query.types.PathMetadataFactory.*;
+import java.sql.Types;
+
 import ca.uhnresearch.pughlab.tracker.dto.Attributes;
 
-import com.mysema.query.types.path.*;
-
 import com.mysema.query.sql.ColumnMetadata;
-
-import java.sql.Types;
+import com.mysema.query.types.PathMetadataFactory;
+import com.mysema.query.types.path.NumberPath;
+import com.mysema.query.types.path.StringPath;
 
 public class QAttributes extends com.mysema.query.sql.RelationalPathBase<Attributes> {
 
@@ -34,7 +34,7 @@ public class QAttributes extends com.mysema.query.sql.RelationalPathBase<Attribu
     public final com.mysema.query.sql.PrimaryKey<Attributes> primary = createPrimaryKey(id);
 
     public QAttributes(String variable) {
-        super(Attributes.class, forVariable(variable), "null", "ATTRIBUTES");
+        super(Attributes.class, PathMetadataFactory.forVariable(variable), "null", "ATTRIBUTES");
         addMetadata();
     }
 

@@ -92,12 +92,12 @@ public class SimpleQueryParser implements QueryParser {
 			return next;
 		}
 		
-		OperatorToken nextOperator = (OperatorToken) next;
+		final OperatorToken nextOperator = (OperatorToken) next;
 		
 		if (nextOperator.equals(OperatorToken.OPERATOR_LEFT_PARENTHESIS)) {
 			
 			skipToken();
-			QueryNode left = parseQuery();
+			final QueryNode left = parseQuery();
 			
 			next = getNextToken();
 			if (next == null || ! next.equals(OperatorToken.OPERATOR_RIGHT_PARENTHESIS)) {
@@ -109,7 +109,7 @@ public class SimpleQueryParser implements QueryParser {
 		} else if (OperatorToken.isPrefixOperator(nextOperator.getValue())) {
 			
 			skipToken();
-			QueryNode right = getNextToken();
+			final QueryNode right = getNextToken();
 			
 			if (right == null) {
 				throw new InvalidTokenException("Missing value for: " + nextOperator.getValue());

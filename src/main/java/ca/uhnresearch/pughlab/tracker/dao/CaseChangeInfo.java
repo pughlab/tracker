@@ -5,19 +5,30 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**
+ * Represents changes to a case for audit logging purposes.
+ * @author stuartw
+ *
+ */
 public class CaseChangeInfo {
 	
 	/**
 	 * Constructs a new case change object.
-	 * @param caseId the case id
+	 * @param caseIdValue the case id
 	 */
-	public CaseChangeInfo(Integer caseId) {
+	public CaseChangeInfo(Integer caseIdValue) {
 		super();
-		this.caseId = caseId;
+		this.caseId = caseIdValue;
 	}
 
+	/**
+	 * The case identifier.
+	 */
 	private Integer caseId;
 	
+	/**
+	 * A map of field name strings to changes. 
+	 */
 	private Map<String, Change> changes = new HashMap<String, Change>();
 	
 	/**
@@ -39,7 +50,7 @@ public class CaseChangeInfo {
 	}
 	
 	/**
-	 * Retrieves a specific change, located by field name
+	 * Retrieves a specific change, located by field name.
 	 * @param field the field name
 	 * @return a change 
 	 */
@@ -48,16 +59,28 @@ public class CaseChangeInfo {
 	}
 	
 	/**
-	 * An object for an individual change, 
+	 * An object for an individual change.
 	 */
 	public class Change {
 		
+		/**
+		 * The old value for a change.
+		 */
 		JsonNode oldValue;
+		
+		/**
+		 * The new value for a change.
+		 */
 		JsonNode newValue;
 		
-		private Change(JsonNode oldValue, JsonNode newValue) {
-			this.newValue = newValue;
-			this.oldValue = oldValue;
+		/**
+		 * Constructs a new change from a pair of values.
+		 * @param oldVal the old value
+		 * @param newVal the new value
+		 */
+		private Change(JsonNode oldVal, JsonNode newVal) {
+			this.newValue = newVal;
+			this.oldValue = oldVal;
 		}
 		
 		/**

@@ -60,7 +60,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 
 	@Override
 	public Long getStudyRoleCount(Study study, CasePager query) {
-		SQLQuery sqlQuery = template.newSqlQuery().from(roles).where(roles.studyId.eq(study.getId()));
+		final SQLQuery sqlQuery = template.newSqlQuery().from(roles).where(roles.studyId.eq(study.getId()));
 		return template.count(sqlQuery);
 	}
 	
@@ -91,8 +91,8 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
      */
 	@Override
 	public List<Role> getStudyRoles(Study study, CasePager query) throws RepositoryException {
-    	SQLQuery sqlQuery = buildRolesQuery(study, query);
-    	List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
+		final SQLQuery sqlQuery = buildRolesQuery(study, query);
+		final List<Role> roleList = template.query(sqlQuery, new RoleStudyProjection(roles, studies));
     	for(Role role : roleList) {
         	role.setUsers(getRoleUsers(role));
         	role.setPermissions(getRolePermissions(role));
@@ -106,12 +106,12 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	@Override
 	public Role getStudyRole(Study study, String name) throws RepositoryException {
 		logger.debug("Looking for study role by name: {}", name);
-    	SQLQuery sqlQuery = template.newSqlQuery()
+		final SQLQuery sqlQuery = template.newSqlQuery()
     			.from(roles)
     			.join(studies)
     			.on(roles.studyId.eq(studies.id))
     			.where(roles.name.eq(name).and(roles.studyId.eq(study.getId())));
-    	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
+		final Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
     	if (role != null) {
     		role.setUsers(getRoleUsers(role));
     		role.setPermissions(getRolePermissions(role));
@@ -123,12 +123,12 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	@Override
 	public Role getStudyRoleById(Study study, Integer id) throws RepositoryException {
 		logger.debug("Looking for study role by id: {}", id);
-    	SQLQuery sqlQuery = template.newSqlQuery()
+		final SQLQuery sqlQuery = template.newSqlQuery()
     			.from(roles)
     			.join(studies)
     			.on(roles.studyId.eq(studies.id))
     			.where(roles.id.eq(id).and(roles.studyId.eq(study.getId())));
-    	Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
+		final Role role = template.queryForObject(sqlQuery, new RoleStudyProjection(roles, studies));
     	if (role != null) {
     		role.setUsers(getRoleUsers(role));
     		role.setPermissions(getRolePermissions(role));
@@ -209,8 +209,8 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 		if (authorizationRealm == null) {
 			return;
 		}
-		List<String> users = getRoleUsers(role);
-		String realmName = authorizationRealm.getName();
+		final List<String> users = getRoleUsers(role);
+		final String realmName = authorizationRealm.getName();
 		for(String user: users) {
 			PrincipalCollection principal = new SimplePrincipalCollection(user, realmName);
 			authorizationRealm.clearCachedAuthorizationInfo(principal);
@@ -221,14 +221,14 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 	 * Returns a list of users associated with a role
 	 */
 	private List<String> getRoleUsers(Role role) throws RepositoryException {
-    	SQLQuery sqlQuery = template.newSqlQuery().from(userRoles).where(userRoles.roleId.eq(role.getId()));
-    	List<String> userList = template.query(sqlQuery, userRoles.username);
+		final SQLQuery sqlQuery = template.newSqlQuery().from(userRoles).where(userRoles.roleId.eq(role.getId()));
+		final List<String> userList = template.query(sqlQuery, userRoles.username);
 		return userList;
 	}
 
 	private List<String> getRolePermissions(Role role) {
-    	SQLQuery sqlQuery = template.newSqlQuery().from(rolePermissions).where(rolePermissions.roleId.eq(role.getId()));
-    	List<String> permissionList = template.query(sqlQuery, rolePermissions.permission);
+		final SQLQuery sqlQuery = template.newSqlQuery().from(rolePermissions).where(rolePermissions.roleId.eq(role.getId()));
+		final List<String> permissionList = template.query(sqlQuery, rolePermissions.permission);
 		return permissionList;
 	}
 
@@ -290,8 +290,8 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 
 	@Override
 	public User getUserByUsername(String username) throws RepositoryException {
-    	SQLQuery sqlQuery = template.newSqlQuery().from(users).where(users.username.eq(username));
-    	User user = template.queryForObject(sqlQuery, users);
+		final SQLQuery sqlQuery = template.newSqlQuery().from(users).where(users.username.eq(username));
+		final User user = template.queryForObject(sqlQuery, users);
 		return user;
 	}
 
@@ -315,7 +315,7 @@ public class AuthorizationRepositoryImpl implements AuthorizationRepository {
 			});
 			
 			if (updateCount == 1) return;
-			String message = MessageFormat.format("Failed to create or update a user: {0}", user.getUsername());
+			final String message = MessageFormat.format("Failed to create or update a user: {0}", user.getUsername());
 			throw new DataIntegrityException(message);
 			
 		} catch (DataIntegrityViolationException e) {

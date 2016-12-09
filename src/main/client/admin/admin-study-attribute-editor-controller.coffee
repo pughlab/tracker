@@ -1,7 +1,7 @@
 angular
   .module 'tracker.admin'
 
-  .controller 'StudyAttributeEditorController', Array '$scope', ($scope) ->
+  .controller 'StudyAttributeEditorController', Array '$scope', '$log', ($scope, $log) ->
 
     $scope.selectedAttribute = undefined
     originalSelectedAttribute = undefined
@@ -25,7 +25,7 @@ angular
       $scope.selectedAttribute = undefined
       originalSelectedAttribute = undefined
       $scope.schema.attributes = $scope.schema.attributes.filter (att) -> att != attribute
-      console.log "Sending admin:modified deleteAttribute", attribute
+      $log.debug "Sending admin:modified deleteAttribute", attribute
       $scope.$emit 'admin:modified'
 
     $scope.newAttribute = () ->
@@ -33,7 +33,7 @@ angular
       $scope.schema.attributes.push newAttribute
       $scope.selectedAttribute = newAttribute
       originalSelectedAttribute = angular.copy($scope.selectedAttribute)
-      console.log "Sending admin:modified newAttribute", newAttribute
+      $log.debug "Sending admin:modified newAttribute", newAttribute
       $scope.$emit 'admin:modified'
 
     $scope.attributeTypes = [

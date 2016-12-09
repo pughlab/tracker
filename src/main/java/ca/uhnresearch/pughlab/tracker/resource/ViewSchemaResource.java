@@ -46,7 +46,7 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     @Get("json")
     public Representation getResource()  {
     	
-    	ViewSchemaResponse response = new ViewSchemaResponse();
+    	final ViewSchemaResponse response = new ViewSchemaResponse();
     	buildResponseDTO(response);
     	return new JacksonRepresentation<ViewSchemaResponse>(response);    	
     }
@@ -62,12 +62,12 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     public Representation putResource(Representation input) {
     	logger.debug("Called putResource() in ViewSchemaResource", input);
     	
-    	Subject currentUser = SecurityUtils.getSubject();
+    	final Subject currentUser = SecurityUtils.getSubject();
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final View view = RequestAttributes.getRequestView(getRequest());
 
-    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
+    	final boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
 			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
@@ -75,10 +75,10 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
 
     	// And now to grab the new attributes and render back.
     	try {
-    		ViewSchemaResponse schema = converter.toObject(input, ViewSchemaResponse.class, this);
+    		final ViewSchemaResponse schema = converter.toObject(input, ViewSchemaResponse.class, this);
 			logger.debug("Got a new schema {}", schema);
 			
-			List<ViewAttributes> attributes = new ArrayList<ViewAttributes>();
+			final List<ViewAttributes> attributes = new ArrayList<ViewAttributes>();
 			for(ViewAttributes a : schema.getAttributes()) {
 				attributes.add(a);
 			}
@@ -110,13 +110,13 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
 	public void buildResponseDTO(ViewSchemaResponse dto) throws ResourceException {
 		super.buildResponseDTO(dto);
 		
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
+		final Study study = RequestAttributes.getRequestStudy(getRequest());
+		final View view = RequestAttributes.getRequestView(getRequest());
 
-    	Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 
     	// Only administrators can get the schema
-    	boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
+		final boolean adminUser = currentUser.isPermitted(study.getName() + ":admin");
     	if (! adminUser) {
 			String message = MessageFormat.format("No administrator access to study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
@@ -125,7 +125,7 @@ public class ViewSchemaResource extends StudyRepositoryResource<ViewSchemaRespon
     	dto.setStudy(study);
     	dto.setView(view);
     	
-    	List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
+    	final List<ViewAttributes> attributes = getRepository().getViewAttributes(study, view);
     	for (ViewAttributes a : attributes) {
     		dto.getAttributes().add(a);
     	}

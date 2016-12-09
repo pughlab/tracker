@@ -5,8 +5,8 @@ angular
   ## Started work on a datatables-based implementation of the grid. Initially, much of this
   ## can be hardwired for testing and embedding.
 
-  .directive 'trackerTable', Array '$timeout', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'removeTableRecord', 'deleteCase', 'editTableCell', 'handleStateCell', 'validateTableValue', 'reloadTable', \
-                                   ($timeout, searchInTable, valueManager, booleanValueManager, addTableRecord, removeTableRecord, deleteCase, editTableCell, handleStateCell, validateTableValue, reloadTable) ->
+  .directive 'trackerTable', Array '$timeout', '$log', 'searchInTable', 'valueManager', 'booleanValueManager', 'addTableRecord', 'removeTableRecord', 'deleteCase', 'editTableCell', 'handleStateCell', 'validateTableValue', 'reloadTable', \
+                                   ($timeout, $log, searchInTable, valueManager, booleanValueManager, addTableRecord, removeTableRecord, deleteCase, editTableCell, handleStateCell, validateTableValue, reloadTable) ->
     result =
       restrict: "A"
       replace: true
@@ -33,7 +33,7 @@ angular
         ## as well as when the initial table has been constructed.
 
         scope.$on 'table:reload', (e) ->
-          console.log "Requesting reload", scope.filters
+          $log.debug "Requesting reload", scope.filters
           e.stopPropagation?()
           reloadTable scope, handsonTable
 
@@ -95,7 +95,7 @@ angular
             ## value. Note that the value is never transmitted over the socket.
 
             scope.$on 'socket:state', (evt, original) ->
-              console.log 'on socket:state', evt, original
+              $log.debug 'on socket:state', evt, original
               if handsonTable != undefined
                 handleStateCell scope, handsonTable, original.data.parameters.case_id, original.data.parameters.state, original.data.editingClasses
 
@@ -111,7 +111,7 @@ angular
                 addTableRecord scope, handsonTable, original.data.parameters.case_id, original.data.editingClasses
 
             scope.$on 'socket:delete', (evt, original) ->
-              console.log 'on socket:delete', evt, original
+              $log.debug 'on socket:delete', evt, original
               if handsonTable != undefined and original.data.userNumber != 1
                 removeTableRecord scope, handsonTable, original.data.parameters.case_id
 
