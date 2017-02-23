@@ -28,17 +28,17 @@ public class AttributeExtractor extends RepositoryAwareExtractor {
 	 */
 	protected int beforeHandle(Request request, Response response) {
 		
-		Study study = RequestAttributes.getRequestStudy(request);
+		final Study study = RequestAttributes.getRequestStudy(request);
 		
-		String value = (String) request.getAttributes().get("attributeName");
+		final String value = (String) request.getAttributes().get("attributeName");
 		logger.debug("Called AttributeExtractor beforeHandle: {}", value);
 		
 		// Now we can extract the attribute
-		Attributes attribute = getRepository().getStudyAttribute(study, value);
+		final Attributes attribute = getRepository().getStudyAttribute(study, value);
 		
 		// If we don't find a value, we can fail at this stage.
 		if (attribute == null) {
-			String message = MessageFormat.format("Can't find attribute: {} in study {}", value, study.getName());
+			final String message = MessageFormat.format("Can't find attribute: {} in study {}", value, study.getName());
 			logger.warn(message);
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, message);
 		}

@@ -1,7 +1,7 @@
 angular
   .module 'tracker.authentication'
 
-  .controller 'LoginController', Array '$scope', '$state', 'authenticationService', ($scope, $state, authenticationService) ->
+  .controller 'LoginController', Array '$scope', '$state', '$log', 'authenticationService', ($scope, $state, $log, authenticationService) ->
 
     $scope.prompt = null
     $scope.originalStateName = $state.params?.originalStateName
@@ -25,7 +25,7 @@ angular
       else
         {username: $scope.username, password: $scope.password}
       $scope.clearMessage()
-      console.log "Starting login process", data
+      $log.debug "Starting login process"
       authenticationService.login $scope, data
 
     $scope.cancel = () ->

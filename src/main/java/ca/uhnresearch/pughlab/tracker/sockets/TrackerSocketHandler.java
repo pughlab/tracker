@@ -58,15 +58,16 @@ public class TrackerSocketHandler {
 
         getEventManager().registerAtmosphereResource(r);
         
-        Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
+        final Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         if (subject != null) {
         	
             // When we are ready, we should actually send a welcome message to the client. This starts off
             // much of the protocol.
         	            
-            String primaryPrincipal = (String) subject.getPrincipals().getPrimaryPrincipal();
+        	final String primaryPrincipal = (String) subject.getPrincipals().getPrimaryPrincipal();
 			logger.info("Browser connected: {}, subject principal: {}", r.uuid(), primaryPrincipal);
-            Event event = new Event(Event.EVENT_WELCOME, (String) null);
+			
+			final Event event = new Event(Event.EVENT_WELCOME, (String) null);
             event.getData().setUser(primaryPrincipal);
             getEventManager().sendMessage(event, r);
         } else {
@@ -102,7 +103,7 @@ public class TrackerSocketHandler {
     public String onMessage(AtmosphereResource r, String input) throws IOException {
     	
     	logger.debug("Message received: {}", input);
-    	Event message = mapper.readValue(input, Event.class);
+    	final Event message = mapper.readValue(input, Event.class);
     	logger.debug("Translated message: {}", message);
     	getEventManager().receivedMessage(message, r);
 

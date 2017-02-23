@@ -41,7 +41,10 @@
         
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
-        <module name="ImportOrder"/>
+        <module name="ImportOrder">
+            <property name="groups" value="/^javax?\./,org" />
+            <property name="separated" value="true"/>
+        </module>
         
         <module name="AbbreviationAsWordInName"/>
         

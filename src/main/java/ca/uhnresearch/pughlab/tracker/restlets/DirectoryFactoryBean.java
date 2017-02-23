@@ -9,7 +9,7 @@ public class DirectoryFactoryBean implements FactoryBean<Directory> {
     private String resourceRoot;
 
 	public Directory getObject() throws Exception {
-        Directory directory = new Directory(component.getContext(), getResourceRoot());
+		final Directory directory = new Directory(component.getContext(), getResourceRoot());
         directory.setListingAllowed(true);
         return directory;
     }

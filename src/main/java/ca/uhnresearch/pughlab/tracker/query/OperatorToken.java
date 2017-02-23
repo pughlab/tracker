@@ -76,7 +76,7 @@ public class OperatorToken extends Token {
 	/**
 	 * Returns true if this string corresponds to an operator.
 	 * @param token
-	 * @return
+	 * @return true if this is an operator
 	 */
 	public static final boolean isOperator(String token) {
 		return allOperators.contains(token);
@@ -85,7 +85,7 @@ public class OperatorToken extends Token {
 	/**
 	 * Returns true if this string corresponds to an infix operator.
 	 * @param token
-	 * @return
+	 * @return true if this is an infix operator
 	 */
 	public static final boolean isInfixOperator(String token) {
 		return infixOperators.contains(token);
@@ -94,7 +94,7 @@ public class OperatorToken extends Token {
 	/**
 	 * Returns true if this string corresponds to an prefix operator.
 	 * @param token
-	 * @return
+	 * @return true if this is a prefix operator
 	 */
 	public static final boolean isPrefixOperator(String token) {
 		return prefixOperators.contains(token);

@@ -1,7 +1,7 @@
 angular
   .module 'tracker.grid'
 
-  .controller 'PageViewController', Array '$scope', '$rootScope', '$http', ($scope, $rootScope, $http) ->
+  .controller 'PageViewController', Array '$scope', '$rootScope', '$http', '$log', ($scope, $rootScope, $http, $log) ->
 
     $scope.getStudyUrl = () ->
       "/api/studies/#{$scope.study.name}/views/#{$scope.view.name}"
@@ -60,7 +60,7 @@ angular
     socket = socketFactory()
 
     socket.on 'userconnect', (event) ->
-      console.log 'Got userconnect event', event.data.user
+      $log.debug 'Got userconnect event', event.data.user
       $scope.$apply () ->
         if not (event.data.user in $scope.currentUsers)
           $scope.currentUsers.push event.data.user

@@ -33,7 +33,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
 	
     @Get("json")
     public Representation getResource()  {
-    	RoleResponse response = new RoleResponse();
+    	final RoleResponse response = new RoleResponse();
     	buildResponseDTO(response);
        	return new JacksonRepresentation<RoleResponse>(response);
     }
@@ -42,10 +42,10 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     public Representation putResource(Representation input)  {
     	logger.debug("Got an update", input);
     	
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	try {
-    		RoleResponse data = converter.toObject(input, RoleResponse.class, this);
+    		final RoleResponse data = converter.toObject(input, RoleResponse.class, this);
 			logger.debug("Got a new role response {}", data);
 			
 			Role role = data.getRole();
@@ -83,7 +83,7 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     		return false;
     	}
     	
-    	String studyName = study.getName();
+    	final String studyName = study.getName();
     	if (currentUser.isPermitted(studyName + ":admin")) {
     		return true;
     	}
@@ -92,16 +92,16 @@ public class RoleResource extends AuthorizationRepositoryResource<RoleResponse> 
     }
 
 	public void buildResponseDTO(RoleResponse dto) {
-    	Subject currentUser = SecurityUtils.getSubject();
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
+		final Subject currentUser = SecurityUtils.getSubject();
+		final Study study = RequestAttributes.getRequestStudy(getRequest());
     	
     	if (! isPermitted(currentUser, study)) {
-			String message = MessageFormat.format("No access to study: {0}", study.getName());
+    		final String message = MessageFormat.format("No access to study: {0}", study.getName());
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, message);
     	}
     	
-    	User user = new User(currentUser);
-    	URL url = getRequest().getRootRef().toUrl();
+    	final User user = new User(currentUser);
+    	final URL url = getRequest().getRootRef().toUrl();
 
     	dto.setUser(user);
     	dto.setServiceUrl(url);

@@ -10,7 +10,16 @@ import ca.uhnresearch.pughlab.tracker.dto.Study;
  */
 public interface StudyCaseQuery {
 
+	/**
+	 * Retrieves a study.
+	 * @return the study
+	 */
 	Study getStudy();
+	
+	/**
+	 * Sets the study.
+	 * @param study the study
+	 */
 	void setStudy(Study study);
 	
 }

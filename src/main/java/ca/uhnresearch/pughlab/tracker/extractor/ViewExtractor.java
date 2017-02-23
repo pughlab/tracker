@@ -30,8 +30,8 @@ public class ViewExtractor extends RepositoryAwareExtractor {
 	 */
 	private void checkPermissions(Request request, Study study, View view, Subject currentUser) throws ResourceException {
 		
-		String studyAdminPermissionString = study.getName() + ":admin";
-		Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
+		final String studyAdminPermissionString = study.getName() + ":admin";
+		final Boolean studyAdminPermission = currentUser.isPermitted(studyAdminPermissionString);
 		Boolean viewReadPermission = studyAdminPermission;
 		Boolean viewWritePermission = studyAdminPermission;
 		
@@ -58,23 +58,23 @@ public class ViewExtractor extends RepositoryAwareExtractor {
 
 	protected int beforeHandle(Request request, Response response) {
 		
-		Study study = RequestAttributes.getRequestStudy(request);
-		String value = (String) request.getAttributes().get("viewName");
+		final Study study = RequestAttributes.getRequestStudy(request);
+		final String value = (String) request.getAttributes().get("viewName");
 		logger.debug("Called ViewExtractor beforeHandle: {}", value);
 		
 		// Now we can extract the study and write it as a new attribute
-		View v = getRepository().getStudyView(study, value);
+		final View v = getRepository().getStudyView(study, value);
 		
 		// If we don't find a value, we can fail at this stage.
 		if (v == null) {
-			String message = MessageFormat.format("Can't find view: {} in study {}", value, study.getName());
+			final String message = MessageFormat.format("Can't find view: {} in study {}", value, study.getName());
 			logger.warn(message);
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, message);
 		}
 		
 		// We should allow access based on a read permission for the view, or 
 		// any permission on the study
-    	Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 
 		// We set a few permissions to include in the response. This is more a convenience,
 		// as it allows the front end to enable controls. Actual access is blocked independently

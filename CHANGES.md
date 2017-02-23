@@ -1,9 +1,21 @@
 ## Revision history
 
 
+### Version 2.2.8 - 22nd February 2017
+
+ * Modified LDAP authentication to use the original username in queries. 
+
+
+### Version 2.2.7 - 9th December 2016
+
+ * Fix logging to remove confidential data even from the browser.
+ * Switched to use Angular rather than console logging.
+ * Automatically detect the protocol for socket connections.
+
+
 ### Version 2.2.6 - 6th June 2016
 
- * Allow floats to be handled better. 
+ * Allow floats to be handled better.
  * Increase the user timeout, See #183
 
 
@@ -38,7 +50,7 @@
  * Added page views. See #164
  * Fixed NPEs in the state changing plugin. See #163
  * Make sure empty cases contain the identifier. See #162
- 
+
 
 ### Version 2.2.0 - 3rd February 2016
 
@@ -47,13 +59,13 @@
  * Fixed an issue where logout didn't update connected users. See #161, #158
  * Fix an issue with case deletion in MySQL. See #159
  * Don't let people type in the top filter row. See #160
- 
+
 
 ### Version 2.1.6 - 21st January 2016
 
  * Fixed attribute creation from the UI. See #152
  * Fixed a few small bugs in study creation from the UI
- 
+
 
 ### Version 2.1.5 - 14th January 2016
 
@@ -164,7 +176,7 @@
 
  * Added a view permission to studies. See #59
  * Improved import scripts to handle XLSX files properly
- 
+
 
 ### Version 2.0.1-RC1 - August 31st 2015
 
@@ -205,7 +217,7 @@
  * Initial Java version of the tracker
  * Modified session authentication to send an error status with a message on failure to authenticate - 4cd8d8d
  * Various bug fixes and tests for the permissions system
- * Add usernames to log files - b9a7c77 
- 
+ * Add usernames to log files - b9a7c77
+
 
 Previous versions were written using Node.js / Express stack, and were not released publicly.

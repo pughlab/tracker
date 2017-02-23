@@ -93,7 +93,7 @@ public class RedactedJsonNode extends ValueNode {
     public String toString() {
         int len = REDACTED_VALUE.length();
         len = len + 2 + (len >> 4);
-        StringBuilder sb = new StringBuilder(len);
+        final StringBuilder sb = new StringBuilder(len);
         sb.append('"');
         CharTypes.appendQuoted(sb, REDACTED_VALUE);
         sb.append('"');
@@ -120,10 +120,10 @@ public class RedactedJsonNode extends ValueNode {
 	 * @return the redacted node
 	 */
 	public static ObjectNode redactObjectNode(final ObjectNode data) {
-		ObjectNode redacted = factory.objectNode();
-		Iterator<Entry<String, JsonNode>> fields = data.fields();
+		final ObjectNode redacted = factory.objectNode();
+		final Iterator<Entry<String, JsonNode>> fields = data.fields();
 		while(fields.hasNext()) {
-			Entry<String, JsonNode> field = fields.next();
+			final Entry<String, JsonNode> field = fields.next();
 			redacted.replace(field.getKey(), new RedactedJsonNode(field.getValue()));
 		}
 		return redacted;
@@ -136,13 +136,13 @@ public class RedactedJsonNode extends ValueNode {
 	 * @return the tagged node
 	 */
 	public static ObjectNode redactedToTagged(final ObjectNode data) {
-		ObjectNode tagged = factory.objectNode();
-		Iterator<Entry<String, JsonNode>> fields = data.fields();
+		final ObjectNode tagged = factory.objectNode();
+		final Iterator<Entry<String, JsonNode>> fields = data.fields();
 		while(fields.hasNext()) {
-			Entry<String, JsonNode> field = fields.next();
+			final Entry<String, JsonNode> field = fields.next();
 			JsonNode value = field.getValue();
 			if (value instanceof RedactedJsonNode) {
-				ObjectNode tag = factory.objectNode();
+				final ObjectNode tag = factory.objectNode();
 				tag.replace("$r", ((RedactedJsonNode) value).getValue());
 				value = tag;
 			} else if (value instanceof ObjectNode) {
@@ -160,15 +160,15 @@ public class RedactedJsonNode extends ValueNode {
 	 * @return the redacted object
 	 */
 	public static ObjectNode taggedToRedacted(final ObjectNode data) {
-		ObjectNode redacted = factory.objectNode();
-		Iterator<Entry<String, JsonNode>> fields = data.fields();
+		final ObjectNode redacted = factory.objectNode();
+		final Iterator<Entry<String, JsonNode>> fields = data.fields();
 		while(fields.hasNext()) {
-			Entry<String, JsonNode> field = fields.next();
+			final Entry<String, JsonNode> field = fields.next();
 			JsonNode value = field.getValue();
 			if (value instanceof ObjectNode) {
-				ObjectNode obj = (ObjectNode) value;
+				final ObjectNode obj = (ObjectNode) value;
 				if (obj.has("$r")) {
-					JsonNode redactable = obj.get("$r");
+					final JsonNode redactable = obj.get("$r");
 					value = new RedactedJsonNode(redactable);
 				} else {
 					value = taggedToRedacted(obj);
@@ -186,10 +186,10 @@ public class RedactedJsonNode extends ValueNode {
 	 * @return a clear (unredacted) object
 	 */
 	public static ObjectNode redactedToClear(final ObjectNode data) {
-		ObjectNode tagged = factory.objectNode();
-		Iterator<Entry<String, JsonNode>> fields = data.fields();
+		final ObjectNode tagged = factory.objectNode();
+		final Iterator<Entry<String, JsonNode>> fields = data.fields();
 		while(fields.hasNext()) {
-			Entry<String, JsonNode> field = fields.next();
+			final Entry<String, JsonNode> field = fields.next();
 			JsonNode value = field.getValue();
 			if (value instanceof RedactedJsonNode) {
 				value = ((RedactedJsonNode) value).getValue();

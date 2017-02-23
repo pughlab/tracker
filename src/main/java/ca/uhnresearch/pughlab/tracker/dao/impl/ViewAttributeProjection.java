@@ -34,7 +34,7 @@ public class ViewAttributeProjection extends MappingProjection<ViewAttributes> {
 
     @Override
     protected ViewAttributes map(Tuple tuple) {
-    	ViewAttributes product = new ViewAttributes();
+    	final ViewAttributes product = new ViewAttributes();
 
         product.setId(tuple.get(attributes.id));
         product.setStudyId(tuple.get(attributes.studyId));
@@ -47,7 +47,7 @@ public class ViewAttributeProjection extends MappingProjection<ViewAttributes> {
         // Deserializing into a view attribute is more complicated, as basically
         // we need to deep merge the two sets of options.
         
-        String options = tuple.get(attributes.options);
+        final String options = tuple.get(attributes.options);
 		if (options != null) {
 			try {
 				product.setOptions(mapper.readValue(options, JsonNode.class));
@@ -56,7 +56,7 @@ public class ViewAttributeProjection extends MappingProjection<ViewAttributes> {
 			}
 		}
 
-        String viewOptions = tuple.get(viewAttributes.options);
+		final String viewOptions = tuple.get(viewAttributes.options);
 		if (viewOptions != null) {
 			try {
 				product.setOptions(mapper.readValue(viewOptions, JsonNode.class));

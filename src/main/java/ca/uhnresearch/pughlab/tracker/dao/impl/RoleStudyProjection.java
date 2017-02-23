@@ -20,7 +20,7 @@ public class RoleStudyProjection extends MappingProjection<Role> {
 
 	@Override
 	protected Role map(Tuple tuple) {
-    	Role product = new Role();
+    	final Role product = new Role();
         product.setId(tuple.get(roles.id));
         product.setName(tuple.get(roles.name));
         product.setStudyName(tuple.get(studies.name));

@@ -27,7 +27,7 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 	public void sendMessage(Event event) {
 		
 		// No study, no states
-		Study study = getRepository().getStudy(event.getScope());
+		final Study study = getRepository().getStudy(event.getScope());
 		if (study == null) {
 			return;
 		}
@@ -38,7 +38,7 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 			
 		// Handle a field update
 		} else if (event.getType().equals(Event.EVENT_SET_FIELD)) {
-			ObjectNode parameters = event.getData().getParameters();
+			final ObjectNode parameters = event.getData().getParameters();
 			applyCaseLabelRules(study, parameters);
 		}
 	}
@@ -60,13 +60,13 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 	}
 	
 	private Set<String> getAttributeNames(Study study) {
-		JsonNode stateRules = getStateRuleData(study);
+		final JsonNode stateRules = getStateRuleData(study);
 		
-		Set<String> attributeNames = new HashSet<String>();
+		final Set<String> attributeNames = new HashSet<String>();
 		if (stateRules != null && stateRules.isArray()) {
-			int size = stateRules.size();
+			final int size = stateRules.size();
 			for(int i = 0; i < size; i++) {
-				JsonNode rule = stateRules.get(i);
+				final JsonNode rule = stateRules.get(i);
 				attributeNames.add(rule.get("attribute").asText());
 			}
 		}
@@ -75,11 +75,11 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 	}
 	
 	private List<StateRule> getStateRules(Study study) {
-		JsonNode stateRules = getStateRuleData(study);
+		final JsonNode stateRules = getStateRuleData(study);
 		
-		List<StateRule> rules = new ArrayList<StateRule>();
+		final List<StateRule> rules = new ArrayList<StateRule>();
 		if (stateRules != null && stateRules.isArray()) {
-			int size = stateRules.size();
+			final int size = stateRules.size();
 			for(int i = 0; i < size; i++) {
 				JsonNode rule = stateRules.get(i);
 				rules.add(new StateRule(rule.get("state").asText(), rule.get("attribute").asText(), rule.get("value").asText()));
@@ -90,9 +90,9 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 	}
 	
 	private List<Attributes> getStudyFilteredAttributes(Study study, Set<String> attributeNames) {
-		List<Attributes> attributes = getRepository().getStudyAttributes(study);
+		final List<Attributes> attributes = getRepository().getStudyAttributes(study);
 		
-		List<Attributes> filtered = new ArrayList<Attributes>();
+		final List<Attributes> filtered = new ArrayList<Attributes>();
 		for(Attributes a : attributes) {
 			if (attributeNames.contains(a.getName())) {
 				filtered.add(a);
@@ -112,7 +112,7 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 	
 	private void applyLabelsToCases(Study study, List<ObjectNode> cases, List<StateRule> rules) {
 		
-		String userName = "system";
+		final String userName = "system";
 
 		// Now we can apply the rules and change the states of any that need to
 		// change. Note that the rule value might need to be decoded depending on the
@@ -121,7 +121,7 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 		for(ObjectNode c : cases) {
 			String state = null;
 			for(StateRule rule : rules) {
-				JsonNode value = c.get(rule.attribute);
+				final JsonNode value = c.get(rule.attribute);
 				if (value == null) {
 					// Do nothing, state can't be affected by a null/empty value
 				} else if (value.isObject() && value.has("$notAvailable") && "N/A".equals(rule.value)) {
@@ -131,11 +131,11 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 				}
 			}
 			
-			JsonNode stateField =  c.get("$state");
+			final JsonNode stateField =  c.get("$state");
 			String oldState = (stateField != null && c.get("$state").isTextual()) ? c.get("$state").asText() : null;
 			if (oldState == null && state == null) continue;
 			
-			JsonNode identifierValue = c.get("id");
+			final JsonNode identifierValue = c.get("id");
 			if (identifierValue == null || ! identifierValue.isInt()) continue;
 			
 			if (oldState == null || ! oldState.equals(state)) {
@@ -148,20 +148,20 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 
 	private void applyLabels(Study study) {
 
-		Set<String> attributeNames = getAttributeNames(study);
-		List<StateRule> rules = getStateRules(study);
+		final Set<String> attributeNames = getAttributeNames(study);
+		final List<StateRule> rules = getStateRules(study);
 		
-		StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
-		List<Attributes> filtered = getStudyFilteredAttributes(study, attributeNames);
-		List<ObjectNode> cases = getRepository().getCaseData(query, filtered);
+		final StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
+		final List<Attributes> filtered = getStudyFilteredAttributes(study, attributeNames);
+		final List<ObjectNode> cases = getRepository().getCaseData(query, filtered);
 		
 		applyLabelsToCases(study, cases, rules);
 	}
 	
 	private void applyCaseLabelRules(Study study, ObjectNode parameters) {
 		
-		Set<String> attributeNames = getAttributeNames(study);
-		List<StateRule> rules = getStateRules(study);
+		final Set<String> attributeNames = getAttributeNames(study);
+		final List<StateRule> rules = getStateRules(study);
 
 		// The rules are as follows: if we've changed anything in the rule
 		// attributes, we should reapply the rules to the case, and then if 
@@ -169,7 +169,7 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 		//
 		// Optimization: skip if the attribute isn't relevant
 		
-		String attribute = parameters.get("field").asText();
+		final String attribute = parameters.get("field").asText();
 		if (! attributeNames.contains(attribute)) return;
 		
 		// So now we are in a position to apply the rules. Start assuming 
@@ -177,8 +177,8 @@ public class StateLabelPlugin extends AbstractRepositoryPlugin implements EventH
 		
 		StudyCaseQuery query = getRepository().newStudyCaseQuery(study);
 		query = getRepository().addStudyCaseSelector(query, parameters.get("case_id").asInt());
-		List<Attributes> filtered = getStudyFilteredAttributes(study, attributeNames);
-		List<ObjectNode> cases = getRepository().getCaseData(query, filtered);
+		final List<Attributes> filtered = getStudyFilteredAttributes(study, attributeNames);
+		final List<ObjectNode> cases = getRepository().getCaseData(query, filtered);
 		
 		applyLabelsToCases(study, cases, rules);
 	}

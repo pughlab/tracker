@@ -22,9 +22,9 @@ public class CasePagerExtractor extends Extractor {
 		extractFromQuery("limit", "limit", true);
 		super.beforeHandle(request, response);
 		
-		CasePager pager = new CasePager();
+		final CasePager pager = new CasePager();
 		
-		Map<String, Object> attributes = request.getAttributes();
+		final Map<String, Object> attributes = request.getAttributes();
 		if (attributes.containsKey("offset")) {
 			pager.setOffset(new Integer((String) attributes.get("offset")));
 		}

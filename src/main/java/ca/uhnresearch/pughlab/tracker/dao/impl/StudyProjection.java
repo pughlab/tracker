@@ -25,20 +25,20 @@ public class StudyProjection extends MappingProjection<Study> {
 	}
 
 	/**
-	 * Generated ID
+	 * Generated ID.
 	 */
 	private static final long serialVersionUID = -1039933824645084039L;
 
 	@Override
 	protected Study map(Tuple tuple) {
-		Study product = new Study();
+		final Study product = new Study();
 
         product.setId(tuple.get(studies.id));
         product.setName(tuple.get(studies.name));
         product.setDescription(tuple.get(studies.description));
         product.setAbout(tuple.get(studies.about));
         
-        String options = tuple.get(studies.options);
+        final String options = tuple.get(studies.options);
 		if (options != null) {
 			try {
 				product.setOptions(mapper.readValue(options, ObjectNode.class));

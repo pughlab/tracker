@@ -39,11 +39,11 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 
 	private Representation getFormatted(Writer writer, String filename) {
 		logger.info("Writing data to {}", filename);
-		ViewDataResponse response = new ViewDataResponse();
+		final ViewDataResponse response = new ViewDataResponse();
 		buildResponseDTO(response);
-		Document xmlDocument = writer.getXMLDocument(response);
-		Representation result = new DomRepresentation(MediaType.APPLICATION_EXCEL, xmlDocument);
-		Disposition disposition = new Disposition();
+		final Document xmlDocument = writer.getXMLDocument(response);
+		final Representation result = new DomRepresentation(MediaType.APPLICATION_EXCEL, xmlDocument);
+		final Disposition disposition = new Disposition();
 		disposition.setFilename(filename);
 		disposition.setType(Disposition.TYPE_ATTACHMENT);
 		result.setDisposition(disposition);
@@ -52,7 +52,7 @@ public class ViewDataResource extends StudyRepositoryResource<ViewDataResponse> 
 
 	@Get("json")
     public Representation getResource()  {
-		ViewDataResponse response = new ViewDataResponse();
+		final ViewDataResponse response = new ViewDataResponse();
 		buildResponseDTO(response);
         return new JacksonRepresentation<ViewDataResponse>(response);
     }

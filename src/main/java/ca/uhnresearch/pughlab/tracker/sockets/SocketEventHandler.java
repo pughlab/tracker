@@ -24,24 +24,41 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * application. 
  */
 public class SocketEventHandler implements EventHandler {
+	
+	/**
+	 * A logger.
+	 */
 	private final Logger logger = LoggerFactory.getLogger(SocketEventHandler.class);
 
+	/**
+	 * A resource table, keyed by UUID.
+	 */
 	private Map<String, AtmosphereResource> resources = new HashMap<String, AtmosphereResource>();
 	
+	/**
+	 * A list of watchers associated with each scope.
+	 */
 	private Map<String, List<String>> watcherListByScope = new HashMap<String, List<String>>();
+	
+	/**
+	 * Association between UUIDs and scopes.
+	 */
 	private Map<String, String> scopeByWatcher = new HashMap<String, String>();
 	
+	/**
+	 * An mapper to JSON.
+	 */
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	/**
 	 * Sends a message to a connected resource. This includes rendering the message to JSON and
 	 * sending it to the connected resource.
-	 * @param event
-	 * @param r
+	 * @param event the event
+	 * @param r the resource
 	 */
 	public void sendMessage(Event event, AtmosphereResource r) {
         try {
-        	String messageBody = mapper.writeValueAsString(event);
+        	final String messageBody = mapper.writeValueAsString(event);
         	logger.debug("Sending to: {}, {}", r.uuid(), messageBody);
         	// Sends to just this one resource -- correct for a welcome event
         	r.write(messageBody);
@@ -52,12 +69,16 @@ public class SocketEventHandler implements EventHandler {
 		}
 	}
 	
+	/**
+	 * Removes a UUID and its association with all scopes.
+	 * @param uuid the UUID
+	 */
 	private void removeScopeUuid(String uuid) {
-		String scope = scopeByWatcher.get(uuid);
+		final String scope = scopeByWatcher.get(uuid);
 		if (scope != null) {
 			logger.info("Found scope being watched: {}", scope);
 			
-			List<String> watchers = watcherListByScope.get(scope);
+			final List<String> watchers = watcherListByScope.get(scope);
 			if (! watchers.remove(uuid)) {
 				throw new RuntimeException("Failed to remove watcher: " + uuid);
 			}
@@ -66,11 +87,21 @@ public class SocketEventHandler implements EventHandler {
 		}
 	}
 	
+	/**
+	 * Removes a current scope and UUID.
+	 * @param uuid the UUID
+	 */
 	private void removeScopeAndResourceUuid(String uuid) {
 		removeScopeUuid(uuid);
 		resources.remove(uuid);
 	}
 	
+	/**
+	 * Checks a resource and throws a {@link SocketException} if it isn't sound.
+	 * @param uuid the UUID
+	 * @param r the resource
+	 * @throws SocketException
+	 */
 	private void checkResource(String uuid, AtmosphereResource r) throws SocketException {
 		if (r == null) {
 			removeScopeAndResourceUuid(uuid);
@@ -84,6 +115,7 @@ public class SocketEventHandler implements EventHandler {
 	
 	/**
 	 * Sends a message to all connected resources with a given scope.
+	 * @param event the event
 	 */
 	public void sendMessage(Event event) {
 		if (event.getScope() == null) {
@@ -91,11 +123,11 @@ public class SocketEventHandler implements EventHandler {
 		}
 		
 		logger.debug("Sending message to everyone watching: {}", event.getScope());
-		List<String> resourceKeys = watcherListByScope.get(event.getScope());
+		final List<String> resourceKeys = watcherListByScope.get(event.getScope());
 		if (resourceKeys != null) {
 			for (String uuid : new ArrayList<String>(resourceKeys)) {
 				try {
-					AtmosphereResource r = resources.get(uuid);
+					final AtmosphereResource r = resources.get(uuid);
 					logger.debug("Checking: " + uuid + ", " + r);
 					checkResource(uuid, r);
 					sendMessage(event, r);
@@ -108,11 +140,11 @@ public class SocketEventHandler implements EventHandler {
 	
 	/**
 	 * Handles an event from a connected resource. 
-	 * @param message
-	 * @param r
+	 * @param message the event
+	 * @param r the resource
 	 */
 	public void receivedMessage(Event message, AtmosphereResource r) {
-        Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
+		final Subject subject = (Subject) r.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
         try {
 			logger.debug("{} just sent {}", subject.getPrincipals().getPrimaryPrincipal(), mapper.writeValueAsString(message));
 		} catch (JsonProcessingException e) {
@@ -122,8 +154,8 @@ public class SocketEventHandler implements EventHandler {
         
         if (message.getType().equals(Event.EVENT_JOIN)) {
         	// We're joining a study, add that to our associations
-        	String resourceKey = r.uuid();
-        	String scope = message.getScope();
+        	final String resourceKey = r.uuid();
+        	final String scope = message.getScope();
         	
         	// If we're already watching a scope, we should remove all the scope watching.
         	
@@ -136,23 +168,23 @@ public class SocketEventHandler implements EventHandler {
         		// Before we record this user, tell everyone else someone new has connected
         		
         		logger.debug("Sending to scope watchers");
-        		Event event = new Event(Event.EVENT_USER_CONNECTED, scope);
+        		final Event event = new Event(Event.EVENT_USER_CONNECTED, scope);
         		event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
         		sendMessage(event);
         		
         		// And now, before we add the new user, we need to tell them about everyone
         		// else. 
-        		List<String> resourceKeys = watcherListByScope.get(scope);
+        		final List<String> resourceKeys = watcherListByScope.get(scope);
         		logger.debug("Existing: {}", resourceKeys);
         		if (resourceKeys != null) {
         			for (String uuid : resourceKeys) {
         				try {
-        					AtmosphereResource other = resources.get(uuid);
+        					final AtmosphereResource other = resources.get(uuid);
         					checkResource(uuid, other);
 
 	                		// Get the other user
-	                		Subject otherSubject = (Subject) other.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-	                		String otherUser = otherSubject.getPrincipals().getPrimaryPrincipal().toString();
+        					final Subject otherSubject = (Subject) other.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
+        					final String otherUser = otherSubject.getPrincipals().getPrimaryPrincipal().toString();
 	                		event.getData().setUser(otherUser);
 	                		sendMessage(event, r);
         				} catch (SocketException e) {
@@ -172,10 +204,10 @@ public class SocketEventHandler implements EventHandler {
 	 * notify when we get an event. Messages can be sent to a single AtmosphereResource
 	 * (with a UUID) or to all of them. 
 	 * 
-	 * @param resource
+	 * @param resource the resource
 	 */
 	public void registerAtmosphereResource(AtmosphereResource resource) {
-		String uuid = resource.uuid();
+		final String uuid = resource.uuid();
 		if (uuid == null) {
 			throw new IllegalArgumentException("Can't register a resource without a UUID");
 		}
@@ -186,17 +218,17 @@ public class SocketEventHandler implements EventHandler {
 	
 	/**
 	 * Removes a registered UUID and AtmosphereResource association.
-	 * @param resource
+	 * @param resource the resource
 	 */
 	public void unregisterAtmosphereResource(AtmosphereResource resource) {
-		String uuid = resource.uuid();
+		final String uuid = resource.uuid();
 		if (uuid == null) {
 			throw new IllegalArgumentException("Can't register a resource without a UUID");
 		}
 
 		logger.debug("Unregistering AtmosphereResource: {}", uuid);
 		
-		String scope = scopeByWatcher.get(uuid);
+		final String scope = scopeByWatcher.get(uuid);
 		removeScopeAndResourceUuid(uuid);
 		
 		logger.debug("After removal: registered resources");
@@ -206,8 +238,8 @@ public class SocketEventHandler implements EventHandler {
 		
 		// And after we have disconnected, tell everyone else we are gone.
 		if (scope != null) {
-	        Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
-			Event event = new Event(Event.EVENT_USER_DISCONNECTED, scope);
+			final Subject subject = (Subject) resource.getRequest().getAttribute(FrameworkConfig.SECURITY_SUBJECT);
+			final Event event = new Event(Event.EVENT_USER_DISCONNECTED, scope);
 			event.getData().setUser(subject.getPrincipals().getPrimaryPrincipal().toString());
 			sendMessage(event);
 		}

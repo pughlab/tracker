@@ -20,7 +20,7 @@ public class ViewMapper extends AbstractMapper<View> {
 
 	@Override
     public Map<Path<?>, Object> createMap(RelationalPath<?> entity, View bean) {
-        Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
+		final Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
         values.put(views.id, bean.getId());
         values.put(views.studyId, bean.getStudyId());
         values.put(views.name, bean.getName());
@@ -28,7 +28,7 @@ public class ViewMapper extends AbstractMapper<View> {
         values.put(views.body, bean.getBody());
         
         try {
-        	JsonNode options = bean.getOptions();
+        	final JsonNode options = bean.getOptions();
         	if (options != null)
         		values.put(views.options, mapper.writeValueAsString(options));
 		} catch (JsonProcessingException e) {

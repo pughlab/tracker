@@ -20,11 +20,10 @@ public class JdbcAuthorizingRealm extends JdbcRealm {
 	 */
 	@Override
     protected Object getAvailablePrincipal(PrincipalCollection principals) {
-        Object primary = null;
         if (!CollectionUtils.isEmpty(principals)) {
         	return principals.getPrimaryPrincipal().toString();
         }
-        return primary;
+        return null;
     }
 
 	/**

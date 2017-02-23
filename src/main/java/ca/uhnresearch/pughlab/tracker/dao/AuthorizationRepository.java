@@ -17,7 +17,7 @@ import ca.uhnresearch.pughlab.tracker.dto.User;
 public interface AuthorizationRepository {
 
 	/**
-	 * Retrieves the number of matching roles in the repository
+	 * Retrieves the number of matching roles in the repository.
 	 * @param study study
 	 * @param pager a pager
 	 * @return number of roles
@@ -25,7 +25,7 @@ public interface AuthorizationRepository {
 	Long getStudyRoleCount(Study study, CasePager pager);
 
 	/**
-	 * Retrieves all the roles from the repository for a given study
+	 * Retrieves all the roles from the repository for a given study.
 	 * @param study study
 	 * @param pager a pager
 	 * @return a list of roles
@@ -70,6 +70,7 @@ public interface AuthorizationRepository {
 	/**
 	 * Retrieves a user by username.
 	 * @param username username
+	 * @return the user
 	 * @throws RepositoryException if a repository exception occurred
 	 */
 	User getUserByUsername(String username) throws RepositoryException;

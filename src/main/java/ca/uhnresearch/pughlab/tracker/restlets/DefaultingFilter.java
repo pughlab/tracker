@@ -25,7 +25,7 @@ public class DefaultingFilter extends Filter {
 		int result = super.doHandle(request, response);
 		if (response.getStatus().equals(Status.CLIENT_ERROR_NOT_FOUND)) {
 			
-			String path = request.getResourceRef().getPath();
+			final String path = request.getResourceRef().getPath();
 
 			if (! getDefaultPath().equals(path)) {
 				response.setStatus(Status.SUCCESS_OK);

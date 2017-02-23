@@ -69,16 +69,16 @@ angular
         $timeout highlightOn, 100
 
 
-  .factory 'deleteCase', Array '$http', '$timeout', 'removeTableRecord', ($http, $timeout, removeTableRecord) ->
+  .factory 'deleteCase', Array '$http', '$timeout', '$log', 'removeTableRecord', ($http, $timeout, $log, removeTableRecord) ->
     return (scope, handsonTable, entityIdentifier) ->
       $http
         .delete scope.getStudyUrl(scope) + "/entities/#{entityIdentifier}", {}
         .success (response) ->
           ## If we get here, we should remove the row.
-          console.log "Got delete response", response
+          $log.debug "Got delete response", response
           removeTableRecord scope, handsonTable, entityIdentifier
         .error (response) ->
-          console.log "Got delete error response", response
+          $log.error "Got delete error response", response
 
 
   .factory 'removeTableRecord', () ->
@@ -142,11 +142,11 @@ angular
           highlightElement rowElement, editingClasses
 
 
-  .factory 'handleStateCell', () ->
+  .factory 'handleStateCell', Array '$log', ($log) ->
     return (scope, handsonTable, entityIdentifier, state, editingClasses) ->
-      console.log "Calling handleStateCell", entityIdentifier
+      $log.debug "Calling handleStateCell", entityIdentifier
       rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
-      console.log "Current rowIndex", rowIndex
+      $log.debug "Current rowIndex", rowIndex
       return if !rowIndex
 
       for entry, i in handsonTable.sortIndex
@@ -160,14 +160,14 @@ angular
       handsonTable.setDataAtRowProp(rowIndex, '$state', state, 'socketEvent')
 
 
-  .factory 'editTableCell', Array '$timeout', 'highlightElement', '$http', ($timeout, highlightElement, $http) ->
+  .factory 'editTableCell', Array '$timeout', '$log', 'highlightElement', '$http', ($timeout, $log, highlightElement, $http) ->
     return (scope, handsonTable, entityIdentifier, field, editingClasses) ->
       $http
         .get scope.getStudyUrl(scope) + "/entities/#{entityIdentifier}", {}
         .success (response) ->
           columnIndex = handsonTable.trackerAttributeColumnTable[field]
           rowIndex = handsonTable.trackerEntityRowTable[entityIdentifier]
-          console.log 'columnIndex', columnIndex, 'rowIndex', rowIndex
+          $log.debug 'columnIndex', columnIndex, 'rowIndex', rowIndex
           return if !columnIndex or !rowIndex
 
           value = response.entity[field]
@@ -188,7 +188,7 @@ angular
             highlightElement cellElement, editingClasses
 
         .error (response) ->
-          console.log "Error", response
+          $log.error "Error", response
 
 
 

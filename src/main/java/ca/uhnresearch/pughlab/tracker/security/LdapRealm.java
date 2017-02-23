@@ -41,7 +41,7 @@ public class LdapRealm extends AuthenticatingRealm {
     Collection<LdapContext> ldapContexts = new ArrayList<LdapContext>();
     
     private Collection<LdapContext> getLdapContextsForToken(AuthenticationToken token) {
-    	Collection<LdapContext> result = new ArrayList<LdapContext>();
+    	final Collection<LdapContext> result = new ArrayList<LdapContext>();
     	for(LdapContext context : getLdapContexts()) {
     		if (context.canAuthenticate(token, this)) {
     			result.add(context);
@@ -71,7 +71,7 @@ public class LdapRealm extends AuthenticatingRealm {
 		
 		if (token instanceof UsernamePasswordToken) {
 			log.debug("Attempting to authenticate: {}", token);
-			Collection<LdapContext> contexts = getLdapContextsForToken(token);
+			final Collection<LdapContext> contexts = getLdapContextsForToken(token);
 			return queryContexts(token, contexts);
 		} else {
 			throw new AuthenticationException("Invalid token type: " + token.toString());

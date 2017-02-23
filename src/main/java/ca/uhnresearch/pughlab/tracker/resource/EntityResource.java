@@ -27,32 +27,32 @@ import ca.uhnresearch.pughlab.tracker.dto.View;
 public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 	
 	/**
-	 * A logger
+	 * A logger.
 	 */
 	private final Logger logger = LoggerFactory.getLogger(EntityResource.class);
 	
     @Get("json")
     public Representation getResource() {
-    	EntityResponse response = new EntityResponse();
+    	final EntityResponse response = new EntityResponse();
     	buildResponseDTO(response);
         return new JacksonRepresentation<EntityResponse>(response);
     }
 
 	@Delete()
 	public void deleteResource()  {
-		Subject currentUser = SecurityUtils.getSubject();
+		final Subject currentUser = SecurityUtils.getSubject();
 		
-		Request request = getRequest();
-    	Study study = RequestAttributes.getRequestStudy(request);
-    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(request);
+		final Request request = getRequest();
+		final Study study = RequestAttributes.getRequestStudy(request);
+		final StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(request);
 
-    	Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete");
+		final Boolean deletePermitted = currentUser.isPermitted(study.getName() + ":delete");
     	if (! deletePermitted) {
     		throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN, "No delete permission for this resource");
     	}
 
-		PrincipalCollection principals = currentUser.getPrincipals();
-		String user = principals.getPrimaryPrincipal().toString();
+    	final PrincipalCollection principals = currentUser.getPrincipals();
+    	final String user = principals.getPrimaryPrincipal().toString();
 
     	try {
 			getRepository().deleteCases(query, user);
@@ -69,11 +69,11 @@ public class EntityResource extends StudyRepositoryResource<EntityResponse> {
 		
     	logger.debug("Called getResource() in EntityResource");
 
-    	Study study = RequestAttributes.getRequestStudy(getRequest());
-    	View view = RequestAttributes.getRequestView(getRequest());
-    	StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
+    	final Study study = RequestAttributes.getRequestStudy(getRequest());
+    	final View view = RequestAttributes.getRequestView(getRequest());
+    	final StudyCaseQuery query = RequestAttributes.getRequestCaseQuery(getRequest());
     	
-        List<ObjectNode> cases = getRepository().getCaseData(query, view);
+    	final List<ObjectNode> cases = getRepository().getCaseData(query, view);
         if (cases.isEmpty()) {
     		throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     	}

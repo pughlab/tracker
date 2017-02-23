@@ -28,13 +28,13 @@ public class ViewAttributeMapper extends AbstractMapper<ViewAttributes> {
 	@Override
 	public Map<Path<?>, Object> createMap(RelationalPath<?> path, ViewAttributes bean) {
         
-		Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
+		final Map<Path<?>, Object> values = new HashMap<Path<?>, Object>();
         values.put(viewAttributes.attributeId, bean.getId());
         values.put(viewAttributes.viewId, view.getId());
         values.put(viewAttributes.rank, bean.getRank());
         
         try {
-        	JsonNode options = bean.getViewOptions();
+        	final JsonNode options = bean.getViewOptions();
         	if (options != null)
         		values.put(viewAttributes.options, mapper.writeValueAsString(options));
 		} catch (JsonProcessingException e) {
