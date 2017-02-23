@@ -81,13 +81,13 @@ public class DomainLdapContext implements LdapContext {
 		return pool;
 	}
 	
-	private AuthenticationInfo queryInternal(String username, char[] password, Realm realm) throws LdapException, Exception {
+	private AuthenticationInfo queryInternal(String username, String bindUsername, char[] password, Realm realm) throws LdapException, Exception {
 		final LdapConnectionPool pool = getConnectionPool();
 		final LdapConnection connection = pool.getConnection();
 		AuthenticationInfo info = null;
 		
 		final BindRequest bindRequest=new BindRequestImpl();
-		bindRequest.setName(username);
+		bindRequest.setName(bindUsername);
 		bindRequest.setCredentials((new String(password)).getBytes());
 		
 		final BindResponse response = connection.bind(bindRequest);
@@ -110,8 +110,8 @@ public class DomainLdapContext implements LdapContext {
 		if (cursor.next()) {
 			final Entry entry = cursor.get();
 			log.debug("Found LDAP entry: " + entry.toString());
-			final LdapProfile profile = getLdapProfile(username, entry);
-			final List<? extends Object> principals = Arrays.asList(username, profile);
+			final LdapProfile profile = getLdapProfile(bindUsername, entry);
+			final List<? extends Object> principals = Arrays.asList(bindUsername, profile);
 	        final PrincipalCollection principalCollection = new SimplePrincipalCollection(principals, realm.getName());
 	        info = new SimpleAuthenticationInfo(principalCollection, password);
 		}
@@ -178,18 +178,17 @@ public class DomainLdapContext implements LdapContext {
 		}
 		
 		final UsernamePasswordToken userToken = (UsernamePasswordToken) token;
-	    String username = userToken.getUsername();
+	    String tokenUsername = userToken.getUsername();
 	    final char[] password = userToken.getPassword();
 	    
-	    final String[] parts = username.split("@");
-        if (parts.length == 1) {
-        	username = username + "@" + domain;
-        }
+	    final String[] parts = tokenUsername.split("@");
+	    String username = parts[0];
+	    String bindUsername = username + "@" + domain;
 	    
-        log.debug("Authenticating user '{}' through LDAP", username);
+        log.debug("Authenticating user '{}', '{}' through LDAP", username, bindUsername);
         
         try {
-			return queryInternal(username, password, realm);	
+			return queryInternal(username, bindUsername, password, realm);	
 		} catch (Exception e) {
 			throw new AuthenticationException(e);
 		}
