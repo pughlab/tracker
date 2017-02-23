@@ -1,6 +1,11 @@
 ## Revision history
 
 
+### Version 2.2.8 - 22nd February 2017
+
+ * Modified LDAP authentication to use the original username in queries. 
+
+
 ### Version 2.2.7 - 9th December 2016
 
  * Fix logging to remove confidential data even from the browser.
