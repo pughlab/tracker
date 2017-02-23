@@ -144,7 +144,7 @@ public class DomainLdapContextTest {
 		LdapConnection connection = createMock(LdapConnection.class);
 		expect(connection.bind(anyObject(BindRequest.class))).andStubReturn(bindResponse);
 		expect(connection.isAuthenticated()).andStubReturn(true);
-		expect(connection.search("OU=People,DC=example,DC=com", "(userPrincipalName=stuart@example.com)", SearchScope.SUBTREE)).andStubReturn(cursor);
+		expect(connection.search("OU=People,DC=example,DC=com", "(userPrincipalName=stuart)", SearchScope.SUBTREE)).andStubReturn(cursor);
 		replay(connection);
 		
 		LdapConnectionPool pool = createMock(LdapConnectionPool.class);
