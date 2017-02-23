@@ -1,6 +1,6 @@
 {
   "name": "tracker",
-  "version": "2.2.7",
+  "version": "2.2.8",
   "description": "A generic tracking system designed for easy and secure data recording within large distributed research projects.",
   "private": true,
   "scripts": {
